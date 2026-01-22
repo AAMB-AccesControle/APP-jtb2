@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AAMB</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        header h1 {
+            color: #2c5f2d;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .button-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .button-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .button-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .button-content {
+            flex: 1;
+        }
+        
+        .button-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .button-subtitle {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .page-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .page-overlay.active {
+            display: block;
+        }
+        
+        .page-header {
+            background: #2c5f2d;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .page-header h2 {
+            font-size: 20px;
+        }
+        
+        .page-content {
+            padding: 20px;
+        }
+        
+        .flash-control {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .flash-button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
+            color: white;
+            font-size: 60px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(44, 95, 45, 0.3);
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .flash-button:active {
+            transform: scale(0.95);
+        }
+        
+        .flash-button.active {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        }
+        
+        .flash-status {
+            font-size: 18px;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        .qrcode-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #qrcode {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .data-row {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-row:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .data-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        #camera-stream {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="logo-aamb.png" alt="AAMB">
+        </div>
+        <h1>AAMB</h1>
+        <p>Menu principal</p>
+    </header>
+
+    <div class="container">
+        <div class="button-card" onclick="toggleFlash()">
+            <div class="button-icon">💡</div>
+            <div class="button-content">
+                <div class="button-title">Flash/Lampe</div>
+                <div class="button-subtitle">Allumer ou éteindre le flash</div>
+            </div>
+        </div>
+
+        <div class="button-card" onclick="showDataPage()">
+            <div class="button-icon">📊</div>
+            <div class="button-content">
+                <div class="button-title">Données Google Sheets</div>
+                <div class="button-subtitle">Afficher les informations</div>
+            </div>
+        </div>
+
+        <div class="button-card" onclick="showQRCode()">
+            <div class="button-icon">📱</div>
+            <div class="button-content">
+                <div class="button-title">Mon QR Code</div>
+                <div class="button-subtitle">Afficher votre QR code</div>
+            </div>
+        </div>
+
+        <div class="button-card" onclick="openWebsite()">
+            <div class="button-icon">🌐</div>
+            <div class="button-content">
+                <div class="button-title">Site Internet</div>
+                <div class="button-subtitle">Ouvrir le site web</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Flash -->
+    <div id="flashPage" class="page-overlay">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage('flashPage')">←</button>
+            <h2>Flash / Lampe</h2>
+        </div>
+        <div class="page-content flash-control">
+            <button id="flashBtn" class="flash-button" onclick="toggleFlashBtn()">💡</button>
+            <div class="flash-status" id="flashStatus">Flash éteint</div>
+            <video id="camera-stream" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <!-- Page Données -->
+    <div id="dataPage" class="page-overlay">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage('dataPage')">←</button>
+            <h2>Données Google Sheets</h2>
+        </div>
+        <div class="page-content">
+            <div id="dataContent" class="data-table">
+                <div class="data-row">
+                    <div class="data-label">Information 1</div>
+                    <div class="data-value">Exemple de données</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Information 2</div>
+                    <div class="data-value">À remplacer par Google Sheets</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Information 3</div>
+                    <div class="data-value">Connectez votre feuille</div>
+                </div>
+            </div>
+            <p style="margin-top: 15px; color: #666; font-size: 14px; text-align: center;">
+                💡 Modifiez le code pour charger vos vraies données
+            </p>
+        </div>
+    </div>
+
+    <!-- Page QR Code -->
+    <div id="qrcodePage" class="page-overlay">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage('qrcodePage')">←</button>
+            <h2>Mon QR Code</h2>
+        </div>
+        <div class="page-content qrcode-container">
+            <div id="qrcode"></div>
+            <p style="margin-top: 20px; color: #666;">
+                Scannez ce QR code pour partager vos informations
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        let stream = null;
+        let track = null;
+        let flashOn = false;
+
+        // === FLASH ===
+        function toggleFlash() {
+            document.getElementById('flashPage').classList.add('active');
+        }
+
+        async function toggleFlashBtn() {
+            const btn = document.getElementById('flashBtn');
+            const status = document.getElementById('flashStatus');
+            const video = document.getElementById('camera-stream');
+
+            try {
+                if (!stream) {
+                    // Démarrer la caméra avec le flash
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    track = stream.getVideoTracks()[0];
+                }
+
+                const capabilities = track.getCapabilities();
+                if (!capabilities.torch) {
+                    alert('Votre appareil ne supporte pas le contrôle du flash');
+                    return;
+                }
+
+                flashOn = !flashOn;
+                await track.applyConstraints({
+                    advanced: [{ torch: flashOn }]
+                });
+
+                if (flashOn) {
+                    btn.classList.add('active');
+                    status.textContent = 'Flash allumé';
+                } else {
+                    btn.classList.remove('active');
+                    status.textContent = 'Flash éteint';
+                }
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // === DONNÉES GOOGLE SHEETS ===
+        function showDataPage() {
+            document.getElementById('dataPage').classList.add('active');
+            // TODO: Charger les vraies données depuis Google Sheets
+            // Exemple de code à ajouter plus tard :
+            // loadGoogleSheetData();
+        }
+
+        // Fonction exemple pour charger Google Sheets (à personnaliser)
+        async function loadGoogleSheetData() {
+            // const SHEET_URL = 'VOTRE_URL_ICI';
+            // const response = await fetch(SHEET_URL);
+            // const data = await response.json();
+            // Afficher les données...
+        }
+
+        // === QR CODE ===
+        let qrcodeGenerated = false;
+        function showQRCode() {
+            document.getElementById('qrcodePage').classList.add('active');
+            
+            if (!qrcodeGenerated) {
+                const qrcodeDiv = document.getElementById('qrcode');
+                qrcodeDiv.innerHTML = '';
+                new QRCode(qrcodeDiv, {
+                    text: 'https://votre-site.fr/membre/12345',
+                    width: 250,
+                    height: 250,
+                    colorDark: '#2c5f2d',
+                    colorLight: '#ffffff',
+                });
+                qrcodeGenerated = true;
+            }
+        }
+
+        // === SITE INTERNET ===
+        function openWebsite() {
+            // Remplacez par votre vraie URL
+            window.open('https://www.exemple.fr', '_blank');
+        }
+
+        // === FERMER PAGES ===
+        function closePage(pageId) {
+            document.getElementById(pageId).classList.remove('active');
+            
+            // Arrêter la caméra si on ferme la page flash
+            if (pageId === 'flashPage' && stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                track = null;
+                flashOn = false;
+                document.getElementById('flashBtn').classList.remove('active');
+                document.getElementById('flashStatus').textContent = 'Flash éteint';
+                document.getElementById('camera-stream').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
