@@ -2,7 +2,7 @@
   "name": "AAMB",
   "short_name": "AAMB",
   "description": "Application AAMB",
-  "start_url": "app.html",
+  "start_url": "https://www.aamb.asso.fr/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
@@ -21,4 +21,5 @@
       "purpose": "any maskable"
     }
   ]
+
 }
