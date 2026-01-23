@@ -1,9 +1,8 @@
-// Ce code permet à l'application de fonctionner même hors-ligne
-self.addEventListener('install', (e) => {
-  console.log('Service Worker installé');
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  // Nécessaire pour valider la PWA
-  e.respondWith(fetch(e.request));
+self.addEventListener('fetch', (event) => {
+    // Permet au navigateur de charger le site distant
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
 });
