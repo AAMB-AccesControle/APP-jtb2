@@ -1,10 +1,11 @@
-const CACHE_NAME = 'aamb-cache-v1';
+const CACHE_NAME = 'aamb-v2';
 
 self.addEventListener('install', (event) => {
-  console.log('SW: Installé');
+    self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Nécessaire pour que le navigateur considère l'app comme PWA
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
 });
