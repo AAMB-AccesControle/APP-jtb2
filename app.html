@@ -244,6 +244,7 @@
             <h2>Programme JTB 2025</h2>
         </div>
         <div class="page-content" style="padding:10px;">
+            <p style="text-align:center; color:#666; font-size:13px; margin-bottom:10px;">43èmes JTB 2026 — Metz-Briey</p>
 
             <!-- Sélecteur de jour -->
             <div style="display:flex; gap:8px; margin-bottom:15px; overflow-x:auto; padding-bottom:5px;">
@@ -528,6 +529,36 @@
             border-left: 1px solid #c5d8f5;
         }
         .atelier strong { font-size: 13px; }
+
+        /* Surbrillance créneau en cours */
+        .prog-slot.en-cours .prog-heure {
+            background: #ff6f00;
+            animation: pulse-heure 1.5s infinite;
+        }
+        .prog-slot.en-cours .prog-conf {
+            background: #fff3b0;
+            border-left: 4px solid #ff6f00;
+            font-weight: bold;
+        }
+        .prog-slot.en-cours .atelier {
+            background: #fff3b0;
+            border-left: 4px solid #ff6f00;
+        }
+        .prog-slot.en-cours::before {
+            content: '🔴 EN COURS';
+            display: block;
+            background: #ff6f00;
+            color: white;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px;
+            letter-spacing: 1px;
+        }
+        @keyframes pulse-heure {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -548,12 +579,110 @@
             }
         }
 
-        function afficherJour(jour) {
+        // Données horaires pour la surbrillance
+        const horaires = {
+            'mardi': [
+                { heure: '13:00', fin: '13:45', slot: 0 },
+                { heure: '14:00', fin: '14:15', slot: 1 },
+                { heure: '14:15', fin: '15:00', slot: 2 },
+                { heure: '15:05', fin: '15:50', slot: 3 },
+                { heure: '15:50', fin: '16:10', slot: 4 },
+                { heure: '16:15', fin: '17:00', slot: 5 },
+                { heure: '17:15', fin: '18:30', slot: 6 },
+            ],
+            'mercredi': [
+                { heure: '08:30', fin: '09:15', slot: 0 },
+                { heure: '09:20', fin: '10:05', slot: 1 },
+                { heure: '10:05', fin: '11:00', slot: 2 },
+                { heure: '11:00', fin: '12:00', slot: 3 },
+                { heure: '13:45', fin: '14:30', slot: 4 },
+                { heure: '14:35', fin: '15:20', slot: 5 },
+                { heure: '15:20', fin: '16:20', slot: 6 },
+                { heure: '16:20', fin: '17:05', slot: 7 },
+                { heure: '19:00', fin: '23:00', slot: 8 },
+            ],
+            'jeudi': [
+                { heure: '08:30', fin: '09:15', slot: 0 },
+                { heure: '09:20', fin: '10:05', slot: 1 },
+                { heure: '10:05', fin: '11:00', slot: 2 },
+                { heure: '11:00', fin: '11:45', slot: 3 },
+                { heure: '13:45', fin: '14:30', slot: 4 },
+                { heure: '14:35', fin: '15:20', slot: 5 },
+                { heure: '15:20', fin: '16:20', slot: 6 },
+                { heure: '16:20', fin: '17:05', slot: 7 },
+                { heure: '19:00', fin: '01:00', slot: 8 },
+            ],
+            'vendredi': [
+                { heure: '08:30', fin: '09:15', slot: 0 },
+                { heure: '09:20', fin: '10:05', slot: 1 },
+                { heure: '10:00', fin: '12:00', slot: 2 },
+            ]
+        };
+
+        const joursDates = {
+            'mardi':    '2026-06-23',
+            'mercredi': '2026-06-24',
+            'jeudi':    '2026-06-25',
+            'vendredi': '2026-06-26'
+        };
+
+        function surbrillanceEnCours() {
+            const maintenant = new Date();
+            const dateAujourd = maintenant.toISOString().split('T')[0];
+
+            // Trouver le jour correspondant à aujourd'hui
+            let jourActuel = null;
+            for (const [jour, date] of Object.entries(joursDates)) {
+                if (date === dateAujourd) { jourActuel = jour; break; }
+            }
+
+            // Retirer toutes les surbrillances existantes
+            document.querySelectorAll('.prog-slot').forEach(s => {
+                s.classList.remove('en-cours');
+            });
+
+            if (!jourActuel) return;
+
+            const heureNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+            const slots = horaires[jourActuel];
+
+            slots.forEach(({ heure, fin, slot }) => {
+                const [hD, mD] = heure.split(':').map(Number);
+                let [hF, mF] = fin.split(':').map(Number);
+                const debut = hD * 60 + mD;
+                let finMin = hF * 60 + mF;
+                if (finMin < debut) finMin += 24 * 60; // minuit
+
+                if (heureNow >= debut && heureNow < finMin) {
+                    const jourDiv = document.getElementById('jour-' + jourActuel);
+                    const slots_div = jourDiv.querySelectorAll('.prog-slot');
+                    if (slots_div[slot]) {
+                        slots_div[slot].classList.add('en-cours');
+                        // Afficher automatiquement le bon jour
+                        afficherJour(jourActuel, true);
+                        // Scroller vers le slot en cours
+                        setTimeout(() => {
+                            slots_div[slot].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                    }
+                }
+            });
+        }
+
+        function afficherJour(jour, silent = false) {
             document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
             document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('jour-' + jour).style.display = 'block';
-            event.target.classList.add('active');
+            const btn = document.querySelector(`[onclick="afficherJour('${jour}')"]`);
+            if (btn) btn.classList.add('active');
+            if (!silent) surbrillanceEnCours();
         }
+
+        // Lancer la surbrillance à l'ouverture de la page programme
+        document.getElementById('programmePage').addEventListener('transitionend', surbrillanceEnCours);
+
+        // Vérifier toutes les minutes
+        setInterval(surbrillanceEnCours, 60000);
 
         function closePage(id) {
             document.getElementById(id).classList.remove('active');
