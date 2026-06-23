@@ -643,14 +643,15 @@
                 if (date === dateAujourd) { jourActuel = jour; break; }
             }
 
-            // Afficher le bon jour par défaut
-            if (jourActuel) {
-                afficherJour(jourActuel);
-            } else {
-                // Hors événement : afficher mardi par défaut
-                afficherJour('mardi');
-                return;
-            }
+            // Afficher le bon jour (jour en cours ou mardi par défaut)
+            const jourAfficher = jourActuel || 'mardi';
+            // Forcer l'affichage sans animation au démarrage
+            document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('jour-' + jourAfficher).style.display = 'block';
+            document.getElementById('btn-' + jourAfficher).classList.add('active');
+
+            if (!jourActuel) return;
 
             const heureNow = maintenant.getHours() * 60 + maintenant.getMinutes();
             const slots = horaires[jourActuel];
