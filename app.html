@@ -243,6 +243,43 @@
         .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
         .atelier strong { font-size: 13px; }
 
+        /* ===== ANIMATION SWIPE ===== */
+        #zoneSwipe {
+            overflow: hidden;
+            position: relative;
+        }
+        .jour-content {
+            transition: none;
+        }
+        .jour-content.slide-out-left {
+            animation: slideOutLeft 0.3s ease forwards;
+        }
+        .jour-content.slide-out-right {
+            animation: slideOutRight 0.3s ease forwards;
+        }
+        .jour-content.slide-in-left {
+            animation: slideInLeft 0.3s ease forwards;
+        }
+        .jour-content.slide-in-right {
+            animation: slideInRight 0.3s ease forwards;
+        }
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to   { transform: translateX(-100%); opacity: 0; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to   { transform: translateX(100%); opacity: 0; }
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(-100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+
         /* ===== EN COURS ===== */
         .prog-slot.en-cours::before {
             content: '🔴 EN COURS';
@@ -547,11 +584,51 @@
             return hh * 60 + mm;
         }
 
-        function afficherJour(jour) {
-            document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
+        let isAnimating = false;
+
+        function afficherJour(jour, direction = null) {
+            if (isAnimating) return;
+
+            const ancienJour = getJourActif();
+            if (ancienJour === jour) return;
+
+            // Déterminer direction si non fournie (via bouton)
+            if (direction === null) {
+                const idxAncien = jours.indexOf(ancienJour);
+                const idxNouveau = jours.indexOf(jour);
+                direction = idxNouveau > idxAncien ? 'left' : 'right';
+            }
+
+            const ancienEl = document.getElementById('jour-' + ancienJour);
+            const nouveauEl = document.getElementById('jour-' + jour);
+
+            isAnimating = true;
+
+            // Mettre à jour boutons
             document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('jour-' + jour).style.display = 'block';
             document.getElementById('btn-' + jour).classList.add('active');
+
+            // Afficher le nouveau par dessus
+            nouveauEl.style.display = 'block';
+            nouveauEl.style.position = 'absolute';
+            nouveauEl.style.width = '100%';
+            nouveauEl.style.top = '0';
+
+            // Animer sortie de l'ancien
+            ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
+            // Animer entrée du nouveau
+            nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
+
+            setTimeout(() => {
+                // Nettoyer
+                ancienEl.classList.remove('slide-out-left', 'slide-out-right');
+                nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
+                ancienEl.style.display = 'none';
+                nouveauEl.style.position = '';
+                nouveauEl.style.width = '';
+                nouveauEl.style.top = '';
+                isAnimating = false;
+            }, 300);
         }
 
         function surbrillanceEnCours() {
@@ -610,11 +687,7 @@
             if (newIdx < 0) newIdx = 0;
             if (newIdx >= jours.length) newIdx = jours.length - 1;
             if (newIdx !== idx) {
-                afficherJour(jours[newIdx]);
-                // Petit feedback visuel
-                const zone = document.getElementById('zoneSwipe');
-                zone.style.opacity = '0.7';
-                setTimeout(() => zone.style.opacity = '1', 200);
+                afficherJour(jours[newIdx], direction === 1 ? 'left' : 'right');
             }
         }
 
