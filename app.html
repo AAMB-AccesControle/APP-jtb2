@@ -391,6 +391,14 @@
                 <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
             </div>
 
+            <!-- Indicateur swipe -->
+            <div style="text-align:center; color:var(--text-sub); font-size:12px; margin-bottom:8px;">
+                ← Balayez pour changer de journée →
+            </div>
+
+            <!-- Zone swipable -->
+            <div id="zoneSwipe" style="transition: opacity 0.2s;">
+
             <!-- MARDI -->
             <div id="jour-mardi" class="jour-content" style="display:none;">
                 <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
@@ -434,6 +442,7 @@
                 <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Etat de l'art en chirurgie vidéothoracique</strong><br><small>Sébastien RICHARD — OLYMPUS</small></div></div>
                 <div class="prog-slot"><div class="prog-heure">10h00 - 12h00</div><div class="prog-conf">🏁 Clôture des Journées</div></div>
             </div>
+            </div> <!-- fin zoneSwipe -->
         </div>
     </div>
 
@@ -587,6 +596,48 @@
 
         // Vérifier toutes les minutes
         setInterval(surbrillanceEnCours, 60000);
+
+        // ===== SWIPE LATÉRAL =====
+        const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
+
+        function getJourActif() {
+            return jours.find(j => document.getElementById('jour-' + j).style.display !== 'none') || 'mardi';
+        }
+
+        function swipeVers(direction) {
+            const idx = jours.indexOf(getJourActif());
+            let newIdx = idx + direction;
+            if (newIdx < 0) newIdx = 0;
+            if (newIdx >= jours.length) newIdx = jours.length - 1;
+            if (newIdx !== idx) {
+                afficherJour(jours[newIdx]);
+                // Petit feedback visuel
+                const zone = document.getElementById('zoneSwipe');
+                zone.style.opacity = '0.7';
+                setTimeout(() => zone.style.opacity = '1', 200);
+            }
+        }
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        const zoneSwipe = document.getElementById('zoneSwipe');
+
+        zoneSwipe.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        zoneSwipe.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+
+            // Swipe horizontal uniquement (ignorer si surtout vertical = scroll)
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                if (dx < 0) swipeVers(+1); // Swipe gauche → jour suivant
+                else        swipeVers(-1); // Swipe droite → jour précédent
+            }
+        }, { passive: true });
     </script>
 </body>
 </html>
