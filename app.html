@@ -247,38 +247,40 @@
         .prog-slot.en-cours::before {
             content: '🔴 EN COURS';
             display: block;
-            background: #c0002a;
-            color: white;
+            background: #c0002a !important;
+            color: white !important;
             text-align: center;
             font-size: 12px; font-weight: bold;
             padding: 4px;
             letter-spacing: 1px;
         }
         .prog-slot.en-cours .prog-heure {
-            background: #c0002a;
+            background: #c0002a !important;
+            color: white !important;
         }
         .prog-slot.en-cours .prog-conf {
-            animation: pulse-conf 2s infinite;
-            border-left: 4px solid #c0002a;
+            animation: pulse-conf 2s infinite !important;
+            border-left: 4px solid #c0002a !important;
         }
         .prog-slot.en-cours .atelier {
-            animation: pulse-atelier 2s infinite;
-            border-left: 4px solid #1565c0;
+            animation: pulse-atelier 2s infinite !important;
+            border-left: 4px solid #1565c0 !important;
+            color: white !important;
         }
-        .prog-slot.en-cours .atelier:last-child {
-            border-left: 1px solid rgba(128,128,128,0.2);
-            animation: pulse-atelier 2s infinite;
+        .prog-slot.en-cours .atelier strong,
+        .prog-slot.en-cours .atelier small {
+            color: white !important;
         }
 
         @keyframes pulse-conf {
-            0%   { background-color: #c0002a; color: white; }
-            50%  { background-color: #ff8fa3; color: #333; }
-            100% { background-color: #c0002a; color: white; }
+            0%   { background-color: #c0002a !important; color: white; }
+            50%  { background-color: #ff4d6d !important; color: white; }
+            100% { background-color: #c0002a !important; color: white; }
         }
         @keyframes pulse-atelier {
-            0%   { background-color: #1565c0; color: white; }
-            50%  { background-color: #90caf9; color: #1a3a6b; }
-            100% { background-color: #1565c0; color: white; }
+            0%   { background-color: #1565c0 !important; color: white; }
+            50%  { background-color: #42a5f5 !important; color: white; }
+            100% { background-color: #1565c0 !important; color: white; }
         }
     </style>
 </head>
