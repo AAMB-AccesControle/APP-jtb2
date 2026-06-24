@@ -1182,6 +1182,10 @@
             const texte    = document.getElementById(`rep-${convBase}`).value.trim();
             if (!texte) { alert('Veuillez écrire une réponse'); return; }
 
+            // Griser le bouton immédiatement
+            const btn = document.querySelector(`button[onclick="envoyerReponseOrga('${convBase}')"]`);
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi en cours...'; btn.style.opacity = '0.6'; }
+
             try {
                 const params = new URLSearchParams({
                     action:         'sendMessage',
@@ -1199,9 +1203,11 @@
                 if (data.success) {
                     chargerMessagesOrganisateur(adherent);
                 } else {
+                    if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
                     alert('Erreur d\'envoi. Réessayez.');
                 }
             } catch(e) {
+                if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
                 alert('Erreur de connexion');
             }
         }
