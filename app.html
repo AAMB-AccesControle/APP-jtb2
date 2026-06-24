@@ -323,7 +323,57 @@
 </head>
 <body>
 
-    <header>
+    <!-- PAGE AUTHENTIFICATION -->
+    <div id="authPage" style="
+        position: fixed; top:0; left:0; right:0; bottom:0;
+        background: var(--page-bg);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+    ">
+        <div style="max-width:400px; width:100%; text-align:center;">
+            <div style="width:100px; height:100px; margin:0 auto 20px; border-radius:20px; overflow:hidden;">
+                <img src="logo-aamb.png" alt="AAMB" style="width:100%; height:100%; object-fit:contain;">
+            </div>
+            <h1 style="color:var(--header-text); margin-bottom:8px; font-size:24px;">AAMB</h1>
+            <p style="color:var(--text-sub); margin-bottom:30px; font-size:14px;">43èmes Journées Techniques Biomédicales</p>
+
+            <div style="background:var(--card-bg); border-radius:15px; padding:25px; box-shadow:var(--card-shadow);">
+                <p style="color:var(--text); font-size:15px; margin-bottom:15px; font-weight:600;">🔐 Saisissez votre code d'accès</p>
+
+                <input id="authInput" type="text" maxlength="10"
+                    placeholder="Ex: X7K2M9PQ"
+                    style="
+                        width:100%; padding:14px; font-size:20px; text-align:center;
+                        border:2px solid #ddd; border-radius:10px; outline:none;
+                        background:var(--page-bg); color:var(--text);
+                        letter-spacing:3px; text-transform:uppercase;
+                        margin-bottom:12px;
+                    "
+                    oninput="this.value=this.value.toUpperCase(); resetAuthResult();"
+                    onkeydown="if(event.key==='Enter') verifierID();"
+                >
+
+                <button onclick="verifierID()" id="authBtn" style="
+                    width:100%; padding:14px; font-size:16px; font-weight:bold;
+                    background:#2c5f2d; color:white; border:none; border-radius:10px;
+                    cursor:pointer; transition:opacity 0.2s;
+                ">Valider →</button>
+
+                <!-- Résultat affiché en dessous -->
+                <div id="authResult" style="margin-top:15px; display:none;">
+                    <div id="authResultContent"></div>
+                </div>
+            </div>
+
+            <p style="color:var(--text-sub); font-size:12px; margin-top:20px;">
+                Votre code d'accès figure sur votre convocation
+            </p>
+        </div>
+    </div>
         <div class="dark-toggle" onclick="toggleDark()">
             <span class="toggle-label" id="toggleLabel">☀️</span>
             <div class="toggle-switch" id="toggleSwitch">
@@ -332,7 +382,12 @@
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <p>Menu principal</p>
+        <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
+
+        <!-- Bouton déconnexion -->
+        <div style="position:absolute; top:15px; left:15px; cursor:pointer;" onclick="deconnecter()" title="Déconnexion">
+            <span style="font-size:20px;">🚪</span>
+        </div>
     </header>
 
     <div class="container">
@@ -486,6 +541,115 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let stream = null, track = null, flashOn = false, qrcodeGenerated = false;
+
+        // ===== AUTHENTIFICATION =====
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmG0c7lgtZnGlbIta9P6wy1BkWGlN90RIvCt6eRO1RMlUj3oep3YQtVIRMfMWCFt1O_A/exec';
+
+        function sauvegarderAdherent(adherent) {
+            localStorage.setItem('aamb_adherent', JSON.stringify(adherent));
+            // Cookie de secours (30 jours)
+            const exp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
+            document.cookie = `aamb_adherent=${encodeURIComponent(JSON.stringify(adherent))}; expires=${exp}; path=/`;
+        }
+
+        function chargerAdherent() {
+            // Essayer localStorage d'abord
+            const ls = localStorage.getItem('aamb_adherent');
+            if (ls) return JSON.parse(ls);
+            // Sinon cookie
+            const cookie = document.cookie.split(';').find(c => c.trim().startsWith('aamb_adherent='));
+            if (cookie) return JSON.parse(decodeURIComponent(cookie.split('=')[1]));
+            return null;
+        }
+
+        function deconnecter() {
+            if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+            localStorage.removeItem('aamb_adherent');
+            document.cookie = 'aamb_adherent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+            document.getElementById('authPage').style.display = 'flex';
+            document.getElementById('authInput').value = '';
+            document.getElementById('authResult').style.display = 'none';
+        }
+
+        function resetAuthResult() {
+            document.getElementById('authResult').style.display = 'none';
+        }
+
+        async function verifierID() {
+            const id = document.getElementById('authInput').value.trim().toUpperCase();
+            if (!id) { alert('Veuillez saisir votre code d\'accès'); return; }
+
+            const btn = document.getElementById('authBtn');
+            btn.textContent = '⏳ Vérification...';
+            btn.disabled = true;
+
+            const resultDiv = document.getElementById('authResult');
+            const resultContent = document.getElementById('authResultContent');
+
+            try {
+                const resp = await fetch(`${SCRIPT_URL}?action=getAdherent&id=${encodeURIComponent(id)}`);
+                const data = await resp.json();
+
+                resultDiv.style.display = 'block';
+
+                if (data.success) {
+                    const a = data.adherent;
+                    resultContent.innerHTML = `
+                        <div style="background:#d4edda; border-radius:10px; padding:15px; border-left:4px solid #28a745; text-align:left;">
+                            <p style="color:#28a745; font-weight:bold; margin-bottom:10px;">✅ Code reconnu !</p>
+                            <p style="margin:5px 0;"><strong>👤 ${a.prenom} ${a.nom}</strong></p>
+                            <p style="margin:5px 0; color:#555;">🏥 ${a.etablissement}</p>
+                            <p style="margin:5px 0; color:#555;">✉️ ${a.email}</p>
+                            <p style="margin-top:12px; font-size:13px; color:#666;">C'est bien vous ?</p>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="
+                                    flex:1; padding:12px; background:#28a745; color:white;
+                                    border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;
+                                ">✅ Oui, c'est moi !</button>
+                                <button onclick="document.getElementById('authInput').value=''; resetAuthResult(); document.getElementById('authInput').focus();" style="
+                                    flex:1; padding:12px; background:#dc3545; color:white;
+                                    border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;
+                                ">❌ Non</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultContent.innerHTML = `
+                        <div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;">
+                            <p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p>
+                            <p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p>
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                resultDiv.style.display = 'block';
+                resultContent.innerHTML = `
+                    <div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;">
+                        <p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p>
+                        <p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p>
+                    </div>
+                `;
+            } finally {
+                btn.textContent = 'Valider →';
+                btn.disabled = false;
+            }
+        }
+
+        function confirmerIdentite(adherent) {
+            sauvegarderAdherent(adherent);
+            afficherApp(adherent);
+        }
+
+        function afficherApp(adherent) {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('headerUser').textContent = `👤 ${adherent.prenom} ${adherent.nom}`;
+        }
+
+        // Vérifier si déjà connecté au démarrage
+        const adherentSauvegarde = chargerAdherent();
+        if (adherentSauvegarde) {
+            afficherApp(adherentSauvegarde);
+        }
 
         // ===== DARK MODE =====
         function toggleDark() {
