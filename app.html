@@ -427,6 +427,14 @@
                 <div class="button-subtitle">43èmes JTB 2026 — Metz-Briey</div>
             </div>
         </div>
+
+        <div class="button-card" onclick="openPage('messageriePage')">
+            <div class="button-icon">💬</div>
+            <div>
+                <div class="button-title" id="btnMessagerieTitle">Contacter l'organisation</div>
+                <div class="button-subtitle" id="btnMessagerieSubtitle">Envoyer un message</div>
+            </div>
+        </div>
     </div>
 
     <!-- PAGE FLASH -->
@@ -539,12 +547,23 @@
         </div>
     </div>
 
+    <!-- PAGE MESSAGERIE -->
+    <div id="messageriePage" class="page-overlay">
+        <div class="page-header">
+            <button class="back-btn" onclick="closePage('messageriePage')">←</button>
+            <h2 id="messagerieTitle">Messagerie</h2>
+        </div>
+        <div class="page-content" id="messagerieContent">
+            <!-- Contenu dynamique selon le statut -->
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let stream = null, track = null, flashOn = false, qrcodeGenerated = false;
 
         // ===== AUTHENTIFICATION =====
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3t1h7RKViKTV22rnk5rMTvzBFxop31XkHPmMjYvxNZNvZ4ark55hEQD4ji9m5YMiJCg/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUQ3o93OC0zxQhX9jVCDOAQ7U17azNxlwR0uX84T4hFzSZaL-0EvsgexaIVEbl3Dxx/exec';
 
         function sauvegarderAdherent(adherent) {
             localStorage.setItem('aamb_adherent', JSON.stringify(adherent));
@@ -843,6 +862,349 @@
 
         // Vérifier toutes les minutes
         setInterval(surbrillanceEnCours, 60000);
+
+        // ===== MESSAGERIE =====
+        let refreshTimer = null;
+        let refreshInterval = 120000; // 2 min par défaut
+        let messagesNonLus = 0;
+
+        function isOrganisateur() {
+            const a = chargerAdherent();
+            return a && a.statut === 'Organisateur';
+        }
+
+        function openPage(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'qrcodePage' && !qrcodeGenerated) {
+                document.getElementById('qrcode').innerHTML = '';
+                new QRCode(document.getElementById('qrcode'), {
+                    text: 'https://votre-lien-ici.fr',
+                    width: 250, height: 250,
+                    colorDark: '#2c5f2d', colorLight: '#ffffff'
+                });
+                qrcodeGenerated = true;
+            }
+            if (id === 'programmePage') setTimeout(surbrillanceEnCours, 100);
+            if (id === 'messageriePage') ouvrirMessagerie();
+        }
+
+        function ouvrirMessagerie() {
+            const adherent = chargerAdherent();
+            if (!adherent) return;
+
+            if (adherent.statut === 'Organisateur') {
+                // Vue organisateur
+                document.getElementById('messagerieTitle').textContent = '📨 Messages reçus';
+                chargerMessagesOrganisateur(adherent);
+                // Refresh adaptatif 15s
+                clearInterval(refreshTimer);
+                refreshTimer = setInterval(() => chargerMessagesOrganisateur(adherent), 15000);
+            } else {
+                // Vue participant
+                document.getElementById('messagerieTitle').textContent = '💬 Mes messages';
+                chargerMessagesParticipant(adherent);
+                // Refresh 2 min
+                clearInterval(refreshTimer);
+                refreshTimer = setInterval(() => chargerMessagesParticipant(adherent), 120000);
+            }
+        }
+
+        // Arrêter le refresh quand on quitte la messagerie
+        const origClosePage = closePage;
+        function closePage(id) {
+            document.getElementById(id).classList.remove('active');
+            if (id === 'flashPage') stopCamera();
+            if (id === 'messageriePage') {
+                clearInterval(refreshTimer);
+                refreshTimer = null;
+            }
+        }
+
+        // Pause refresh si app en arrière-plan
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(refreshTimer);
+            } else {
+                const page = document.getElementById('messageriePage');
+                if (page.classList.contains('active')) ouvrirMessagerie();
+            }
+        });
+
+        // ===== VUE PARTICIPANT =====
+        async function chargerMessagesParticipant(adherent) {
+            const content = document.getElementById('messagerieContent');
+            try {
+                const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
+                const data = await resp.json();
+
+                if (!data.success) { content.innerHTML = '<p style="color:var(--text-sub); text-align:center; padding:20px;">Erreur de chargement</p>'; return; }
+
+                const convs = data.conversations;
+                const keys  = Object.keys(convs);
+
+                let html = `
+                    <button onclick="nouveauMessage()" style="
+                        width:100%; padding:14px; background:#2c5f2d; color:white;
+                        border:none; border-radius:10px; font-size:16px; font-weight:bold;
+                        cursor:pointer; margin-bottom:15px;">
+                        ✉️ Nouveau message
+                    </button>
+                `;
+
+                if (keys.length === 0) {
+                    html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message pour le moment</p>';
+                } else {
+                    keys.forEach(convBase => {
+                        const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+                        const dernierMsg = msgs[msgs.length - 1];
+                        const enAttente = dernierMsg.traite === 'NON' && dernierMsg.userId === adherent.id;
+
+                        html += `
+                            <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px;
+                                        box-shadow:var(--card-shadow); overflow:hidden;">
+                                <div style="background:${enAttente ? '#fff3cd' : '#d4edda'}; padding:8px 12px;
+                                            font-size:12px; font-weight:bold; color:${enAttente ? '#856404' : '#28a745'};">
+                                    ${enAttente ? '⏳ En attente de réponse' : '✅ Répondu'}
+                                    <span style="float:right; font-weight:normal; color:var(--text-sub);">${convBase}</span>
+                                </div>
+                                ${msgs.map(m => `
+                                    <div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1);
+                                                background:${m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)'};">
+                                        <div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">
+                                            ${m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation'} — ${m.dateHeure}
+                                        </div>
+                                        <div style="font-size:14px; color:var(--text);">${m.message}</div>
+                                    </div>
+                                `).join('')}
+                                <div style="padding:10px;">
+                                    <button onclick="repondreConversation('${convBase}')" style="
+                                        width:100%; padding:10px; background:#2c5f2d; color:white;
+                                        border:none; border-radius:8px; font-size:14px; cursor:pointer;">
+                                        ↩️ Continuer cette conversation
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                content.innerHTML = html;
+            } catch(e) {
+                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
+            }
+        }
+
+        function nouveauMessage() {
+            afficherFormulaireMessage(null);
+        }
+
+        function repondreConversation(convBase) {
+            afficherFormulaireMessage(convBase);
+        }
+
+        function afficherFormulaireMessage(convBase) {
+            const adherent = chargerAdherent();
+            const content  = document.getElementById('messagerieContent');
+            const isNouveau = !convBase;
+
+            content.innerHTML = `
+                <div style="margin-bottom:15px;">
+                    <button onclick="ouvrirMessagerie()" style="
+                        background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">
+                        ← Retour
+                    </button>
+                </div>
+                <div style="background:var(--card-bg); border-radius:12px; padding:15px; box-shadow:var(--card-shadow);">
+                    <h3 style="color:var(--text); margin-bottom:15px;">
+                        ${isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase}
+                    </h3>
+                    <textarea id="msgTexte" placeholder="Votre message..." style="
+                        width:100%; height:120px; padding:12px; border:2px solid #ddd;
+                        border-radius:10px; font-size:15px; resize:none; outline:none;
+                        background:var(--page-bg); color:var(--text);
+                    "></textarea>
+                    <button onclick="envoyerMessage('${convBase || ''}')" style="
+                        width:100%; padding:14px; background:#2c5f2d; color:white;
+                        border:none; border-radius:10px; font-size:16px; font-weight:bold;
+                        cursor:pointer; margin-top:10px;">
+                        📤 Envoyer
+                    </button>
+                </div>
+            `;
+        }
+
+        async function envoyerMessage(convBase) {
+            const adherent = chargerAdherent();
+            const texte    = document.getElementById('msgTexte').value.trim();
+            if (!texte) { alert('Veuillez écrire un message'); return; }
+
+            const content = document.getElementById('messagerieContent');
+            content.innerHTML = '<p style="text-align:center; padding:40px; color:var(--text-sub);">⏳ Envoi en cours...</p>';
+
+            try {
+                const params = new URLSearchParams({
+                    action:         'sendMessage',
+                    userId:         adherent.id,
+                    nom:            adherent.nom,
+                    prenom:         adherent.prenom,
+                    message:        texte,
+                    convId:         convBase || '',
+                    isOrganisateur: adherent.statut === 'Organisateur' ? 'true' : 'false'
+                });
+
+                const resp = await fetch(`${SCRIPT_URL}?${params}`);
+                const data = await resp.json();
+
+                if (data.success) {
+                    // Après envoi : refresh 15s pendant 5 min
+                    clearInterval(refreshTimer);
+                    refreshInterval = 15000;
+                    refreshTimer = setInterval(() => chargerMessagesParticipant(adherent), refreshInterval);
+                    setTimeout(() => {
+                        clearInterval(refreshTimer);
+                        refreshInterval = 120000;
+                        refreshTimer = setInterval(() => chargerMessagesParticipant(adherent), refreshInterval);
+                    }, 5 * 60000);
+                    chargerMessagesParticipant(adherent);
+                } else {
+                    content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur d\'envoi. Réessayez.</p>';
+                }
+            } catch(e) {
+                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
+            }
+        }
+
+        // ===== VUE ORGANISATEUR =====
+        let filtreOrga = 'nonTraites'; // 'nonTraites' ou 'tous'
+
+        async function chargerMessagesOrganisateur(adherent) {
+            const content = document.getElementById('messagerieContent');
+            try {
+                const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
+                const data = await resp.json();
+
+                if (!data.success) {
+                    content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Accès refusé</p>';
+                    return;
+                }
+
+                const convs    = data.conversations;
+                const keys     = Object.keys(convs);
+                let nbNonTraites = 0;
+
+                // Compter messages non traités
+                keys.forEach(k => {
+                    const msgs = convs[k];
+                    const dernierMsg = msgs[msgs.length - 1];
+                    if (dernierMsg.traite === 'NON') nbNonTraites++;
+                });
+
+                // Mettre à jour badge sur le bouton principal
+                document.getElementById('btnMessagerieSubtitle').textContent =
+                    nbNonTraites > 0 ? `🔴 ${nbNonTraites} message(s) non traité(s)` : 'Aucun message en attente';
+
+                let html = `
+                    <div style="display:flex; gap:8px; margin-bottom:15px;">
+                        <button onclick="filtreOrga='nonTraites'; chargerMessagesOrganisateur(chargerAdherent())" style="
+                            flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;
+                            background:${filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0'};
+                            color:${filtreOrga === 'nonTraites' ? 'white' : '#333'};">
+                            🔴 Non traités (${nbNonTraites})
+                        </button>
+                        <button onclick="filtreOrga='tous'; chargerMessagesOrganisateur(chargerAdherent())" style="
+                            flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;
+                            background:${filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0'};
+                            color:${filtreOrga === 'tous' ? 'white' : '#333'};">
+                            📋 Tous
+                        </button>
+                    </div>
+                `;
+
+                let affiche = false;
+                keys.forEach(convBase => {
+                    const msgs       = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+                    const dernierMsg = msgs[msgs.length - 1];
+                    const nonTraite  = dernierMsg.traite === 'NON';
+
+                    if (filtreOrga === 'nonTraites' && !nonTraite) return;
+                    affiche = true;
+
+                    const premierMsg = msgs.find(m => m.userId !== adherent.id) || msgs[0];
+
+                    html += `
+                        <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px;
+                                    box-shadow:var(--card-shadow); overflow:hidden;
+                                    border-left:4px solid ${nonTraite ? '#dc3545' : '#28a745'};">
+                            <div style="padding:10px 12px; background:${nonTraite ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)'};">
+                                <strong style="color:var(--text);">👤 ${premierMsg.prenom} ${premierMsg.nom}</strong>
+                                <span style="float:right; font-size:12px; color:var(--text-sub);">${convBase}</span>
+                            </div>
+                            ${msgs.map(m => `
+                                <div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1);
+                                            background:${m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)'};">
+                                    <div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">
+                                        ${m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom} — ${m.dateHeure}
+                                    </div>
+                                    <div style="font-size:14px; color:var(--text);">${m.message}</div>
+                                </div>
+                            `).join('')}
+                            ${nonTraite ? `
+                                <div style="padding:10px;">
+                                    <textarea id="rep-${convBase}" placeholder="Votre réponse..." style="
+                                        width:100%; height:80px; padding:10px; border:2px solid #ddd;
+                                        border-radius:8px; font-size:14px; resize:none; outline:none;
+                                        background:var(--page-bg); color:var(--text);
+                                        margin-bottom:8px;
+                                    "></textarea>
+                                    <button onclick="envoyerReponseOrga('${convBase}')" style="
+                                        width:100%; padding:10px; background:#2c5f2d; color:white;
+                                        border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">
+                                        📤 Répondre
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                if (!affiche) {
+                    html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message en attente</p>';
+                }
+
+                content.innerHTML = html;
+            } catch(e) {
+                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
+            }
+        }
+
+        async function envoyerReponseOrga(convBase) {
+            const adherent = chargerAdherent();
+            const texte    = document.getElementById(`rep-${convBase}`).value.trim();
+            if (!texte) { alert('Veuillez écrire une réponse'); return; }
+
+            try {
+                const params = new URLSearchParams({
+                    action:         'sendMessage',
+                    userId:         adherent.id,
+                    nom:            adherent.nom,
+                    prenom:         adherent.prenom,
+                    message:        texte,
+                    convId:         convBase,
+                    isOrganisateur: 'true'
+                });
+
+                const resp = await fetch(`${SCRIPT_URL}?${params}`);
+                const data = await resp.json();
+
+                if (data.success) {
+                    chargerMessagesOrganisateur(adherent);
+                } else {
+                    alert('Erreur d\'envoi. Réessayez.');
+                }
+            } catch(e) {
+                alert('Erreur de connexion');
+            }
+        }
 
         // ===== SWIPE LATÉRAL =====
         const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
