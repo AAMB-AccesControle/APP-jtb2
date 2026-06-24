@@ -385,8 +385,9 @@
         <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
 
         <!-- Bouton déconnexion -->
-        <div style="position:absolute; top:15px; left:15px; cursor:pointer;" onclick="deconnecter()" title="Déconnexion">
-            <span style="font-size:20px;">🚪</span>
+        <div style="position:absolute; top:12px; left:15px; cursor:pointer; text-align:center;" onclick="deconnecter()" title="Déconnexion">
+            <div style="font-size:22px;">🚪</div>
+            <div style="font-size:10px; color:var(--header-sub); margin-top:2px;">Déconnexion</div>
         </div>
     </header>
 
@@ -600,6 +601,7 @@
                             <p style="margin:5px 0;"><strong>👤 ${a.prenom} ${a.nom}</strong></p>
                             <p style="margin:5px 0; color:#555;">🏥 ${a.etablissement}</p>
                             <p style="margin:5px 0; color:#555;">✉️ ${a.email}</p>
+                            <p style="margin:5px 0; color:#555;">🏷️ ${a.statut}</p>
                             <p style="margin-top:12px; font-size:13px; color:#666;">C'est bien vous ?</p>
                             <div style="display:flex; gap:10px; margin-top:10px;">
                                 <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="
@@ -637,12 +639,15 @@
 
         function confirmerIdentite(adherent) {
             sauvegarderAdherent(adherent);
+            // Enregistrer date/heure de connexion dans le Sheet
+            fetch(`${SCRIPT_URL}?action=logConnexion&id=${encodeURIComponent(adherent.id)}`)
+                .catch(e => console.log('Log connexion échoué:', e));
             afficherApp(adherent);
         }
 
         function afficherApp(adherent) {
             document.getElementById('authPage').style.display = 'none';
-            document.getElementById('headerUser').textContent = `👤 ${adherent.prenom} ${adherent.nom}`;
+            document.getElementById('headerUser').textContent = `👤 ${adherent.prenom} ${adherent.nom} — ${adherent.statut}`;
         }
 
         // Vérifier si déjà connecté au démarrage
