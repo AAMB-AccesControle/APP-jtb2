@@ -932,9 +932,6 @@
 
         // ===== VUE PARTICIPANT =====
         async function chargerMessagesParticipant(adherent) {
-            // Ne pas rafraîchir si un textarea est en cours de saisie
-            if (textareaEnCoursDeRemplissage()) return;
-
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
@@ -1081,9 +1078,6 @@
         let filtreOrga = 'nonTraites'; // 'nonTraites' ou 'tous'
 
         async function chargerMessagesOrganisateur(adherent) {
-            // Ne pas rafraîchir si un textarea est en cours de saisie
-            if (textareaEnCoursDeRemplissage()) return;
-
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
