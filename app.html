@@ -1084,12 +1084,6 @@
             // Ne pas rafraîchir si un textarea est en cours de saisie
             if (textareaEnCoursDeRemplissage()) return;
 
-            // Sauvegarder le contenu des textareas avant refresh
-            const contenuTextareas = {};
-            document.querySelectorAll('#messagerieContent textarea').forEach(ta => {
-                if (ta.id && ta.value.trim()) contenuTextareas[ta.id] = ta.value;
-            });
-
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
