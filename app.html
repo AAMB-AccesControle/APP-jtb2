@@ -9,169 +9,69 @@
     <link rel="manifest" href="manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
             --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --header-bg: white;
-            --header-text: #2c5f2d;
-            --header-sub: #666;
-            --card-bg: white;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            --text: #333;
-            --text-sub: #666;
-            --page-bg: white;
-            --page-header-bg: #2c5f2d;
-            --heure-bg: #555;
-            --conf-bg: #ffe4ec;
-            --conf-border: #c0002a;
-            --atelier-bg: #e3f0ff;
-            --atelier-border: #1565c0;
-            --atelier-text: #1a3a6b;
-            --jour-btn-bg: #e0e0e0;
-            --jour-btn-text: #333;
+            --header-bg: white; --header-text: #2c5f2d; --header-sub: #666;
+            --card-bg: white; --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --text: #333; --text-sub: #666; --page-bg: white;
+            --page-header-bg: #2c5f2d; --heure-bg: #555;
+            --conf-bg: #ffe4ec; --conf-border: #c0002a;
+            --atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
+            --jour-btn-bg: #e0e0e0; --jour-btn-text: #333;
         }
-
         body.dark {
-            --bg: #2a2a2a;
-            --header-bg: #333;
-            --header-text: #a5d6a7;
-            --header-sub: #aaa;
-            --card-bg: #3a3a3a;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            --text: #eee;
-            --text-sub: #aaa;
-            --page-bg: #2a2a2a;
-            --page-header-bg: #1b3a1c;
-            --heure-bg: #444;
-            --conf-bg: #4a2030;
-            --conf-border: #c0002a;
-            --atelier-bg: #1a2a40;
-            --atelier-border: #1565c0;
-            --atelier-text: #90caf9;
-            --jour-btn-bg: #444;
-            --jour-btn-text: #eee;
+            --bg: #2a2a2a; --header-bg: #333; --header-text: #a5d6a7; --header-sub: #aaa;
+            --card-bg: #3a3a3a; --card-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            --text: #eee; --text-sub: #aaa; --page-bg: #2a2a2a; --page-header-bg: #1b3a1c;
+            --heure-bg: #444; --conf-bg: #4a2030; --conf-border: #c0002a;
+            --atelier-bg: #1a2a40; --atelier-border: #1565c0; --atelier-text: #90caf9;
+            --jour-btn-bg: #444; --jour-btn-text: #eee;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: background 0.3s;
-        }
-
-        header {
-            background: var(--header-bg);
-            padding: 15px 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
-            transition: background 0.3s;
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s; }
+        header { background: var(--header-bg); padding: 15px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative; transition: background 0.3s; }
         .logo { width: 70px; height: 70px; margin: 0 auto 10px; border-radius: 15px; overflow: hidden; }
         .logo img { width: 100%; height: 100%; object-fit: contain; }
-        header h1 { color: var(--header-text); font-size: 22px; margin-bottom: 3px; transition: color 0.3s; }
-        header p { color: var(--header-sub); font-size: 13px; transition: color 0.3s; }
-
-        .dark-toggle {
-            position: absolute; top: 15px; right: 15px;
-            display: flex; align-items: center; gap: 6px; cursor: pointer;
-        }
+        header h1 { color: var(--header-text); font-size: 22px; margin-bottom: 3px; }
+        header p { color: var(--header-sub); font-size: 13px; }
+        .dark-toggle { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
         .toggle-label { font-size: 11px; color: var(--header-sub); }
-        .toggle-switch {
-            width: 44px; height: 24px; background: #ccc;
-            border-radius: 12px; position: relative; transition: background 0.3s;
-        }
+        .toggle-switch { width: 44px; height: 24px; background: #ccc; border-radius: 12px; position: relative; transition: background 0.3s; }
         .toggle-switch.on { background: #2c5f2d; }
-        .toggle-knob {
-            width: 20px; height: 20px; background: white; border-radius: 50%;
-            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-        }
+        .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
         .toggle-switch.on .toggle-knob { left: 22px; }
-
-        .container {
-            flex: 1; padding: 20px; display: flex; flex-direction: column;
-            gap: 15px; max-width: 600px; margin: 0 auto; width: 100%;
-        }
-
-        .button-card {
-            background: var(--card-bg); border-radius: 15px; padding: 20px;
-            box-shadow: var(--card-shadow); cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; gap: 15px;
-        }
+        .container { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .button-card { background: var(--card-bg); border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 15px; }
         .button-card:active { transform: scale(0.98); }
-
-        .button-icon {
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
-            border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; font-size: 24px; flex-shrink: 0;
-        }
-        .button-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 5px; transition: color 0.3s; }
-        .button-subtitle { font-size: 13px; color: var(--text-sub); transition: color 0.3s; }
-
-        .page-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--page-bg); z-index: 1000; overflow-y: auto; transition: background 0.3s;
-        }
+        .button-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+        .button-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+        .button-subtitle { font-size: 13px; color: var(--text-sub); }
+        .page-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--page-bg); z-index: 1000; overflow-y: auto; }
         .page-overlay.active { display: block; }
-
-        .page-header {
-            background: var(--page-header-bg); color: white; padding: 15px 20px;
-            display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;
-        }
+        .page-header { background: var(--page-header-bg); color: white; padding: 15px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10; }
         .back-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
         .page-header h2 { font-size: 20px; }
         .page-content { padding: 20px; }
-
         .flash-control { text-align: center; padding: 40px 20px; }
-        .flash-button {
-            width: 150px; height: 150px; border-radius: 50%; border: none;
-            background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
-            color: white; font-size: 60px; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(44,95,45,0.3); transition: all 0.3s;
-        }
-        .flash-button.active {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            box-shadow: 0 0 50px rgba(255,215,0,0.8);
-        }
+        .flash-button { width: 150px; height: 150px; border-radius: 50%; border: none; background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%); color: white; font-size: 60px; cursor: pointer; box-shadow: 0 10px 30px rgba(44,95,45,0.3); transition: all 0.3s; }
+        .flash-button.active { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); box-shadow: 0 0 50px rgba(255,215,0,0.8); }
         .flash-status { font-size: 18px; color: var(--text-sub); margin-top: 20px; }
         #camera-stream { width: 100%; max-width: 500px; border-radius: 10px; display: none; }
-
         .data-row { padding: 15px; border-bottom: 1px solid rgba(128,128,128,0.2); }
         .data-row:last-child { border-bottom: none; }
         .data-label { font-size: 12px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; }
         .data-value { font-size: 16px; color: var(--text); font-weight: 500; }
-
         .qrcode-container { text-align: center; padding: 30px 20px; }
         #qrcode { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-
         .jour-btns { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .jour-btn {
-            background: var(--jour-btn-bg); color: var(--jour-btn-text);
-            border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer;
-            font-size: 13px; white-space: nowrap; font-weight: 500; transition: all 0.2s;
-        }
+        .jour-btn { background: var(--jour-btn-bg); color: var(--jour-btn-text); border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; white-space: nowrap; font-weight: 500; }
         .jour-btn.active { background: #2c5f2d; color: white; }
-
         .prog-slot { margin-bottom: 12px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .prog-heure { background: var(--heure-bg); color: white; padding: 6px 12px; font-size: 13px; font-weight: bold; }
-        .prog-conf {
-            background: var(--conf-bg); padding: 10px 12px; font-size: 14px;
-            color: var(--text); border-left: 4px solid var(--conf-border); transition: background 0.3s;
-        }
+        .prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 14px; color: var(--text); border-left: 4px solid var(--conf-border); }
         .prog-ateliers { display: flex; }
-        .atelier {
-            flex: 1; background: var(--atelier-bg); padding: 8px 10px; font-size: 12px;
-            color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2);
-            border-left: 4px solid var(--atelier-border); transition: background 0.3s;
-        }
+        .atelier { flex: 1; background: var(--atelier-bg); padding: 8px 10px; font-size: 12px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
         .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
         .atelier strong { font-size: 13px; }
-
         #zoneSwipe { overflow: hidden; position: relative; }
         .jour-content { transition: none; }
         .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
@@ -182,59 +82,78 @@
         @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
         @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .prog-slot.en-cours::before {
-            content: '🔴 EN COURS'; display: block; background: #c0002a !important;
-            color: white !important; text-align: center; font-size: 12px; font-weight: bold;
-            padding: 4px; letter-spacing: 1px;
-        }
+        .prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 12px; font-weight: bold; padding: 4px; letter-spacing: 1px; }
         .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
         .prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
         .prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
         .prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
-        @keyframes pulse-conf {
-            0%   { background-color: #c0002a !important; color: white; }
-            50%  { background-color: #ff4d6d !important; color: white; }
-            100% { background-color: #c0002a !important; color: white; }
+        @keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
+        @keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
+
+        /* BANDEAU NOTIFICATION */
+        #notifBandeau {
+            display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+            background: linear-gradient(135deg, #2c5f2d, #4a8f4d);
+            color: white; padding: 12px 15px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s ease;
         }
-        @keyframes pulse-atelier {
-            0%   { background-color: #1565c0 !important; color: white; }
-            50%  { background-color: #42a5f5 !important; color: white; }
-            100% { background-color: #1565c0 !important; color: white; }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        #notifBandeau .notif-titre { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        #notifBandeau .notif-texte { font-size: 13px; opacity: 0.9; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* MODAL MESSAGE COMPLET */
+        #notifModal {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 99998; justify-content: center; align-items: center; padding: 20px;
         }
+        #notifModal.active { display: flex; }
+        #notifModalContent { background: var(--card-bg); border-radius: 15px; padding: 25px; max-width: 500px; width: 100%; position: relative; max-height: 80vh; overflow-y: auto; }
+        #notifModalClose { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text); }
+
+        /* CHECKBOX STYLE */
+        .checkbox-group { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--card-bg); border-radius: 8px; cursor: pointer; }
+        .checkbox-item input { width: 20px; height: 20px; cursor: pointer; }
+        .checkbox-item label { font-size: 15px; color: var(--text); cursor: pointer; }
     </style>
 </head>
 <body>
 
     <!-- PAGE AUTHENTIFICATION -->
-    <div id="authPage" style="
-        position: fixed; top:0; left:0; right:0; bottom:0;
-        background: var(--page-bg); z-index: 9999;
-        display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;">
-        <div style="max-width:400px; width:100%; text-align:center;">
-            <div style="width:100px; height:100px; margin:0 auto 20px; border-radius:20px; overflow:hidden;">
-                <img src="logo-aamb.png" alt="AAMB" style="width:100%; height:100%; object-fit:contain;">
+    <div id="authPage" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--page-bg);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;">
+        <div style="max-width:400px;width:100%;text-align:center;">
+            <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;">
+                <img src="logo-aamb.png" alt="AAMB" style="width:100%;height:100%;object-fit:contain;">
             </div>
-            <h1 style="color:var(--header-text); margin-bottom:8px; font-size:24px;">AAMB</h1>
-            <p style="color:var(--text-sub); margin-bottom:30px; font-size:14px;">43èmes Journées Techniques Biomédicales</p>
-            <div style="background:var(--card-bg); border-radius:15px; padding:25px; box-shadow:var(--card-shadow);">
-                <p style="color:var(--text); font-size:15px; margin-bottom:15px; font-weight:600;">🔐 Saisissez votre code d'accès</p>
+            <h1 style="color:var(--header-text);margin-bottom:8px;font-size:24px;">AAMB</h1>
+            <p style="color:var(--text-sub);margin-bottom:30px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
+            <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
+                <p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
                 <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
-                    style="width:100%; padding:14px; font-size:20px; text-align:center;
-                        border:2px solid #ddd; border-radius:10px; outline:none;
-                        background:var(--page-bg); color:var(--text);
-                        letter-spacing:3px; text-transform:uppercase; margin-bottom:12px;"
-                    oninput="this.value=this.value.toUpperCase(); resetAuthResult();"
-                    onkeydown="if(event.key==='Enter') verifierID();">
-                <button onclick="verifierID()" id="authBtn" style="
-                    width:100%; padding:14px; font-size:16px; font-weight:bold;
-                    background:#2c5f2d; color:white; border:none; border-radius:10px;
-                    cursor:pointer; transition:opacity 0.2s;">Valider →</button>
-                <div id="authResult" style="margin-top:15px; display:none;">
-                    <div id="authResultContent"></div>
-                </div>
+                    style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
+                    oninput="this.value=this.value.toUpperCase();resetAuthResult();"
+                    onkeydown="if(event.key==='Enter')verifierID();">
+                <button onclick="verifierID()" id="authBtn" style="width:100%;padding:14px;font-size:16px;font-weight:bold;background:#2c5f2d;color:white;border:none;border-radius:10px;cursor:pointer;">Valider →</button>
+                <div id="authResult" style="margin-top:15px;display:none;"><div id="authResultContent"></div></div>
             </div>
-            <p style="color:var(--text-sub); font-size:12px; margin-top:20px;">Votre code d'accès figure sur votre convocation</p>
+            <p style="color:var(--text-sub);font-size:12px;margin-top:20px;">Votre code d'accès figure sur votre convocation</p>
+        </div>
+    </div>
+
+    <!-- BANDEAU NOTIFICATION -->
+    <div id="notifBandeau" onclick="ouvrirNotifModal()">
+        <div class="notif-titre">📢 Message de l'AAMB</div>
+        <div class="notif-texte" id="notifBandeauTexte"></div>
+    </div>
+
+    <!-- MODAL MESSAGE COMPLET -->
+    <div id="notifModal">
+        <div id="notifModalContent">
+            <button id="notifModalClose" onclick="fermerNotifModal()">✕</button>
+            <div style="font-weight:bold;color:#2c5f2d;margin-bottom:10px;font-size:16px;">📢 Message de l'AAMB</div>
+            <div id="notifModalDate" style="font-size:12px;color:var(--text-sub);margin-bottom:15px;"></div>
+            <div id="notifModalTexte" style="font-size:15px;color:var(--text);line-height:1.6;"></div>
         </div>
     </div>
 
@@ -245,15 +164,15 @@
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v39</p>
-        <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
-        <div style="position:absolute; top:12px; left:15px; cursor:pointer; text-align:center;" onclick="deconnecter()" title="Déconnexion">
+        <p style="font-size:11px;color:var(--header-sub);margin-bottom:2px;">v40</p>
+        <p id="headerUser" style="color:var(--header-sub);font-size:13px;"></p>
+        <div style="position:absolute;top:12px;left:15px;cursor:pointer;text-align:center;" onclick="deconnecter()">
             <div style="font-size:22px;">🚪</div>
-            <div style="font-size:10px; color:var(--header-sub); margin-top:2px;">Déconnexion</div>
+            <div style="font-size:10px;color:var(--header-sub);margin-top:2px;">Déconnexion</div>
         </div>
     </header>
 
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="button-card" onclick="openPage('flashPage')">
             <div class="button-icon">💡</div>
             <div><div class="button-title">Flash / Lampe</div><div class="button-subtitle">Allumer ou éteindre le flash</div></div>
@@ -274,12 +193,49 @@
             <div class="button-icon">📅</div>
             <div><div class="button-title">Programme des Journées</div><div class="button-subtitle">43èmes JTB 2026 — Metz-Briey</div></div>
         </div>
+        <!-- Messagerie - titre dynamique selon profil -->
         <div class="button-card" onclick="openPage('messageriePage')">
             <div class="button-icon">💬</div>
             <div>
-                <div class="button-title" id="btnMessagerieTitle">Contacter l'organisation</div>
-                <div class="button-subtitle" id="btnMessagerieSubtitle">Envoyer un message</div>
+                <div class="button-title" id="btnMessagerieTitle">Messagerie</div>
+                <div class="button-subtitle" id="btnMessagerieSubtitle">Chargement...</div>
             </div>
+        </div>
+        <!-- Messages AAMB - visible par tous -->
+        <div class="button-card" onclick="openPage('communicationsPage')">
+            <div class="button-icon">📢</div>
+            <div>
+                <div class="button-title">Messages de l'AAMB</div>
+                <div class="button-subtitle" id="btnCommunicationsSubtitle">Informations et annonces</div>
+            </div>
+        </div>
+        <!-- Communications instantanées - organisateurs uniquement -->
+        <div class="button-card" id="btnCommInstantanees" style="display:none;" onclick="openPage('commInstantaneesPage')">
+            <div class="button-icon">📡</div>
+            <div>
+                <div class="button-title">Communications instantanées</div>
+                <div class="button-subtitle">Envoyer un message aux participants</div>
+            </div>
+        </div>
+        <!-- Ateliers -->
+        <div class="button-card" onclick="openPage('ateliersPage')">
+            <div class="button-icon">🔬</div>
+            <div><div class="button-title">Ateliers</div><div class="button-subtitle">Informations et partenaires</div></div>
+        </div>
+        <!-- Échanges professionnels -->
+        <div class="button-card" onclick="openPage('echangesPage')">
+            <div class="button-icon">🤝</div>
+            <div><div class="button-title">Échanges professionnels</div><div class="button-subtitle">Scanner et enregistrer des contacts</div></div>
+        </div>
+        <!-- QCM -->
+        <div class="button-card" onclick="openPage('qcmPage')">
+            <div class="button-icon">📝</div>
+            <div><div class="button-title">QCM</div><div class="button-subtitle">Questionnaires</div></div>
+        </div>
+        <!-- Contrôle d'accès - organisateurs uniquement -->
+        <div class="button-card" id="btnControleAcces" style="display:none;" onclick="openPage('controleAccesPage')">
+            <div class="button-icon">🔐</div>
+            <div><div class="button-title">Contrôle d'accès</div><div class="button-subtitle">Gestion des entrées</div></div>
         </div>
     </div>
 
@@ -299,7 +255,6 @@
         <div class="page-content">
             <div id="dataContent">
                 <div class="data-row"><div class="data-label">Information 1</div><div class="data-value">À connecter à Google Sheets</div></div>
-                <div class="data-row"><div class="data-label">Information 2</div><div class="data-value">Données exemple</div></div>
             </div>
         </div>
     </div>
@@ -309,7 +264,7 @@
         <div class="page-header"><button class="back-btn" onclick="closePage('qrcodePage')">←</button><h2>Mon QR Code</h2></div>
         <div class="page-content qrcode-container">
             <div id="qrcode"></div>
-            <p style="margin-top:20px; color:var(--text-sub);">Scannez ce QR code pour partager vos informations</p>
+            <p style="margin-top:20px;color:var(--text-sub);">Scannez ce QR code pour partager vos informations</p>
         </div>
     </div>
 
@@ -317,15 +272,15 @@
     <div id="programmePage" class="page-overlay">
         <div class="page-header"><button class="back-btn" onclick="closePage('programmePage')">←</button><h2>Programme JTB 2026</h2></div>
         <div class="page-content" style="padding:10px;">
-            <p style="text-align:center; color:var(--text-sub); font-size:13px; margin-bottom:10px;">43èmes JTB 2026 — Metz-Briey</p>
+            <p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Metz-Briey</p>
             <div class="jour-btns">
-                <button class="jour-btn" id="btn-mardi"    onclick="afficherJour('mardi')">Mardi 23/06</button>
+                <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi 23/06</button>
                 <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
-                <button class="jour-btn" id="btn-jeudi"    onclick="afficherJour('jeudi')">Jeudi 25/06</button>
+                <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi 25/06</button>
                 <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
             </div>
-            <div style="text-align:center; color:var(--text-sub); font-size:12px; margin-bottom:8px;">← Balayez pour changer de journée →</div>
-            <div id="zoneSwipe" style="transition: opacity 0.2s;">
+            <div style="text-align:center;color:var(--text-sub);font-size:12px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
+            <div id="zoneSwipe">
                 <div id="jour-mardi" class="jour-content" style="display:none;">
                     <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
                     <div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
@@ -368,34 +323,75 @@
 
     <!-- PAGE MESSAGERIE -->
     <div id="messageriePage" class="page-overlay">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage('messageriePage')">←</button>
-            <h2 id="messagerieTitle">Messagerie</h2>
-        </div>
+        <div class="page-header"><button class="back-btn" onclick="closePage('messageriePage')">←</button><h2 id="messagerieTitle">Messagerie</h2></div>
         <div class="page-content" id="messagerieContent"></div>
+    </div>
+
+    <!-- PAGE MESSAGES AAMB (tous) -->
+    <div id="communicationsPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('communicationsPage')">←</button><h2>Messages de l'AAMB</h2></div>
+        <div class="page-content" id="communicationsContent">
+            <p style="text-align:center;color:var(--text-sub);padding:20px;">Chargement...</p>
+        </div>
+    </div>
+
+    <!-- PAGE COMMUNICATIONS INSTANTANÉES (organisateurs) -->
+    <div id="commInstantaneesPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('commInstantaneesPage')">←</button><h2>Communications instantanées</h2></div>
+        <div class="page-content" id="commInstantaneesContent"></div>
+    </div>
+
+    <!-- PAGE ATELIERS -->
+    <div id="ateliersPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('ateliersPage')">←</button><h2>Ateliers</h2></div>
+        <div class="page-content">
+            <p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+        </div>
+    </div>
+
+    <!-- PAGE ÉCHANGES PROFESSIONNELS -->
+    <div id="echangesPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('echangesPage')">←</button><h2>Échanges professionnels</h2></div>
+        <div class="page-content">
+            <p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+        </div>
+    </div>
+
+    <!-- PAGE QCM -->
+    <div id="qcmPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('qcmPage')">←</button><h2>QCM</h2></div>
+        <div class="page-content">
+            <p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+        </div>
+    </div>
+
+    <!-- PAGE CONTRÔLE ACCÈS (organisateurs) -->
+    <div id="controleAccesPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('controleAccesPage')">←</button><h2>Contrôle d'accès</h2></div>
+        <div class="page-content">
+            <p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let stream = null, track = null, flashOn = false, qrcodeGenerated = false;
-
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNRCpUT6kDNNl4NmqjPjefo7jURmpQ9L2Njfxkb78wJ8IiyhvT5XCeyoh6kjTOBq5b2Q/exec';
+        const GROUPES = ['Etudiant','Visiteur','Organisateur','Stagiaire','Intervenant','Partenaire','Invité'];
 
         // ===== AUTHENTIFICATION =====
-        function sauvegarderAdherent(adherent) {
-            localStorage.setItem('aamb_adherent', JSON.stringify(adherent));
-            const exp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
-            document.cookie = `aamb_adherent=${encodeURIComponent(JSON.stringify(adherent))}; expires=${exp}; path=/`;
+        function sauvegarderAdherent(a) {
+            localStorage.setItem('aamb_adherent', JSON.stringify(a));
+            const exp = new Date(Date.now()+30*24*60*60*1000).toUTCString();
+            document.cookie = `aamb_adherent=${encodeURIComponent(JSON.stringify(a))}; expires=${exp}; path=/`;
         }
-
         function chargerAdherent() {
             const ls = localStorage.getItem('aamb_adherent');
             if (ls) return JSON.parse(ls);
-            const cookie = document.cookie.split(';').find(c => c.trim().startsWith('aamb_adherent='));
-            if (cookie) return JSON.parse(decodeURIComponent(cookie.split('=')[1]));
+            const c = document.cookie.split(';').find(c=>c.trim().startsWith('aamb_adherent='));
+            if (c) return JSON.parse(decodeURIComponent(c.split('=')[1]));
             return null;
         }
-
         function deconnecter() {
             if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
             localStorage.removeItem('aamb_adherent');
@@ -404,7 +400,6 @@
             document.getElementById('authInput').value = '';
             document.getElementById('authResult').style.display = 'none';
         }
-
         function resetAuthResult() { document.getElementById('authResult').style.display = 'none'; }
 
         async function verifierID() {
@@ -421,24 +416,24 @@
                 if (data.success) {
                     const a = data.adherent;
                     resultContent.innerHTML = `
-                        <div style="background:#d4edda; border-radius:10px; padding:15px; border-left:4px solid #28a745; text-align:left;">
-                            <p style="color:#28a745; font-weight:bold; margin-bottom:10px;">✅ Code reconnu !</p>
+                        <div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">
+                            <p style="color:#28a745;font-weight:bold;margin-bottom:10px;">✅ Code reconnu !</p>
                             <p style="margin:5px 0;"><strong>👤 ${a.prenom} ${a.nom}</strong></p>
-                            <p style="margin:5px 0; color:#555;">🏥 ${a.etablissement}</p>
-                            <p style="margin:5px 0; color:#555;">✉️ ${a.email}</p>
-                            <p style="margin:5px 0; color:#555;">🏷️ ${a.statut}</p>
-                            <p style="margin-top:12px; font-size:13px; color:#666;">C'est bien vous ?</p>
-                            <div style="display:flex; gap:10px; margin-top:10px;">
-                                <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">✅ Oui, c'est moi !</button>
-                                <button onclick="document.getElementById('authInput').value=''; resetAuthResult(); document.getElementById('authInput').focus();" style="flex:1; padding:12px; background:#dc3545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">❌ Non</button>
+                            <p style="margin:5px 0;color:#555;">🏥 ${a.etablissement}</p>
+                            <p style="margin:5px 0;color:#555;">✉️ ${a.email}</p>
+                            <p style="margin:5px 0;color:#555;">🏷️ ${a.statut}</p>
+                            <p style="margin-top:12px;font-size:13px;color:#666;">C'est bien vous ?</p>
+                            <div style="display:flex;gap:10px;margin-top:10px;">
+                                <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">✅ Oui, c'est moi !</button>
+                                <button onclick="document.getElementById('authInput').value='';resetAuthResult();document.getElementById('authInput').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">❌ Non</button>
                             </div>
                         </div>`;
                 } else {
-                    resultContent.innerHTML = `<div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;"><p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p></div>`;
+                    resultContent.innerHTML = `<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;text-align:left;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p><p style="color:#555;font-size:13px;margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p></div>`;
                 }
             } catch(e) {
                 resultDiv.style.display = 'block';
-                resultContent.innerHTML = `<div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;"><p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p></div>`;
+                resultContent.innerHTML = `<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;text-align:left;"><p style="color:#856404;font-weight:bold;">⚠️ Erreur de connexion</p></div>`;
             } finally {
                 btn.textContent = 'Valider →'; btn.disabled = false;
             }
@@ -446,13 +441,22 @@
 
         function confirmerIdentite(adherent) {
             sauvegarderAdherent(adherent);
-            fetch(`${SCRIPT_URL}?action=logConnexion&id=${encodeURIComponent(adherent.id)}`).catch(e => console.log('Log connexion échoué:', e));
+            fetch(`${SCRIPT_URL}?action=logConnexion&id=${encodeURIComponent(adherent.id)}`).catch(()=>{});
             afficherApp(adherent);
         }
 
         function afficherApp(adherent) {
             document.getElementById('authPage').style.display = 'none';
             document.getElementById('headerUser').textContent = `👤 ${adherent.prenom} ${adherent.nom} — ${adherent.statut}`;
+            // Boutons selon profil
+            const isOrga = adherent.statut === 'Organisateur';
+            document.getElementById('btnMessagerieTitle').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
+            document.getElementById('btnCommInstantanees').style.display = isOrga ? 'flex' : 'none';
+            document.getElementById('btnControleAcces').style.display = isOrga ? 'flex' : 'none';
+            // Démarrer le refresh de la page d'accueil
+            demarrerRefreshAccueil();
+            // Charger les communications manquées
+            verifierCommunicationsManquees(adherent);
         }
 
         const adherentSauvegarde = chargerAdherent();
@@ -476,6 +480,8 @@
         }
 
         // ===== NAVIGATION =====
+        let refreshMessagerieTimer = null;
+
         function openPage(id) {
             document.getElementById(id).classList.add('active');
             if (id === 'qrcodePage' && !qrcodeGenerated) {
@@ -485,12 +491,14 @@
             }
             if (id === 'programmePage') setTimeout(surbrillanceEnCours, 100);
             if (id === 'messageriePage') ouvrirMessagerie();
+            if (id === 'communicationsPage') chargerCommunications();
+            if (id === 'commInstantaneesPage') ouvrirCommInstantanees();
         }
 
         function closePage(id) {
             document.getElementById(id).classList.remove('active');
             if (id === 'flashPage') stopCamera();
-            if (id === 'messageriePage') { clearInterval(refreshTimer); refreshTimer = null; }
+            if (id === 'messageriePage') { clearInterval(refreshMessagerieTimer); refreshMessagerieTimer = null; }
         }
 
         // ===== FLASH =====
@@ -505,312 +513,500 @@
                     track = stream.getVideoTracks()[0];
                 }
                 const caps = track.getCapabilities();
-                if (!caps.torch) { alert('Flash non supporté sur cet appareil'); return; }
+                if (!caps.torch) { alert('Flash non supporté'); return; }
                 flashOn = !flashOn;
                 await track.applyConstraints({ advanced: [{ torch: flashOn }] });
                 btn.classList.toggle('active', flashOn);
                 status.textContent = flashOn ? 'Flash allumé ✓' : 'Flash éteint';
             } catch(e) { alert('Erreur flash : ' + e.message); }
         }
-
         function stopCamera() {
             if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null; track = null; flashOn = false;
+                stream.getTracks().forEach(t=>t.stop());
+                stream=null; track=null; flashOn=false;
                 document.getElementById('flashBtn').classList.remove('active');
                 document.getElementById('flashStatus').textContent = 'Flash éteint';
                 document.getElementById('camera-stream').style.display = 'none';
             }
         }
+        function openWebsite() { window.open('https://www.aamb.asso.fr','_blank'); }
 
-        function openWebsite() { window.open('https://www.aamb.asso.fr', '_blank'); }
+        // ===== REFRESH PAGE ACCUEIL =====
+        function demarrerRefreshAccueil() {
+            setInterval(async () => {
+                const adherent = chargerAdherent();
+                if (!adherent) return;
+                // Vérifier messages en attente (organisateur)
+                if (adherent.statut === 'Organisateur') {
+                    try {
+                        const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
+                        const data = await resp.json();
+                        if (data.success) {
+                            const convs = data.conversations;
+                            const nb = Object.keys(convs).filter(k => convs[k][convs[k].length-1].traite === 'NON').length;
+                            document.getElementById('btnMessagerieSubtitle').textContent = nb > 0 ? `🔴 ${nb} message(s) non traité(s)` : 'Aucun message en attente';
+                        }
+                    } catch(e) {}
+                }
+                // Vérifier nouvelles communications pour tous
+                await verifierNouvellesCommunications(adherent);
+            }, 60000);
+        }
 
         // ===== PROGRAMME =====
-        const joursDates = { 'mardi': '2026-06-23', 'mercredi': '2026-06-24', 'jeudi': '2026-06-25', 'vendredi': '2026-06-26' };
+        const joursDates = { 'mardi':'2026-06-23','mercredi':'2026-06-24','jeudi':'2026-06-25','vendredi':'2026-06-26' };
         const horaires = {
-            'mardi':    [ ['13:00','13:45'], ['14:00','14:15'], ['14:15','15:00'], ['15:05','15:50'], ['15:50','16:10'], ['16:15','17:00'], ['17:15','18:30'] ],
-            'mercredi': [ ['08:30','09:15'], ['09:20','10:05'], ['10:05','11:00'], ['11:00','12:00'], ['13:45','14:30'], ['14:35','15:20'], ['15:20','16:20'], ['16:20','17:05'], ['19:00','23:00'] ],
-            'jeudi':    [ ['08:30','09:15'], ['09:20','10:05'], ['10:05','11:00'], ['11:00','11:45'], ['13:45','14:30'], ['14:35','15:20'], ['15:20','16:20'], ['16:20','17:05'], ['19:00','25:00'] ],
-            'vendredi': [ ['08:30','09:15'], ['09:20','10:05'], ['10:00','12:00'] ]
+            'mardi':    [['13:00','13:45'],['14:00','14:15'],['14:15','15:00'],['15:05','15:50'],['15:50','16:10'],['16:15','17:00'],['17:15','18:30']],
+            'mercredi': [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','12:00'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','23:00']],
+            'jeudi':    [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','11:45'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','25:00']],
+            'vendredi': [['08:30','09:15'],['09:20','10:05'],['10:00','12:00']]
         };
-
-        function toMin(h) { const [hh, mm] = h.split(':').map(Number); return hh * 60 + mm; }
-
-        let isAnimating = false;
-        const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
-
-        function getJourActif() {
-            return jours.find(j => document.getElementById('jour-' + j).style.display !== 'none') || 'mardi';
-        }
-
-        function afficherJour(jour, direction = null) {
+        function toMin(h) { const [hh,mm]=h.split(':').map(Number); return hh*60+mm; }
+        let isAnimating=false;
+        const jours=['mardi','mercredi','jeudi','vendredi'];
+        function getJourActif() { return jours.find(j=>document.getElementById('jour-'+j).style.display!=='none')||'mardi'; }
+        function afficherJour(jour,direction=null) {
             if (isAnimating) return;
-            const ancienJour = getJourActif();
-            if (ancienJour === jour) return;
-            if (direction === null) {
-                const idxAncien = jours.indexOf(ancienJour);
-                const idxNouveau = jours.indexOf(jour);
-                direction = idxNouveau > idxAncien ? 'left' : 'right';
-            }
-            const ancienEl = document.getElementById('jour-' + ancienJour);
-            const nouveauEl = document.getElementById('jour-' + jour);
-            isAnimating = true;
-            document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + jour).classList.add('active');
-            nouveauEl.style.display = 'block';
-            nouveauEl.style.position = 'absolute';
-            nouveauEl.style.width = '100%';
-            nouveauEl.style.top = '0';
-            ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
-            nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
-            setTimeout(() => {
-                ancienEl.classList.remove('slide-out-left', 'slide-out-right');
-                nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
-                ancienEl.style.display = 'none';
-                nouveauEl.style.position = '';
-                nouveauEl.style.width = '';
-                nouveauEl.style.top = '';
-                isAnimating = false;
-            }, 300);
+            const ancienJour=getJourActif();
+            if (ancienJour===jour) return;
+            if (direction===null) { const ia=jours.indexOf(ancienJour),in2=jours.indexOf(jour); direction=in2>ia?'left':'right'; }
+            const ancienEl=document.getElementById('jour-'+ancienJour);
+            const nouveauEl=document.getElementById('jour-'+jour);
+            isAnimating=true;
+            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById('btn-'+jour).classList.add('active');
+            nouveauEl.style.display='block'; nouveauEl.style.position='absolute'; nouveauEl.style.width='100%'; nouveauEl.style.top='0';
+            ancienEl.classList.add(direction==='left'?'slide-out-left':'slide-out-right');
+            nouveauEl.classList.add(direction==='left'?'slide-in-left':'slide-in-right');
+            setTimeout(()=>{
+                ancienEl.classList.remove('slide-out-left','slide-out-right');
+                nouveauEl.classList.remove('slide-in-left','slide-in-right');
+                ancienEl.style.display='none'; nouveauEl.style.position=''; nouveauEl.style.width=''; nouveauEl.style.top='';
+                isAnimating=false;
+            },300);
         }
-
         function surbrillanceEnCours() {
-            const maintenant = new Date();
-            const dateAujourd = maintenant.toISOString().split('T')[0];
-            document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
-            let jourActuel = null;
-            for (const [jour, date] of Object.entries(joursDates)) {
-                if (date === dateAujourd) { jourActuel = jour; break; }
-            }
-            const jourAfficher = jourActuel || 'mardi';
-            document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
-            document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('jour-' + jourAfficher).style.display = 'block';
-            document.getElementById('btn-' + jourAfficher).classList.add('active');
+            const maintenant=new Date();
+            const dateAujourd=maintenant.toISOString().split('T')[0];
+            document.querySelectorAll('.prog-slot').forEach(s=>s.classList.remove('en-cours'));
+            let jourActuel=null;
+            for (const [jour,date] of Object.entries(joursDates)) { if (date===dateAujourd){jourActuel=jour;break;} }
+            const jourAfficher=jourActuel||'mardi';
+            document.querySelectorAll('.jour-content').forEach(d=>d.style.display='none');
+            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById('jour-'+jourAfficher).style.display='block';
+            document.getElementById('btn-'+jourAfficher).classList.add('active');
             if (!jourActuel) return;
-            const heureNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-            const slots = horaires[jourActuel];
-            const jourDiv = document.getElementById('jour-' + jourActuel);
-            const slotsDiv = jourDiv.querySelectorAll('.prog-slot');
-            slots.forEach(([debut, fin], i) => {
-                const d = toMin(debut), f = toMin(fin);
-                if (heureNow >= d && heureNow < f && slotsDiv[i]) {
-                    slotsDiv[i].classList.add('en-cours');
-                    setTimeout(() => slotsDiv[i].scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-                }
-            });
+            const heureNow=maintenant.getHours()*60+maintenant.getMinutes();
+            const slots=horaires[jourActuel];
+            const jourDiv=document.getElementById('jour-'+jourActuel);
+            const slotsDiv=jourDiv.querySelectorAll('.prog-slot');
+            slots.forEach(([debut,fin],i)=>{ const d=toMin(debut),f=toMin(fin); if (heureNow>=d&&heureNow<f&&slotsDiv[i]){slotsDiv[i].classList.add('en-cours');setTimeout(()=>slotsDiv[i].scrollIntoView({behavior:'smooth',block:'center'}),300);} });
         }
-
-        setInterval(surbrillanceEnCours, 60000);
-
-        // Swipe
-        function swipeVers(direction) {
-            const idx = jours.indexOf(getJourActif());
-            let newIdx = idx + direction;
-            if (newIdx < 0) newIdx = 0;
-            if (newIdx >= jours.length) newIdx = jours.length - 1;
-            if (newIdx !== idx) afficherJour(jours[newIdx], direction === 1 ? 'left' : 'right');
-        }
-
-        let touchStartX = 0, touchStartY = 0;
-        const zoneSwipe = document.getElementById('zoneSwipe');
-        zoneSwipe.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
-        zoneSwipe.addEventListener('touchend', (e) => {
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-                if (dx < 0) swipeVers(+1); else swipeVers(-1);
-            }
-        }, { passive: true });
+        setInterval(surbrillanceEnCours,60000);
+        let touchStartX=0,touchStartY=0;
+        const zoneSwipe=document.getElementById('zoneSwipe');
+        zoneSwipe.addEventListener('touchstart',(e)=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
+        zoneSwipe.addEventListener('touchend',(e)=>{
+            const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
+            if (Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){if(dx<0)swipeVers(+1);else swipeVers(-1);}
+        },{passive:true});
+        function swipeVers(direction){const idx=jours.indexOf(getJourActif());let ni=idx+direction;if(ni<0)ni=0;if(ni>=jours.length)ni=jours.length-1;if(ni!==idx)afficherJour(jours[ni],direction===1?'left':'right');}
 
         // ===== MESSAGERIE =====
-        let refreshTimer = null;
-        let filtreOrga = 'nonTraites';
-
-        // ← LA CLÉ : vérifier si du texte est en cours de saisie
         function texteEnCours() {
-            const textareas = document.querySelectorAll('#messagerieContent textarea');
-            for (const ta of textareas) {
-                if (ta.value.trim().length > 0) return true;
-            }
+            const tas=document.querySelectorAll('#messagerieContent textarea');
+            for (const ta of tas){if(ta.value.trim().length>0)return true;}
             return false;
         }
-
         function ouvrirMessagerie() {
-            const adherent = chargerAdherent();
+            const adherent=chargerAdherent();
             if (!adherent) return;
-            clearInterval(refreshTimer);
-            if (adherent.statut === 'Organisateur') {
-                document.getElementById('messagerieTitle').textContent = '📨 Messages reçus';
+            clearInterval(refreshMessagerieTimer);
+            if (adherent.statut==='Organisateur') {
+                document.getElementById('messagerieTitle').textContent='📨 Messages des participants';
                 chargerMessagesOrganisateur(adherent);
-                refreshTimer = setInterval(() => {
-                    if (!texteEnCours()) chargerMessagesOrganisateur(adherent);
-                }, 15000);
+                refreshMessagerieTimer=setInterval(()=>{if(!texteEnCours())chargerMessagesOrganisateur(adherent);},15000);
             } else {
-                document.getElementById('messagerieTitle').textContent = '💬 Mes messages';
+                document.getElementById('messagerieTitle').textContent='💬 Contacter l\'AAMB';
                 chargerMessagesParticipant(adherent);
-                refreshTimer = setInterval(() => {
-                    if (!texteEnCours()) chargerMessagesParticipant(adherent);
-                }, 15000);
+                refreshMessagerieTimer=setInterval(()=>{if(!texteEnCours())chargerMessagesParticipant(adherent);},15000);
             }
         }
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                clearInterval(refreshTimer);
-            } else {
-                const page = document.getElementById('messageriePage');
-                if (page.classList.contains('active')) ouvrirMessagerie();
-            }
+        document.addEventListener('visibilitychange',()=>{
+            if (document.hidden){clearInterval(refreshMessagerieTimer);}
+            else { const p=document.getElementById('messageriePage'); if(p.classList.contains('active'))ouvrirMessagerie(); }
         });
 
-        // ===== VUE PARTICIPANT =====
         async function chargerMessagesParticipant(adherent) {
-            const content = document.getElementById('messagerieContent');
+            const content=document.getElementById('messagerieContent');
             try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
-                const data = await resp.json();
-                if (!data.success) { content.innerHTML = '<p style="color:var(--text-sub); text-align:center; padding:20px;">Erreur de chargement</p>'; return; }
-                const convs = data.conversations;
-                const keys  = Object.keys(convs);
-                let html = `<button onclick="nouveauMessage()" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-bottom:15px;">✉️ Nouveau message</button>`;
-                if (keys.length === 0) {
-                    html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message pour le moment</p>';
-                } else {
-                    keys.forEach(convBase => {
-                        const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-                        const dernierMsg = msgs[msgs.length - 1];
-                        const enAttente = dernierMsg.traite === 'NON' && dernierMsg.userId === adherent.id;
-                        html += `
-                            <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden;">
-                                <div style="background:${enAttente ? '#fff3cd' : '#d4edda'}; padding:8px 12px; font-size:12px; font-weight:bold; color:${enAttente ? '#856404' : '#28a745'};">
-                                    ${enAttente ? '⏳ En attente de réponse' : '✅ Répondu'}
-                                    <span style="float:right; font-weight:normal; color:var(--text-sub);">${convBase}</span>
-                                </div>
-                                ${msgs.map(m => `
-                                    <div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:${m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)'};">
-                                        <div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">${m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation'} — ${m.dateHeure}</div>
-                                        <div style="font-size:14px; color:var(--text);">${m.message}</div>
-                                    </div>`).join('')}
-                                <div style="padding:10px;">
-                                    <button onclick="repondreConversation('${convBase}')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; cursor:pointer;">↩️ Continuer cette conversation</button>
-                                </div>
-                            </div>`;
+                const resp=await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
+                const data=await resp.json();
+                if (!data.success){content.innerHTML='<p style="color:var(--text-sub);text-align:center;padding:20px;">Erreur de chargement</p>';return;}
+                const convs=data.conversations,keys=Object.keys(convs);
+                let html=`<button onclick="nouveauMessage()" style="width:100%;padding:14px;background:#2c5f2d;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>`;
+                if (keys.length===0){html+='<p style="color:var(--text-sub);text-align:center;padding:20px;">Aucun message pour le moment</p>';}
+                else {
+                    keys.forEach(convBase=>{
+                        const msgs=convs[convBase].sort((a,b)=>a.idConvFull.localeCompare(b.idConvFull));
+                        const dernierMsg=msgs[msgs.length-1];
+                        const enAttente=dernierMsg.traite==='NON'&&dernierMsg.userId===adherent.id;
+                        html+=`<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;">
+                            <div style="background:${enAttente?'#fff3cd':'#d4edda'};padding:8px 12px;font-size:12px;font-weight:bold;color:${enAttente?'#856404':'#28a745'};">
+                                ${enAttente?'⏳ En attente de réponse':'✅ Répondu'}<span style="float:right;font-weight:normal;color:var(--text-sub);">${convBase}</span>
+                            </div>
+                            ${msgs.map(m=>`<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:${m.userId===adherent.id?'var(--card-bg)':'rgba(44,95,45,0.08)'};">
+                                <div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">${m.userId===adherent.id?'👤 Vous':'🏢 Organisation'} — ${m.dateHeure}</div>
+                                <div style="font-size:14px;color:var(--text);">${m.message}</div>
+                            </div>`).join('')}
+                            <div style="padding:10px;"><button onclick="repondreConversation('${convBase}')" style="width:100%;padding:10px;background:#2c5f2d;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">↩️ Continuer cette conversation</button></div>
+                        </div>`;
                     });
                 }
-                content.innerHTML = html;
-            } catch(e) {
-                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
-            }
+                content.innerHTML=html;
+            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
+        }
+        function nouveauMessage(){afficherFormulaireMessage(null);}
+        function repondreConversation(convBase){afficherFormulaireMessage(convBase);}
+        function afficherFormulaireMessage(convBase){
+            const content=document.getElementById('messagerieContent');
+            content.innerHTML=`<div style="margin-bottom:15px;"><button onclick="ouvrirMessagerie()" style="background:none;border:none;color:#2c5f2d;font-size:16px;cursor:pointer;">← Retour</button></div>
+            <div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">
+                <h3 style="color:var(--text);margin-bottom:15px;">${!convBase?'✉️ Nouveau message':'↩️ Répondre — '+convBase}</h3>
+                <textarea id="msgTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--page-bg);color:var(--text);"></textarea>
+                <button onclick="envoyerMessage('${convBase||''}')" style="width:100%;padding:14px;background:#2c5f2d;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">📤 Envoyer</button>
+            </div>`;
+        }
+        async function envoyerMessage(convBase){
+            const adherent=chargerAdherent();
+            const texte=document.getElementById('msgTexte').value.trim();
+            if(!texte){alert('Veuillez écrire un message');return;}
+            const content=document.getElementById('messagerieContent');
+            content.innerHTML='<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+            try {
+                const params=new URLSearchParams({action:'sendMessage',userId:adherent.id,nom:adherent.nom,prenom:adherent.prenom,message:texte,convId:convBase||'',isOrganisateur:adherent.statut==='Organisateur'?'true':'false'});
+                const resp=await fetch(`${SCRIPT_URL}?${params}`);
+                const data=await resp.json();
+                if(data.success){chargerMessagesParticipant(adherent);}
+                else{content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>';}
+            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
         }
 
-        function nouveauMessage() { afficherFormulaireMessage(null); }
-        function repondreConversation(convBase) { afficherFormulaireMessage(convBase); }
+        let filtreOrga='nonTraites';
+        async function chargerMessagesOrganisateur(adherent){
+            const content=document.getElementById('messagerieContent');
+            try {
+                const resp=await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
+                const data=await resp.json();
+                if(!data.success){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Accès refusé</p>';return;}
+                const convs=data.conversations,keys=Object.keys(convs);
+                let nbNonTraites=0;
+                keys.forEach(k=>{if(convs[k][convs[k].length-1].traite==='NON')nbNonTraites++;});
+                document.getElementById('btnMessagerieSubtitle').textContent=nbNonTraites>0?`🔴 ${nbNonTraites} message(s) non traité(s)`:'Aucun message en attente';
+                let html=`<div style="display:flex;gap:8px;margin-bottom:15px;">
+                    <button onclick="filtreOrga='nonTraites';chargerMessagesOrganisateur(chargerAdherent())" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:${filtreOrga==='nonTraites'?'#2c5f2d':'#e0e0e0'};color:${filtreOrga==='nonTraites'?'white':'#333'};">🔴 Non traités (${nbNonTraites})</button>
+                    <button onclick="filtreOrga='tous';chargerMessagesOrganisateur(chargerAdherent())" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:${filtreOrga==='tous'?'#2c5f2d':'#e0e0e0'};color:${filtreOrga==='tous'?'white':'#333'};">📋 Tous</button>
+                </div>`;
+                let affiche=false;
+                keys.forEach(convBase=>{
+                    const msgs=convs[convBase].sort((a,b)=>a.idConvFull.localeCompare(b.idConvFull));
+                    const nonTraite=msgs[msgs.length-1].traite==='NON';
+                    if(filtreOrga==='nonTraites'&&!nonTraite)return;
+                    affiche=true;
+                    const premierMsg=msgs.find(m=>m.userId!==adherent.id)||msgs[0];
+                    html+=`<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;border-left:4px solid ${nonTraite?'#dc3545':'#28a745'};">
+                        <div style="padding:10px 12px;background:${nonTraite?'rgba(220,53,69,0.1)':'rgba(40,167,69,0.1)'};">
+                            <strong style="color:var(--text);">👤 ${premierMsg.prenom} ${premierMsg.nom}</strong>
+                            <span style="float:right;font-size:12px;color:var(--text-sub);">${convBase}</span>
+                        </div>
+                        ${msgs.map(m=>`<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:${m.userId===adherent.id?'rgba(44,95,45,0.08)':'var(--card-bg)'};">
+                            <div style="font-size:11px;color:var(--text-sub);margin-bottom:3px;">${m.userId===adherent.id?'🏢 Vous (Organisation)':'👤 '+m.prenom+' '+m.nom} — ${m.dateHeure}</div>
+                            <div style="font-size:14px;color:var(--text);">${m.message}</div>
+                        </div>`).join('')}
+                        ${nonTraite?`<div style="padding:10px;">
+                            <textarea id="rep-${convBase}" placeholder="Votre réponse..." style="width:100%;height:80px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;background:var(--page-bg);color:var(--text);margin-bottom:8px;"></textarea>
+                            <button onclick="envoyerReponseOrga('${convBase}')" style="width:100%;padding:10px;background:#2c5f2d;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">📤 Répondre</button>
+                        </div>`:''}
+                    </div>`;
+                });
+                if(!affiche)html+='<p style="color:var(--text-sub);text-align:center;padding:20px;">Aucun message en attente</p>';
+                content.innerHTML=html;
+            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
+        }
+        async function envoyerReponseOrga(convBase){
+            const adherent=chargerAdherent();
+            const texte=document.getElementById(`rep-${convBase}`).value.trim();
+            if(!texte){alert('Veuillez écrire une réponse');return;}
+            const btn=document.querySelector(`button[onclick="envoyerReponseOrga('${convBase}')"]`);
+            if(btn){btn.disabled=true;btn.textContent='⏳ Envoi...';btn.style.opacity='0.6';}
+            try {
+                const params=new URLSearchParams({action:'sendMessage',userId:adherent.id,nom:adherent.nom,prenom:adherent.prenom,message:texte,convId:convBase,isOrganisateur:'true'});
+                const resp=await fetch(`${SCRIPT_URL}?${params}`);
+                const data=await resp.json();
+                if(data.success){chargerMessagesOrganisateur(adherent);}
+                else{if(btn){btn.disabled=false;btn.textContent='📤 Répondre';btn.style.opacity='1';}alert('Erreur d\'envoi.');}
+            } catch(e){if(btn){btn.disabled=false;btn.textContent='📤 Répondre';btn.style.opacity='1';}alert('Erreur de connexion');}
+        }
 
-        function afficherFormulaireMessage(convBase) {
-            const content = document.getElementById('messagerieContent');
-            const isNouveau = !convBase;
+        // ===== COMMUNICATIONS INSTANTANÉES =====
+        let listeParticipants = [];
+
+        async function ouvrirCommInstantanees() {
+            const adherent = chargerAdherent();
+            const content = document.getElementById('commInstantaneesContent');
+            content.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-sub);">⏳ Chargement des participants...</p>';
+            try {
+                const resp = await fetch(`${SCRIPT_URL}?action=getParticipants&userId=${encodeURIComponent(adherent.id)}`);
+                const data = await resp.json();
+                if (!data.success) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de chargement</p>'; return; }
+                listeParticipants = data.participants;
+                afficherFormulaireCommInstantanee();
+            } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+        }
+
+        function afficherFormulaireCommInstantanee() {
+            const content = document.getElementById('commInstantaneesContent');
+            const optionsParticipants = listeParticipants.map(p =>
+                `<option value="${p.id}">${p.prenom} ${p.nom} (${p.statut})</option>`
+            ).join('');
+
             content.innerHTML = `
-                <div style="margin-bottom:15px;">
-                    <button onclick="ouvrirMessagerie()" style="background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">← Retour</button>
-                </div>
-                <div style="background:var(--card-bg); border-radius:12px; padding:15px; box-shadow:var(--card-shadow);">
-                    <h3 style="color:var(--text); margin-bottom:15px;">${isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase}</h3>
-                    <textarea id="msgTexte" placeholder="Votre message..." style="width:100%; height:120px; padding:12px; border:2px solid #ddd; border-radius:10px; font-size:15px; resize:none; outline:none; background:var(--page-bg); color:var(--text);"></textarea>
-                    <button onclick="envoyerMessage('${convBase || ''}')" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:10px;">📤 Envoyer</button>
+                <div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);margin-bottom:15px;">
+                    <h3 style="color:var(--text);margin-bottom:15px;">📡 Envoyer un message</h3>
+
+                    <!-- Personne précise -->
+                    <div class="checkbox-item" onclick="toggleDestType('personne')">
+                        <input type="checkbox" id="chkPersonne" onchange="gererChoixDest('personne')">
+                        <label for="chkPersonne" style="font-weight:bold;">👤 Une personne précise</label>
+                    </div>
+                    <div id="selectPersonneDiv" style="display:none;margin:8px 0 15px 30px;">
+                        <select id="selectPersonne" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;background:var(--page-bg);color:var(--text);">
+                            <option value="">-- Sélectionner --</option>
+                            ${optionsParticipants}
+                        </select>
+                    </div>
+
+                    <!-- Groupes -->
+                    <p style="color:var(--text);font-weight:bold;margin:10px 0 8px;">👥 Groupes :</p>
+                    <div class="checkbox-group" id="groupesCheckboxes">
+                        ${GROUPES.map(g=>`
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="chk-${g}" class="chk-groupe" value="${g}" onchange="gererChoixDest('groupe')">
+                                <label for="chk-${g}">${g}</label>
+                            </div>`).join('')}
+                    </div>
+
+                    <!-- Tous -->
+                    <div class="checkbox-item" style="margin-top:10px;background:rgba(44,95,45,0.1);" onclick="toggleDestType('tous')">
+                        <input type="checkbox" id="chkTous" onchange="gererChoixDest('tous')">
+                        <label for="chkTous" style="font-weight:bold;color:#2c5f2d;">📢 TOUS les participants</label>
+                    </div>
+
+                    <!-- Message -->
+                    <div style="margin-top:15px;">
+                        <textarea id="commTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--page-bg);color:var(--text);"></textarea>
+                        <button onclick="envoyerCommInstantanee()" style="width:100%;padding:14px;background:#2c5f2d;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">
+                            📤 Envoyer le message
+                        </button>
+                    </div>
                 </div>`;
         }
 
-        async function envoyerMessage(convBase) {
+        function gererChoixDest(type) {
+            const chkPersonne = document.getElementById('chkPersonne');
+            const chkTous = document.getElementById('chkTous');
+            const chksGroupe = document.querySelectorAll('.chk-groupe');
+            const selectDiv = document.getElementById('selectPersonneDiv');
+
+            if (type === 'personne') {
+                if (chkPersonne.checked) {
+                    // Décocher tout le reste
+                    chkTous.checked = false;
+                    chksGroupe.forEach(c => c.checked = false);
+                }
+                selectDiv.style.display = chkPersonne.checked ? 'block' : 'none';
+            } else if (type === 'groupe') {
+                // Si un groupe est coché, décocher personne et tous
+                const unGroupeCoche = Array.from(chksGroupe).some(c => c.checked);
+                if (unGroupeCoche) {
+                    chkPersonne.checked = false;
+                    chkTous.checked = false;
+                    selectDiv.style.display = 'none';
+                }
+            } else if (type === 'tous') {
+                if (chkTous.checked) {
+                    // Décocher tout le reste
+                    chkPersonne.checked = false;
+                    chksGroupe.forEach(c => c.checked = false);
+                    selectDiv.style.display = 'none';
+                }
+            }
+        }
+
+        async function envoyerCommInstantanee() {
             const adherent = chargerAdherent();
-            const texte = document.getElementById('msgTexte').value.trim();
+            const texte = document.getElementById('commTexte').value.trim();
             if (!texte) { alert('Veuillez écrire un message'); return; }
-            const content = document.getElementById('messagerieContent');
-            content.innerHTML = '<p style="text-align:center; padding:40px; color:var(--text-sub);">⏳ Envoi en cours...</p>';
-            try {
-                const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase || '', isOrganisateur: adherent.statut === 'Organisateur' ? 'true' : 'false' });
-                const resp = await fetch(`${SCRIPT_URL}?${params}`);
-                const data = await resp.json();
-                if (data.success) {
-                    chargerMessagesParticipant(adherent);
-                } else {
-                    content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur d\'envoi. Réessayez.</p>';
-                }
-            } catch(e) {
-                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
-            }
-        }
 
-        // ===== VUE ORGANISATEUR =====
-        async function chargerMessagesOrganisateur(adherent) {
-            const content = document.getElementById('messagerieContent');
-            try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
-                const data = await resp.json();
-                if (!data.success) { content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Accès refusé</p>'; return; }
-                const convs = data.conversations;
-                const keys  = Object.keys(convs);
-                let nbNonTraites = 0;
-                keys.forEach(k => { if (convs[k][convs[k].length - 1].traite === 'NON') nbNonTraites++; });
-                document.getElementById('btnMessagerieSubtitle').textContent = nbNonTraites > 0 ? `🔴 ${nbNonTraites} message(s) non traité(s)` : 'Aucun message en attente';
-                let html = `
-                    <div style="display:flex; gap:8px; margin-bottom:15px;">
-                        <button onclick="filtreOrga='nonTraites'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:${filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0'}; color:${filtreOrga === 'nonTraites' ? 'white' : '#333'};">🔴 Non traités (${nbNonTraites})</button>
-                        <button onclick="filtreOrga='tous'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:${filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0'}; color:${filtreOrga === 'tous' ? 'white' : '#333'};">📋 Tous</button>
-                    </div>`;
-                let affiche = false;
-                keys.forEach(convBase => {
-                    const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-                    const nonTraite = msgs[msgs.length - 1].traite === 'NON';
-                    if (filtreOrga === 'nonTraites' && !nonTraite) return;
-                    affiche = true;
-                    const premierMsg = msgs.find(m => m.userId !== adherent.id) || msgs[0];
-                    html += `
-                        <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden; border-left:4px solid ${nonTraite ? '#dc3545' : '#28a745'};">
-                            <div style="padding:10px 12px; background:${nonTraite ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)'};">
-                                <strong style="color:var(--text);">👤 ${premierMsg.prenom} ${premierMsg.nom}</strong>
-                                <span style="float:right; font-size:12px; color:var(--text-sub);">${convBase}</span>
-                            </div>
-                            ${msgs.map(m => `
-                                <div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:${m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)'};">
-                                    <div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">${m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom} — ${m.dateHeure}</div>
-                                    <div style="font-size:14px; color:var(--text);">${m.message}</div>
-                                </div>`).join('')}
-                            ${nonTraite ? `
-                                <div style="padding:10px;">
-                                    <textarea id="rep-${convBase}" placeholder="Votre réponse..." style="width:100%; height:80px; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; resize:none; outline:none; background:var(--page-bg); color:var(--text); margin-bottom:8px;"></textarea>
-                                    <button onclick="envoyerReponseOrga('${convBase}')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">📤 Répondre</button>
-                                </div>` : ''}
-                        </div>`;
-                });
-                if (!affiche) html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message en attente</p>';
-                content.innerHTML = html;
-            } catch(e) {
-                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
-            }
-        }
+            const chkPersonne = document.getElementById('chkPersonne');
+            const chkTous = document.getElementById('chkTous');
+            const chksGroupe = document.querySelectorAll('.chk-groupe:checked');
 
-        async function envoyerReponseOrga(convBase) {
-            const adherent = chargerAdherent();
-            const texte = document.getElementById(`rep-${convBase}`).value.trim();
-            if (!texte) { alert('Veuillez écrire une réponse'); return; }
-            const btn = document.querySelector(`button[onclick="envoyerReponseOrga('${convBase}')"]`);
+            let destinataires = null;
+            if (chkTous.checked) {
+                destinataires = { type: 'all' };
+            } else if (chkPersonne.checked) {
+                const sel = document.getElementById('selectPersonne').value;
+                if (!sel) { alert('Veuillez sélectionner une personne'); return; }
+                destinataires = { type: 'personne', id: sel };
+            } else if (chksGroupe.length > 0) {
+                destinataires = { type: 'groupes', groupes: Array.from(chksGroupe).map(c => c.value) };
+            } else {
+                alert('Veuillez sélectionner au moins un destinataire'); return;
+            }
+
+            const btn = document.querySelector('#commInstantaneesContent button[onclick="envoyerCommInstantanee()"]');
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi en cours...'; btn.style.opacity = '0.6'; }
+
             try {
-                const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase, isOrganisateur: 'true' });
+                const params = new URLSearchParams({
+                    action: 'sendCommunication',
+                    userId: adherent.id,
+                    message: texte,
+                    destinataires: JSON.stringify(destinataires)
+                });
                 const resp = await fetch(`${SCRIPT_URL}?${params}`);
                 const data = await resp.json();
                 if (data.success) {
-                    chargerMessagesOrganisateur(adherent);
+                    document.getElementById('commTexte').value = '';
+                    alert('✅ Message envoyé avec succès !');
+                    if (btn) { btn.disabled = false; btn.textContent = '📤 Envoyer le message'; btn.style.opacity = '1'; }
                 } else {
-                    if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
                     alert('Erreur d\'envoi. Réessayez.');
+                    if (btn) { btn.disabled = false; btn.textContent = '📤 Envoyer le message'; btn.style.opacity = '1'; }
                 }
             } catch(e) {
-                if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
                 alert('Erreur de connexion');
+                if (btn) { btn.disabled = false; btn.textContent = '📤 Envoyer le message'; btn.style.opacity = '1'; }
             }
         }
+
+        // ===== COMMUNICATIONS REÇUES =====
+        // Stocker les IDs des messages déjà vus
+        function getMessagesVus() {
+            try { return JSON.parse(localStorage.getItem('aamb_msgs_vus') || '[]'); } catch(e) { return []; }
+        }
+        function setMessagesVus(ids) {
+            localStorage.setItem('aamb_msgs_vus', JSON.stringify(ids));
+        }
+
+        let notifQueue = []; // File d'attente des notifications à afficher
+        let notifEnCours = false;
+
+        async function verifierNouvellesCommunications(adherent) {
+            try {
+                const resp = await fetch(`${SCRIPT_URL}?action=getMyCommunications&userId=${encodeURIComponent(adherent.id)}`);
+                const data = await resp.json();
+                if (!data.success) return;
+                const vus = getMessagesVus();
+                const nouveaux = data.messages.filter(m => !vus.includes(m.idMsg));
+                if (nouveaux.length > 0) {
+                    // Marquer comme vus
+                    const tousIds = data.messages.map(m => m.idMsg);
+                    setMessagesVus(tousIds);
+                    // Mettre en file d'attente
+                    notifQueue.push(...nouveaux);
+                    // Mettre à jour le badge
+                    const totalNonLus = nouveaux.length;
+                    document.getElementById('btnCommunicationsSubtitle').textContent = `🔴 ${totalNonLus} nouveau(x) message(s)`;
+                    // Afficher les bandeaux
+                    afficherProchaineBandeau();
+                    // Son
+                    jouerSonNotif();
+                }
+            } catch(e) {}
+        }
+
+        async function verifierCommunicationsManquees(adherent) {
+            // Au démarrage, charger tous les messages et afficher ceux non vus
+            await verifierNouvellesCommunications(adherent);
+        }
+
+        function afficherProchaineBandeau() {
+            if (notifEnCours || notifQueue.length === 0) return;
+            const msg = notifQueue.shift();
+            notifEnCours = true;
+            const bandeau = document.getElementById('notifBandeau');
+            const texte = document.getElementById('notifBandeauTexte');
+            texte.textContent = msg.message;
+            bandeau.dataset.message = msg.message;
+            bandeau.dataset.date = msg.dateHeure;
+            bandeau.style.display = 'block';
+            // Fermer après 3s si pas cliqué
+            setTimeout(() => {
+                bandeau.style.display = 'none';
+                notifEnCours = false;
+                // Afficher le suivant si besoin
+                setTimeout(afficherProchaineBandeau, 500);
+            }, 3000);
+        }
+
+        function ouvrirNotifModal() {
+            const bandeau = document.getElementById('notifBandeau');
+            clearTimeout(window._notifTimeout);
+            bandeau.style.display = 'none';
+            notifEnCours = false;
+            document.getElementById('notifModalTexte').textContent = bandeau.dataset.message || '';
+            document.getElementById('notifModalDate').textContent = bandeau.dataset.date || '';
+            document.getElementById('notifModal').classList.add('active');
+        }
+
+        function fermerNotifModal() {
+            document.getElementById('notifModal').classList.remove('active');
+            setTimeout(afficherProchaineBandeau, 500);
+        }
+
+        function jouerSonNotif() {
+            try { new Audio('alerte.mp3').play().catch(()=>{}); } catch(e) {}
+        }
+
+        // ===== PAGE COMMUNICATIONS (archivage) =====
+        async function chargerCommunications() {
+            const adherent = chargerAdherent();
+            if (!adherent) return;
+            const content = document.getElementById('communicationsContent');
+            content.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-sub);">⏳ Chargement...</p>';
+            try {
+                const resp = await fetch(`${SCRIPT_URL}?action=getMyCommunications&userId=${encodeURIComponent(adherent.id)}`);
+                const data = await resp.json();
+                if (!data.success) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur</p>'; return; }
+                const msgs = data.messages;
+                // Marquer tous comme vus
+                setMessagesVus(msgs.map(m => m.idMsg));
+                document.getElementById('btnCommunicationsSubtitle').textContent = 'Informations et annonces';
+                if (msgs.length === 0) {
+                    content.innerHTML = '<p style="color:var(--text-sub);text-align:center;padding:40px;">Aucun message pour le moment</p>';
+                    return;
+                }
+                content.innerHTML = msgs.slice().reverse().map(m => `
+                    <div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;">
+                        <div style="background:linear-gradient(135deg,#2c5f2d,#4a8f4d);padding:8px 12px;">
+                            <span style="color:white;font-size:12px;font-weight:bold;">📢 Message de l'AAMB</span>
+                            <span style="float:right;color:rgba(255,255,255,0.8);font-size:11px;">${m.dateHeure}</span>
+                        </div>
+                        <div style="padding:15px;font-size:15px;color:var(--text);line-height:1.6;">${m.message}</div>
+                    </div>`).join('');
+            } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+        }
+
+        // Refresh communications toutes les 15s si la page est ouverte
+        setInterval(() => {
+            const adherent = chargerAdherent();
+            if (!adherent) return;
+            const page = document.getElementById('communicationsPage');
+            if (page.classList.contains('active')) chargerCommunications();
+        }, 15000);
     </script>
 </body>
 </html>
