@@ -898,7 +898,11 @@
                 chargerMessagesOrganisateur(adherent);
                 // Refresh adaptatif 15s
                 clearInterval(refreshTimer);
-                refreshTimer = setInterval(() => chargerMessagesOrganisateur(adherent), 15000);
+                refreshTimer = setInterval(() => {
+                    if (!textareaEnCoursDeRemplissage()) {
+                        chargerMessagesOrganisateur(adherent);
+                    }
+                }, 15000);
             } else {
                 // Vue participant
                 document.getElementById('messagerieTitle').textContent = '💬 Mes messages';
@@ -932,6 +936,9 @@
 
         // ===== VUE PARTICIPANT =====
         async function chargerMessagesParticipant(adherent) {
+            // Ne pas rafraîchir si un textarea est en cours de saisie
+            if (textareaEnCoursDeRemplissage()) return;
+
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
@@ -1078,6 +1085,15 @@
         let filtreOrga = 'nonTraites'; // 'nonTraites' ou 'tous'
 
         async function chargerMessagesOrganisateur(adherent) {
+            // Ne pas rafraîchir si un textarea est en cours de saisie
+            if (textareaEnCoursDeRemplissage()) return;
+
+            // Sauvegarder le contenu des textareas avant refresh
+            const contenuTextareas = {};
+            document.querySelectorAll('#messagerieContent textarea').forEach(ta => {
+                if (ta.id && ta.value.trim()) contenuTextareas[ta.id] = ta.value;
+            });
+
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
