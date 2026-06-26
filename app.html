@@ -382,6 +382,7 @@
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
+        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v39</p>
         <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
 
         <!-- Bouton déconnexion -->
@@ -898,7 +899,12 @@
                 chargerMessagesOrganisateur(adherent);
                 // Refresh adaptatif 15s
                 clearInterval(refreshTimer);
-                refreshTimer = setInterval(() => chargerMessagesOrganisateur(adherent), 15000);
+                refreshTimer = setInterval(() => {
+                    const textareas = document.querySelectorAll('#messagerieContent textarea');
+                    let texteEnCours = false;
+                    textareas.forEach(ta => { if (ta.value.trim().length > 0) texteEnCours = true; });
+                    if (!texteEnCours) chargerMessagesOrganisateur(adherent);
+                }, 15000);
             } else {
                 // Vue participant
                 document.getElementById('messagerieTitle').textContent = '💬 Mes messages';
@@ -932,6 +938,9 @@
 
         // ===== VUE PARTICIPANT =====
         async function chargerMessagesParticipant(adherent) {
+            // Ne pas rafraîchir si un textarea est en cours de saisie
+            if (textareaEnCoursDeRemplissage()) return;
+
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
@@ -1078,6 +1087,15 @@
         let filtreOrga = 'nonTraites'; // 'nonTraites' ou 'tous'
 
         async function chargerMessagesOrganisateur(adherent) {
+            // Ne pas rafraîchir si un textarea est en cours de saisie
+            if (textareaEnCoursDeRemplissage()) return;
+
+            // Sauvegarder le contenu des textareas avant refresh
+            const contenuTextareas = {};
+            document.querySelectorAll('#messagerieContent textarea').forEach(ta => {
+                if (ta.id && ta.value.trim()) contenuTextareas[ta.id] = ta.value;
+            });
+
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
