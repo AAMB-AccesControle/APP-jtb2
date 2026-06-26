@@ -10,7 +10,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* ===== VARIABLES THÈME ===== */
         :root {
             --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             --header-bg: white;
@@ -76,101 +75,58 @@
         header h1 { color: var(--header-text); font-size: 22px; margin-bottom: 3px; transition: color 0.3s; }
         header p { color: var(--header-sub); font-size: 13px; transition: color 0.3s; }
 
-        /* Toggle dark mode */
         .dark-toggle {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
+            position: absolute; top: 15px; right: 15px;
+            display: flex; align-items: center; gap: 6px; cursor: pointer;
         }
         .toggle-label { font-size: 11px; color: var(--header-sub); }
         .toggle-switch {
-            width: 44px;
-            height: 24px;
-            background: #ccc;
-            border-radius: 12px;
-            position: relative;
-            transition: background 0.3s;
+            width: 44px; height: 24px; background: #ccc;
+            border-radius: 12px; position: relative; transition: background 0.3s;
         }
         .toggle-switch.on { background: #2c5f2d; }
         .toggle-knob {
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: left 0.3s;
+            width: 20px; height: 20px; background: white; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
             box-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
         .toggle-switch.on .toggle-knob { left: 22px; }
 
         .container {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
+            flex: 1; padding: 20px; display: flex; flex-direction: column;
+            gap: 15px; max-width: 600px; margin: 0 auto; width: 100%;
         }
 
         .button-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: var(--card-shadow);
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            background: var(--card-bg); border-radius: 15px; padding: 20px;
+            box-shadow: var(--card-shadow); cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; gap: 15px;
         }
         .button-card:active { transform: scale(0.98); }
 
         .button-icon {
             width: 50px; height: 50px;
             background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; flex-shrink: 0;
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 24px; flex-shrink: 0;
         }
         .button-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 5px; transition: color 0.3s; }
         .button-subtitle { font-size: 13px; color: var(--text-sub); transition: color 0.3s; }
 
-        /* ===== PAGES OVERLAY ===== */
         .page-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--page-bg);
-            z-index: 1000;
-            overflow-y: auto;
-            transition: background 0.3s;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--page-bg); z-index: 1000; overflow-y: auto; transition: background 0.3s;
         }
         .page-overlay.active { display: block; }
 
         .page-header {
-            background: var(--page-header-bg);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            position: sticky;
-            top: 0; z-index: 10;
+            background: var(--page-header-bg); color: white; padding: 15px 20px;
+            display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;
         }
         .back-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
         .page-header h2 { font-size: 20px; }
-
         .page-content { padding: 20px; }
 
-        /* Flash */
         .flash-control { text-align: center; padding: 40px 20px; }
         .flash-button {
             width: 150px; height: 150px; border-radius: 50%; border: none;
@@ -185,130 +141,57 @@
         .flash-status { font-size: 18px; color: var(--text-sub); margin-top: 20px; }
         #camera-stream { width: 100%; max-width: 500px; border-radius: 10px; display: none; }
 
-        /* Données */
         .data-row { padding: 15px; border-bottom: 1px solid rgba(128,128,128,0.2); }
         .data-row:last-child { border-bottom: none; }
         .data-label { font-size: 12px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; }
         .data-value { font-size: 16px; color: var(--text); font-weight: 500; }
 
-        /* QR Code */
         .qrcode-container { text-align: center; padding: 30px 20px; }
         #qrcode { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-        /* ===== PROGRAMME ===== */
-        .jour-btns {
-            display: flex; gap: 8px; margin-bottom: 15px;
-            overflow-x: auto; padding-bottom: 5px;
-        }
+        .jour-btns { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .jour-btn {
-            background: var(--jour-btn-bg);
-            color: var(--jour-btn-text);
-            border: none; padding: 8px 14px;
-            border-radius: 20px; cursor: pointer;
-            font-size: 13px; white-space: nowrap; font-weight: 500;
-            transition: all 0.2s;
+            background: var(--jour-btn-bg); color: var(--jour-btn-text);
+            border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer;
+            font-size: 13px; white-space: nowrap; font-weight: 500; transition: all 0.2s;
         }
         .jour-btn.active { background: #2c5f2d; color: white; }
 
-        .prog-slot {
-            margin-bottom: 12px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .prog-heure {
-            background: var(--heure-bg);
-            color: white;
-            padding: 6px 12px;
-            font-size: 13px; font-weight: bold;
-        }
+        .prog-slot { margin-bottom: 12px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .prog-heure { background: var(--heure-bg); color: white; padding: 6px 12px; font-size: 13px; font-weight: bold; }
         .prog-conf {
-            background: var(--conf-bg);
-            padding: 10px 12px;
-            font-size: 14px; color: var(--text);
-            border-left: 4px solid var(--conf-border);
-            transition: background 0.3s;
+            background: var(--conf-bg); padding: 10px 12px; font-size: 14px;
+            color: var(--text); border-left: 4px solid var(--conf-border); transition: background 0.3s;
         }
         .prog-ateliers { display: flex; }
         .atelier {
-            flex: 1;
-            background: var(--atelier-bg);
-            padding: 8px 10px;
-            font-size: 12px;
-            color: var(--atelier-text);
-            border-top: 1px solid rgba(128,128,128,0.2);
-            border-left: 4px solid var(--atelier-border);
-            transition: background 0.3s;
+            flex: 1; background: var(--atelier-bg); padding: 8px 10px; font-size: 12px;
+            color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2);
+            border-left: 4px solid var(--atelier-border); transition: background 0.3s;
         }
         .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
         .atelier strong { font-size: 13px; }
 
-        /* ===== ANIMATION SWIPE ===== */
-        #zoneSwipe {
-            overflow: hidden;
-            position: relative;
-        }
-        .jour-content {
-            transition: none;
-        }
-        .jour-content.slide-out-left {
-            animation: slideOutLeft 0.3s ease forwards;
-        }
-        .jour-content.slide-out-right {
-            animation: slideOutRight 0.3s ease forwards;
-        }
-        .jour-content.slide-in-left {
-            animation: slideInLeft 0.3s ease forwards;
-        }
-        .jour-content.slide-in-right {
-            animation: slideInRight 0.3s ease forwards;
-        }
-        @keyframes slideOutLeft {
-            from { transform: translateX(0); opacity: 1; }
-            to   { transform: translateX(-100%); opacity: 0; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to   { transform: translateX(100%); opacity: 0; }
-        }
-        @keyframes slideInLeft {
-            from { transform: translateX(100%); opacity: 0; }
-            to   { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideInRight {
-            from { transform: translateX(-100%); opacity: 0; }
-            to   { transform: translateX(0); opacity: 1; }
-        }
+        #zoneSwipe { overflow: hidden; position: relative; }
+        .jour-content { transition: none; }
+        .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
+        .jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
+        .jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
+        .jour-content.slide-in-right { animation: slideInRight 0.3s ease forwards; }
+        @keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* ===== EN COURS ===== */
         .prog-slot.en-cours::before {
-            content: '🔴 EN COURS';
-            display: block;
-            background: #c0002a !important;
-            color: white !important;
-            text-align: center;
-            font-size: 12px; font-weight: bold;
-            padding: 4px;
-            letter-spacing: 1px;
+            content: '🔴 EN COURS'; display: block; background: #c0002a !important;
+            color: white !important; text-align: center; font-size: 12px; font-weight: bold;
+            padding: 4px; letter-spacing: 1px;
         }
-        .prog-slot.en-cours .prog-heure {
-            background: #c0002a !important;
-            color: white !important;
-        }
-        .prog-slot.en-cours .prog-conf {
-            animation: pulse-conf 2s infinite !important;
-            border-left: 4px solid #c0002a !important;
-        }
-        .prog-slot.en-cours .atelier {
-            animation: pulse-atelier 2s infinite !important;
-            border-left: 4px solid #1565c0 !important;
-            color: white !important;
-        }
-        .prog-slot.en-cours .atelier strong,
-        .prog-slot.en-cours .atelier small {
-            color: white !important;
-        }
-
+        .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
+        .prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
+        .prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
+        .prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
         @keyframes pulse-conf {
             0%   { background-color: #c0002a !important; color: white; }
             50%  { background-color: #ff4d6d !important; color: white; }
@@ -326,66 +209,44 @@
     <!-- PAGE AUTHENTIFICATION -->
     <div id="authPage" style="
         position: fixed; top:0; left:0; right:0; bottom:0;
-        background: var(--page-bg);
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 30px;
-    ">
+        background: var(--page-bg); z-index: 9999;
+        display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;">
         <div style="max-width:400px; width:100%; text-align:center;">
             <div style="width:100px; height:100px; margin:0 auto 20px; border-radius:20px; overflow:hidden;">
                 <img src="logo-aamb.png" alt="AAMB" style="width:100%; height:100%; object-fit:contain;">
             </div>
             <h1 style="color:var(--header-text); margin-bottom:8px; font-size:24px;">AAMB</h1>
             <p style="color:var(--text-sub); margin-bottom:30px; font-size:14px;">43èmes Journées Techniques Biomédicales</p>
-
             <div style="background:var(--card-bg); border-radius:15px; padding:25px; box-shadow:var(--card-shadow);">
                 <p style="color:var(--text); font-size:15px; margin-bottom:15px; font-weight:600;">🔐 Saisissez votre code d'accès</p>
-
-                <input id="authInput" type="text" maxlength="10"
-                    placeholder="Ex: X7K2M9PQ"
-                    style="
-                        width:100%; padding:14px; font-size:20px; text-align:center;
+                <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
+                    style="width:100%; padding:14px; font-size:20px; text-align:center;
                         border:2px solid #ddd; border-radius:10px; outline:none;
                         background:var(--page-bg); color:var(--text);
-                        letter-spacing:3px; text-transform:uppercase;
-                        margin-bottom:12px;
-                    "
+                        letter-spacing:3px; text-transform:uppercase; margin-bottom:12px;"
                     oninput="this.value=this.value.toUpperCase(); resetAuthResult();"
-                    onkeydown="if(event.key==='Enter') verifierID();"
-                >
-
+                    onkeydown="if(event.key==='Enter') verifierID();">
                 <button onclick="verifierID()" id="authBtn" style="
                     width:100%; padding:14px; font-size:16px; font-weight:bold;
                     background:#2c5f2d; color:white; border:none; border-radius:10px;
-                    cursor:pointer; transition:opacity 0.2s;
-                ">Valider →</button>
-
-                <!-- Résultat affiché en dessous -->
+                    cursor:pointer; transition:opacity 0.2s;">Valider →</button>
                 <div id="authResult" style="margin-top:15px; display:none;">
                     <div id="authResultContent"></div>
                 </div>
             </div>
-
-            <p style="color:var(--text-sub); font-size:12px; margin-top:20px;">
-                Votre code d'accès figure sur votre convocation
-            </p>
+            <p style="color:var(--text-sub); font-size:12px; margin-top:20px;">Votre code d'accès figure sur votre convocation</p>
         </div>
     </div>
+
+    <header>
         <div class="dark-toggle" onclick="toggleDark()">
             <span class="toggle-label" id="toggleLabel">☀️</span>
-            <div class="toggle-switch" id="toggleSwitch">
-                <div class="toggle-knob"></div>
-            </div>
+            <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v38 - Messagerie OK mais rafaichissement organisateur efface message en cours toutes les 15s</p>
+        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v39</p>
         <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
-
-        <!-- Bouton déconnexion -->
         <div style="position:absolute; top:12px; left:15px; cursor:pointer; text-align:center;" onclick="deconnecter()" title="Déconnexion">
             <div style="font-size:22px;">🚪</div>
             <div style="font-size:10px; color:var(--header-sub); margin-top:2px;">Déconnexion</div>
@@ -395,40 +256,24 @@
     <div class="container">
         <div class="button-card" onclick="openPage('flashPage')">
             <div class="button-icon">💡</div>
-            <div>
-                <div class="button-title">Flash / Lampe</div>
-                <div class="button-subtitle">Allumer ou éteindre le flash</div>
-            </div>
+            <div><div class="button-title">Flash / Lampe</div><div class="button-subtitle">Allumer ou éteindre le flash</div></div>
         </div>
         <div class="button-card" onclick="openPage('dataPage')">
             <div class="button-icon">📊</div>
-            <div>
-                <div class="button-title">Données</div>
-                <div class="button-subtitle">Afficher les informations</div>
-            </div>
+            <div><div class="button-title">Données</div><div class="button-subtitle">Afficher les informations</div></div>
         </div>
         <div class="button-card" onclick="openPage('qrcodePage')">
             <div class="button-icon">📱</div>
-            <div>
-                <div class="button-title">Mon QR Code</div>
-                <div class="button-subtitle">Afficher votre QR code</div>
-            </div>
+            <div><div class="button-title">Mon QR Code</div><div class="button-subtitle">Afficher votre QR code</div></div>
         </div>
         <div class="button-card" onclick="openWebsite()">
             <div class="button-icon">🌐</div>
-            <div>
-                <div class="button-title">Site Internet</div>
-                <div class="button-subtitle">Ouvrir le site web</div>
-            </div>
+            <div><div class="button-title">Site Internet</div><div class="button-subtitle">Ouvrir le site web</div></div>
         </div>
         <div class="button-card" onclick="openPage('programmePage')">
             <div class="button-icon">📅</div>
-            <div>
-                <div class="button-title">Programme des Journées</div>
-                <div class="button-subtitle">43èmes JTB 2026 — Metz-Briey</div>
-            </div>
+            <div><div class="button-title">Programme des Journées</div><div class="button-subtitle">43èmes JTB 2026 — Metz-Briey</div></div>
         </div>
-
         <div class="button-card" onclick="openPage('messageriePage')">
             <div class="button-icon">💬</div>
             <div>
@@ -440,10 +285,7 @@
 
     <!-- PAGE FLASH -->
     <div id="flashPage" class="page-overlay">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage('flashPage')">←</button>
-            <h2>Flash / Lampe</h2>
-        </div>
+        <div class="page-header"><button class="back-btn" onclick="closePage('flashPage')">←</button><h2>Flash / Lampe</h2></div>
         <div class="page-content flash-control">
             <button id="flashBtn" class="flash-button" onclick="toggleFlash()">💡</button>
             <div class="flash-status" id="flashStatus">Flash éteint</div>
@@ -453,10 +295,7 @@
 
     <!-- PAGE DONNÉES -->
     <div id="dataPage" class="page-overlay">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage('dataPage')">←</button>
-            <h2>Données</h2>
-        </div>
+        <div class="page-header"><button class="back-btn" onclick="closePage('dataPage')">←</button><h2>Données</h2></div>
         <div class="page-content">
             <div id="dataContent">
                 <div class="data-row"><div class="data-label">Information 1</div><div class="data-value">À connecter à Google Sheets</div></div>
@@ -467,10 +306,7 @@
 
     <!-- PAGE QR CODE -->
     <div id="qrcodePage" class="page-overlay">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage('qrcodePage')">←</button>
-            <h2>Mon QR Code</h2>
-        </div>
+        <div class="page-header"><button class="back-btn" onclick="closePage('qrcodePage')">←</button><h2>Mon QR Code</h2></div>
         <div class="page-content qrcode-container">
             <div id="qrcode"></div>
             <p style="margin-top:20px; color:var(--text-sub);">Scannez ce QR code pour partager vos informations</p>
@@ -479,72 +315,54 @@
 
     <!-- PAGE PROGRAMME -->
     <div id="programmePage" class="page-overlay">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage('programmePage')">←</button>
-            <h2>Programme JTB 2026</h2>
-        </div>
+        <div class="page-header"><button class="back-btn" onclick="closePage('programmePage')">←</button><h2>Programme JTB 2026</h2></div>
         <div class="page-content" style="padding:10px;">
             <p style="text-align:center; color:var(--text-sub); font-size:13px; margin-bottom:10px;">43èmes JTB 2026 — Metz-Briey</p>
-
             <div class="jour-btns">
                 <button class="jour-btn" id="btn-mardi"    onclick="afficherJour('mardi')">Mardi 23/06</button>
                 <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
                 <button class="jour-btn" id="btn-jeudi"    onclick="afficherJour('jeudi')">Jeudi 25/06</button>
                 <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
             </div>
-
-            <!-- Indicateur swipe -->
-            <div style="text-align:center; color:var(--text-sub); font-size:12px; margin-bottom:8px;">
-                ← Balayez pour changer de journée →
-            </div>
-
-            <!-- Zone swipable -->
+            <div style="text-align:center; color:var(--text-sub); font-size:12px; margin-bottom:8px;">← Balayez pour changer de journée →</div>
             <div id="zoneSwipe" style="transition: opacity 0.2s;">
-
-            <!-- MARDI -->
-            <div id="jour-mardi" class="jour-content" style="display:none;">
-                <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
-                <div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
-                <div class="prog-slot"><div class="prog-heure">14h15 - 15h00</div><div class="prog-conf"><strong>L'aEEG en néonatalogie</strong><br><small>Mahmoud ROUABAH — CHR METZ THIONVILLE</small></div></div>
-                <div class="prog-slot"><div class="prog-heure">15h05 - 15h50</div><div class="prog-conf"><strong>Dispositif d'EEG continu : Le Cerebair</strong><br><small>Mickael GUYOCHET — NIHON KOHDEN</small></div></div>
-                <div class="prog-slot"><div class="prog-heure">15h50 - 16h10</div><div class="prog-conf">☕ Pause</div></div>
-                <div class="prog-slot"><div class="prog-heure">16h15 - 17h00</div><div class="prog-conf"><strong>Collaboration pharmacie hospitalière &amp; biomédicaux en pharmacotechnie</strong><br><small>Pascale MONFORT — CHR METZ THIONVILLE</small></div></div>
-                <div class="prog-slot"><div class="prog-heure">17h15 - 18h30</div><div class="prog-conf">🏛️ AAMB AG — Salle Verlaine</div></div>
+                <div id="jour-mardi" class="jour-content" style="display:none;">
+                    <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
+                    <div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
+                    <div class="prog-slot"><div class="prog-heure">14h15 - 15h00</div><div class="prog-conf"><strong>L'aEEG en néonatalogie</strong><br><small>Mahmoud ROUABAH — CHR METZ THIONVILLE</small></div></div>
+                    <div class="prog-slot"><div class="prog-heure">15h05 - 15h50</div><div class="prog-conf"><strong>Dispositif d'EEG continu : Le Cerebair</strong><br><small>Mickael GUYOCHET — NIHON KOHDEN</small></div></div>
+                    <div class="prog-slot"><div class="prog-heure">15h50 - 16h10</div><div class="prog-conf">☕ Pause</div></div>
+                    <div class="prog-slot"><div class="prog-heure">16h15 - 17h00</div><div class="prog-conf"><strong>Collaboration pharmacie hospitalière &amp; biomédicaux en pharmacotechnie</strong><br><small>Pascale MONFORT — CHR METZ THIONVILLE</small></div></div>
+                    <div class="prog-slot"><div class="prog-heure">17h15 - 18h30</div><div class="prog-conf">🏛️ AAMB AG — Salle Verlaine</div></div>
+                </div>
+                <div id="jour-mercredi" class="jour-content" style="display:none;">
+                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong><br><small>Réglage microscope</small></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                    <div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
+                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR : adaptation du matériel hospitalier à la pratique pré-hospitalière</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong><br><small>Autopsie ventilateurs</small></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong><br><small>Accessibilité données</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong><br><small>Energie au bloc</small></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong><br><small>Réglage microscope</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong><br><small>Accessibilité données</small></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong><br><small>Autopsie ventilateurs</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">19h00 - 23h00</div><div class="prog-conf">🍷 Soirée terroir — Saint Pierre aux Nonnains</div></div>
+                </div>
+                <div id="jour-jeudi" class="jour-content" style="display:none;">
+                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong><br><small>Géolocalisation</small></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong><br><small>Maintenance biomédicale</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation : La base de l'enseignement médical</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong><br><small>Sécurité électrique</small></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ/THIONVILLE</strong><br><small>Premiers secours</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                    <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>La simulation en santé - Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong><br><small>Maintenance biomédicale</small></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong><br><small>Géolocalisation</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations technologiques en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ/THIONVILLE</strong><br><small>Premiers secours</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation fonctionnelle</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong><br><small>DSAEK Kératoplastie</small></div><div class="atelier">🔵 Atelier 10B<br><strong>MORGATE</strong><br><small>Sécurité électrique</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical Retex</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS France</strong><br><small>Démonstration fonctionnelle</small></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
+                </div>
+                <div id="jour-vendredi" class="jour-content" style="display:none;">
+                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Chirurgie valvulaire par minithoracotomie</strong><br><small>Erick PORTOCARRERO — CHR METZ THIONVILLE</small></div></div>
+                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Etat de l'art en chirurgie vidéothoracique</strong><br><small>Sébastien RICHARD — OLYMPUS</small></div></div>
+                    <div class="prog-slot"><div class="prog-heure">10h00 - 12h00</div><div class="prog-conf">🏁 Clôture des Journées</div></div>
+                </div>
             </div>
-
-            <!-- MERCREDI -->
-            <div id="jour-mercredi" class="jour-content" style="display:none;">
-                <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong><br><small>Réglage microscope</small></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                <div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
-                <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR : adaptation du matériel hospitalier à la pratique pré-hospitalière</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong><br><small>Autopsie ventilateurs</small></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong><br><small>Accessibilité données</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong><br><small>Energie au bloc</small></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong><br><small>Réglage microscope</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong><br><small>Accessibilité données</small></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong><br><small>Autopsie ventilateurs</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">19h00 - 23h00</div><div class="prog-conf">🍷 Soirée terroir — Saint Pierre aux Nonnains</div></div>
-            </div>
-
-            <!-- JEUDI -->
-            <div id="jour-jeudi" class="jour-content" style="display:none;">
-                <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong><br><small>Géolocalisation</small></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong><br><small>Maintenance biomédicale</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation : La base de l'enseignement médical</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong><br><small>Sécurité électrique</small></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ/THIONVILLE</strong><br><small>Premiers secours</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>La simulation en santé - Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong><br><small>Maintenance biomédicale</small></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong><br><small>Géolocalisation</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations technologiques en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ/THIONVILLE</strong><br><small>Premiers secours</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation fonctionnelle</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong><br><small>DSAEK Kératoplastie</small></div><div class="atelier">🔵 Atelier 10B<br><strong>MORGATE</strong><br><small>Sécurité électrique</small></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical Retex</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS France</strong><br><small>Démonstration fonctionnelle</small></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
-                <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
-            </div>
-
-            <!-- VENDREDI -->
-            <div id="jour-vendredi" class="jour-content" style="display:none;">
-                <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Chirurgie valvulaire par minithoracotomie</strong><br><small>Erick PORTOCARRERO — CHR METZ THIONVILLE</small></div></div>
-                <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Etat de l'art en chirurgie vidéothoracique</strong><br><small>Sébastien RICHARD — OLYMPUS</small></div></div>
-                <div class="prog-slot"><div class="prog-heure">10h00 - 12h00</div><div class="prog-conf">🏁 Clôture des Journées</div></div>
-            </div>
-            </div> <!-- fin zoneSwipe -->
         </div>
     </div>
 
@@ -554,30 +372,25 @@
             <button class="back-btn" onclick="closePage('messageriePage')">←</button>
             <h2 id="messagerieTitle">Messagerie</h2>
         </div>
-        <div class="page-content" id="messagerieContent">
-            <!-- Contenu dynamique selon le statut -->
-        </div>
+        <div class="page-content" id="messagerieContent"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let stream = null, track = null, flashOn = false, qrcodeGenerated = false;
 
-        // ===== AUTHENTIFICATION =====
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNRCpUT6kDNNl4NmqjPjefo7jURmpQ9L2Njfxkb78wJ8IiyhvT5XCeyoh6kjTOBq5b2Q/exec';
 
+        // ===== AUTHENTIFICATION =====
         function sauvegarderAdherent(adherent) {
             localStorage.setItem('aamb_adherent', JSON.stringify(adherent));
-            // Cookie de secours (30 jours)
             const exp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
             document.cookie = `aamb_adherent=${encodeURIComponent(JSON.stringify(adherent))}; expires=${exp}; path=/`;
         }
 
         function chargerAdherent() {
-            // Essayer localStorage d'abord
             const ls = localStorage.getItem('aamb_adherent');
             if (ls) return JSON.parse(ls);
-            // Sinon cookie
             const cookie = document.cookie.split(';').find(c => c.trim().startsWith('aamb_adherent='));
             if (cookie) return JSON.parse(decodeURIComponent(cookie.split('=')[1]));
             return null;
@@ -592,27 +405,19 @@
             document.getElementById('authResult').style.display = 'none';
         }
 
-        function resetAuthResult() {
-            document.getElementById('authResult').style.display = 'none';
-        }
+        function resetAuthResult() { document.getElementById('authResult').style.display = 'none'; }
 
         async function verifierID() {
             const id = document.getElementById('authInput').value.trim().toUpperCase();
             if (!id) { alert('Veuillez saisir votre code d\'accès'); return; }
-
             const btn = document.getElementById('authBtn');
-            btn.textContent = '⏳ Vérification...';
-            btn.disabled = true;
-
+            btn.textContent = '⏳ Vérification...'; btn.disabled = true;
             const resultDiv = document.getElementById('authResult');
             const resultContent = document.getElementById('authResultContent');
-
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getAdherent&id=${encodeURIComponent(id)}`);
                 const data = await resp.json();
-
                 resultDiv.style.display = 'block';
-
                 if (data.success) {
                     const a = data.adherent;
                     resultContent.innerHTML = `
@@ -624,44 +429,24 @@
                             <p style="margin:5px 0; color:#555;">🏷️ ${a.statut}</p>
                             <p style="margin-top:12px; font-size:13px; color:#666;">C'est bien vous ?</p>
                             <div style="display:flex; gap:10px; margin-top:10px;">
-                                <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="
-                                    flex:1; padding:12px; background:#28a745; color:white;
-                                    border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;
-                                ">✅ Oui, c'est moi !</button>
-                                <button onclick="document.getElementById('authInput').value=''; resetAuthResult(); document.getElementById('authInput').focus();" style="
-                                    flex:1; padding:12px; background:#dc3545; color:white;
-                                    border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;
-                                ">❌ Non</button>
+                                <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">✅ Oui, c'est moi !</button>
+                                <button onclick="document.getElementById('authInput').value=''; resetAuthResult(); document.getElementById('authInput').focus();" style="flex:1; padding:12px; background:#dc3545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">❌ Non</button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 } else {
-                    resultContent.innerHTML = `
-                        <div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;">
-                            <p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p>
-                            <p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p>
-                        </div>
-                    `;
+                    resultContent.innerHTML = `<div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;"><p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p></div>`;
                 }
             } catch(e) {
                 resultDiv.style.display = 'block';
-                resultContent.innerHTML = `
-                    <div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;">
-                        <p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p>
-                        <p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p>
-                    </div>
-                `;
+                resultContent.innerHTML = `<div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;"><p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p></div>`;
             } finally {
-                btn.textContent = 'Valider →';
-                btn.disabled = false;
+                btn.textContent = 'Valider →'; btn.disabled = false;
             }
         }
 
         function confirmerIdentite(adherent) {
             sauvegarderAdherent(adherent);
-            // Enregistrer date/heure de connexion dans le Sheet
-            fetch(`${SCRIPT_URL}?action=logConnexion&id=${encodeURIComponent(adherent.id)}`)
-                .catch(e => console.log('Log connexion échoué:', e));
+            fetch(`${SCRIPT_URL}?action=logConnexion&id=${encodeURIComponent(adherent.id)}`).catch(e => console.log('Log connexion échoué:', e));
             afficherApp(adherent);
         }
 
@@ -670,11 +455,8 @@
             document.getElementById('headerUser').textContent = `👤 ${adherent.prenom} ${adherent.nom} — ${adherent.statut}`;
         }
 
-        // Vérifier si déjà connecté au démarrage
         const adherentSauvegarde = chargerAdherent();
-        if (adherentSauvegarde) {
-            afficherApp(adherentSauvegarde);
-        }
+        if (adherentSauvegarde) afficherApp(adherentSauvegarde);
 
         // ===== DARK MODE =====
         function toggleDark() {
@@ -687,8 +469,6 @@
             lbl.textContent = isDark ? '🌙' : '☀️';
             localStorage.setItem('darkMode', isDark ? '1' : '0');
         }
-
-        // Restaurer le mode au démarrage
         if (localStorage.getItem('darkMode') === '1') {
             document.body.classList.add('dark');
             document.getElementById('toggleSwitch').classList.add('on');
@@ -700,21 +480,17 @@
             document.getElementById(id).classList.add('active');
             if (id === 'qrcodePage' && !qrcodeGenerated) {
                 document.getElementById('qrcode').innerHTML = '';
-                new QRCode(document.getElementById('qrcode'), {
-                    text: 'https://votre-lien-ici.fr',
-                    width: 250, height: 250,
-                    colorDark: '#2c5f2d', colorLight: '#ffffff'
-                });
+                new QRCode(document.getElementById('qrcode'), { text: 'https://votre-lien-ici.fr', width: 250, height: 250, colorDark: '#2c5f2d', colorLight: '#ffffff' });
                 qrcodeGenerated = true;
             }
-            if (id === 'programmePage') {
-                setTimeout(surbrillanceEnCours, 100);
-            }
+            if (id === 'programmePage') setTimeout(surbrillanceEnCours, 100);
+            if (id === 'messageriePage') ouvrirMessagerie();
         }
 
         function closePage(id) {
             document.getElementById(id).classList.remove('active');
             if (id === 'flashPage') stopCamera();
+            if (id === 'messageriePage') { clearInterval(refreshTimer); refreshTimer = null; }
         }
 
         // ===== FLASH =====
@@ -725,8 +501,7 @@
             try {
                 if (!stream) {
                     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    video.srcObject = stream;
-                    video.style.display = 'block';
+                    video.srcObject = stream; video.style.display = 'block';
                     track = stream.getVideoTracks()[0];
                 }
                 const caps = track.getCapabilities();
@@ -748,19 +523,10 @@
             }
         }
 
-        // ===== SITE INTERNET =====
-        function openWebsite() {
-            window.open('https://www.aamb.asso.fr', '_blank');
-        }
+        function openWebsite() { window.open('https://www.aamb.asso.fr', '_blank'); }
 
-        // ===== PROGRAMME & SURBRILLANCE =====
-        const joursDates = {
-            'mardi':    '2026-06-23',
-            'mercredi': '2026-06-24',
-            'jeudi':    '2026-06-25',
-            'vendredi': '2026-06-26'
-        };
-
+        // ===== PROGRAMME =====
+        const joursDates = { 'mardi': '2026-06-23', 'mercredi': '2026-06-24', 'jeudi': '2026-06-25', 'vendredi': '2026-06-26' };
         const horaires = {
             'mardi':    [ ['13:00','13:45'], ['14:00','14:15'], ['14:15','15:00'], ['15:05','15:50'], ['15:50','16:10'], ['16:15','17:00'], ['17:15','18:30'] ],
             'mercredi': [ ['08:30','09:15'], ['09:20','10:05'], ['10:05','11:00'], ['11:00','12:00'], ['13:45','14:30'], ['14:35','15:20'], ['15:20','16:20'], ['16:20','17:05'], ['19:00','23:00'] ],
@@ -768,48 +534,36 @@
             'vendredi': [ ['08:30','09:15'], ['09:20','10:05'], ['10:00','12:00'] ]
         };
 
-        function toMin(h) {
-            const [hh, mm] = h.split(':').map(Number);
-            return hh * 60 + mm;
-        }
+        function toMin(h) { const [hh, mm] = h.split(':').map(Number); return hh * 60 + mm; }
 
         let isAnimating = false;
+        const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
+
+        function getJourActif() {
+            return jours.find(j => document.getElementById('jour-' + j).style.display !== 'none') || 'mardi';
+        }
 
         function afficherJour(jour, direction = null) {
             if (isAnimating) return;
-
             const ancienJour = getJourActif();
             if (ancienJour === jour) return;
-
-            // Déterminer direction si non fournie (via bouton)
             if (direction === null) {
                 const idxAncien = jours.indexOf(ancienJour);
                 const idxNouveau = jours.indexOf(jour);
                 direction = idxNouveau > idxAncien ? 'left' : 'right';
             }
-
             const ancienEl = document.getElementById('jour-' + ancienJour);
             const nouveauEl = document.getElementById('jour-' + jour);
-
             isAnimating = true;
-
-            // Mettre à jour boutons
             document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + jour).classList.add('active');
-
-            // Afficher le nouveau par dessus
             nouveauEl.style.display = 'block';
             nouveauEl.style.position = 'absolute';
             nouveauEl.style.width = '100%';
             nouveauEl.style.top = '0';
-
-            // Animer sortie de l'ancien
             ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
-            // Animer entrée du nouveau
             nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
-
             setTimeout(() => {
-                // Nettoyer
                 ancienEl.classList.remove('slide-out-left', 'slide-out-right');
                 nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
                 ancienEl.style.display = 'none';
@@ -823,105 +577,84 @@
         function surbrillanceEnCours() {
             const maintenant = new Date();
             const dateAujourd = maintenant.toISOString().split('T')[0];
-
-            // Retirer toutes les surbrillances
             document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
-
             let jourActuel = null;
             for (const [jour, date] of Object.entries(joursDates)) {
                 if (date === dateAujourd) { jourActuel = jour; break; }
             }
-
-            // Afficher le bon jour (jour en cours ou mardi par défaut)
             const jourAfficher = jourActuel || 'mardi';
-            // Forcer l'affichage sans animation au démarrage
             document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
             document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('jour-' + jourAfficher).style.display = 'block';
             document.getElementById('btn-' + jourAfficher).classList.add('active');
-
             if (!jourActuel) return;
-
             const heureNow = maintenant.getHours() * 60 + maintenant.getMinutes();
             const slots = horaires[jourActuel];
             const jourDiv = document.getElementById('jour-' + jourActuel);
             const slotsDiv = jourDiv.querySelectorAll('.prog-slot');
-
             slots.forEach(([debut, fin], i) => {
-                const d = toMin(debut);
-                const f = toMin(fin);
-                if (heureNow >= d && heureNow < f) {
-                    if (slotsDiv[i]) {
-                        slotsDiv[i].classList.add('en-cours');
-                        setTimeout(() => {
-                            slotsDiv[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 300);
-                    }
+                const d = toMin(debut), f = toMin(fin);
+                if (heureNow >= d && heureNow < f && slotsDiv[i]) {
+                    slotsDiv[i].classList.add('en-cours');
+                    setTimeout(() => slotsDiv[i].scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
                 }
             });
         }
 
-        // Vérifier toutes les minutes
         setInterval(surbrillanceEnCours, 60000);
+
+        // Swipe
+        function swipeVers(direction) {
+            const idx = jours.indexOf(getJourActif());
+            let newIdx = idx + direction;
+            if (newIdx < 0) newIdx = 0;
+            if (newIdx >= jours.length) newIdx = jours.length - 1;
+            if (newIdx !== idx) afficherJour(jours[newIdx], direction === 1 ? 'left' : 'right');
+        }
+
+        let touchStartX = 0, touchStartY = 0;
+        const zoneSwipe = document.getElementById('zoneSwipe');
+        zoneSwipe.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
+        zoneSwipe.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                if (dx < 0) swipeVers(+1); else swipeVers(-1);
+            }
+        }, { passive: true });
 
         // ===== MESSAGERIE =====
         let refreshTimer = null;
-        let refreshInterval = 120000; // 2 min par défaut
-        let messagesNonLus = 0;
+        let filtreOrga = 'nonTraites';
 
-        function isOrganisateur() {
-            const a = chargerAdherent();
-            return a && a.statut === 'Organisateur';
-        }
-
-        function openPage(id) {
-            document.getElementById(id).classList.add('active');
-            if (id === 'qrcodePage' && !qrcodeGenerated) {
-                document.getElementById('qrcode').innerHTML = '';
-                new QRCode(document.getElementById('qrcode'), {
-                    text: 'https://votre-lien-ici.fr',
-                    width: 250, height: 250,
-                    colorDark: '#2c5f2d', colorLight: '#ffffff'
-                });
-                qrcodeGenerated = true;
+        // ← LA CLÉ : vérifier si du texte est en cours de saisie
+        function texteEnCours() {
+            const textareas = document.querySelectorAll('#messagerieContent textarea');
+            for (const ta of textareas) {
+                if (ta.value.trim().length > 0) return true;
             }
-            if (id === 'programmePage') setTimeout(surbrillanceEnCours, 100);
-            if (id === 'messageriePage') ouvrirMessagerie();
+            return false;
         }
 
         function ouvrirMessagerie() {
             const adherent = chargerAdherent();
             if (!adherent) return;
-
+            clearInterval(refreshTimer);
             if (adherent.statut === 'Organisateur') {
-                // Vue organisateur
                 document.getElementById('messagerieTitle').textContent = '📨 Messages reçus';
                 chargerMessagesOrganisateur(adherent);
-                // Refresh adaptatif 15s
-                clearInterval(refreshTimer);
-                refreshTimer = setInterval(() => chargerMessagesOrganisateur(adherent), 15000);
+                refreshTimer = setInterval(() => {
+                    if (!texteEnCours()) chargerMessagesOrganisateur(adherent);
+                }, 15000);
             } else {
-                // Vue participant
                 document.getElementById('messagerieTitle').textContent = '💬 Mes messages';
                 chargerMessagesParticipant(adherent);
-                // Refresh 2 min
-                clearInterval(refreshTimer);
-                refreshTimer = setInterval(() => chargerMessagesParticipant(adherent), 120000);
+                refreshTimer = setInterval(() => {
+                    if (!texteEnCours()) chargerMessagesParticipant(adherent);
+                }, 15000);
             }
         }
 
-        // Arrêter le refresh quand on quitte la messagerie
-        const origClosePage = closePage;
-        function closePage(id) {
-            document.getElementById(id).classList.remove('active');
-            if (id === 'flashPage') stopCamera();
-            if (id === 'messageriePage') {
-                clearInterval(refreshTimer);
-                refreshTimer = null;
-            }
-        }
-
-        // Pause refresh si app en arrière-plan
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 clearInterval(refreshTimer);
@@ -937,21 +670,10 @@
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
                 const data = await resp.json();
-
                 if (!data.success) { content.innerHTML = '<p style="color:var(--text-sub); text-align:center; padding:20px;">Erreur de chargement</p>'; return; }
-
                 const convs = data.conversations;
                 const keys  = Object.keys(convs);
-
-                let html = `
-                    <button onclick="nouveauMessage()" style="
-                        width:100%; padding:14px; background:#2c5f2d; color:white;
-                        border:none; border-radius:10px; font-size:16px; font-weight:bold;
-                        cursor:pointer; margin-bottom:15px;">
-                        ✉️ Nouveau message
-                    </button>
-                `;
-
+                let html = `<button onclick="nouveauMessage()" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-bottom:15px;">✉️ Nouveau message</button>`;
                 if (keys.length === 0) {
                     html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message pour le moment</p>';
                 } else {
@@ -959,113 +681,57 @@
                         const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
                         const dernierMsg = msgs[msgs.length - 1];
                         const enAttente = dernierMsg.traite === 'NON' && dernierMsg.userId === adherent.id;
-
                         html += `
-                            <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px;
-                                        box-shadow:var(--card-shadow); overflow:hidden;">
-                                <div style="background:${enAttente ? '#fff3cd' : '#d4edda'}; padding:8px 12px;
-                                            font-size:12px; font-weight:bold; color:${enAttente ? '#856404' : '#28a745'};">
+                            <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden;">
+                                <div style="background:${enAttente ? '#fff3cd' : '#d4edda'}; padding:8px 12px; font-size:12px; font-weight:bold; color:${enAttente ? '#856404' : '#28a745'};">
                                     ${enAttente ? '⏳ En attente de réponse' : '✅ Répondu'}
                                     <span style="float:right; font-weight:normal; color:var(--text-sub);">${convBase}</span>
                                 </div>
                                 ${msgs.map(m => `
-                                    <div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1);
-                                                background:${m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)'};">
-                                        <div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">
-                                            ${m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation'} — ${m.dateHeure}
-                                        </div>
+                                    <div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:${m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)'};">
+                                        <div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">${m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation'} — ${m.dateHeure}</div>
                                         <div style="font-size:14px; color:var(--text);">${m.message}</div>
-                                    </div>
-                                `).join('')}
+                                    </div>`).join('')}
                                 <div style="padding:10px;">
-                                    <button onclick="repondreConversation('${convBase}')" style="
-                                        width:100%; padding:10px; background:#2c5f2d; color:white;
-                                        border:none; border-radius:8px; font-size:14px; cursor:pointer;">
-                                        ↩️ Continuer cette conversation
-                                    </button>
+                                    <button onclick="repondreConversation('${convBase}')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; cursor:pointer;">↩️ Continuer cette conversation</button>
                                 </div>
-                            </div>
-                        `;
+                            </div>`;
                     });
                 }
-
                 content.innerHTML = html;
             } catch(e) {
                 content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
             }
         }
 
-        function nouveauMessage() {
-            afficherFormulaireMessage(null);
-        }
-
-        function repondreConversation(convBase) {
-            afficherFormulaireMessage(convBase);
-        }
+        function nouveauMessage() { afficherFormulaireMessage(null); }
+        function repondreConversation(convBase) { afficherFormulaireMessage(convBase); }
 
         function afficherFormulaireMessage(convBase) {
-            const adherent = chargerAdherent();
-            const content  = document.getElementById('messagerieContent');
+            const content = document.getElementById('messagerieContent');
             const isNouveau = !convBase;
-
             content.innerHTML = `
                 <div style="margin-bottom:15px;">
-                    <button onclick="ouvrirMessagerie()" style="
-                        background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">
-                        ← Retour
-                    </button>
+                    <button onclick="ouvrirMessagerie()" style="background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">← Retour</button>
                 </div>
                 <div style="background:var(--card-bg); border-radius:12px; padding:15px; box-shadow:var(--card-shadow);">
-                    <h3 style="color:var(--text); margin-bottom:15px;">
-                        ${isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase}
-                    </h3>
-                    <textarea id="msgTexte" placeholder="Votre message..." style="
-                        width:100%; height:120px; padding:12px; border:2px solid #ddd;
-                        border-radius:10px; font-size:15px; resize:none; outline:none;
-                        background:var(--page-bg); color:var(--text);
-                    "></textarea>
-                    <button onclick="envoyerMessage('${convBase || ''}')" style="
-                        width:100%; padding:14px; background:#2c5f2d; color:white;
-                        border:none; border-radius:10px; font-size:16px; font-weight:bold;
-                        cursor:pointer; margin-top:10px;">
-                        📤 Envoyer
-                    </button>
-                </div>
-            `;
+                    <h3 style="color:var(--text); margin-bottom:15px;">${isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase}</h3>
+                    <textarea id="msgTexte" placeholder="Votre message..." style="width:100%; height:120px; padding:12px; border:2px solid #ddd; border-radius:10px; font-size:15px; resize:none; outline:none; background:var(--page-bg); color:var(--text);"></textarea>
+                    <button onclick="envoyerMessage('${convBase || ''}')" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:10px;">📤 Envoyer</button>
+                </div>`;
         }
 
         async function envoyerMessage(convBase) {
             const adherent = chargerAdherent();
-            const texte    = document.getElementById('msgTexte').value.trim();
+            const texte = document.getElementById('msgTexte').value.trim();
             if (!texte) { alert('Veuillez écrire un message'); return; }
-
             const content = document.getElementById('messagerieContent');
             content.innerHTML = '<p style="text-align:center; padding:40px; color:var(--text-sub);">⏳ Envoi en cours...</p>';
-
             try {
-                const params = new URLSearchParams({
-                    action:         'sendMessage',
-                    userId:         adherent.id,
-                    nom:            adherent.nom,
-                    prenom:         adherent.prenom,
-                    message:        texte,
-                    convId:         convBase || '',
-                    isOrganisateur: adherent.statut === 'Organisateur' ? 'true' : 'false'
-                });
-
+                const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase || '', isOrganisateur: adherent.statut === 'Organisateur' ? 'true' : 'false' });
                 const resp = await fetch(`${SCRIPT_URL}?${params}`);
                 const data = await resp.json();
-
                 if (data.success) {
-                    // Après envoi : refresh 15s pendant 5 min
-                    clearInterval(refreshTimer);
-                    refreshInterval = 15000;
-                    refreshTimer = setInterval(() => chargerMessagesParticipant(adherent), refreshInterval);
-                    setTimeout(() => {
-                        clearInterval(refreshTimer);
-                        refreshInterval = 120000;
-                        refreshTimer = setInterval(() => chargerMessagesParticipant(adherent), refreshInterval);
-                    }, 5 * 60000);
                     chargerMessagesParticipant(adherent);
                 } else {
                     content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur d\'envoi. Réessayez.</p>';
@@ -1076,102 +742,48 @@
         }
 
         // ===== VUE ORGANISATEUR =====
-        let filtreOrga = 'nonTraites'; // 'nonTraites' ou 'tous'
-
         async function chargerMessagesOrganisateur(adherent) {
             const content = document.getElementById('messagerieContent');
             try {
                 const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
                 const data = await resp.json();
-
-                if (!data.success) {
-                    content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Accès refusé</p>';
-                    return;
-                }
-
-                const convs    = data.conversations;
-                const keys     = Object.keys(convs);
+                if (!data.success) { content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Accès refusé</p>'; return; }
+                const convs = data.conversations;
+                const keys  = Object.keys(convs);
                 let nbNonTraites = 0;
-
-                // Compter messages non traités
-                keys.forEach(k => {
-                    const msgs = convs[k];
-                    const dernierMsg = msgs[msgs.length - 1];
-                    if (dernierMsg.traite === 'NON') nbNonTraites++;
-                });
-
-                // Mettre à jour badge sur le bouton principal
-                document.getElementById('btnMessagerieSubtitle').textContent =
-                    nbNonTraites > 0 ? `🔴 ${nbNonTraites} message(s) non traité(s)` : 'Aucun message en attente';
-
+                keys.forEach(k => { if (convs[k][convs[k].length - 1].traite === 'NON') nbNonTraites++; });
+                document.getElementById('btnMessagerieSubtitle').textContent = nbNonTraites > 0 ? `🔴 ${nbNonTraites} message(s) non traité(s)` : 'Aucun message en attente';
                 let html = `
                     <div style="display:flex; gap:8px; margin-bottom:15px;">
-                        <button onclick="filtreOrga='nonTraites'; chargerMessagesOrganisateur(chargerAdherent())" style="
-                            flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;
-                            background:${filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0'};
-                            color:${filtreOrga === 'nonTraites' ? 'white' : '#333'};">
-                            🔴 Non traités (${nbNonTraites})
-                        </button>
-                        <button onclick="filtreOrga='tous'; chargerMessagesOrganisateur(chargerAdherent())" style="
-                            flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;
-                            background:${filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0'};
-                            color:${filtreOrga === 'tous' ? 'white' : '#333'};">
-                            📋 Tous
-                        </button>
-                    </div>
-                `;
-
+                        <button onclick="filtreOrga='nonTraites'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:${filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0'}; color:${filtreOrga === 'nonTraites' ? 'white' : '#333'};">🔴 Non traités (${nbNonTraites})</button>
+                        <button onclick="filtreOrga='tous'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:${filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0'}; color:${filtreOrga === 'tous' ? 'white' : '#333'};">📋 Tous</button>
+                    </div>`;
                 let affiche = false;
                 keys.forEach(convBase => {
-                    const msgs       = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-                    const dernierMsg = msgs[msgs.length - 1];
-                    const nonTraite  = dernierMsg.traite === 'NON';
-
+                    const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+                    const nonTraite = msgs[msgs.length - 1].traite === 'NON';
                     if (filtreOrga === 'nonTraites' && !nonTraite) return;
                     affiche = true;
-
                     const premierMsg = msgs.find(m => m.userId !== adherent.id) || msgs[0];
-
                     html += `
-                        <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px;
-                                    box-shadow:var(--card-shadow); overflow:hidden;
-                                    border-left:4px solid ${nonTraite ? '#dc3545' : '#28a745'};">
+                        <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden; border-left:4px solid ${nonTraite ? '#dc3545' : '#28a745'};">
                             <div style="padding:10px 12px; background:${nonTraite ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)'};">
                                 <strong style="color:var(--text);">👤 ${premierMsg.prenom} ${premierMsg.nom}</strong>
                                 <span style="float:right; font-size:12px; color:var(--text-sub);">${convBase}</span>
                             </div>
                             ${msgs.map(m => `
-                                <div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1);
-                                            background:${m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)'};">
-                                    <div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">
-                                        ${m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom} — ${m.dateHeure}
-                                    </div>
+                                <div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:${m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)'};">
+                                    <div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">${m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom} — ${m.dateHeure}</div>
                                     <div style="font-size:14px; color:var(--text);">${m.message}</div>
-                                </div>
-                            `).join('')}
+                                </div>`).join('')}
                             ${nonTraite ? `
                                 <div style="padding:10px;">
-                                    <textarea id="rep-${convBase}" placeholder="Votre réponse..." style="
-                                        width:100%; height:80px; padding:10px; border:2px solid #ddd;
-                                        border-radius:8px; font-size:14px; resize:none; outline:none;
-                                        background:var(--page-bg); color:var(--text);
-                                        margin-bottom:8px;
-                                    "></textarea>
-                                    <button onclick="envoyerReponseOrga('${convBase}')" style="
-                                        width:100%; padding:10px; background:#2c5f2d; color:white;
-                                        border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">
-                                        📤 Répondre
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
+                                    <textarea id="rep-${convBase}" placeholder="Votre réponse..." style="width:100%; height:80px; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; resize:none; outline:none; background:var(--page-bg); color:var(--text); margin-bottom:8px;"></textarea>
+                                    <button onclick="envoyerReponseOrga('${convBase}')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">📤 Répondre</button>
+                                </div>` : ''}
+                        </div>`;
                 });
-
-                if (!affiche) {
-                    html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message en attente</p>';
-                }
-
+                if (!affiche) html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message en attente</p>';
                 content.innerHTML = html;
             } catch(e) {
                 content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
@@ -1180,27 +792,14 @@
 
         async function envoyerReponseOrga(convBase) {
             const adherent = chargerAdherent();
-            const texte    = document.getElementById(`rep-${convBase}`).value.trim();
+            const texte = document.getElementById(`rep-${convBase}`).value.trim();
             if (!texte) { alert('Veuillez écrire une réponse'); return; }
-
-            // Griser le bouton immédiatement
             const btn = document.querySelector(`button[onclick="envoyerReponseOrga('${convBase}')"]`);
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi en cours...'; btn.style.opacity = '0.6'; }
-
             try {
-                const params = new URLSearchParams({
-                    action:         'sendMessage',
-                    userId:         adherent.id,
-                    nom:            adherent.nom,
-                    prenom:         adherent.prenom,
-                    message:        texte,
-                    convId:         convBase,
-                    isOrganisateur: 'true'
-                });
-
+                const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase, isOrganisateur: 'true' });
                 const resp = await fetch(`${SCRIPT_URL}?${params}`);
                 const data = await resp.json();
-
                 if (data.success) {
                     chargerMessagesOrganisateur(adherent);
                 } else {
@@ -1212,44 +811,6 @@
                 alert('Erreur de connexion');
             }
         }
-
-        // ===== SWIPE LATÉRAL =====
-        const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
-
-        function getJourActif() {
-            return jours.find(j => document.getElementById('jour-' + j).style.display !== 'none') || 'mardi';
-        }
-
-        function swipeVers(direction) {
-            const idx = jours.indexOf(getJourActif());
-            let newIdx = idx + direction;
-            if (newIdx < 0) newIdx = 0;
-            if (newIdx >= jours.length) newIdx = jours.length - 1;
-            if (newIdx !== idx) {
-                afficherJour(jours[newIdx], direction === 1 ? 'left' : 'right');
-            }
-        }
-
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        const zoneSwipe = document.getElementById('zoneSwipe');
-
-        zoneSwipe.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        zoneSwipe.addEventListener('touchend', (e) => {
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-
-            // Swipe horizontal uniquement (ignorer si surtout vertical = scroll)
-            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-                if (dx < 0) swipeVers(+1); // Swipe gauche → jour suivant
-                else        swipeVers(-1); // Swipe droite → jour précédent
-            }
-        }, { passive: true });
     </script>
 </body>
 </html>
