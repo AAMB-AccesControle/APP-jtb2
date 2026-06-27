@@ -164,7 +164,7 @@
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <p style="font-size:11px;color:var(--header-sub);margin-bottom:2px;">v40 v7</p>
+        <p style="font-size:11px;color:var(--header-sub);margin-bottom:2px;">v40 v8</p>
         <p id="headerUser" style="color:var(--header-sub);font-size:13px;"></p>
         <div style="position:absolute;top:12px;left:15px;cursor:pointer;text-align:center;" onclick="deconnecter()">
             <div style="font-size:22px;">🚪</div>
@@ -415,21 +415,35 @@
                 resultDiv.style.display = 'block';
                 if (data.success) {
                     const a = data.adherent;
-                    // Stocker temporairement pour éviter les problèmes d'échappement
                     window._adherentTemp = a;
                     resultContent.innerHTML = `
                         <div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">
                             <p style="color:#28a745;font-weight:bold;margin-bottom:10px;">✅ Code reconnu !</p>
-                            <p style="margin:5px 0;"><strong>👤 ${a.prenom} ${a.nom}</strong></p>
-                            <p style="margin:5px 0;color:#555;">🏥 ${a.etablissement}</p>
-                            <p style="margin:5px 0;color:#555;">✉️ ${a.email}</p>
-                            <p style="margin:5px 0;color:#555;">🏷️ ${a.statut}</p>
+                            <p style="margin:5px 0;"><strong>👤 </strong><span id="authNom"></span></p>
+                            <p style="margin:5px 0;color:#555;">🏥 <span id="authEtab"></span></p>
+                            <p style="margin:5px 0;color:#555;">✉️ <span id="authEmail"></span></p>
+                            <p style="margin:5px 0;color:#555;">🏷️ <span id="authStatut"></span></p>
                             <p style="margin-top:12px;font-size:13px;color:#666;">C'est bien vous ?</p>
                             <div style="display:flex;gap:10px;margin-top:10px;">
                                 <button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">✅ Oui, c'est moi !</button>
                                 <button onclick="document.getElementById('authInput').value='';resetAuthResult();document.getElementById('authInput').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">❌ Non</button>
                             </div>
                         </div>`;
+                    // Remplir les données via textContent pour éviter les problèmes d'encodage
+                    document.getElementById('authNom').textContent = `${a.prenom} ${a.nom}`;
+                    document.getElementById('authEtab').textContent = a.etablissement;
+                    document.getElementById('authEmail').textContent = a.email;
+                    document.getElementById('authStatut').textContent = a.statut;
+                } else {
+                    resultContent.innerHTML = `<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;text-align:left;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p><p style="color:#555;font-size:13px;margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p></div>`;
+                }
+            } catch(e) {
+                resultDiv.style.display = 'block';
+                resultContent.innerHTML = `<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;text-align:left;"><p style="color:#856404;font-weight:bold;">⚠️ Erreur de connexion</p></div>`;
+            } finally {
+                btn.textContent = 'Valider →'; btn.disabled = false;
+            }
+        }
                 } else {
                     resultContent.innerHTML = `<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;text-align:left;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p><p style="color:#555;font-size:13px;margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p></div>`;
                 }
