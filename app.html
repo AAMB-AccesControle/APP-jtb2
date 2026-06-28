@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v40.0</title>
+    <title>AAMB v41.0</title>
     <link rel="manifest" href="manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --header-bg: white;
-            --header-text: #2c5f2d;
-            --header-sub: #666;
+            --bg: linear-gradient(135deg, #e8edf5 0%, #c5d0e8 100%);
+            --header-bg: #1a3a6b;
+            --header-text: white;
+            --header-sub: #c5d0e8;
             --card-bg: white;
             --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
             --text: #333;
             --text-sub: #666;
             --page-bg: white;
-            --page-header-bg: #2c5f2d;
+            --page-header-bg: #1a3a6b;
             --heure-bg: #555;
             --conf-bg: #ffe4ec;
             --conf-border: #c0002a;
@@ -29,27 +29,35 @@
             --atelier-text: #1a3a6b;
             --jour-btn-bg: #e0e0e0;
             --jour-btn-text: #333;
+            --accent: #1a3a6b;
+            --accent-light: #4a6fa5;
+            --btn-bg: #4a7fcb;
+            --group-title: #1a3a6b;
         }
 
         body.dark {
-            --bg: #2a2a2a;
-            --header-bg: #333;
-            --header-text: #a5d6a7;
-            --header-sub: #aaa;
-            --card-bg: #3a3a3a;
+            --bg: #1e2030;
+            --header-bg: #0f1f3d;
+            --header-text: white;
+            --header-sub: #8899bb;
+            --card-bg: #2a2d40;
             --card-shadow: 0 4px 15px rgba(0,0,0,0.4);
             --text: #eee;
             --text-sub: #aaa;
-            --page-bg: #2a2a2a;
-            --page-header-bg: #1b3a1c;
+            --page-bg: #1e2030;
+            --page-header-bg: #0f1f3d;
             --heure-bg: #444;
             --conf-bg: #4a2030;
             --conf-border: #c0002a;
             --atelier-bg: #1a2a40;
             --atelier-border: #1565c0;
             --atelier-text: #90caf9;
-            --jour-btn-bg: #444;
+            --jour-btn-bg: #3a3d55;
             --jour-btn-text: #eee;
+            --accent: #4a7fcb;
+            --accent-light: #6699dd;
+            --btn-bg: #2a4f8a;
+            --group-title: #7aaae8;
         }
 
         body {
@@ -93,25 +101,64 @@
         .toggle-switch.on .toggle-knob { left: 22px; }
 
         .container {
-            flex: 1; padding: 20px; display: flex; flex-direction: column;
-            gap: 15px; max-width: 600px; margin: 0 auto; width: 100%;
+            flex: 1; padding: 15px;
+            max-width: 700px; margin: 0 auto; width: 100%;
         }
 
-        .button-card {
-            background: var(--card-bg); border-radius: 15px; padding: 20px;
-            box-shadow: var(--card-shadow); cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; gap: 15px;
+        /* Groupes de boutons */
+        .btn-group {
+            margin-bottom: 18px;
         }
-        .button-card:active { transform: scale(0.98); }
+        .btn-group-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 1px;
+            color: var(--group-title); text-transform: uppercase;
+            padding: 6px 4px 8px; border-bottom: 2px solid var(--accent);
+            margin-bottom: 10px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
 
-        .button-icon {
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
-            border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; font-size: 24px; flex-shrink: 0;
+        /* Bouton compact en tuile */
+        .btn-tile {
+            background: var(--btn-bg);
+            border-radius: 12px;
+            padding: 12px 6px 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            border: none;
+            width: 100%;
         }
-        .button-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 5px; transition: color 0.3s; }
-        .button-subtitle { font-size: 13px; color: var(--text-sub); transition: color 0.3s; }
+        .btn-tile:active { transform: scale(0.95); opacity: 0.85; }
+        .btn-tile-icon { font-size: 26px; line-height: 1; }
+        .btn-tile-label {
+            font-size: 10px; font-weight: 600; color: white;
+            text-align: center; line-height: 1.3; word-break: break-word;
+        }
+
+        /* Dropdown JTB */
+        .jtb-dropdown {
+            position: relative; width: 100%;
+        }
+        .jtb-menu {
+            display: none; position: absolute; bottom: 110%; left: 0; right: 0;
+            background: var(--card-bg); border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 100; overflow: hidden;
+        }
+        .jtb-menu.open { display: block; }
+        .jtb-menu-item {
+            padding: 12px 15px; font-size: 13px; color: var(--text);
+            cursor: pointer; border-bottom: 1px solid rgba(128,128,128,0.1);
+        }
+        .jtb-menu-item:last-child { border-bottom: none; }
+        .jtb-menu-item:hover { background: rgba(74,127,203,0.1); }
 
         .page-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
