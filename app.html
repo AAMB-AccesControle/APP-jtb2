@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v39.0</title>
+    <title>AAMB v40.0</title>
     <link rel="manifest" href="manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -215,7 +215,7 @@
             <div style="width:100px; height:100px; margin:0 auto 20px; border-radius:20px; overflow:hidden;">
                 <img src="logo-aamb.png" alt="AAMB" style="width:100%; height:100%; object-fit:contain;">
             </div>
-            <h1 style="color:var(--header-text); margin-bottom:8px; font-size:24px;">AAMB v39.0</h1>
+            <h1 style="color:var(--header-text); margin-bottom:8px; font-size:24px;">AAMB v40.0</h1>
             <p style="color:var(--text-sub); margin-bottom:30px; font-size:14px;">43èmes Journées Techniques Biomédicales</p>
             <div style="background:var(--card-bg); border-radius:15px; padding:25px; box-shadow:var(--card-shadow);">
                 <p style="color:var(--text); font-size:15px; margin-bottom:15px; font-weight:600;">🔐 Saisissez votre code d'accès</p>
@@ -245,7 +245,7 @@
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v39.0</p>
+        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v40.0</p>
         <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
         <div style="position:absolute; top:12px; left:15px; cursor:pointer; text-align:center;" onclick="deconnecter()" title="Déconnexion">
             <div style="font-size:22px;">🚪</div>
@@ -274,12 +274,28 @@
             <div class="button-icon">📅</div>
             <div><div class="button-title">Programme des Journées</div><div class="button-subtitle">43èmes JTB 2026 — Metz-Briey</div></div>
         </div>
+        <!-- Messagerie : titre dynamique selon profil -->
         <div class="button-card" onclick="openPage('messageriePage')">
             <div class="button-icon">💬</div>
             <div>
-                <div class="button-title" id="btnMessagerieTitle">Contacter l'organisation</div>
-                <div class="button-subtitle" id="btnMessagerieSubtitle">Envoyer un message</div>
+                <div class="button-title" id="btnMessagerieTitle">Messagerie</div>
+                <div class="button-subtitle" id="btnMessagerieSubtitle">Chargement...</div>
             </div>
+        </div>
+        <!-- Ateliers : visible par tous -->
+        <div class="button-card" onclick="openPage('ateliersPage')">
+            <div class="button-icon">🔬</div>
+            <div><div class="button-title">Ateliers</div><div class="button-subtitle">Informations sur les ateliers</div></div>
+        </div>
+        <!-- QCM : visible par tous -->
+        <div class="button-card" onclick="openPage('qcmPage')">
+            <div class="button-icon">📝</div>
+            <div><div class="button-title">QCM</div><div class="button-subtitle">Questionnaires</div></div>
+        </div>
+        <!-- Contrôle d'accès : organisateurs uniquement, caché par défaut -->
+        <div class="button-card" id="btnControleAcces" style="display:none;" onclick="openPage('controleAccesPage')">
+            <div class="button-icon">🔐</div>
+            <div><div class="button-title">Contrôle d'accès</div><div class="button-subtitle">Gestion des entrées</div></div>
         </div>
     </div>
 
@@ -375,6 +391,30 @@
         <div class="page-content" id="messagerieContent"></div>
     </div>
 
+    <!-- PAGE ATELIERS -->
+    <div id="ateliersPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('ateliersPage')">←</button><h2>Ateliers</h2></div>
+        <div class="page-content">
+            <p style="text-align:center; color:var(--text-sub); padding:40px;">À compléter ultérieurement</p>
+        </div>
+    </div>
+
+    <!-- PAGE QCM -->
+    <div id="qcmPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('qcmPage')">←</button><h2>QCM</h2></div>
+        <div class="page-content">
+            <p style="text-align:center; color:var(--text-sub); padding:40px;">À compléter ultérieurement</p>
+        </div>
+    </div>
+
+    <!-- PAGE CONTRÔLE D'ACCÈS (organisateurs uniquement) -->
+    <div id="controleAccesPage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('controleAccesPage')">←</button><h2>Contrôle d'accès</h2></div>
+        <div class="page-content">
+            <p style="text-align:center; color:var(--text-sub); padding:40px;">À compléter ultérieurement</p>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let stream = null, track = null, flashOn = false, qrcodeGenerated = false;
@@ -420,25 +460,29 @@
                 resultDiv.style.display = 'block';
                 if (data.success) {
                     const a = data.adherent;
-                    resultContent.innerHTML = `
-                        <div style="background:#d4edda; border-radius:10px; padding:15px; border-left:4px solid #28a745; text-align:left;">
-                            <p style="color:#28a745; font-weight:bold; margin-bottom:10px;">✅ Code reconnu !</p>
-                            <p style="margin:5px 0;"><strong>👤 ${a.prenom} ${a.nom}</strong></p>
-                            <p style="margin:5px 0; color:#555;">🏥 ${a.etablissement}</p>
-                            <p style="margin:5px 0; color:#555;">✉️ ${a.email}</p>
-                            <p style="margin:5px 0; color:#555;">🏷️ ${a.statut}</p>
-                            <p style="margin-top:12px; font-size:13px; color:#666;">C'est bien vous ?</p>
-                            <div style="display:flex; gap:10px; margin-top:10px;">
-                                <button onclick="confirmerIdentite(${JSON.stringify(a).replace(/"/g,'&quot;')})" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">✅ Oui, c'est moi !</button>
-                                <button onclick="document.getElementById('authInput').value=''; resetAuthResult(); document.getElementById('authInput').focus();" style="flex:1; padding:12px; background:#dc3545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">❌ Non</button>
-                            </div>
-                        </div>`;
+                    window._adherentTemp = a;
+                    resultContent.innerHTML =
+                        '<div style="background:#d4edda; border-radius:10px; padding:15px; border-left:4px solid #28a745; text-align:left;">' +
+                        '<p style="color:#28a745; font-weight:bold; margin-bottom:10px;">✅ Code reconnu !</p>' +
+                        '<p style="margin:5px 0;" id="rNom"></p>' +
+                        '<p style="margin:5px 0; color:#555;" id="rEtab"></p>' +
+                        '<p style="margin:5px 0; color:#555;" id="rEmail"></p>' +
+                        '<p style="margin:5px 0; color:#555;" id="rStatut"></p>' +
+                        '<p style="margin-top:12px; font-size:13px; color:#666;">C\'est bien vous ?</p>' +
+                        '<div style="display:flex; gap:10px; margin-top:10px;">' +
+                        '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">✅ Oui, c\'est moi !</button>' +
+                        '<button onclick="document.getElementById(\'authInput\').value=\'\'; resetAuthResult(); document.getElementById(\'authInput\').focus();" style="flex:1; padding:12px; background:#dc3545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">❌ Non</button>' +
+                        '</div></div>';
+                    document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
+                    document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
+                    document.getElementById('rEmail').textContent = '✉️ ' + a.email;
+                    document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
                 } else {
-                    resultContent.innerHTML = `<div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;"><p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l'organisation.</p></div>`;
+                    resultContent.innerHTML = '<div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;"><p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l\'organisation.</p></div>';
                 }
             } catch(e) {
                 resultDiv.style.display = 'block';
-                resultContent.innerHTML = `<div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;"><p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p></div>`;
+                resultContent.innerHTML = '<div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;"><p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p></div>';
             } finally {
                 btn.textContent = 'Valider →'; btn.disabled = false;
             }
@@ -452,7 +496,12 @@
 
         function afficherApp(adherent) {
             document.getElementById('authPage').style.display = 'none';
-            document.getElementById('headerUser').textContent = `👤 ${adherent.prenom} ${adherent.nom} — ${adherent.statut}`;
+            document.getElementById('headerUser').textContent = '👤 ' + adherent.prenom + ' ' + adherent.nom + ' — ' + adherent.statut;
+            // Adapter les boutons selon le profil
+            const isOrga = adherent.statut === 'Organisateur';
+            document.getElementById('btnMessagerieTitle').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
+            document.getElementById('btnMessagerieSubtitle').textContent = isOrga ? 'Voir les messages reçus' : 'Envoyer un message';
+            document.getElementById('btnControleAcces').style.display = isOrga ? 'flex' : 'none';
         }
 
         const adherentSauvegarde = chargerAdherent();
@@ -557,19 +606,13 @@
             isAnimating = true;
             document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + jour).classList.add('active');
-            nouveauEl.style.display = 'block';
-            nouveauEl.style.position = 'absolute';
-            nouveauEl.style.width = '100%';
-            nouveauEl.style.top = '0';
+            nouveauEl.style.display = 'block'; nouveauEl.style.position = 'absolute'; nouveauEl.style.width = '100%'; nouveauEl.style.top = '0';
             ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
             nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
             setTimeout(() => {
                 ancienEl.classList.remove('slide-out-left', 'slide-out-right');
                 nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
-                ancienEl.style.display = 'none';
-                nouveauEl.style.position = '';
-                nouveauEl.style.width = '';
-                nouveauEl.style.top = '';
+                ancienEl.style.display = 'none'; nouveauEl.style.position = ''; nouveauEl.style.width = ''; nouveauEl.style.top = '';
                 isAnimating = false;
             }, 300);
         }
@@ -590,8 +633,7 @@
             if (!jourActuel) return;
             const heureNow = maintenant.getHours() * 60 + maintenant.getMinutes();
             const slots = horaires[jourActuel];
-            const jourDiv = document.getElementById('jour-' + jourActuel);
-            const slotsDiv = jourDiv.querySelectorAll('.prog-slot');
+            const slotsDiv = document.getElementById('jour-' + jourActuel).querySelectorAll('.prog-slot');
             slots.forEach(([debut, fin], i) => {
                 const d = toMin(debut), f = toMin(fin);
                 if (heureNow >= d && heureNow < f && slotsDiv[i]) {
@@ -603,7 +645,6 @@
 
         setInterval(surbrillanceEnCours, 60000);
 
-        // Swipe
         function swipeVers(direction) {
             const idx = jours.indexOf(getJourActif());
             let newIdx = idx + direction;
@@ -627,7 +668,6 @@
         let refreshTimer = null;
         let filtreOrga = 'nonTraites';
 
-        // ← LA CLÉ : vérifier si du texte est en cours de saisie
         function texteEnCours() {
             const textareas = document.querySelectorAll('#messagerieContent textarea');
             for (const ta of textareas) {
@@ -641,13 +681,13 @@
             if (!adherent) return;
             clearInterval(refreshTimer);
             if (adherent.statut === 'Organisateur') {
-                document.getElementById('messagerieTitle').textContent = '📨 Messages reçus';
+                document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
                 chargerMessagesOrganisateur(adherent);
                 refreshTimer = setInterval(() => {
                     if (!texteEnCours()) chargerMessagesOrganisateur(adherent);
                 }, 15000);
             } else {
-                document.getElementById('messagerieTitle').textContent = '💬 Mes messages';
+                document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
                 chargerMessagesParticipant(adherent);
                 refreshTimer = setInterval(() => {
                     if (!texteEnCours()) chargerMessagesParticipant(adherent);
@@ -664,7 +704,6 @@
             }
         });
 
-        // ===== VUE PARTICIPANT =====
         async function chargerMessagesParticipant(adherent) {
             const content = document.getElementById('messagerieContent');
             try {
@@ -673,7 +712,7 @@
                 if (!data.success) { content.innerHTML = '<p style="color:var(--text-sub); text-align:center; padding:20px;">Erreur de chargement</p>'; return; }
                 const convs = data.conversations;
                 const keys  = Object.keys(convs);
-                let html = `<button onclick="nouveauMessage()" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-bottom:15px;">✉️ Nouveau message</button>`;
+                let html = '<button onclick="nouveauMessage()" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-bottom:15px;">✉️ Nouveau message</button>';
                 if (keys.length === 0) {
                     html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message pour le moment</p>';
                 } else {
@@ -681,21 +720,16 @@
                         const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
                         const dernierMsg = msgs[msgs.length - 1];
                         const enAttente = dernierMsg.traite === 'NON' && dernierMsg.userId === adherent.id;
-                        html += `
-                            <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden;">
-                                <div style="background:${enAttente ? '#fff3cd' : '#d4edda'}; padding:8px 12px; font-size:12px; font-weight:bold; color:${enAttente ? '#856404' : '#28a745'};">
-                                    ${enAttente ? '⏳ En attente de réponse' : '✅ Répondu'}
-                                    <span style="float:right; font-weight:normal; color:var(--text-sub);">${convBase}</span>
-                                </div>
-                                ${msgs.map(m => `
-                                    <div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:${m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)'};">
-                                        <div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">${m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation'} — ${m.dateHeure}</div>
-                                        <div style="font-size:14px; color:var(--text);">${m.message}</div>
-                                    </div>`).join('')}
-                                <div style="padding:10px;">
-                                    <button onclick="repondreConversation('${convBase}')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; cursor:pointer;">↩️ Continuer cette conversation</button>
-                                </div>
-                            </div>`;
+                        html += '<div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden;">' +
+                            '<div style="background:' + (enAttente ? '#fff3cd' : '#d4edda') + '; padding:8px 12px; font-size:12px; font-weight:bold; color:' + (enAttente ? '#856404' : '#28a745') + ';">' +
+                            (enAttente ? '⏳ En attente de réponse' : '✅ Répondu') +
+                            '<span style="float:right; font-weight:normal; color:var(--text-sub);">' + convBase + '</span></div>';
+                        msgs.forEach(m => {
+                            html += '<div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:' + (m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)') + ';">' +
+                                '<div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">' + (m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation') + ' — ' + m.dateHeure + '</div>' +
+                                '<div style="font-size:14px; color:var(--text);">' + m.message + '</div></div>';
+                        });
+                        html += '<div style="padding:10px;"><button onclick="repondreConversation(\'' + convBase + '\')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; cursor:pointer;">↩️ Continuer cette conversation</button></div></div>';
                     });
                 }
                 content.innerHTML = html;
@@ -710,15 +744,12 @@
         function afficherFormulaireMessage(convBase) {
             const content = document.getElementById('messagerieContent');
             const isNouveau = !convBase;
-            content.innerHTML = `
-                <div style="margin-bottom:15px;">
-                    <button onclick="ouvrirMessagerie()" style="background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">← Retour</button>
-                </div>
-                <div style="background:var(--card-bg); border-radius:12px; padding:15px; box-shadow:var(--card-shadow);">
-                    <h3 style="color:var(--text); margin-bottom:15px;">${isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase}</h3>
-                    <textarea id="msgTexte" placeholder="Votre message..." style="width:100%; height:120px; padding:12px; border:2px solid #ddd; border-radius:10px; font-size:15px; resize:none; outline:none; background:var(--page-bg); color:var(--text);"></textarea>
-                    <button onclick="envoyerMessage('${convBase || ''}')" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:10px;">📤 Envoyer</button>
-                </div>`;
+            content.innerHTML =
+                '<div style="margin-bottom:15px;"><button onclick="ouvrirMessagerie()" style="background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">← Retour</button></div>' +
+                '<div style="background:var(--card-bg); border-radius:12px; padding:15px; box-shadow:var(--card-shadow);">' +
+                '<h3 style="color:var(--text); margin-bottom:15px;">' + (isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase) + '</h3>' +
+                '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%; height:120px; padding:12px; border:2px solid #ddd; border-radius:10px; font-size:15px; resize:none; outline:none; background:var(--page-bg); color:var(--text);"></textarea>' +
+                '<button onclick="envoyerMessage(\'' + (convBase || '') + '\')" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:10px;">📤 Envoyer</button></div>';
         }
 
         async function envoyerMessage(convBase) {
@@ -731,17 +762,13 @@
                 const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase || '', isOrganisateur: adherent.statut === 'Organisateur' ? 'true' : 'false' });
                 const resp = await fetch(`${SCRIPT_URL}?${params}`);
                 const data = await resp.json();
-                if (data.success) {
-                    chargerMessagesParticipant(adherent);
-                } else {
-                    content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur d\'envoi. Réessayez.</p>';
-                }
+                if (data.success) { chargerMessagesParticipant(adherent); }
+                else { content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur d\'envoi. Réessayez.</p>'; }
             } catch(e) {
                 content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
             }
         }
 
-        // ===== VUE ORGANISATEUR =====
         async function chargerMessagesOrganisateur(adherent) {
             const content = document.getElementById('messagerieContent');
             try {
@@ -752,12 +779,10 @@
                 const keys  = Object.keys(convs);
                 let nbNonTraites = 0;
                 keys.forEach(k => { if (convs[k][convs[k].length - 1].traite === 'NON') nbNonTraites++; });
-                document.getElementById('btnMessagerieSubtitle').textContent = nbNonTraites > 0 ? `🔴 ${nbNonTraites} message(s) non traité(s)` : 'Aucun message en attente';
-                let html = `
-                    <div style="display:flex; gap:8px; margin-bottom:15px;">
-                        <button onclick="filtreOrga='nonTraites'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:${filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0'}; color:${filtreOrga === 'nonTraites' ? 'white' : '#333'};">🔴 Non traités (${nbNonTraites})</button>
-                        <button onclick="filtreOrga='tous'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:${filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0'}; color:${filtreOrga === 'tous' ? 'white' : '#333'};">📋 Tous</button>
-                    </div>`;
+                document.getElementById('btnMessagerieSubtitle').textContent = nbNonTraites > 0 ? '🔴 ' + nbNonTraites + ' message(s) non traité(s)' : 'Aucun message en attente';
+                let html = '<div style="display:flex; gap:8px; margin-bottom:15px;">' +
+                    '<button onclick="filtreOrga=\'nonTraites\'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:' + (filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0') + '; color:' + (filtreOrga === 'nonTraites' ? 'white' : '#333') + ';">🔴 Non traités (' + nbNonTraites + ')</button>' +
+                    '<button onclick="filtreOrga=\'tous\'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:' + (filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0') + '; color:' + (filtreOrga === 'tous' ? 'white' : '#333') + ';">📋 Tous</button></div>';
                 let affiche = false;
                 keys.forEach(convBase => {
                     const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
@@ -765,23 +790,21 @@
                     if (filtreOrga === 'nonTraites' && !nonTraite) return;
                     affiche = true;
                     const premierMsg = msgs.find(m => m.userId !== adherent.id) || msgs[0];
-                    html += `
-                        <div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden; border-left:4px solid ${nonTraite ? '#dc3545' : '#28a745'};">
-                            <div style="padding:10px 12px; background:${nonTraite ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)'};">
-                                <strong style="color:var(--text);">👤 ${premierMsg.prenom} ${premierMsg.nom}</strong>
-                                <span style="float:right; font-size:12px; color:var(--text-sub);">${convBase}</span>
-                            </div>
-                            ${msgs.map(m => `
-                                <div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:${m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)'};">
-                                    <div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">${m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom} — ${m.dateHeure}</div>
-                                    <div style="font-size:14px; color:var(--text);">${m.message}</div>
-                                </div>`).join('')}
-                            ${nonTraite ? `
-                                <div style="padding:10px;">
-                                    <textarea id="rep-${convBase}" placeholder="Votre réponse..." style="width:100%; height:80px; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; resize:none; outline:none; background:var(--page-bg); color:var(--text); margin-bottom:8px;"></textarea>
-                                    <button onclick="envoyerReponseOrga('${convBase}')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">📤 Répondre</button>
-                                </div>` : ''}
-                        </div>`;
+                    html += '<div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden; border-left:4px solid ' + (nonTraite ? '#dc3545' : '#28a745') + ';">' +
+                        '<div style="padding:10px 12px; background:' + (nonTraite ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)') + ';">' +
+                        '<strong style="color:var(--text);">👤 ' + premierMsg.prenom + ' ' + premierMsg.nom + '</strong>' +
+                        '<span style="float:right; font-size:12px; color:var(--text-sub);">' + convBase + '</span></div>';
+                    msgs.forEach(m => {
+                        html += '<div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:' + (m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)') + ';">' +
+                            '<div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">' + (m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom) + ' — ' + m.dateHeure + '</div>' +
+                            '<div style="font-size:14px; color:var(--text);">' + m.message + '</div></div>';
+                    });
+                    if (nonTraite) {
+                        html += '<div style="padding:10px;">' +
+                            '<textarea id="rep-' + convBase + '" placeholder="Votre réponse..." style="width:100%; height:80px; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; resize:none; outline:none; background:var(--page-bg); color:var(--text); margin-bottom:8px;"></textarea>' +
+                            '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">📤 Répondre</button></div>';
+                    }
+                    html += '</div>';
                 });
                 if (!affiche) html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message en attente</p>';
                 content.innerHTML = html;
@@ -792,20 +815,16 @@
 
         async function envoyerReponseOrga(convBase) {
             const adherent = chargerAdherent();
-            const texte = document.getElementById(`rep-${convBase}`).value.trim();
+            const texte = document.getElementById('rep-' + convBase).value.trim();
             if (!texte) { alert('Veuillez écrire une réponse'); return; }
-            const btn = document.querySelector(`button[onclick="envoyerReponseOrga('${convBase}')"]`);
+            const btn = document.querySelector('button[onclick="envoyerReponseOrga(\'' + convBase + '\')"]');
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi en cours...'; btn.style.opacity = '0.6'; }
             try {
                 const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase, isOrganisateur: 'true' });
                 const resp = await fetch(`${SCRIPT_URL}?${params}`);
                 const data = await resp.json();
-                if (data.success) {
-                    chargerMessagesOrganisateur(adherent);
-                } else {
-                    if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
-                    alert('Erreur d\'envoi. Réessayez.');
-                }
+                if (data.success) { chargerMessagesOrganisateur(adherent); }
+                else { if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; } alert('Erreur d\'envoi. Réessayez.'); }
             } catch(e) {
                 if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
                 alert('Erreur de connexion');
