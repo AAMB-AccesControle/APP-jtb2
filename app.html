@@ -11,15 +11,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: linear-gradient(135deg, #e8edf5 0%, #c5d0e8 100%);
+            --bg: #eef2f8;
             --header-bg: #1a3a6b;
             --header-text: white;
             --header-sub: #c5d0e8;
             --card-bg: white;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            --text: #333;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --text: #222;
             --text-sub: #666;
-            --page-bg: white;
+            --page-bg: #f5f7fa;
             --page-header-bg: #1a3a6b;
             --heure-bg: #555;
             --conf-bg: #ffe4ec;
@@ -27,37 +27,36 @@
             --atelier-bg: #e3f0ff;
             --atelier-border: #1565c0;
             --atelier-text: #1a3a6b;
-            --jour-btn-bg: #e0e0e0;
+            --jour-btn-bg: #dde3ef;
             --jour-btn-text: #333;
-            --accent: #1a3a6b;
-            --accent-light: #4a6fa5;
-            --btn-bg: #4a7fcb;
-            --group-title: #1a3a6b;
+            --group-bg: white;
+            --group-title-color: #1a3a6b;
+            --btn-bg: #2d6abf;
+            --btn-bg2: #3a7fd4;
         }
-
         body.dark {
-            --bg: #1e2030;
+            --bg: #181c2a;
             --header-bg: #0f1f3d;
             --header-text: white;
-            --header-sub: #8899bb;
-            --card-bg: #2a2d40;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            --header-sub: #7a90bb;
+            --card-bg: #242840;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
             --text: #eee;
-            --text-sub: #aaa;
-            --page-bg: #1e2030;
+            --text-sub: #999;
+            --page-bg: #181c2a;
             --page-header-bg: #0f1f3d;
-            --heure-bg: #444;
-            --conf-bg: #4a2030;
+            --heure-bg: #3a3d55;
+            --conf-bg: #3d1525;
             --conf-border: #c0002a;
-            --atelier-bg: #1a2a40;
+            --atelier-bg: #162030;
             --atelier-border: #1565c0;
             --atelier-text: #90caf9;
-            --jour-btn-bg: #3a3d55;
-            --jour-btn-text: #eee;
-            --accent: #4a7fcb;
-            --accent-light: #6699dd;
-            --btn-bg: #2a4f8a;
-            --group-title: #7aaae8;
+            --jour-btn-bg: #2a2d45;
+            --jour-btn-text: #ccc;
+            --group-bg: #242840;
+            --group-title-color: #7aaaf0;
+            --btn-bg: #1a4a8a;
+            --btn-bg2: #2a5fa0;
         }
 
         body {
@@ -66,54 +65,62 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: background 0.3s;
         }
 
+        /* ===== HEADER ===== */
         header {
             background: var(--header-bg);
-            padding: 15px 20px;
+            padding: 12px 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             position: relative;
-            transition: background 0.3s;
         }
-
-        .logo { width: 70px; height: 70px; margin: 0 auto 10px; border-radius: 15px; overflow: hidden; }
+        .logo { width: 55px; height: 55px; margin: 0 auto 6px; border-radius: 12px; overflow: hidden; }
         .logo img { width: 100%; height: 100%; object-fit: contain; }
-        header h1 { color: var(--header-text); font-size: 22px; margin-bottom: 3px; transition: color 0.3s; }
-        header p { color: var(--header-sub); font-size: 13px; transition: color 0.3s; }
+        header h1 { color: var(--header-text); font-size: 20px; margin-bottom: 2px; }
+        header .version { color: var(--header-sub); font-size: 10px; }
+        header .user { color: var(--header-sub); font-size: 12px; margin-top: 2px; }
 
         .dark-toggle {
-            position: absolute; top: 15px; right: 15px;
-            display: flex; align-items: center; gap: 6px; cursor: pointer;
+            position: absolute; top: 12px; right: 12px;
+            display: flex; align-items: center; gap: 5px; cursor: pointer;
         }
-        .toggle-label { font-size: 11px; color: var(--header-sub); }
-        .toggle-switch {
-            width: 44px; height: 24px; background: #ccc;
-            border-radius: 12px; position: relative; transition: background 0.3s;
-        }
-        .toggle-switch.on { background: #2c5f2d; }
-        .toggle-knob {
-            width: 20px; height: 20px; background: white; border-radius: 50%;
-            position: absolute; top: 2px; left: 2px; transition: left 0.3s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-        }
-        .toggle-switch.on .toggle-knob { left: 22px; }
+        .toggle-label { font-size: 14px; }
+        .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
+        .toggle-switch.on { background: #4a7fcb; }
+        .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
+        .toggle-switch.on .toggle-knob { left: 20px; }
 
+        .deconnexion {
+            position: absolute; top: 10px; left: 12px;
+            cursor: pointer; text-align: center; color: var(--header-sub);
+        }
+        .deconnexion .icon { font-size: 18px; }
+        .deconnexion .label { font-size: 9px; margin-top: 1px; }
+
+        /* ===== CONTAINER ===== */
         .container {
-            flex: 1; padding: 15px;
+            flex: 1; padding: 12px;
             max-width: 700px; margin: 0 auto; width: 100%;
         }
 
-        /* Groupes de boutons */
+        /* ===== GROUPE ===== */
         .btn-group {
-            margin-bottom: 18px;
+            background: var(--group-bg);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: var(--card-shadow);
         }
         .btn-group-title {
-            font-size: 11px; font-weight: 700; letter-spacing: 1px;
-            color: var(--group-title); text-transform: uppercase;
-            padding: 6px 4px 8px; border-bottom: 2px solid var(--accent);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--group-title-color);
             margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid var(--btn-bg);
         }
         .btn-grid {
             display: grid;
@@ -121,103 +128,109 @@
             gap: 8px;
         }
 
-        /* Bouton compact en tuile */
+        /* ===== BOUTON TUILE ===== */
         .btn-tile {
-            background: var(--btn-bg);
+            background: linear-gradient(145deg, var(--btn-bg2), var(--btn-bg));
             border-radius: 12px;
-            padding: 12px 6px 10px;
+            padding: 10px 5px 8px;
             cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            gap: 5px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
             border: none;
+            transition: transform 0.15s, opacity 0.15s;
             width: 100%;
+            min-height: 70px;
+            justify-content: center;
         }
-        .btn-tile:active { transform: scale(0.95); opacity: 0.85; }
-        .btn-tile-icon { font-size: 26px; line-height: 1; }
+        .btn-tile:active { transform: scale(0.93); opacity: 0.85; }
+        .btn-tile-icon { font-size: 24px; line-height: 1; }
         .btn-tile-label {
-            font-size: 10px; font-weight: 600; color: white;
-            text-align: center; line-height: 1.3; word-break: break-word;
+            font-size: 9.5px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            line-height: 1.25;
+            word-break: break-word;
+            max-width: 100%;
         }
 
-        /* Dropdown JTB */
-        .jtb-dropdown {
-            position: relative; width: 100%;
-        }
+        /* Dropdown JTB sites */
+        .jtb-wrap { position: relative; }
         .jtb-menu {
-            display: none; position: absolute; bottom: 110%; left: 0; right: 0;
-            background: var(--card-bg); border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 100; overflow: hidden;
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 0; right: 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            z-index: 200;
+            overflow: hidden;
+            min-width: 160px;
         }
         .jtb-menu.open { display: block; }
-        .jtb-menu-item {
-            padding: 12px 15px; font-size: 13px; color: var(--text);
-            cursor: pointer; border-bottom: 1px solid rgba(128,128,128,0.1);
+        .jtb-item {
+            padding: 11px 14px;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
         }
-        .jtb-menu-item:last-child { border-bottom: none; }
-        .jtb-menu-item:hover { background: rgba(74,127,203,0.1); }
+        .jtb-item:last-child { border-bottom: none; }
+        .jtb-item:hover { background: rgba(74,127,203,0.12); }
 
+        /* ===== PAGES OVERLAY ===== */
         .page-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--page-bg); z-index: 1000; overflow-y: auto; transition: background 0.3s;
+            background: var(--page-bg); z-index: 1000; overflow-y: auto;
         }
         .page-overlay.active { display: block; }
-
         .page-header {
-            background: var(--page-header-bg); color: white; padding: 15px 20px;
-            display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;
+            background: var(--page-header-bg); color: white; padding: 14px 20px;
+            display: flex; align-items: center; gap: 12px;
+            position: sticky; top: 0; z-index: 10;
         }
-        .back-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
-        .page-header h2 { font-size: 20px; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+        .page-header h2 { font-size: 18px; }
         .page-content { padding: 20px; }
 
+        /* Flash */
         .flash-control { text-align: center; padding: 40px 20px; }
         .flash-button {
-            width: 150px; height: 150px; border-radius: 50%; border: none;
-            background: linear-gradient(135deg, #2c5f2d 0%, #4a8f4d 100%);
-            color: white; font-size: 60px; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(44,95,45,0.3); transition: all 0.3s;
+            width: 140px; height: 140px; border-radius: 50%; border: none;
+            background: linear-gradient(135deg, #1a3a6b, #4a7fcb);
+            color: white; font-size: 55px; cursor: pointer;
+            box-shadow: 0 8px 25px rgba(26,58,107,0.4); transition: all 0.3s;
         }
         .flash-button.active {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
             box-shadow: 0 0 50px rgba(255,215,0,0.8);
         }
-        .flash-status { font-size: 18px; color: var(--text-sub); margin-top: 20px; }
+        .flash-status { font-size: 16px; color: var(--text-sub); margin-top: 18px; }
         #camera-stream { width: 100%; max-width: 500px; border-radius: 10px; display: none; }
 
-        .data-row { padding: 15px; border-bottom: 1px solid rgba(128,128,128,0.2); }
-        .data-row:last-child { border-bottom: none; }
-        .data-label { font-size: 12px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; }
-        .data-value { font-size: 16px; color: var(--text); font-weight: 500; }
-
+        /* QR Code */
         .qrcode-container { text-align: center; padding: 30px 20px; }
         #qrcode { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-        .jour-btns { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        /* Programme */
+        .jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
         .jour-btn {
             background: var(--jour-btn-bg); color: var(--jour-btn-text);
-            border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer;
-            font-size: 13px; white-space: nowrap; font-weight: 500; transition: all 0.2s;
+            border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer;
+            font-size: 12px; white-space: nowrap; font-weight: 500;
         }
-        .jour-btn.active { background: #2c5f2d; color: white; }
-
-        .prog-slot { margin-bottom: 12px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .prog-heure { background: var(--heure-bg); color: white; padding: 6px 12px; font-size: 13px; font-weight: bold; }
-        .prog-conf {
-            background: var(--conf-bg); padding: 10px 12px; font-size: 14px;
-            color: var(--text); border-left: 4px solid var(--conf-border); transition: background 0.3s;
-        }
+        .jour-btn.active { background: #1a3a6b; color: white; }
+        .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
+        .prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); }
         .prog-ateliers { display: flex; }
-        .atelier {
-            flex: 1; background: var(--atelier-bg); padding: 8px 10px; font-size: 12px;
-            color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2);
-            border-left: 4px solid var(--atelier-border); transition: background 0.3s;
-        }
+        .atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
         .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
-        .atelier strong { font-size: 13px; }
+        .atelier strong { font-size: 12px; }
 
         #zoneSwipe { overflow: hidden; position: relative; }
         .jour-content { transition: none; }
@@ -230,58 +243,41 @@
         @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .prog-slot.en-cours::before {
-            content: '🔴 EN COURS'; display: block; background: #c0002a !important;
-            color: white !important; text-align: center; font-size: 12px; font-weight: bold;
-            padding: 4px; letter-spacing: 1px;
-        }
+        .prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
         .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
         .prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
         .prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
         .prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
-        @keyframes pulse-conf {
-            0%   { background-color: #c0002a !important; color: white; }
-            50%  { background-color: #ff4d6d !important; color: white; }
-            100% { background-color: #c0002a !important; color: white; }
-        }
-        @keyframes pulse-atelier {
-            0%   { background-color: #1565c0 !important; color: white; }
-            50%  { background-color: #42a5f5 !important; color: white; }
-            100% { background-color: #1565c0 !important; color: white; }
-        }
+        @keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
+        @keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
+
+        /* Messagerie */
+        .data-row { padding: 14px; border-bottom: 1px solid rgba(128,128,128,0.15); }
+        .data-row:last-child { border-bottom: none; }
+        .data-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 4px; }
+        .data-value { font-size: 15px; color: var(--text); font-weight: 500; }
     </style>
 </head>
 <body>
 
     <!-- PAGE AUTHENTIFICATION -->
-    <div id="authPage" style="
-        position: fixed; top:0; left:0; right:0; bottom:0;
-        background: var(--page-bg); z-index: 9999;
-        display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;">
-        <div style="max-width:400px; width:100%; text-align:center;">
-            <div style="width:100px; height:100px; margin:0 auto 20px; border-radius:20px; overflow:hidden;">
-                <img src="logo-aamb.png" alt="AAMB" style="width:100%; height:100%; object-fit:contain;">
+    <div id="authPage" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--page-bg);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;">
+        <div style="max-width:400px;width:100%;text-align:center;">
+            <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;">
+                <img src="logo-aamb.png" alt="AAMB" style="width:100%;height:100%;object-fit:contain;">
             </div>
-            <h1 style="color:var(--header-text); margin-bottom:8px; font-size:24px;">AAMB v41.0</h1>
-            <p style="color:var(--text-sub); margin-bottom:30px; font-size:14px;">43èmes Journées Techniques Biomédicales</p>
-            <div style="background:var(--card-bg); border-radius:15px; padding:25px; box-shadow:var(--card-shadow);">
-                <p style="color:var(--text); font-size:15px; margin-bottom:15px; font-weight:600;">🔐 Saisissez votre code d'accès</p>
+            <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v41.0</h1>
+            <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
+            <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
+                <p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
                 <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
-                    style="width:100%; padding:14px; font-size:20px; text-align:center;
-                        border:2px solid #ddd; border-radius:10px; outline:none;
-                        background:var(--page-bg); color:var(--text);
-                        letter-spacing:3px; text-transform:uppercase; margin-bottom:12px;"
-                    oninput="this.value=this.value.toUpperCase(); resetAuthResult();"
-                    onkeydown="if(event.key==='Enter') verifierID();">
-                <button onclick="verifierID()" id="authBtn" style="
-                    width:100%; padding:14px; font-size:16px; font-weight:bold;
-                    background:#2c5f2d; color:white; border:none; border-radius:10px;
-                    cursor:pointer; transition:opacity 0.2s;">Valider →</button>
-                <div id="authResult" style="margin-top:15px; display:none;">
-                    <div id="authResultContent"></div>
-                </div>
+                    style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
+                    oninput="this.value=this.value.toUpperCase();resetAuthResult();"
+                    onkeydown="if(event.key==='Enter')verifierID();">
+                <button onclick="verifierID()" id="authBtn" style="width:100%;padding:14px;font-size:16px;font-weight:bold;background:#1a3a6b;color:white;border:none;border-radius:10px;cursor:pointer;">Valider →</button>
+                <div id="authResult" style="margin-top:15px;display:none;"><div id="authResultContent"></div></div>
             </div>
-            <p style="color:var(--text-sub); font-size:12px; margin-top:20px;">Votre code d'accès figure sur votre convocation</p>
+            <p style="color:var(--text-sub);font-size:12px;margin-top:15px;">Votre code d'accès figure sur votre convocation</p>
         </div>
     </div>
 
@@ -290,105 +286,147 @@
             <span class="toggle-label" id="toggleLabel">☀️</span>
             <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
         </div>
+        <div class="deconnexion" onclick="deconnecter()">
+            <div class="icon">🚪</div>
+            <div class="label">Quitter</div>
+        </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <p style="font-size:11px; color:var(--header-sub); margin-bottom:2px;">v41.0</p>
-        <p id="headerUser" style="color:var(--header-sub); font-size:13px;"></p>
-        <div style="position:absolute; top:12px; left:15px; cursor:pointer; text-align:center;" onclick="deconnecter()" title="Déconnexion">
-            <div style="font-size:22px;">🚪</div>
-            <div style="font-size:10px; color:var(--header-sub); margin-top:2px;">Déconnexion</div>
-        </div>
+        <div class="version">v41.0</div>
+        <div class="user" id="headerUser"></div>
     </header>
 
-    <div class="container">
-        <div class="button-card" onclick="openPage('flashPage')">
-            <div class="button-icon">💡</div>
-            <div><div class="button-title">Flash / Lampe</div><div class="button-subtitle">Allumer ou éteindre le flash</div></div>
-        </div>
-        <div class="button-card" onclick="openPage('dataPage')">
-            <div class="button-icon">📊</div>
-            <div><div class="button-title">Données</div><div class="button-subtitle">Afficher les informations</div></div>
-        </div>
-        <div class="button-card" onclick="openPage('qrcodePage')">
-            <div class="button-icon">📱</div>
-            <div><div class="button-title">Mon QR Code</div><div class="button-subtitle">Afficher votre QR code</div></div>
-        </div>
-        <div class="button-card" onclick="openWebsite()">
-            <div class="button-icon">🌐</div>
-            <div><div class="button-title">Site Internet</div><div class="button-subtitle">Ouvrir le site web</div></div>
-        </div>
-        <div class="button-card" onclick="openPage('programmePage')">
-            <div class="button-icon">📅</div>
-            <div><div class="button-title">Programme des Journées</div><div class="button-subtitle">43èmes JTB 2026 — Metz-Briey</div></div>
-        </div>
-        <!-- Messagerie : titre dynamique selon profil -->
-        <div class="button-card" onclick="openPage('messageriePage')">
-            <div class="button-icon">💬</div>
-            <div>
-                <div class="button-title" id="btnMessagerieTitle">Messagerie</div>
-                <div class="button-subtitle" id="btnMessagerieSubtitle">Chargement...</div>
+    <!-- ===== PAGE ACCUEIL ===== -->
+    <div class="container" id="mainContainer">
+
+        <!-- GROUPE JTB BESANCON -->
+        <div class="btn-group">
+            <div class="btn-group-title">🏛️ JTB Besançon</div>
+            <div class="btn-grid">
+                <button class="btn-tile" onclick="openPage('programmePage')">
+                    <span class="btn-tile-icon">📅</span>
+                    <span class="btn-tile-label">Programme des Journées</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('ateliersPage')">
+                    <span class="btn-tile-icon">🔬</span>
+                    <span class="btn-tile-label">Ateliers</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('qcmPage')">
+                    <span class="btn-tile-icon">📝</span>
+                    <span class="btn-tile-label">QCM</span>
+                </button>
             </div>
         </div>
-        <!-- Ateliers : visible par tous -->
-        <div class="button-card" onclick="openPage('ateliersPage')">
-            <div class="button-icon">🔬</div>
-            <div><div class="button-title">Ateliers</div><div class="button-subtitle">Informations sur les ateliers</div></div>
-        </div>
-        <!-- QCM : visible par tous -->
-        <div class="button-card" onclick="openPage('qcmPage')">
-            <div class="button-icon">📝</div>
-            <div><div class="button-title">QCM</div><div class="button-subtitle">Questionnaires</div></div>
-        </div>
-        <!-- Contrôle d'accès : organisateurs uniquement, caché par défaut -->
-        <div class="button-card" id="btnControleAcces" style="display:none;" onclick="openPage('controleAccesPage')">
-            <div class="button-icon">🔐</div>
-            <div><div class="button-title">Contrôle d'accès</div><div class="button-subtitle">Gestion des entrées</div></div>
-        </div>
-    </div>
 
-    <!-- PAGE FLASH -->
-    <div id="flashPage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('flashPage')">←</button><h2>Flash / Lampe</h2></div>
-        <div class="page-content flash-control">
-            <button id="flashBtn" class="flash-button" onclick="toggleFlash()">💡</button>
-            <div class="flash-status" id="flashStatus">Flash éteint</div>
-            <video id="camera-stream" autoplay playsinline></video>
-        </div>
-    </div>
-
-    <!-- PAGE DONNÉES -->
-    <div id="dataPage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('dataPage')">←</button><h2>Données</h2></div>
-        <div class="page-content">
-            <div id="dataContent">
-                <div class="data-row"><div class="data-label">Information 1</div><div class="data-value">À connecter à Google Sheets</div></div>
-                <div class="data-row"><div class="data-label">Information 2</div><div class="data-value">Données exemple</div></div>
+        <!-- GROUPE COMMUNICATION -->
+        <div class="btn-group">
+            <div class="btn-group-title">💬 Communication</div>
+            <div class="btn-grid">
+                <button class="btn-tile" onclick="openPage('messageriePage')">
+                    <span class="btn-tile-icon">✉️</span>
+                    <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('chatAGPage')">
+                    <span class="btn-tile-icon">🗣️</span>
+                    <span class="btn-tile-label">Chat pour l'AG</span>
+                </button>
             </div>
         </div>
+
+        <!-- GROUPE INFORMATIONS ANNEXES -->
+        <div class="btn-group">
+            <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
+            <div class="btn-grid">
+                <button class="btn-tile" onclick="openPage('transportPage')">
+                    <span class="btn-tile-icon">🚌</span>
+                    <span class="btn-tile-label">Transport</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('soireesPage')">
+                    <span class="btn-tile-icon">🎉</span>
+                    <span class="btn-tile-label">Soirées</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('restaurationPage')">
+                    <span class="btn-tile-icon">🍽️</span>
+                    <span class="btn-tile-label">Restauration</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('reglementationPage')">
+                    <span class="btn-tile-icon">📋</span>
+                    <span class="btn-tile-label">Réglementation</span>
+                </button>
+                <button class="btn-tile" onclick="openPage('droitImagePage')">
+                    <span class="btn-tile-icon">📸</span>
+                    <span class="btn-tile-label">Droit à l'image</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- GROUPE QUALITE -->
+        <div class="btn-group">
+            <div class="btn-group-title">⭐ Qualité – Questionnaire à chaud</div>
+            <div class="btn-grid">
+                <button class="btn-tile" onclick="openPage('qualitePage')">
+                    <span class="btn-tile-icon">📊</span>
+                    <span class="btn-tile-label">Questionnaire à chaud</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- GROUPE INFORMATIONS DIVERSES -->
+        <div class="btn-group">
+            <div class="btn-group-title">🌐 Informations Diverses</div>
+            <div class="btn-grid">
+                <button class="btn-tile" onclick="openWebsite('aamb')">
+                    <span class="btn-tile-icon">🏠</span>
+                    <span class="btn-tile-label">Site Internet de l'AAMB</span>
+                </button>
+                <!-- Bouton JTB avec dropdown -->
+                <div class="jtb-wrap">
+                    <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
+                        <span class="btn-tile-icon">🌍</span>
+                        <span class="btn-tile-label">Site Internet des JTB ▲</span>
+                    </button>
+                    <div class="jtb-menu" id="jtbMenu">
+                        <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
+                        <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025 – Metz</div>
+                        <div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024</div>
+                        <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GROUPE ADMIN (organisateurs uniquement) -->
+        <div class="btn-group" id="groupAdmin" style="display:none;">
+            <div class="btn-group-title">🔐 JTB Admin</div>
+            <div class="btn-grid">
+                <button class="btn-tile" onclick="openPage('controleAccesPage')">
+                    <span class="btn-tile-icon">🔐</span>
+                    <span class="btn-tile-label">Contrôle d'accès</span>
+                </button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- PAGE QR CODE -->
-    <div id="qrcodePage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('qrcodePage')">←</button><h2>Mon QR Code</h2></div>
-        <div class="page-content qrcode-container">
-            <div id="qrcode"></div>
-            <p style="margin-top:20px; color:var(--text-sub);">Scannez ce QR code pour partager vos informations</p>
-        </div>
+    <!-- PAGE MESSAGERIE -->
+    <div id="messageriePage" class="page-overlay">
+        <div class="page-header"><button class="back-btn" onclick="closePage('messageriePage')">←</button><h2 id="messagerieTitle">Messagerie</h2></div>
+        <div class="page-content" id="messagerieContent"></div>
     </div>
 
     <!-- PAGE PROGRAMME -->
     <div id="programmePage" class="page-overlay">
         <div class="page-header"><button class="back-btn" onclick="closePage('programmePage')">←</button><h2>Programme JTB 2026</h2></div>
         <div class="page-content" style="padding:10px;">
-            <p style="text-align:center; color:var(--text-sub); font-size:13px; margin-bottom:10px;">43èmes JTB 2026 — Metz-Briey</p>
+            <p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
             <div class="jour-btns">
-                <button class="jour-btn" id="btn-mardi"    onclick="afficherJour('mardi')">Mardi 23/06</button>
+                <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi 23/06</button>
                 <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
-                <button class="jour-btn" id="btn-jeudi"    onclick="afficherJour('jeudi')">Jeudi 25/06</button>
+                <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi 25/06</button>
                 <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
             </div>
-            <div style="text-align:center; color:var(--text-sub); font-size:12px; margin-bottom:8px;">← Balayez pour changer de journée →</div>
-            <div id="zoneSwipe" style="transition: opacity 0.2s;">
+            <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
+            <div id="zoneSwipe">
                 <div id="jour-mardi" class="jour-content" style="display:none;">
                     <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
                     <div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
@@ -400,24 +438,24 @@
                 </div>
                 <div id="jour-mercredi" class="jour-content" style="display:none;">
                     <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong><br><small>Réglage microscope</small></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
                     <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
                     <div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
-                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR : adaptation du matériel hospitalier à la pratique pré-hospitalière</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong><br><small>Autopsie ventilateurs</small></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong><br><small>Accessibilité données</small></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong><br><small>Energie au bloc</small></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong><br><small>Réglage microscope</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong></div></div></div>
                     <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong><br><small>Accessibilité données</small></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong><br><small>Autopsie ventilateurs</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong></div></div></div>
                     <div class="prog-slot"><div class="prog-heure">19h00 - 23h00</div><div class="prog-conf">🍷 Soirée terroir — Saint Pierre aux Nonnains</div></div>
                 </div>
                 <div id="jour-jeudi" class="jour-content" style="display:none;">
-                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong><br><small>Géolocalisation</small></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong><br><small>Maintenance biomédicale</small></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation : La base de l'enseignement médical</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong><br><small>Sécurité électrique</small></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ/THIONVILLE</strong><br><small>Premiers secours</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ</strong></div></div></div>
                     <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>La simulation en santé - Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong><br><small>Maintenance biomédicale</small></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong><br><small>Géolocalisation</small></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations technologiques en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ/THIONVILLE</strong><br><small>Premiers secours</small></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation fonctionnelle</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong><br><small>DSAEK Kératoplastie</small></div><div class="atelier">🔵 Atelier 10B<br><strong>MORGATE</strong><br><small>Sécurité électrique</small></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong></div><div class="atelier">🔵 Atelier 10B<br><strong>MORGATE</strong></div></div></div>
                     <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical Retex</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS France</strong><br><small>Démonstration fonctionnelle</small></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
+                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS</strong></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
                     <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
                 </div>
                 <div id="jour-vendredi" class="jour-content" style="display:none;">
@@ -429,60 +467,36 @@
         </div>
     </div>
 
-    <!-- PAGE MESSAGERIE -->
-    <div id="messageriePage" class="page-overlay">
-        <div class="page-header">
-            <button class="back-btn" onclick="closePage('messageriePage')">←</button>
-            <h2 id="messagerieTitle">Messagerie</h2>
-        </div>
-        <div class="page-content" id="messagerieContent"></div>
-    </div>
-
-    <!-- PAGE ATELIERS -->
-    <div id="ateliersPage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('ateliersPage')">←</button><h2>Ateliers</h2></div>
-        <div class="page-content">
-            <p style="text-align:center; color:var(--text-sub); padding:40px;">À compléter ultérieurement</p>
-        </div>
-    </div>
-
-    <!-- PAGE QCM -->
-    <div id="qcmPage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('qcmPage')">←</button><h2>QCM</h2></div>
-        <div class="page-content">
-            <p style="text-align:center; color:var(--text-sub); padding:40px;">À compléter ultérieurement</p>
-        </div>
-    </div>
-
-    <!-- PAGE CONTRÔLE D'ACCÈS (organisateurs uniquement) -->
-    <div id="controleAccesPage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('controleAccesPage')">←</button><h2>Contrôle d'accès</h2></div>
-        <div class="page-content">
-            <p style="text-align:center; color:var(--text-sub); padding:40px;">À compléter ultérieurement</p>
-        </div>
-    </div>
+    <!-- PAGES VIDES (à compléter) -->
+    <div id="ateliersPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('ateliersPage')">←</button><h2>Ateliers</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="qcmPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('qcmPage')">←</button><h2>QCM</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="chatAGPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('chatAGPage')">←</button><h2>Chat pour l'AG</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="transportPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('transportPage')">←</button><h2>Transport</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="soireesPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('soireesPage')">←</button><h2>Soirées</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="restaurationPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('restaurationPage')">←</button><h2>Restauration</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="reglementationPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('reglementationPage')">←</button><h2>Réglementation</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="droitImagePage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('droitImagePage')">←</button><h2>Droit à l'image</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="qualitePage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('qualitePage')">←</button><h2>Questionnaire à chaud</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
+    <div id="controleAccesPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('controleAccesPage')">←</button><h2>Contrôle d'accès</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        let stream = null, track = null, flashOn = false, qrcodeGenerated = false;
-
+        let stream = null, track = null, flashOn = false;
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPRnmLYoYp5swgYsFp0Xe7JjR1POS-0tZX8dr4SPOVJkZ6XZfz8VTwQ9nWpgMbZU8KjA/exec';
 
-        // ===== AUTHENTIFICATION =====
-        function sauvegarderAdherent(adherent) {
-            localStorage.setItem('aamb_adherent', JSON.stringify(adherent));
-            const exp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
-            document.cookie = `aamb_adherent=${encodeURIComponent(JSON.stringify(adherent))}; expires=${exp}; path=/`;
+        // ===== AUTH =====
+        function sauvegarderAdherent(a) {
+            localStorage.setItem('aamb_adherent', JSON.stringify(a));
+            const exp = new Date(Date.now()+30*24*60*60*1000).toUTCString();
+            document.cookie = 'aamb_adherent='+encodeURIComponent(JSON.stringify(a))+'; expires='+exp+'; path=/';
         }
-
         function chargerAdherent() {
             const ls = localStorage.getItem('aamb_adherent');
             if (ls) return JSON.parse(ls);
-            const cookie = document.cookie.split(';').find(c => c.trim().startsWith('aamb_adherent='));
-            if (cookie) return JSON.parse(decodeURIComponent(cookie.split('=')[1]));
+            const c = document.cookie.split(';').find(c=>c.trim().startsWith('aamb_adherent='));
+            if (c) return JSON.parse(decodeURIComponent(c.split('=')[1]));
             return null;
         }
-
         function deconnecter() {
             if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
             localStorage.removeItem('aamb_adherent');
@@ -491,7 +505,6 @@
             document.getElementById('authInput').value = '';
             document.getElementById('authResult').style.display = 'none';
         }
-
         function resetAuthResult() { document.getElementById('authResult').style.display = 'none'; }
 
         async function verifierID() {
@@ -502,34 +515,34 @@
             const resultDiv = document.getElementById('authResult');
             const resultContent = document.getElementById('authResultContent');
             try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getAdherent&id=${encodeURIComponent(id)}`);
+                const resp = await fetch(SCRIPT_URL+'?action=getAdherent&id='+encodeURIComponent(id));
                 const data = await resp.json();
                 resultDiv.style.display = 'block';
                 if (data.success) {
                     const a = data.adherent;
                     window._adherentTemp = a;
                     resultContent.innerHTML =
-                        '<div style="background:#d4edda; border-radius:10px; padding:15px; border-left:4px solid #28a745; text-align:left;">' +
-                        '<p style="color:#28a745; font-weight:bold; margin-bottom:10px;">✅ Code reconnu !</p>' +
+                        '<div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">' +
+                        '<p style="color:#28a745;font-weight:bold;margin-bottom:10px;">✅ Code reconnu !</p>' +
                         '<p style="margin:5px 0;" id="rNom"></p>' +
-                        '<p style="margin:5px 0; color:#555;" id="rEtab"></p>' +
-                        '<p style="margin:5px 0; color:#555;" id="rEmail"></p>' +
-                        '<p style="margin:5px 0; color:#555;" id="rStatut"></p>' +
-                        '<p style="margin-top:12px; font-size:13px; color:#666;">C\'est bien vous ?</p>' +
-                        '<div style="display:flex; gap:10px; margin-top:10px;">' +
-                        '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">✅ Oui, c\'est moi !</button>' +
-                        '<button onclick="document.getElementById(\'authInput\').value=\'\'; resetAuthResult(); document.getElementById(\'authInput\').focus();" style="flex:1; padding:12px; background:#dc3545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">❌ Non</button>' +
+                        '<p style="margin:5px 0;color:#555;" id="rEtab"></p>' +
+                        '<p style="margin:5px 0;color:#555;" id="rEmail"></p>' +
+                        '<p style="margin:5px 0;color:#555;" id="rStatut"></p>' +
+                        '<p style="margin-top:12px;font-size:13px;color:#666;">C\'est bien vous ?</p>' +
+                        '<div style="display:flex;gap:10px;margin-top:10px;">' +
+                        '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">✅ Oui, c\'est moi !</button>' +
+                        '<button onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">❌ Non</button>' +
                         '</div></div>';
-                    document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
-                    document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
-                    document.getElementById('rEmail').textContent = '✉️ ' + a.email;
-                    document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
+                    document.getElementById('rNom').textContent = '👤 '+a.prenom+' '+a.nom;
+                    document.getElementById('rEtab').textContent = '🏥 '+a.etablissement;
+                    document.getElementById('rEmail').textContent = '✉️ '+a.email;
+                    document.getElementById('rStatut').textContent = '🏷️ '+a.statut;
                 } else {
-                    resultContent.innerHTML = '<div style="background:#f8d7da; border-radius:10px; padding:15px; border-left:4px solid #dc3545; text-align:left;"><p style="color:#dc3545; font-weight:bold;">❌ Code non reconnu</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre saisie ou contactez l\'organisation.</p></div>';
+                    resultContent.innerHTML = '<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p></div>';
                 }
             } catch(e) {
                 resultDiv.style.display = 'block';
-                resultContent.innerHTML = '<div style="background:#fff3cd; border-radius:10px; padding:15px; border-left:4px solid #ffc107; text-align:left;"><p style="color:#856404; font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#555; font-size:13px; margin-top:5px;">Vérifiez votre connexion internet et réessayez.</p></div>';
+                resultContent.innerHTML = '<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;"><p style="color:#856404;font-weight:bold;">⚠️ Erreur de connexion</p></div>';
             } finally {
                 btn.textContent = 'Valider →'; btn.disabled = false;
             }
@@ -537,18 +550,16 @@
 
         function confirmerIdentite(adherent) {
             sauvegarderAdherent(adherent);
-            fetch(`${SCRIPT_URL}?action=logConnexion&id=${encodeURIComponent(adherent.id)}`).catch(e => console.log('Log connexion échoué:', e));
+            fetch(SCRIPT_URL+'?action=logConnexion&id='+encodeURIComponent(adherent.id)).catch(()=>{});
             afficherApp(adherent);
         }
 
         function afficherApp(adherent) {
             document.getElementById('authPage').style.display = 'none';
-            document.getElementById('headerUser').textContent = '👤 ' + adherent.prenom + ' ' + adherent.nom + ' — ' + adherent.statut;
-            // Adapter les boutons selon le profil
+            document.getElementById('headerUser').textContent = '👤 '+adherent.prenom+' '+adherent.nom+' — '+adherent.statut;
             const isOrga = adherent.statut === 'Organisateur';
-            document.getElementById('btnMessagerieTitle').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
-            document.getElementById('btnMessagerieSubtitle').textContent = isOrga ? 'Voir les messages reçus' : 'Envoyer un message';
-            document.getElementById('btnControleAcces').style.display = isOrga ? 'flex' : 'none';
+            document.getElementById('btnMessagerieLabel').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
+            document.getElementById('groupAdmin').style.display = isOrga ? 'block' : 'none';
         }
 
         const adherentSauvegarde = chargerAdherent();
@@ -556,13 +567,10 @@
 
         // ===== DARK MODE =====
         function toggleDark() {
-            const body = document.body;
-            const sw = document.getElementById('toggleSwitch');
-            const lbl = document.getElementById('toggleLabel');
-            body.classList.toggle('dark');
-            const isDark = body.classList.contains('dark');
-            sw.classList.toggle('on', isDark);
-            lbl.textContent = isDark ? '🌙' : '☀️';
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            document.getElementById('toggleSwitch').classList.toggle('on', isDark);
+            document.getElementById('toggleLabel').textContent = isDark ? '🌙' : '☀️';
             localStorage.setItem('darkMode', isDark ? '1' : '0');
         }
         if (localStorage.getItem('darkMode') === '1') {
@@ -574,308 +582,198 @@
         // ===== NAVIGATION =====
         function openPage(id) {
             document.getElementById(id).classList.add('active');
-            if (id === 'qrcodePage' && !qrcodeGenerated) {
-                document.getElementById('qrcode').innerHTML = '';
-                new QRCode(document.getElementById('qrcode'), { text: 'https://votre-lien-ici.fr', width: 250, height: 250, colorDark: '#2c5f2d', colorLight: '#ffffff' });
-                qrcodeGenerated = true;
-            }
             if (id === 'programmePage') setTimeout(surbrillanceEnCours, 100);
             if (id === 'messageriePage') ouvrirMessagerie();
         }
-
         function closePage(id) {
             document.getElementById(id).classList.remove('active');
-            if (id === 'flashPage') stopCamera();
             if (id === 'messageriePage') { clearInterval(refreshTimer); refreshTimer = null; }
+            document.getElementById('jtbMenu').classList.remove('open');
         }
 
-        // ===== FLASH =====
-        async function toggleFlash() {
-            const btn = document.getElementById('flashBtn');
-            const status = document.getElementById('flashStatus');
-            const video = document.getElementById('camera-stream');
-            try {
-                if (!stream) {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    video.srcObject = stream; video.style.display = 'block';
-                    track = stream.getVideoTracks()[0];
-                }
-                const caps = track.getCapabilities();
-                if (!caps.torch) { alert('Flash non supporté sur cet appareil'); return; }
-                flashOn = !flashOn;
-                await track.applyConstraints({ advanced: [{ torch: flashOn }] });
-                btn.classList.toggle('active', flashOn);
-                status.textContent = flashOn ? 'Flash allumé ✓' : 'Flash éteint';
-            } catch(e) { alert('Erreur flash : ' + e.message); }
+        // ===== SITES WEB =====
+        function openWebsite(type) {
+            if (type === 'aamb') window.open('https://www.aamb.asso.fr','_blank');
         }
-
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null; track = null; flashOn = false;
-                document.getElementById('flashBtn').classList.remove('active');
-                document.getElementById('flashStatus').textContent = 'Flash éteint';
-                document.getElementById('camera-stream').style.display = 'none';
-            }
+        function toggleJTBMenu(e) {
+            e.stopPropagation();
+            document.getElementById('jtbMenu').classList.toggle('open');
         }
-
-        function openWebsite() { window.open('https://www.aamb.asso.fr', '_blank'); }
+        function openJTB(url) {
+            window.open(url,'_blank');
+            document.getElementById('jtbMenu').classList.remove('open');
+        }
+        document.addEventListener('click', () => {
+            document.getElementById('jtbMenu').classList.remove('open');
+        });
 
         // ===== PROGRAMME =====
-        const joursDates = { 'mardi': '2026-06-23', 'mercredi': '2026-06-24', 'jeudi': '2026-06-25', 'vendredi': '2026-06-26' };
+        const joursDates = {'mardi':'2026-06-23','mercredi':'2026-06-24','jeudi':'2026-06-25','vendredi':'2026-06-26'};
         const horaires = {
-            'mardi':    [ ['13:00','13:45'], ['14:00','14:15'], ['14:15','15:00'], ['15:05','15:50'], ['15:50','16:10'], ['16:15','17:00'], ['17:15','18:30'] ],
-            'mercredi': [ ['08:30','09:15'], ['09:20','10:05'], ['10:05','11:00'], ['11:00','12:00'], ['13:45','14:30'], ['14:35','15:20'], ['15:20','16:20'], ['16:20','17:05'], ['19:00','23:00'] ],
-            'jeudi':    [ ['08:30','09:15'], ['09:20','10:05'], ['10:05','11:00'], ['11:00','11:45'], ['13:45','14:30'], ['14:35','15:20'], ['15:20','16:20'], ['16:20','17:05'], ['19:00','25:00'] ],
-            'vendredi': [ ['08:30','09:15'], ['09:20','10:05'], ['10:00','12:00'] ]
+            'mardi':    [['13:00','13:45'],['14:00','14:15'],['14:15','15:00'],['15:05','15:50'],['15:50','16:10'],['16:15','17:00'],['17:15','18:30']],
+            'mercredi': [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','12:00'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','23:00']],
+            'jeudi':    [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','11:45'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','25:00']],
+            'vendredi': [['08:30','09:15'],['09:20','10:05'],['10:00','12:00']]
         };
-
-        function toMin(h) { const [hh, mm] = h.split(':').map(Number); return hh * 60 + mm; }
-
-        let isAnimating = false;
-        const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
-
-        function getJourActif() {
-            return jours.find(j => document.getElementById('jour-' + j).style.display !== 'none') || 'mardi';
-        }
-
-        function afficherJour(jour, direction = null) {
+        function toMin(h) { const [hh,mm]=h.split(':').map(Number); return hh*60+mm; }
+        let isAnimating=false;
+        const jours=['mardi','mercredi','jeudi','vendredi'];
+        function getJourActif() { return jours.find(j=>document.getElementById('jour-'+j).style.display!=='none')||'mardi'; }
+        function afficherJour(jour,direction=null) {
             if (isAnimating) return;
-            const ancienJour = getJourActif();
-            if (ancienJour === jour) return;
-            if (direction === null) {
-                const idxAncien = jours.indexOf(ancienJour);
-                const idxNouveau = jours.indexOf(jour);
-                direction = idxNouveau > idxAncien ? 'left' : 'right';
-            }
-            const ancienEl = document.getElementById('jour-' + ancienJour);
-            const nouveauEl = document.getElementById('jour-' + jour);
-            isAnimating = true;
-            document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + jour).classList.add('active');
-            nouveauEl.style.display = 'block'; nouveauEl.style.position = 'absolute'; nouveauEl.style.width = '100%'; nouveauEl.style.top = '0';
-            ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
-            nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
-            setTimeout(() => {
-                ancienEl.classList.remove('slide-out-left', 'slide-out-right');
-                nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
-                ancienEl.style.display = 'none'; nouveauEl.style.position = ''; nouveauEl.style.width = ''; nouveauEl.style.top = '';
-                isAnimating = false;
-            }, 300);
+            const ancienJour=getJourActif();
+            if (ancienJour===jour) return;
+            if (!direction) { const ia=jours.indexOf(ancienJour),in2=jours.indexOf(jour); direction=in2>ia?'left':'right'; }
+            const ancienEl=document.getElementById('jour-'+ancienJour);
+            const nouveauEl=document.getElementById('jour-'+jour);
+            isAnimating=true;
+            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById('btn-'+jour).classList.add('active');
+            nouveauEl.style.display='block'; nouveauEl.style.position='absolute'; nouveauEl.style.width='100%'; nouveauEl.style.top='0';
+            ancienEl.classList.add(direction==='left'?'slide-out-left':'slide-out-right');
+            nouveauEl.classList.add(direction==='left'?'slide-in-left':'slide-in-right');
+            setTimeout(()=>{
+                ancienEl.classList.remove('slide-out-left','slide-out-right');
+                nouveauEl.classList.remove('slide-in-left','slide-in-right');
+                ancienEl.style.display='none'; nouveauEl.style.position=''; nouveauEl.style.width=''; nouveauEl.style.top='';
+                isAnimating=false;
+            },300);
         }
-
         function surbrillanceEnCours() {
-            const maintenant = new Date();
-            const dateAujourd = maintenant.toISOString().split('T')[0];
-            document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
-            let jourActuel = null;
-            for (const [jour, date] of Object.entries(joursDates)) {
-                if (date === dateAujourd) { jourActuel = jour; break; }
-            }
-            const jourAfficher = jourActuel || 'mardi';
-            document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
-            document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('jour-' + jourAfficher).style.display = 'block';
-            document.getElementById('btn-' + jourAfficher).classList.add('active');
+            const maintenant=new Date();
+            const dateAujourd=maintenant.toISOString().split('T')[0];
+            document.querySelectorAll('.prog-slot').forEach(s=>s.classList.remove('en-cours'));
+            let jourActuel=null;
+            for (const [j,d] of Object.entries(joursDates)) { if (d===dateAujourd){jourActuel=j;break;} }
+            const ja=jourActuel||'mardi';
+            document.querySelectorAll('.jour-content').forEach(d=>d.style.display='none');
+            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById('jour-'+ja).style.display='block';
+            document.getElementById('btn-'+ja).classList.add('active');
             if (!jourActuel) return;
-            const heureNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-            const slots = horaires[jourActuel];
-            const slotsDiv = document.getElementById('jour-' + jourActuel).querySelectorAll('.prog-slot');
-            slots.forEach(([debut, fin], i) => {
-                const d = toMin(debut), f = toMin(fin);
-                if (heureNow >= d && heureNow < f && slotsDiv[i]) {
-                    slotsDiv[i].classList.add('en-cours');
-                    setTimeout(() => slotsDiv[i].scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-                }
-            });
+            const hNow=maintenant.getHours()*60+maintenant.getMinutes();
+            const slotsDiv=document.getElementById('jour-'+jourActuel).querySelectorAll('.prog-slot');
+            horaires[jourActuel].forEach(([d,f],i)=>{ if (hNow>=toMin(d)&&hNow<toMin(f)&&slotsDiv[i]){slotsDiv[i].classList.add('en-cours');setTimeout(()=>slotsDiv[i].scrollIntoView({behavior:'smooth',block:'center'}),300);} });
         }
-
-        setInterval(surbrillanceEnCours, 60000);
-
-        function swipeVers(direction) {
-            const idx = jours.indexOf(getJourActif());
-            let newIdx = idx + direction;
-            if (newIdx < 0) newIdx = 0;
-            if (newIdx >= jours.length) newIdx = jours.length - 1;
-            if (newIdx !== idx) afficherJour(jours[newIdx], direction === 1 ? 'left' : 'right');
-        }
-
-        let touchStartX = 0, touchStartY = 0;
-        const zoneSwipe = document.getElementById('zoneSwipe');
-        zoneSwipe.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
-        zoneSwipe.addEventListener('touchend', (e) => {
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-                if (dx < 0) swipeVers(+1); else swipeVers(-1);
-            }
-        }, { passive: true });
+        setInterval(surbrillanceEnCours,60000);
+        let touchStartX=0,touchStartY=0;
+        document.getElementById('zoneSwipe').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
+        document.getElementById('zoneSwipe').addEventListener('touchend',e=>{
+            const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
+            if (Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){const idx=jours.indexOf(getJourActif());let ni=idx+(dx<0?1:-1);ni=Math.max(0,Math.min(3,ni));if(ni!==idx)afficherJour(jours[ni],dx<0?'left':'right');}
+        },{passive:true});
 
         // ===== MESSAGERIE =====
-        let refreshTimer = null;
-        let filtreOrga = 'nonTraites';
-
-        function texteEnCours() {
-            const textareas = document.querySelectorAll('#messagerieContent textarea');
-            for (const ta of textareas) {
-                if (ta.value.trim().length > 0) return true;
-            }
-            return false;
-        }
-
+        let refreshTimer=null, filtreOrga='nonTraites';
+        function texteEnCours() { const t=document.querySelectorAll('#messagerieContent textarea'); for(const ta of t){if(ta.value.trim().length>0)return true;} return false; }
         function ouvrirMessagerie() {
-            const adherent = chargerAdherent();
-            if (!adherent) return;
+            const adherent=chargerAdherent(); if (!adherent) return;
             clearInterval(refreshTimer);
-            if (adherent.statut === 'Organisateur') {
-                document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
+            if (adherent.statut==='Organisateur') {
+                document.getElementById('messagerieTitle').textContent='📨 Messages des participants';
                 chargerMessagesOrganisateur(adherent);
-                refreshTimer = setInterval(() => {
-                    if (!texteEnCours()) chargerMessagesOrganisateur(adherent);
-                }, 15000);
+                refreshTimer=setInterval(()=>{if(!texteEnCours())chargerMessagesOrganisateur(adherent);},15000);
             } else {
-                document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
+                document.getElementById('messagerieTitle').textContent='💬 Contacter l\'AAMB';
                 chargerMessagesParticipant(adherent);
-                refreshTimer = setInterval(() => {
-                    if (!texteEnCours()) chargerMessagesParticipant(adherent);
-                }, 15000);
+                refreshTimer=setInterval(()=>{if(!texteEnCours())chargerMessagesParticipant(adherent);},15000);
             }
         }
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                clearInterval(refreshTimer);
-            } else {
-                const page = document.getElementById('messageriePage');
-                if (page.classList.contains('active')) ouvrirMessagerie();
-            }
+        document.addEventListener('visibilitychange',()=>{
+            if(document.hidden){clearInterval(refreshTimer);}
+            else{const p=document.getElementById('messageriePage');if(p.classList.contains('active'))ouvrirMessagerie();}
         });
 
         async function chargerMessagesParticipant(adherent) {
-            const content = document.getElementById('messagerieContent');
+            const content=document.getElementById('messagerieContent');
             try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getMyMessages&userId=${encodeURIComponent(adherent.id)}`);
-                const data = await resp.json();
-                if (!data.success) { content.innerHTML = '<p style="color:var(--text-sub); text-align:center; padding:20px;">Erreur de chargement</p>'; return; }
-                const convs = data.conversations;
-                const keys  = Object.keys(convs);
-                let html = '<button onclick="nouveauMessage()" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-bottom:15px;">✉️ Nouveau message</button>';
-                if (keys.length === 0) {
-                    html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message pour le moment</p>';
-                } else {
-                    keys.forEach(convBase => {
-                        const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-                        const dernierMsg = msgs[msgs.length - 1];
-                        const enAttente = dernierMsg.traite === 'NON' && dernierMsg.userId === adherent.id;
-                        html += '<div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden;">' +
-                            '<div style="background:' + (enAttente ? '#fff3cd' : '#d4edda') + '; padding:8px 12px; font-size:12px; font-weight:bold; color:' + (enAttente ? '#856404' : '#28a745') + ';">' +
-                            (enAttente ? '⏳ En attente de réponse' : '✅ Répondu') +
-                            '<span style="float:right; font-weight:normal; color:var(--text-sub);">' + convBase + '</span></div>';
-                        msgs.forEach(m => {
-                            html += '<div style="padding:10px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:' + (m.userId === adherent.id ? 'var(--card-bg)' : 'rgba(44,95,45,0.08)') + ';">' +
-                                '<div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">' + (m.userId === adherent.id ? '👤 Vous' : '🏢 Organisation') + ' — ' + m.dateHeure + '</div>' +
-                                '<div style="font-size:14px; color:var(--text);">' + m.message + '</div></div>';
-                        });
-                        html += '<div style="padding:10px;"><button onclick="repondreConversation(\'' + convBase + '\')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; cursor:pointer;">↩️ Continuer cette conversation</button></div></div>';
-                    });
-                }
-                content.innerHTML = html;
-            } catch(e) {
-                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
-            }
+                const resp=await fetch(SCRIPT_URL+'?action=getMyMessages&userId='+encodeURIComponent(adherent.id));
+                const data=await resp.json();
+                if (!data.success){content.innerHTML='<p style="text-align:center;padding:20px;color:var(--text-sub);">Erreur de chargement</p>';return;}
+                const convs=data.conversations,keys=Object.keys(convs);
+                let html='<button onclick="nouveauMessage()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
+                if (!keys.length) html+='<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
+                else keys.forEach(convBase=>{
+                    const msgs=convs[convBase].sort((a,b)=>a.idConvFull.localeCompare(b.idConvFull));
+                    const last=msgs[msgs.length-1];
+                    const enAttente=last.traite==='NON'&&last.userId===adherent.id;
+                    html+='<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;">' +
+                        '<div style="background:'+(enAttente?'#fff3cd':'#d4edda')+';padding:8px 12px;font-size:12px;font-weight:bold;color:'+(enAttente?'#856404':'#28a745')+';"> '+(enAttente?'⏳ En attente de réponse':'✅ Répondu')+' <span style="float:right;font-weight:normal;color:var(--text-sub);">'+convBase+'</span></div>';
+                    msgs.forEach(m=>{html+='<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:'+(m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)')+'"><div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">'+(m.userId===adherent.id?'👤 Vous':'🏢 Organisation')+' — '+m.dateHeure+'</div><div style="font-size:14px;color:var(--text);">'+m.message+'</div></div>';});
+                    html+='<div style="padding:10px;"><button onclick="repondreConversation(\''+convBase+'\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">↩️ Continuer cette conversation</button></div></div>';
+                });
+                content.innerHTML=html;
+            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
         }
 
-        function nouveauMessage() { afficherFormulaireMessage(null); }
-        function repondreConversation(convBase) { afficherFormulaireMessage(convBase); }
-
+        function nouveauMessage(){afficherFormulaireMessage(null);}
+        function repondreConversation(c){afficherFormulaireMessage(c);}
         function afficherFormulaireMessage(convBase) {
-            const content = document.getElementById('messagerieContent');
-            const isNouveau = !convBase;
-            content.innerHTML =
-                '<div style="margin-bottom:15px;"><button onclick="ouvrirMessagerie()" style="background:none; border:none; color:#2c5f2d; font-size:16px; cursor:pointer;">← Retour</button></div>' +
-                '<div style="background:var(--card-bg); border-radius:12px; padding:15px; box-shadow:var(--card-shadow);">' +
-                '<h3 style="color:var(--text); margin-bottom:15px;">' + (isNouveau ? '✉️ Nouveau message' : '↩️ Répondre — ' + convBase) + '</h3>' +
-                '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%; height:120px; padding:12px; border:2px solid #ddd; border-radius:10px; font-size:15px; resize:none; outline:none; background:var(--page-bg); color:var(--text);"></textarea>' +
-                '<button onclick="envoyerMessage(\'' + (convBase || '') + '\')" style="width:100%; padding:14px; background:#2c5f2d; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:10px;">📤 Envoyer</button></div>';
+            const content=document.getElementById('messagerieContent');
+            content.innerHTML='<div style="margin-bottom:15px;"><button onclick="ouvrirMessagerie()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>' +
+                '<div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">' +
+                '<h3 style="color:var(--text);margin-bottom:15px;">'+(convBase?'↩️ Répondre — '+convBase:'✉️ Nouveau message')+'</h3>' +
+                '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--page-bg);color:var(--text);"></textarea>' +
+                '<button onclick="envoyerMessage(\''+(convBase||')+'\')" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">📤 Envoyer</button></div>';
         }
 
         async function envoyerMessage(convBase) {
-            const adherent = chargerAdherent();
-            const texte = document.getElementById('msgTexte').value.trim();
-            if (!texte) { alert('Veuillez écrire un message'); return; }
-            const content = document.getElementById('messagerieContent');
-            content.innerHTML = '<p style="text-align:center; padding:40px; color:var(--text-sub);">⏳ Envoi en cours...</p>';
+            const adherent=chargerAdherent();
+            const texte=document.getElementById('msgTexte').value.trim();
+            if (!texte){alert('Veuillez écrire un message');return;}
+            const content=document.getElementById('messagerieContent');
+            content.innerHTML='<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
             try {
-                const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase || '', isOrganisateur: adherent.statut === 'Organisateur' ? 'true' : 'false' });
-                const resp = await fetch(`${SCRIPT_URL}?${params}`);
-                const data = await resp.json();
-                if (data.success) { chargerMessagesParticipant(adherent); }
-                else { content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur d\'envoi. Réessayez.</p>'; }
-            } catch(e) {
-                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
-            }
+                const params=new URLSearchParams({action:'sendMessage',userId:adherent.id,nom:adherent.nom,prenom:adherent.prenom,message:texte,convId:convBase||'',isOrganisateur:adherent.statut==='Organisateur'?'true':'false'});
+                const resp=await fetch(SCRIPT_URL+'?'+params);
+                const data=await resp.json();
+                if (data.success){chargerMessagesParticipant(adherent);}
+                else{content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>';}
+            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
         }
 
         async function chargerMessagesOrganisateur(adherent) {
-            const content = document.getElementById('messagerieContent');
+            const content=document.getElementById('messagerieContent');
             try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getAllMessages&userId=${encodeURIComponent(adherent.id)}`);
-                const data = await resp.json();
-                if (!data.success) { content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Accès refusé</p>'; return; }
-                const convs = data.conversations;
-                const keys  = Object.keys(convs);
-                let nbNonTraites = 0;
-                keys.forEach(k => { if (convs[k][convs[k].length - 1].traite === 'NON') nbNonTraites++; });
-                document.getElementById('btnMessagerieSubtitle').textContent = nbNonTraites > 0 ? '🔴 ' + nbNonTraites + ' message(s) non traité(s)' : 'Aucun message en attente';
-                let html = '<div style="display:flex; gap:8px; margin-bottom:15px;">' +
-                    '<button onclick="filtreOrga=\'nonTraites\'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:' + (filtreOrga === 'nonTraites' ? '#2c5f2d' : '#e0e0e0') + '; color:' + (filtreOrga === 'nonTraites' ? 'white' : '#333') + ';">🔴 Non traités (' + nbNonTraites + ')</button>' +
-                    '<button onclick="filtreOrga=\'tous\'; chargerMessagesOrganisateur(chargerAdherent())" style="flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; background:' + (filtreOrga === 'tous' ? '#2c5f2d' : '#e0e0e0') + '; color:' + (filtreOrga === 'tous' ? 'white' : '#333') + ';">📋 Tous</button></div>';
-                let affiche = false;
-                keys.forEach(convBase => {
-                    const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-                    const nonTraite = msgs[msgs.length - 1].traite === 'NON';
-                    if (filtreOrga === 'nonTraites' && !nonTraite) return;
-                    affiche = true;
-                    const premierMsg = msgs.find(m => m.userId !== adherent.id) || msgs[0];
-                    html += '<div style="background:var(--card-bg); border-radius:12px; margin-bottom:12px; box-shadow:var(--card-shadow); overflow:hidden; border-left:4px solid ' + (nonTraite ? '#dc3545' : '#28a745') + ';">' +
-                        '<div style="padding:10px 12px; background:' + (nonTraite ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)') + ';">' +
-                        '<strong style="color:var(--text);">👤 ' + premierMsg.prenom + ' ' + premierMsg.nom + '</strong>' +
-                        '<span style="float:right; font-size:12px; color:var(--text-sub);">' + convBase + '</span></div>';
-                    msgs.forEach(m => {
-                        html += '<div style="padding:8px 12px; border-bottom:1px solid rgba(128,128,128,0.1); background:' + (m.userId === adherent.id ? 'rgba(44,95,45,0.08)' : 'var(--card-bg)') + ';">' +
-                            '<div style="font-size:11px; color:var(--text-sub); margin-bottom:3px;">' + (m.userId === adherent.id ? '🏢 Vous (Organisation)' : '👤 ' + m.prenom + ' ' + m.nom) + ' — ' + m.dateHeure + '</div>' +
-                            '<div style="font-size:14px; color:var(--text);">' + m.message + '</div></div>';
-                    });
-                    if (nonTraite) {
-                        html += '<div style="padding:10px;">' +
-                            '<textarea id="rep-' + convBase + '" placeholder="Votre réponse..." style="width:100%; height:80px; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; resize:none; outline:none; background:var(--page-bg); color:var(--text); margin-bottom:8px;"></textarea>' +
-                            '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" style="width:100%; padding:10px; background:#2c5f2d; color:white; border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;">📤 Répondre</button></div>';
-                    }
-                    html += '</div>';
+                const resp=await fetch(SCRIPT_URL+'?action=getAllMessages&userId='+encodeURIComponent(adherent.id));
+                const data=await resp.json();
+                if (!data.success){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Accès refusé</p>';return;}
+                const convs=data.conversations,keys=Object.keys(convs);
+                let nb=0; keys.forEach(k=>{if(convs[k][convs[k].length-1].traite==='NON')nb++;});
+                let html='<div style="display:flex;gap:8px;margin-bottom:15px;">' +
+                    '<button onclick="filtreOrga=\'nonTraites\';chargerMessagesOrganisateur(chargerAdherent())" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:'+(filtreOrga==='nonTraites'?'#1a3a6b':'#e0e0e0')+';color:'+(filtreOrga==='nonTraites'?'white':'#333')+';">🔴 Non traités ('+nb+')</button>' +
+                    '<button onclick="filtreOrga=\'tous\';chargerMessagesOrganisateur(chargerAdherent())" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:'+(filtreOrga==='tous'?'#1a3a6b':'#e0e0e0')+';color:'+(filtreOrga==='tous'?'white':'#333')+';">📋 Tous</button></div>';
+                let affiche=false;
+                keys.forEach(convBase=>{
+                    const msgs=convs[convBase].sort((a,b)=>a.idConvFull.localeCompare(b.idConvFull));
+                    const nonTraite=msgs[msgs.length-1].traite==='NON';
+                    if (filtreOrga==='nonTraites'&&!nonTraite) return;
+                    affiche=true;
+                    const pm=msgs.find(m=>m.userId!==adherent.id)||msgs[0];
+                    html+='<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;border-left:4px solid '+(nonTraite?'#dc3545':'#28a745')+';">' +
+                        '<div style="padding:10px 12px;background:'+(nonTraite?'rgba(220,53,69,0.1)':'rgba(40,167,69,0.1)')+'"><strong style="color:var(--text);">👤 '+pm.prenom+' '+pm.nom+'</strong><span style="float:right;font-size:12px;color:var(--text-sub);">'+convBase+'</span></div>';
+                    msgs.forEach(m=>{html+='<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:'+(m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)')+'"><div style="font-size:11px;color:var(--text-sub);">'+(m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom)+' — '+m.dateHeure+'</div><div style="font-size:14px;color:var(--text);">'+m.message+'</div></div>';});
+                    if (nonTraite) html+='<div style="padding:10px;"><textarea id="rep-'+convBase+'" placeholder="Votre réponse..." style="width:100%;height:80px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;background:var(--page-bg);color:var(--text);margin-bottom:8px;"></textarea><button onclick="envoyerReponseOrga(\''+convBase+'\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">📤 Répondre</button></div>';
+                    html+='</div>';
                 });
-                if (!affiche) html += '<p style="color:var(--text-sub); text-align:center; padding:20px;">Aucun message en attente</p>';
-                content.innerHTML = html;
-            } catch(e) {
-                content.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erreur de connexion</p>';
-            }
+                if (!affiche) html+='<p style="color:var(--text-sub);text-align:center;padding:20px;">Aucun message en attente</p>';
+                content.innerHTML=html;
+            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
         }
 
         async function envoyerReponseOrga(convBase) {
-            const adherent = chargerAdherent();
-            const texte = document.getElementById('rep-' + convBase).value.trim();
-            if (!texte) { alert('Veuillez écrire une réponse'); return; }
-            const btn = document.querySelector('button[onclick="envoyerReponseOrga(\'' + convBase + '\')"]');
-            if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi en cours...'; btn.style.opacity = '0.6'; }
+            const adherent=chargerAdherent();
+            const texte=document.getElementById('rep-'+convBase).value.trim();
+            if (!texte){alert('Veuillez écrire une réponse');return;}
+            const btn=document.querySelector('button[onclick="envoyerReponseOrga(\''+convBase+'\')"]');
+            if (btn){btn.disabled=true;btn.textContent='⏳ Envoi...';btn.style.opacity='0.6';}
             try {
-                const params = new URLSearchParams({ action: 'sendMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, convId: convBase, isOrganisateur: 'true' });
-                const resp = await fetch(`${SCRIPT_URL}?${params}`);
-                const data = await resp.json();
-                if (data.success) { chargerMessagesOrganisateur(adherent); }
-                else { if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; } alert('Erreur d\'envoi. Réessayez.'); }
-            } catch(e) {
-                if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
-                alert('Erreur de connexion');
-            }
+                const params=new URLSearchParams({action:'sendMessage',userId:adherent.id,nom:adherent.nom,prenom:adherent.prenom,message:texte,convId:convBase,isOrganisateur:'true'});
+                const resp=await fetch(SCRIPT_URL+'?'+params);
+                const data=await resp.json();
+                if (data.success){chargerMessagesOrganisateur(adherent);}
+                else{if(btn){btn.disabled=false;btn.textContent='📤 Répondre';btn.style.opacity='1';}alert('Erreur.');}
+            } catch(e){if(btn){btn.disabled=false;btn.textContent='📤 Répondre';btn.style.opacity='1';}alert('Erreur de connexion');}
         }
     </script>
 </body>
