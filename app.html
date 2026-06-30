@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v41.0</title>
+    <title>AAMB v42.0</title>
     <link rel="manifest" href="manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,15 +20,6 @@
             --text: #222;
             --text-sub: #666;
             --page-bg: #f5f7fa;
-            --page-header-bg: #1a3a6b;
-            --heure-bg: #555;
-            --conf-bg: #ffe4ec;
-            --conf-border: #c0002a;
-            --atelier-bg: #e3f0ff;
-            --atelier-border: #1565c0;
-            --atelier-text: #1a3a6b;
-            --jour-btn-bg: #dde3ef;
-            --jour-btn-text: #333;
             --group-bg: white;
             --group-title-color: #1a3a6b;
             --btn-bg: #2d6abf;
@@ -44,15 +35,6 @@
             --text: #eee;
             --text-sub: #999;
             --page-bg: #181c2a;
-            --page-header-bg: #0f1f3d;
-            --heure-bg: #3a3d55;
-            --conf-bg: #3d1525;
-            --conf-border: #c0002a;
-            --atelier-bg: #162030;
-            --atelier-border: #1565c0;
-            --atelier-text: #90caf9;
-            --jour-btn-bg: #2a2d45;
-            --jour-btn-text: #ccc;
             --group-bg: #242840;
             --group-title-color: #7aaaf0;
             --btn-bg: #1a4a8a;
@@ -67,7 +49,6 @@
             flex-direction: column;
         }
 
-        /* ===== HEADER ===== */
         header {
             background: var(--header-bg);
             padding: 12px 20px;
@@ -81,181 +62,41 @@
         header .version { color: var(--header-sub); font-size: 10px; }
         header .user { color: var(--header-sub); font-size: 12px; margin-top: 2px; }
 
-        .dark-toggle {
-            position: absolute; top: 12px; right: 12px;
-            display: flex; align-items: center; gap: 5px; cursor: pointer;
-        }
+        .dark-toggle { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .toggle-label { font-size: 14px; }
         .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
         .toggle-switch.on { background: #4a7fcb; }
         .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
         .toggle-switch.on .toggle-knob { left: 20px; }
 
-        .deconnexion {
-            position: absolute; top: 10px; left: 12px;
-            cursor: pointer; text-align: center; color: var(--header-sub);
-        }
+        .deconnexion { position: absolute; top: 10px; left: 12px; cursor: pointer; text-align: center; color: var(--header-sub); }
         .deconnexion .icon { font-size: 18px; }
         .deconnexion .label { font-size: 9px; margin-top: 1px; }
 
-        /* ===== CONTAINER ===== */
-        .container {
-            flex: 1; padding: 12px;
-            max-width: 700px; margin: 0 auto; width: 100%;
-        }
+        .container { flex: 1; padding: 12px; max-width: 700px; margin: 0 auto; width: 100%; }
 
-        /* ===== GROUPE ===== */
-        .btn-group {
-            background: var(--group-bg);
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: var(--card-shadow);
-        }
-        .btn-group-title {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--group-title-color);
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 1.5px solid var(--btn-bg);
-        }
-        .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
+        .btn-group { background: var(--group-bg); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
+        .btn-group-title { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--group-title-color); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--btn-bg); }
+        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
-        /* ===== BOUTON TUILE ===== */
         .btn-tile {
             background: linear-gradient(145deg, var(--btn-bg2), var(--btn-bg));
-            border-radius: 12px;
-            padding: 10px 5px 8px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-            border: none;
-            transition: transform 0.15s, opacity 0.15s;
-            width: 100%;
-            min-height: 70px;
-            justify-content: center;
+            border-radius: 12px; padding: 10px 5px 8px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2); border: none;
+            transition: transform 0.15s, opacity 0.15s; width: 100%; min-height: 70px;
+            justify-content: center; text-decoration: none;
         }
         .btn-tile:active { transform: scale(0.93); opacity: 0.85; }
         .btn-tile-icon { font-size: 24px; line-height: 1; }
-        .btn-tile-label {
-            font-size: 9.5px;
-            font-weight: 600;
-            color: white;
-            text-align: center;
-            line-height: 1.25;
-            word-break: break-word;
-            max-width: 100%;
-        }
+        .btn-tile-label { font-size: 9.5px; font-weight: 600; color: white; text-align: center; line-height: 1.25; word-break: break-word; max-width: 100%; }
 
-        /* Dropdown JTB sites */
         .jtb-wrap { position: relative; }
-        .jtb-menu {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 6px);
-            left: 0; right: 0;
-            background: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            z-index: 200;
-            overflow: hidden;
-            min-width: 160px;
-        }
+        .jtb-menu { display: none; position: absolute; bottom: calc(100% + 6px); left: 0; right: 0; background: var(--card-bg); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); z-index: 200; overflow: hidden; min-width: 160px; }
         .jtb-menu.open { display: block; }
-        .jtb-item {
-            padding: 11px 14px;
-            font-size: 13px;
-            color: var(--text);
-            cursor: pointer;
-            border-bottom: 1px solid rgba(128,128,128,0.1);
-        }
+        .jtb-item { padding: 11px 14px; font-size: 13px; color: var(--text); cursor: pointer; border-bottom: 1px solid rgba(128,128,128,0.1); }
         .jtb-item:last-child { border-bottom: none; }
         .jtb-item:hover { background: rgba(74,127,203,0.12); }
-
-        /* ===== PAGES OVERLAY ===== */
-        .page-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--page-bg); z-index: 1000; overflow-y: auto;
-        }
-        .page-overlay.active { display: block; }
-        .page-header {
-            background: var(--page-header-bg); color: white; padding: 14px 20px;
-            display: flex; align-items: center; gap: 12px;
-            position: sticky; top: 0; z-index: 10;
-        }
-        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-        .page-header h2 { font-size: 18px; }
-        .page-content { padding: 20px; }
-
-        /* Flash */
-        .flash-control { text-align: center; padding: 40px 20px; }
-        .flash-button {
-            width: 140px; height: 140px; border-radius: 50%; border: none;
-            background: linear-gradient(135deg, #1a3a6b, #4a7fcb);
-            color: white; font-size: 55px; cursor: pointer;
-            box-shadow: 0 8px 25px rgba(26,58,107,0.4); transition: all 0.3s;
-        }
-        .flash-button.active {
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            box-shadow: 0 0 50px rgba(255,215,0,0.8);
-        }
-        .flash-status { font-size: 16px; color: var(--text-sub); margin-top: 18px; }
-        #camera-stream { width: 100%; max-width: 500px; border-radius: 10px; display: none; }
-
-        /* QR Code */
-        .qrcode-container { text-align: center; padding: 30px 20px; }
-        #qrcode { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-
-        /* Programme */
-        .jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
-        .jour-btn {
-            background: var(--jour-btn-bg); color: var(--jour-btn-text);
-            border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer;
-            font-size: 12px; white-space: nowrap; font-weight: 500;
-        }
-        .jour-btn.active { background: #1a3a6b; color: white; }
-        .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-        .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
-        .prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); }
-        .prog-ateliers { display: flex; }
-        .atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
-        .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
-        .atelier strong { font-size: 12px; }
-
-        #zoneSwipe { overflow: hidden; position: relative; }
-        .jour-content { transition: none; }
-        .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
-        .jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
-        .jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
-        .jour-content.slide-in-right { animation: slideInRight 0.3s ease forwards; }
-        @keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
-        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-        @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
-        .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
-        .prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
-        .prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
-        .prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
-        @keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
-        @keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
-
-        /* Messagerie */
-        .data-row { padding: 14px; border-bottom: 1px solid rgba(128,128,128,0.15); }
-        .data-row:last-child { border-bottom: none; }
-        .data-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 4px; }
-        .data-value { font-size: 15px; color: var(--text); font-weight: 500; }
     </style>
 </head>
 <body>
@@ -266,7 +107,7 @@
             <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;">
                 <img src="logo-aamb.png" alt="AAMB" style="width:100%;height:100%;object-fit:contain;">
             </div>
-            <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v41.0</h1>
+            <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
             <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
             <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
                 <p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
@@ -292,86 +133,80 @@
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
-        <div class="version">v41.0</div>
+        <div class="version">v42.0</div>
         <div class="user" id="headerUser"></div>
     </header>
 
-    <!-- ===== PAGE ACCUEIL ===== -->
-    <div class="container" id="mainContainer">
+    <div class="container">
 
-        <!-- GROUPE JTB BESANCON -->
         <div class="btn-group">
             <div class="btn-group-title">🏛️ JTB Besançon</div>
             <div class="btn-grid">
-                <button class="btn-tile" onclick="openPage('programmePage')">
+                <a class="btn-tile" href="pages/programme.html">
                     <span class="btn-tile-icon">📅</span>
                     <span class="btn-tile-label">Programme des Journées</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('ateliersPage')">
+                </a>
+                <a class="btn-tile" href="pages/ateliers.html">
                     <span class="btn-tile-icon">🔬</span>
                     <span class="btn-tile-label">Ateliers</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('qcmPage')">
+                </a>
+                <a class="btn-tile" href="pages/qcm.html">
                     <span class="btn-tile-icon">📝</span>
                     <span class="btn-tile-label">QCM</span>
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- GROUPE COMMUNICATION -->
         <div class="btn-group">
             <div class="btn-group-title">💬 Communication</div>
             <div class="btn-grid">
-                <button class="btn-tile" onclick="openPage('messageriePage')">
+                <a class="btn-tile" href="pages/messagerie.html">
                     <span class="btn-tile-icon">✉️</span>
                     <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('chatAGPage')">
+                </a>
+                <a class="btn-tile" href="pages/chat-ag.html">
                     <span class="btn-tile-icon">🗣️</span>
                     <span class="btn-tile-label">Chat pour l'AG</span>
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- GROUPE INFORMATIONS ANNEXES -->
         <div class="btn-group">
             <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
             <div class="btn-grid">
-                <button class="btn-tile" onclick="openPage('transportPage')">
+                <a class="btn-tile" href="pages/transport.html">
                     <span class="btn-tile-icon">🚌</span>
                     <span class="btn-tile-label">Transport</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('soireesPage')">
+                </a>
+                <a class="btn-tile" href="pages/soirees.html">
                     <span class="btn-tile-icon">🎉</span>
                     <span class="btn-tile-label">Soirées</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('restaurationPage')">
+                </a>
+                <a class="btn-tile" href="pages/restauration.html">
                     <span class="btn-tile-icon">🍽️</span>
                     <span class="btn-tile-label">Restauration</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('reglementationPage')">
+                </a>
+                <a class="btn-tile" href="pages/reglementation.html">
                     <span class="btn-tile-icon">📋</span>
                     <span class="btn-tile-label">Réglementation</span>
-                </button>
-                <button class="btn-tile" onclick="openPage('droitImagePage')">
+                </a>
+                <a class="btn-tile" href="pages/droit-image.html">
                     <span class="btn-tile-icon">📸</span>
                     <span class="btn-tile-label">Droit à l'image</span>
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- GROUPE QUALITE -->
         <div class="btn-group">
             <div class="btn-group-title">⭐ Qualité – Questionnaire à chaud</div>
             <div class="btn-grid">
-                <button class="btn-tile" onclick="openPage('qualitePage')">
+                <a class="btn-tile" href="pages/qualite.html">
                     <span class="btn-tile-icon">📊</span>
                     <span class="btn-tile-label">Questionnaire à chaud</span>
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- GROUPE INFORMATIONS DIVERSES -->
         <div class="btn-group">
             <div class="btn-group-title">🌐 Informations Diverses</div>
             <div class="btn-grid">
@@ -379,7 +214,6 @@
                     <span class="btn-tile-icon">🏠</span>
                     <span class="btn-tile-label">Site Internet de l'AAMB</span>
                 </button>
-                <!-- Bouton JTB avec dropdown -->
                 <div class="jtb-wrap">
                     <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
                         <span class="btn-tile-icon">🌍</span>
@@ -395,116 +229,20 @@
             </div>
         </div>
 
-        <!-- GROUPE ADMIN (organisateurs uniquement) -->
         <div class="btn-group" id="groupAdmin" style="display:none;">
             <div class="btn-group-title">🔐 JTB Admin</div>
             <div class="btn-grid">
-                <button class="btn-tile" onclick="openPage('controleAccesPage')">
+                <a class="btn-tile" href="pages/controle-acces.html">
                     <span class="btn-tile-icon">🔐</span>
                     <span class="btn-tile-label">Contrôle d'accès</span>
-                </button>
+                </a>
             </div>
         </div>
 
     </div>
 
-    <!-- PAGE MESSAGERIE -->
-    <div id="messageriePage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('messageriePage')">←</button><h2 id="messagerieTitle">Messagerie</h2></div>
-        <div class="page-content" id="messagerieContent"></div>
-    </div>
-
-    <!-- PAGE PROGRAMME -->
-    <div id="programmePage" class="page-overlay">
-        <div class="page-header"><button class="back-btn" onclick="closePage('programmePage')">←</button><h2>Programme JTB 2026</h2></div>
-        <div class="page-content" style="padding:10px;">
-            <p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
-            <div class="jour-btns">
-                <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi 23/06</button>
-                <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
-                <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi 25/06</button>
-                <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
-            </div>
-            <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
-            <div id="zoneSwipe">
-                <div id="jour-mardi" class="jour-content" style="display:none;">
-                    <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
-                    <div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
-                    <div class="prog-slot"><div class="prog-heure">14h15 - 15h00</div><div class="prog-conf"><strong>L'aEEG en néonatalogie</strong><br><small>Mahmoud ROUABAH — CHR METZ THIONVILLE</small></div></div>
-                    <div class="prog-slot"><div class="prog-heure">15h05 - 15h50</div><div class="prog-conf"><strong>Dispositif d'EEG continu : Le Cerebair</strong><br><small>Mickael GUYOCHET — NIHON KOHDEN</small></div></div>
-                    <div class="prog-slot"><div class="prog-heure">15h50 - 16h10</div><div class="prog-conf">☕ Pause</div></div>
-                    <div class="prog-slot"><div class="prog-heure">16h15 - 17h00</div><div class="prog-conf"><strong>Collaboration pharmacie hospitalière &amp; biomédicaux en pharmacotechnie</strong><br><small>Pascale MONFORT — CHR METZ THIONVILLE</small></div></div>
-                    <div class="prog-slot"><div class="prog-heure">17h15 - 18h30</div><div class="prog-conf">🏛️ AAMB AG — Salle Verlaine</div></div>
-                </div>
-                <div id="jour-mercredi" class="jour-content" style="display:none;">
-                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
-                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">19h00 - 23h00</div><div class="prog-conf">🍷 Soirée terroir — Saint Pierre aux Nonnains</div></div>
-                </div>
-                <div id="jour-jeudi" class="jour-content" style="display:none;">
-                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong></div><div class="atelier">🔵 Atelier 10B<br><strong>MORGATE</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-                    <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS</strong></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
-                    <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
-                </div>
-                <div id="jour-vendredi" class="jour-content" style="display:none;">
-                    <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Chirurgie valvulaire par minithoracotomie</strong><br><small>Erick PORTOCARRERO — CHR METZ THIONVILLE</small></div></div>
-                    <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Etat de l'art en chirurgie vidéothoracique</strong><br><small>Sébastien RICHARD — OLYMPUS</small></div></div>
-                    <div class="prog-slot"><div class="prog-heure">10h00 - 12h00</div><div class="prog-conf">🏁 Clôture des Journées</div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAGES VIDES (à compléter) -->
-    <div id="ateliersPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('ateliersPage')">←</button><h2>Ateliers</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="qcmPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('qcmPage')">←</button><h2>QCM</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="chatAGPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('chatAGPage')">←</button><h2>Chat pour l'AG</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="transportPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('transportPage')">←</button><h2>Transport</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="soireesPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('soireesPage')">←</button><h2>Soirées</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="restaurationPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('restaurationPage')">←</button><h2>Restauration</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="reglementationPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('reglementationPage')">←</button><h2>Réglementation</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="droitImagePage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('droitImagePage')">←</button><h2>Droit à l'image</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="qualitePage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('qualitePage')">←</button><h2>Questionnaire à chaud</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-    <div id="controleAccesPage" class="page-overlay"><div class="page-header"><button class="back-btn" onclick="closePage('controleAccesPage')">←</button><h2>Contrôle d'accès</h2></div><div class="page-content"><p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p></div></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/commun.js"></script>
     <script>
-        let stream = null, track = null, flashOn = false;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPRnmLYoYp5swgYsFp0Xe7JjR1POS-0tZX8dr4SPOVJkZ6XZfz8VTwQ9nWpgMbZU8KjA/exec';
-
-        // ===== AUTH =====
-        function sauvegarderAdherent(a) {
-            localStorage.setItem('aamb_adherent', JSON.stringify(a));
-            const exp = new Date(Date.now()+30*24*60*60*1000).toUTCString();
-            document.cookie = 'aamb_adherent='+encodeURIComponent(JSON.stringify(a))+'; expires='+exp+'; path=/';
-        }
-        function chargerAdherent() {
-            const ls = localStorage.getItem('aamb_adherent');
-            if (ls) return JSON.parse(ls);
-            const c = document.cookie.split(';').find(c=>c.trim().startsWith('aamb_adherent='));
-            if (c) return JSON.parse(decodeURIComponent(c.split('=')[1]));
-            return null;
-        }
-        function deconnecter() {
-            if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
-            localStorage.removeItem('aamb_adherent');
-            document.cookie = 'aamb_adherent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-            document.getElementById('authPage').style.display = 'flex';
-            document.getElementById('authInput').value = '';
-            document.getElementById('authResult').style.display = 'none';
-        }
         function resetAuthResult() { document.getElementById('authResult').style.display = 'none'; }
 
         async function verifierID() {
@@ -515,7 +253,7 @@
             const resultDiv = document.getElementById('authResult');
             const resultContent = document.getElementById('authResultContent');
             try {
-                const resp = await fetch(SCRIPT_URL+'?action=getAdherent&id='+encodeURIComponent(id));
+                const resp = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(id));
                 const data = await resp.json();
                 resultDiv.style.display = 'block';
                 if (data.success) {
@@ -533,10 +271,10 @@
                         '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">✅ Oui, c\'est moi !</button>' +
                         '<button onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">❌ Non</button>' +
                         '</div></div>';
-                    document.getElementById('rNom').textContent = '👤 '+a.prenom+' '+a.nom;
-                    document.getElementById('rEtab').textContent = '🏥 '+a.etablissement;
-                    document.getElementById('rEmail').textContent = '✉️ '+a.email;
-                    document.getElementById('rStatut').textContent = '🏷️ '+a.statut;
+                    document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
+                    document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
+                    document.getElementById('rEmail').textContent = '✉️ ' + a.email;
+                    document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
                 } else {
                     resultContent.innerHTML = '<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p></div>';
                 }
@@ -550,13 +288,13 @@
 
         function confirmerIdentite(adherent) {
             sauvegarderAdherent(adherent);
-            fetch(SCRIPT_URL+'?action=logConnexion&id='+encodeURIComponent(adherent.id)).catch(()=>{});
+            fetch(SCRIPT_URL + '?action=logConnexion&id=' + encodeURIComponent(adherent.id)).catch(() => {});
             afficherApp(adherent);
         }
 
         function afficherApp(adherent) {
             document.getElementById('authPage').style.display = 'none';
-            document.getElementById('headerUser').textContent = '👤 '+adherent.prenom+' '+adherent.nom+' — '+adherent.statut;
+            document.getElementById('headerUser').textContent = '👤 ' + adherent.prenom + ' ' + adherent.nom + ' — ' + adherent.statut;
             const isOrga = adherent.statut === 'Organisateur';
             document.getElementById('btnMessagerieLabel').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
             document.getElementById('groupAdmin').style.display = isOrga ? 'block' : 'none';
@@ -565,216 +303,20 @@
         const adherentSauvegarde = chargerAdherent();
         if (adherentSauvegarde) afficherApp(adherentSauvegarde);
 
-        // ===== DARK MODE =====
-        function toggleDark() {
-            document.body.classList.toggle('dark');
-            const isDark = document.body.classList.contains('dark');
-            document.getElementById('toggleSwitch').classList.toggle('on', isDark);
-            document.getElementById('toggleLabel').textContent = isDark ? '🌙' : '☀️';
-            localStorage.setItem('darkMode', isDark ? '1' : '0');
-        }
-        if (localStorage.getItem('darkMode') === '1') {
-            document.body.classList.add('dark');
-            document.getElementById('toggleSwitch').classList.add('on');
-            document.getElementById('toggleLabel').textContent = '🌙';
-        }
-
-        // ===== NAVIGATION =====
-        function openPage(id) {
-            document.getElementById(id).classList.add('active');
-            if (id === 'programmePage') setTimeout(surbrillanceEnCours, 100);
-            if (id === 'messageriePage') ouvrirMessagerie();
-        }
-        function closePage(id) {
-            document.getElementById(id).classList.remove('active');
-            if (id === 'messageriePage') { clearInterval(refreshTimer); refreshTimer = null; }
-            document.getElementById('jtbMenu').classList.remove('open');
-        }
-
-        // ===== SITES WEB =====
         function openWebsite(type) {
-            if (type === 'aamb') window.open('https://www.aamb.asso.fr','_blank');
+            if (type === 'aamb') window.open('https://www.aamb.asso.fr', '_blank');
         }
         function toggleJTBMenu(e) {
             e.stopPropagation();
             document.getElementById('jtbMenu').classList.toggle('open');
         }
         function openJTB(url) {
-            window.open(url,'_blank');
+            window.open(url, '_blank');
             document.getElementById('jtbMenu').classList.remove('open');
         }
         document.addEventListener('click', () => {
             document.getElementById('jtbMenu').classList.remove('open');
         });
-
-        // ===== PROGRAMME =====
-        const joursDates = {'mardi':'2026-06-23','mercredi':'2026-06-24','jeudi':'2026-06-25','vendredi':'2026-06-26'};
-        const horaires = {
-            'mardi':    [['13:00','13:45'],['14:00','14:15'],['14:15','15:00'],['15:05','15:50'],['15:50','16:10'],['16:15','17:00'],['17:15','18:30']],
-            'mercredi': [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','12:00'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','23:00']],
-            'jeudi':    [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','11:45'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','25:00']],
-            'vendredi': [['08:30','09:15'],['09:20','10:05'],['10:00','12:00']]
-        };
-        function toMin(h) { const [hh,mm]=h.split(':').map(Number); return hh*60+mm; }
-        let isAnimating=false;
-        const jours=['mardi','mercredi','jeudi','vendredi'];
-        function getJourActif() { return jours.find(j=>document.getElementById('jour-'+j).style.display!=='none')||'mardi'; }
-        function afficherJour(jour,direction=null) {
-            if (isAnimating) return;
-            const ancienJour=getJourActif();
-            if (ancienJour===jour) return;
-            if (!direction) { const ia=jours.indexOf(ancienJour),in2=jours.indexOf(jour); direction=in2>ia?'left':'right'; }
-            const ancienEl=document.getElementById('jour-'+ancienJour);
-            const nouveauEl=document.getElementById('jour-'+jour);
-            isAnimating=true;
-            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
-            document.getElementById('btn-'+jour).classList.add('active');
-            nouveauEl.style.display='block'; nouveauEl.style.position='absolute'; nouveauEl.style.width='100%'; nouveauEl.style.top='0';
-            ancienEl.classList.add(direction==='left'?'slide-out-left':'slide-out-right');
-            nouveauEl.classList.add(direction==='left'?'slide-in-left':'slide-in-right');
-            setTimeout(()=>{
-                ancienEl.classList.remove('slide-out-left','slide-out-right');
-                nouveauEl.classList.remove('slide-in-left','slide-in-right');
-                ancienEl.style.display='none'; nouveauEl.style.position=''; nouveauEl.style.width=''; nouveauEl.style.top='';
-                isAnimating=false;
-            },300);
-        }
-        function surbrillanceEnCours() {
-            const maintenant=new Date();
-            const dateAujourd=maintenant.toISOString().split('T')[0];
-            document.querySelectorAll('.prog-slot').forEach(s=>s.classList.remove('en-cours'));
-            let jourActuel=null;
-            for (const [j,d] of Object.entries(joursDates)) { if (d===dateAujourd){jourActuel=j;break;} }
-            const ja=jourActuel||'mardi';
-            document.querySelectorAll('.jour-content').forEach(d=>d.style.display='none');
-            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
-            document.getElementById('jour-'+ja).style.display='block';
-            document.getElementById('btn-'+ja).classList.add('active');
-            if (!jourActuel) return;
-            const hNow=maintenant.getHours()*60+maintenant.getMinutes();
-            const slotsDiv=document.getElementById('jour-'+jourActuel).querySelectorAll('.prog-slot');
-            horaires[jourActuel].forEach(([d,f],i)=>{ if (hNow>=toMin(d)&&hNow<toMin(f)&&slotsDiv[i]){slotsDiv[i].classList.add('en-cours');setTimeout(()=>slotsDiv[i].scrollIntoView({behavior:'smooth',block:'center'}),300);} });
-        }
-        setInterval(surbrillanceEnCours,60000);
-        let touchStartX=0,touchStartY=0;
-        document.getElementById('zoneSwipe').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
-        document.getElementById('zoneSwipe').addEventListener('touchend',e=>{
-            const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
-            if (Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){const idx=jours.indexOf(getJourActif());let ni=idx+(dx<0?1:-1);ni=Math.max(0,Math.min(3,ni));if(ni!==idx)afficherJour(jours[ni],dx<0?'left':'right');}
-        },{passive:true});
-
-        // ===== MESSAGERIE =====
-        let refreshTimer=null, filtreOrga='nonTraites';
-        function texteEnCours() { const t=document.querySelectorAll('#messagerieContent textarea'); for(const ta of t){if(ta.value.trim().length>0)return true;} return false; }
-        function ouvrirMessagerie() {
-            const adherent=chargerAdherent(); if (!adherent) return;
-            clearInterval(refreshTimer);
-            if (adherent.statut==='Organisateur') {
-                document.getElementById('messagerieTitle').textContent='📨 Messages des participants';
-                chargerMessagesOrganisateur(adherent);
-                refreshTimer=setInterval(()=>{if(!texteEnCours())chargerMessagesOrganisateur(adherent);},15000);
-            } else {
-                document.getElementById('messagerieTitle').textContent='💬 Contacter l\'AAMB';
-                chargerMessagesParticipant(adherent);
-                refreshTimer=setInterval(()=>{if(!texteEnCours())chargerMessagesParticipant(adherent);},15000);
-            }
-        }
-        document.addEventListener('visibilitychange',()=>{
-            if(document.hidden){clearInterval(refreshTimer);}
-            else{const p=document.getElementById('messageriePage');if(p.classList.contains('active'))ouvrirMessagerie();}
-        });
-
-        async function chargerMessagesParticipant(adherent) {
-            const content=document.getElementById('messagerieContent');
-            try {
-                const resp=await fetch(SCRIPT_URL+'?action=getMyMessages&userId='+encodeURIComponent(adherent.id));
-                const data=await resp.json();
-                if (!data.success){content.innerHTML='<p style="text-align:center;padding:20px;color:var(--text-sub);">Erreur de chargement</p>';return;}
-                const convs=data.conversations,keys=Object.keys(convs);
-                let html='<button onclick="nouveauMessage()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
-                if (!keys.length) html+='<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
-                else keys.forEach(convBase=>{
-                    const msgs=convs[convBase].sort((a,b)=>a.idConvFull.localeCompare(b.idConvFull));
-                    const last=msgs[msgs.length-1];
-                    const enAttente=last.traite==='NON'&&last.userId===adherent.id;
-                    html+='<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;">' +
-                        '<div style="background:'+(enAttente?'#fff3cd':'#d4edda')+';padding:8px 12px;font-size:12px;font-weight:bold;color:'+(enAttente?'#856404':'#28a745')+';"> '+(enAttente?'⏳ En attente de réponse':'✅ Répondu')+' <span style="float:right;font-weight:normal;color:var(--text-sub);">'+convBase+'</span></div>';
-                    msgs.forEach(m=>{html+='<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:'+(m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)')+'"><div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">'+(m.userId===adherent.id?'👤 Vous':'🏢 Organisation')+' — '+m.dateHeure+'</div><div style="font-size:14px;color:var(--text);">'+m.message+'</div></div>';});
-                    html+='<div style="padding:10px;"><button onclick="repondreConversation(\''+convBase+'\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">↩️ Continuer cette conversation</button></div></div>';
-                });
-                content.innerHTML=html;
-            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
-        }
-
-        function nouveauMessage(){afficherFormulaireMessage(null);}
-        function repondreConversation(c){afficherFormulaireMessage(c);}
-        function afficherFormulaireMessage(convBase) {
-            const content=document.getElementById('messagerieContent');
-            content.innerHTML='<div style="margin-bottom:15px;"><button onclick="ouvrirMessagerie()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>' +
-                '<div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">' +
-                '<h3 style="color:var(--text);margin-bottom:15px;">'+(convBase?'↩️ Répondre — '+convBase:'✉️ Nouveau message')+'</h3>' +
-                '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--page-bg);color:var(--text);"></textarea>' +
-                '<button onclick="envoyerMessage(\''+(convBase||'')+'\')" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">📤 Envoyer</button></div>';
-        }
-
-        async function envoyerMessage(convBase) {
-            const adherent=chargerAdherent();
-            const texte=document.getElementById('msgTexte').value.trim();
-            if (!texte){alert('Veuillez écrire un message');return;}
-            const content=document.getElementById('messagerieContent');
-            content.innerHTML='<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
-            try {
-                const params=new URLSearchParams({action:'sendMessage',userId:adherent.id,nom:adherent.nom,prenom:adherent.prenom,message:texte,convId:convBase||'',isOrganisateur:adherent.statut==='Organisateur'?'true':'false'});
-                const resp=await fetch(SCRIPT_URL+'?'+params);
-                const data=await resp.json();
-                if (data.success){chargerMessagesParticipant(adherent);}
-                else{content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>';}
-            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
-        }
-
-        async function chargerMessagesOrganisateur(adherent) {
-            const content=document.getElementById('messagerieContent');
-            try {
-                const resp=await fetch(SCRIPT_URL+'?action=getAllMessages&userId='+encodeURIComponent(adherent.id));
-                const data=await resp.json();
-                if (!data.success){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Accès refusé</p>';return;}
-                const convs=data.conversations,keys=Object.keys(convs);
-                let nb=0; keys.forEach(k=>{if(convs[k][convs[k].length-1].traite==='NON')nb++;});
-                let html='<div style="display:flex;gap:8px;margin-bottom:15px;">' +
-                    '<button onclick="filtreOrga=\'nonTraites\';chargerMessagesOrganisateur(chargerAdherent())" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:'+(filtreOrga==='nonTraites'?'#1a3a6b':'#e0e0e0')+';color:'+(filtreOrga==='nonTraites'?'white':'#333')+';">🔴 Non traités ('+nb+')</button>' +
-                    '<button onclick="filtreOrga=\'tous\';chargerMessagesOrganisateur(chargerAdherent())" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:'+(filtreOrga==='tous'?'#1a3a6b':'#e0e0e0')+';color:'+(filtreOrga==='tous'?'white':'#333')+';">📋 Tous</button></div>';
-                let affiche=false;
-                keys.forEach(convBase=>{
-                    const msgs=convs[convBase].sort((a,b)=>a.idConvFull.localeCompare(b.idConvFull));
-                    const nonTraite=msgs[msgs.length-1].traite==='NON';
-                    if (filtreOrga==='nonTraites'&&!nonTraite) return;
-                    affiche=true;
-                    const pm=msgs.find(m=>m.userId!==adherent.id)||msgs[0];
-                    html+='<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;border-left:4px solid '+(nonTraite?'#dc3545':'#28a745')+';">' +
-                        '<div style="padding:10px 12px;background:'+(nonTraite?'rgba(220,53,69,0.1)':'rgba(40,167,69,0.1)')+'"><strong style="color:var(--text);">👤 '+pm.prenom+' '+pm.nom+'</strong><span style="float:right;font-size:12px;color:var(--text-sub);">'+convBase+'</span></div>';
-                    msgs.forEach(m=>{html+='<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:'+(m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)')+'"><div style="font-size:11px;color:var(--text-sub);">'+(m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom)+' — '+m.dateHeure+'</div><div style="font-size:14px;color:var(--text);">'+m.message+'</div></div>';});
-                    if (nonTraite) html+='<div style="padding:10px;"><textarea id="rep-'+convBase+'" placeholder="Votre réponse..." style="width:100%;height:80px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;background:var(--page-bg);color:var(--text);margin-bottom:8px;"></textarea><button onclick="envoyerReponseOrga(\''+convBase+'\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">📤 Répondre</button></div>';
-                    html+='</div>';
-                });
-                if (!affiche) html+='<p style="color:var(--text-sub);text-align:center;padding:20px;">Aucun message en attente</p>';
-                content.innerHTML=html;
-            } catch(e){content.innerHTML='<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';}
-        }
-
-        async function envoyerReponseOrga(convBase) {
-            const adherent=chargerAdherent();
-            const texte=document.getElementById('rep-'+convBase).value.trim();
-            if (!texte){alert('Veuillez écrire une réponse');return;}
-            const btn=document.querySelector('button[onclick="envoyerReponseOrga(\''+convBase+'\')"]');
-            if (btn){btn.disabled=true;btn.textContent='⏳ Envoi...';btn.style.opacity='0.6';}
-            try {
-                const params=new URLSearchParams({action:'sendMessage',userId:adherent.id,nom:adherent.nom,prenom:adherent.prenom,message:texte,convId:convBase,isOrganisateur:'true'});
-                const resp=await fetch(SCRIPT_URL+'?'+params);
-                const data=await resp.json();
-                if (data.success){chargerMessagesOrganisateur(adherent);}
-                else{if(btn){btn.disabled=false;btn.textContent='📤 Répondre';btn.style.opacity='1';}alert('Erreur.');}
-            } catch(e){if(btn){btn.disabled=false;btn.textContent='📤 Répondre';btn.style.opacity='1';}alert('Erreur de connexion');}
-        }
     </script>
 </body>
 </html>

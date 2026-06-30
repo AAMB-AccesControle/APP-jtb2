@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programme JTB 2026</title>
+    <link rel="manifest" href="../manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
+            --page-header-bg: #1a3a6b; --heure-bg: #555;
+            --conf-bg: #ffe4ec; --conf-border: #c0002a;
+            --atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
+            --jour-btn-bg: #dde3ef; --jour-btn-text: #333;
+        }
+        body.dark {
+            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
+            --page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
+            --conf-bg: #3d1525; --conf-border: #c0002a;
+            --atelier-bg: #162030; --atelier-border: #1565c0; --atelier-text: #90caf9;
+            --jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+        .page-header h2 { font-size: 18px; }
+        .page-content { padding: 10px; }
+
+        .jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
+        .jour-btn { background: var(--jour-btn-bg); color: var(--jour-btn-text); border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer; font-size: 12px; white-space: nowrap; font-weight: 500; }
+        .jour-btn.active { background: #1a3a6b; color: white; }
+        .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
+        .prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); }
+        .prog-ateliers { display: flex; }
+        .atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
+        .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
+        .atelier strong { font-size: 12px; }
+
+        #zoneSwipe { overflow: hidden; position: relative; }
+        .jour-content { transition: none; }
+        .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
+        .jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
+        .jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
+        .jour-content.slide-in-right { animation: slideInRight 0.3s ease forwards; }
+        @keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
+        .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
+        .prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
+        .prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
+        .prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
+        @keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
+        @keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <button class="back-btn" onclick="retourAccueil()">←</button>
+        <h2>Programme JTB 2026</h2>
+    </div>
+    <div class="page-content">
+        <p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
+        <div class="jour-btns">
+            <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi 23/06</button>
+            <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
+            <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi 25/06</button>
+            <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
+        </div>
+        <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
+        <div id="zoneSwipe">
+            <div id="jour-mardi" class="jour-content" style="display:none;">
+                <div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
+                <div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
+                <div class="prog-slot"><div class="prog-heure">14h15 - 15h00</div><div class="prog-conf"><strong>L'aEEG en néonatalogie</strong><br><small>Mahmoud ROUABAH — CHR METZ THIONVILLE</small></div></div>
+                <div class="prog-slot"><div class="prog-heure">15h05 - 15h50</div><div class="prog-conf"><strong>Dispositif d'EEG continu : Le Cerebair</strong><br><small>Mickael GUYOCHET — NIHON KOHDEN</small></div></div>
+                <div class="prog-slot"><div class="prog-heure">15h50 - 16h10</div><div class="prog-conf">☕ Pause</div></div>
+                <div class="prog-slot"><div class="prog-heure">16h15 - 17h00</div><div class="prog-conf"><strong>Collaboration pharmacie hospitalière &amp; biomédicaux en pharmacotechnie</strong><br><small>Pascale MONFORT — CHR METZ THIONVILLE</small></div></div>
+                <div class="prog-slot"><div class="prog-heure">17h15 - 18h30</div><div class="prog-conf">🏛️ AAMB AG — Salle Verlaine</div></div>
+            </div>
+            <div id="jour-mercredi" class="jour-content" style="display:none;">
+                <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                <div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
+                <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">19h00 - 23h00</div><div class="prog-conf">🍷 Soirée terroir — Saint Pierre aux Nonnains</div></div>
+            </div>
+            <div id="jour-jeudi" class="jour-content" style="display:none;">
+                <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong></div><div class="atelier">🔵 Atelier 10B<br><strong>MORGATE</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
+                <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS</strong></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
+                <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
+            </div>
+            <div id="jour-vendredi" class="jour-content" style="display:none;">
+                <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Chirurgie valvulaire par minithoracotomie</strong><br><small>Erick PORTOCARRERO — CHR METZ THIONVILLE</small></div></div>
+                <div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Etat de l'art en chirurgie vidéothoracique</strong><br><small>Sébastien RICHARD — OLYMPUS</small></div></div>
+                <div class="prog-slot"><div class="prog-heure">10h00 - 12h00</div><div class="prog-conf">🏁 Clôture des Journées</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/commun.js"></script>
+    <script>
+        // Vérifier la connexion (redirige si pas connecté)
+        verifierConnexionOuRediriger();
+
+        const joursDates = {'mardi':'2026-06-23','mercredi':'2026-06-24','jeudi':'2026-06-25','vendredi':'2026-06-26'};
+        const horaires = {
+            'mardi':    [['13:00','13:45'],['14:00','14:15'],['14:15','15:00'],['15:05','15:50'],['15:50','16:10'],['16:15','17:00'],['17:15','18:30']],
+            'mercredi': [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','12:00'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','23:00']],
+            'jeudi':    [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','11:45'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','25:00']],
+            'vendredi': [['08:30','09:15'],['09:20','10:05'],['10:00','12:00']]
+        };
+        function toMin(h) { const [hh,mm]=h.split(':').map(Number); return hh*60+mm; }
+        let isAnimating=false;
+        const jours=['mardi','mercredi','jeudi','vendredi'];
+        function getJourActif() { return jours.find(j=>document.getElementById('jour-'+j).style.display!=='none')||'mardi'; }
+        function afficherJour(jour,direction=null) {
+            if (isAnimating) return;
+            const ancienJour=getJourActif();
+            if (ancienJour===jour) return;
+            if (!direction) { const ia=jours.indexOf(ancienJour),in2=jours.indexOf(jour); direction=in2>ia?'left':'right'; }
+            const ancienEl=document.getElementById('jour-'+ancienJour);
+            const nouveauEl=document.getElementById('jour-'+jour);
+            isAnimating=true;
+            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById('btn-'+jour).classList.add('active');
+            nouveauEl.style.display='block'; nouveauEl.style.position='absolute'; nouveauEl.style.width='100%'; nouveauEl.style.top='0';
+            ancienEl.classList.add(direction==='left'?'slide-out-left':'slide-out-right');
+            nouveauEl.classList.add(direction==='left'?'slide-in-left':'slide-in-right');
+            setTimeout(()=>{
+                ancienEl.classList.remove('slide-out-left','slide-out-right');
+                nouveauEl.classList.remove('slide-in-left','slide-in-right');
+                ancienEl.style.display='none'; nouveauEl.style.position=''; nouveauEl.style.width=''; nouveauEl.style.top='';
+                isAnimating=false;
+            },300);
+        }
+        function surbrillanceEnCours() {
+            const maintenant=new Date();
+            const dateAujourd=maintenant.toISOString().split('T')[0];
+            document.querySelectorAll('.prog-slot').forEach(s=>s.classList.remove('en-cours'));
+            let jourActuel=null;
+            for (const [j,d] of Object.entries(joursDates)) { if (d===dateAujourd){jourActuel=j;break;} }
+            const ja=jourActuel||'mardi';
+            document.querySelectorAll('.jour-content').forEach(d=>d.style.display='none');
+            document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
+            document.getElementById('jour-'+ja).style.display='block';
+            document.getElementById('btn-'+ja).classList.add('active');
+            if (!jourActuel) return;
+            const hNow=maintenant.getHours()*60+maintenant.getMinutes();
+            const slotsDiv=document.getElementById('jour-'+jourActuel).querySelectorAll('.prog-slot');
+            horaires[jourActuel].forEach(([d,f],i)=>{ if (hNow>=toMin(d)&&hNow<toMin(f)&&slotsDiv[i]){slotsDiv[i].classList.add('en-cours');setTimeout(()=>slotsDiv[i].scrollIntoView({behavior:'smooth',block:'center'}),300);} });
+        }
+        setInterval(surbrillanceEnCours,60000);
+        surbrillanceEnCours();
+
+        let touchStartX=0,touchStartY=0;
+        document.getElementById('zoneSwipe').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
+        document.getElementById('zoneSwipe').addEventListener('touchend',e=>{
+            const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
+            if (Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){const idx=jours.indexOf(getJourActif());let ni=idx+(dx<0?1:-1);ni=Math.max(0,Math.min(3,ni));if(ni!==idx)afficherJour(jours[ni],dx<0?'left':'right');}
+        },{passive:true});
+    </script>
+</body>
+</html>

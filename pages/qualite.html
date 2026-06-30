@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qualité</title>
+    <link rel="manifest" href="../manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
+        body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+        .page-header h2 { font-size: 18px; }
+        .page-content { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <button class="back-btn" onclick="retourAccueil()">←</button>
+        <h2>Qualité</h2>
+    </div>
+    <div class="page-content">
+        <p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+    </div>
+
+    <script src="../js/commun.js"></script>
+    <script>
+        verifierConnexionOuRediriger();
+    </script>
+</body>
+</html>
