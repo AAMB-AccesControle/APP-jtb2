@@ -2,32 +2,788 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Contrôle d'accès</title>
     <link rel="manifest" href="../manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
-        body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-        .page-header h2 { font-size: 18px; }
-        .page-content { padding: 20px; }
+        
+        :root {
+            --bg: #f5f7fa;
+            --text: #222;
+            --text-sub: #666;
+            --card-bg: white;
+            --page-header-bg: #1a3a6b;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+        }
+        
+        body.dark {
+            --bg: #181c2a;
+            --text: #eee;
+            --text-sub: #999;
+            --card-bg: #242840;
+            --page-header-bg: #0f1f3d;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .page-header {
+            background: var(--page-header-bg);
+            color: white;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .page-header h2 {
+            font-size: 18px;
+            flex: 1;
+        }
+        .page-header .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .page-header .status-dot.online { background: #4ade80; }
+        .page-header .status-dot.offline { background: #f87171; }
+        
+        /* Contenu */
+        .page-content {
+            padding: 12px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Panel Configuration */
+        .config-panel {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .config-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .config-header h3 {
+            color: var(--text);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .config-header .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-sub);
+            padding: 4px 8px;
+        }
+        
+        .config-panel .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .config-panel input[type="text"] {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            transition: border-color 0.3s;
+        }
+        .config-panel input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .config-panel .btn-sm {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-primary-sm {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary-sm:hover { background: var(--primary-dark); }
+        .btn-secondary-sm {
+            background: #6b7280;
+            color: white;
+        }
+        .btn-secondary-sm:hover { background: #4b5563; }
+        
+        .alert-box {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+        .alert-box.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+        .alert-box.error {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+        }
+        .alert-box.info {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+        }
+        body.dark .alert-box.success { color: #6ee7b7; }
+        body.dark .alert-box.error { color: #fca5a5; }
+        body.dark .alert-box.info { color: #93c5fd; }
+        
+        /* Scanner */
+        .scanner-panel {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        .scanner-panel h3 {
+            color: var(--text);
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .scanner-panel p {
+            color: var(--text-sub);
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        #reader {
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 12px;
+            min-height: 250px;
+        }
+        #reader video {
+            border-radius: 10px;
+            width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Saisie manuelle */
+        .manual-section {
+            border-top: 1px solid rgba(128,128,128,0.15);
+            padding-top: 14px;
+            margin-top: 4px;
+        }
+        .manual-section h4 {
+            color: var(--text-sub);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .manual-section .input-group {
+            display: flex;
+            gap: 8px;
+        }
+        .manual-section input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .manual-section input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .btn-verify {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-verify:hover { background: var(--primary-dark); }
+        .btn-verify:active { transform: scale(0.95); }
+        
+        /* Résultat */
+        .result-card {
+            margin-top: 12px;
+            padding: 24px;
+            border-radius: 14px;
+            text-align: center;
+            animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--card-shadow);
+        }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .result-card.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        .result-card.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        .result-card .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .result-card .name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .result-card .message {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .result-card .atelier {
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .result-card .time {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text);
+        }
+        .spinner {
+            border: 4px solid rgba(128,128,128,0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Stats */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .stat-item {
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+        .stat-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text);
+        }
+        .stat-item .label {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+        .stat-item .value.success { color: var(--success); }
+        .stat-item .value.error { color: var(--error); }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .page-content { padding: 8px; }
+            .config-panel, .scanner-panel { padding: 12px; }
+            .result-card { padding: 18px; }
+            .result-card .name { font-size: 20px; }
+            .result-card .atelier { font-size: 17px; padding: 8px 16px; }
+            #reader { min-height: 200px; }
+        }
+        
+        /* Animations */
+        .slide-down {
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>Contrôle d'accès</h2>
+        <h2>🔐 Contrôle d'accès</h2>
+        <span id="headerStatus">
+            <span class="status-dot" id="statusDot"></span>
+        </span>
     </div>
+
     <div class="page-content">
-        <p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+        <!-- Panel Configuration -->
+        <div class="config-panel" id="configPanel">
+            <div class="config-header">
+                <h3>⚙️ Configuration API</h3>
+                <button class="toggle-btn" onclick="toggleConfig()" id="toggleConfigBtn">✖</button>
+            </div>
+            <div class="alert-box" id="alertBox">📋 Collez l'URL de votre Google Apps Script</div>
+            <div class="input-group">
+                <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn-sm btn-primary-sm" onclick="saveConfig()" style="flex:1;">💾 Enregistrer</button>
+                <button class="btn-sm btn-secondary-sm" onclick="testAPI()">🧪 Tester</button>
+            </div>
+        </div>
+
+        <!-- Scanner -->
+        <div class="scanner-panel">
+            <h3>📷 Scannez le QR code</h3>
+            <p>Placez le QR code du participant dans le cadre</p>
+            <div id="reader"></div>
+            
+            <!-- Saisie manuelle -->
+            <div class="manual-section">
+                <h4>✍️ Saisie manuelle</h4>
+                <div class="input-group">
+                    <input type="text" id="manualCode" placeholder="Code (ex: JD001)" maxlength="20">
+                    <button class="btn-verify" onclick="checkManualCode()">Vérifier</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultat -->
+        <div id="result"></div>
+
+        <!-- Statistiques -->
+        <div class="stats-panel">
+            <div class="stat-item">
+                <div class="value success" id="statScans">0</div>
+                <div class="label">✅ Accès autorisés</div>
+            </div>
+            <div class="stat-item">
+                <div class="value error" id="statRefus">0</div>
+                <div class="label">❌ Accès refusés</div>
+            </div>
+        </div>
     </div>
 
     <script src="../js/commun.js"></script>
     <script>
-        verifierConnexionOuRediriger();
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        let html5QrCode = null;
+        let API_URL = localStorage.getItem('aamb_apiUrl') || '';
+        let stats = JSON.parse(localStorage.getItem('aamb_stats') || '{"scans":0,"refus":0}');
+        let isScanning = false;
+        let isProcessing = false;
+
+        // Vérifier connexion
+        const adherent = verifierConnexionOuRediriger();
+        
+        // Seul un organisateur peut accéder à cette page
+        if (adherent && adherent.statut !== 'Organisateur') {
+            document.getElementById('result').innerHTML = `
+                <div class="result-card error">
+                    <div class="icon">⛔</div>
+                    <div class="name">Accès refusé</div>
+                    <div class="message">Cette page est réservée aux organisateurs.</div>
+                </div>
+            `;
+            document.getElementById('reader').style.display = 'none';
+            document.querySelector('.manual-section').style.display = 'none';
+        }
+
+        // ========================================
+        // INITIALISATION
+        // ========================================
+        window.onload = function() {
+            updateStatus();
+            updateStats();
+            
+            if (API_URL) {
+                document.getElementById('apiUrl').value = API_URL;
+                startScanner();
+            } else {
+                document.getElementById('alertBox').textContent = '⚠️ Configurez l\'URL de l\'API pour commencer';
+                document.getElementById('alertBox').className = 'alert-box error';
+            }
+        };
+
+        // ========================================
+        // GESTION DE LA CONFIGURATION
+        // ========================================
+        let configVisible = true;
+
+        function toggleConfig() {
+            const panel = document.getElementById('configPanel');
+            const btn = document.getElementById('toggleConfigBtn');
+            configVisible = !configVisible;
+            panel.style.display = configVisible ? 'block' : 'none';
+            btn.textContent = configVisible ? '✖' : '⚙️';
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('apiUrl').value.trim();
+            
+            if (!url) {
+                showAlert('❌ Veuillez entrer une URL', 'error');
+                return;
+            }
+            
+            if (!url.includes('script.google.com')) {
+                showAlert('⚠️ L\'URL ne semble pas valide', 'error');
+                return;
+            }
+            
+            API_URL = url;
+            localStorage.setItem('aamb_apiUrl', url);
+            updateStatus();
+            showAlert('✅ Configuration enregistrée avec succès !', 'success');
+            
+            if (!html5QrCode) {
+                startScanner();
+            }
+        }
+
+        function updateStatus() {
+            const dot = document.getElementById('statusDot');
+            if (API_URL) {
+                dot.className = 'status-dot online';
+            } else {
+                dot.className = 'status-dot offline';
+            }
+        }
+
+        async function testAPI() {
+            if (!API_URL) {
+                showAlert('❌ Configurez d\'abord l\'URL de l\'API', 'error');
+                return;
+            }
+            
+            showAlert('🔄 Test de connexion en cours...', 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}?code=TEST123&t=${Date.now()}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    showAlert('✅ API accessible ! Vous pouvez scanner des codes.', 'success');
+                } else {
+                    showAlert('⚠️ L\'API répond mais avec une erreur (HTTP ' + response.status + ')', 'error');
+                }
+            } catch (error) {
+                showAlert('⚠️ Impossible de contacter l\'API. Vérifiez l\'URL.', 'error');
+                console.error('Erreur test API:', error);
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = 'alert-box ' + (type || '');
+        }
+
+        // ========================================
+        // SCANNER QR CODE
+        // ========================================
+        function startScanner() {
+            if (html5QrCode) {
+                html5QrCode.clear();
+                html5QrCode = null;
+            }
+            
+            try {
+                html5QrCode = new Html5Qrcode("reader");
+                
+                const config = {
+                    fps: 10,
+                    qrbox: { width: 240, height: 240 },
+                    aspectRatio: 1.0
+                };
+                
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanError
+                ).then(() => {
+                    console.log('✅ Scanner démarré');
+                }).catch(err => {
+                    console.error("❌ Erreur démarrage scanner:", err);
+                    showAlert('⚠️ Impossible d\'accéder à la caméra. Utilisez la saisie manuelle.', 'error');
+                });
+            } catch (e) {
+                console.error('Erreur initialisation scanner:', e);
+                showAlert('⚠️ Erreur d\'initialisation du scanner', 'error');
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            if (isProcessing) return;
+            console.log('📷 Code scanné:', decodedText);
+            
+            if (html5QrCode) {
+                html5QrCode.pause(true);
+            }
+            
+            verifyCode(decodedText);
+        }
+
+        function onScanError(error) {
+            // Ignorer les erreurs normales
+        }
+
+        function checkManualCode() {
+            if (isProcessing) return;
+            const code = document.getElementById('manualCode').value.trim().toUpperCase();
+            
+            if (!code) {
+                showAlert('❌ Veuillez entrer un code', 'error');
+                return;
+            }
+            
+            console.log('✍️ Code manuel:', code);
+            
+            if (html5QrCode) {
+                html5QrCode.pause(true);
+            }
+            
+            verifyCode(code);
+            document.getElementById('manualCode').value = '';
+        }
+
+        // ========================================
+        // VÉRIFICATION DU CODE
+        // ========================================
+        async function verifyCode(code) {
+            if (isProcessing) return;
+            if (!API_URL) {
+                showResult(false, "Configuration manquante", "Configurez l'URL de l'API", "");
+                resumeScanning();
+                return;
+            }
+
+            isProcessing = true;
+            showLoading();
+
+            try {
+                console.log('🔍 Vérification du code:', code);
+                const url = `${API_URL}?code=${encodeURIComponent(code)}&t=${Date.now()}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('📥 Réponse API:', data);
+
+                if (data.success) {
+                    if (data.autorise) {
+                        stats.scans++;
+                    } else {
+                        stats.refus++;
+                    }
+                    localStorage.setItem('aamb_stats', JSON.stringify(stats));
+                    updateStats();
+                    
+                    showResult(
+                        data.autorise,
+                        data.nom || 'Participant',
+                        data.message || (data.autorise ? '✅ Accès autorisé' : '❌ Accès refusé'),
+                        data.atelier || ''
+                    );
+                    
+                    playSound(data.autorise);
+                } else {
+                    showResult(false, "Erreur", data.error || "Erreur inconnue", "");
+                }
+            } catch (error) {
+                console.error("❌ Erreur API:", error);
+                showResult(false, "Erreur de connexion", "Vérifiez votre connexion internet et l'URL de l'API", "");
+            }
+
+            setTimeout(resumeScanning, 3500);
+        }
+
+        function resumeScanning() {
+            isProcessing = false;
+            if (html5QrCode && html5QrCode.getState) {
+                try {
+                    html5QrCode.resume();
+                } catch(e) {}
+            }
+        }
+
+        // ========================================
+        // AFFICHAGE
+        // ========================================
+        function showLoading() {
+            document.getElementById('result').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>⏳ Vérification en cours...</div>
+                </div>
+            `;
+        }
+
+        function showResult(autorise, nom, message, atelier) {
+            const cssClass = autorise ? 'success' : 'error';
+            const icon = autorise ? '✅' : '❌';
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            document.getElementById('result').innerHTML = `
+                <div class="result-card ${cssClass}">
+                    <div class="icon">${icon}</div>
+                    <div class="name">${escapeHtml(nom)}</div>
+                    <div class="message">${escapeHtml(message)}</div>
+                    ${atelier ? `<div class="atelier">${escapeHtml(atelier)}</div>` : ''}
+                    <div class="time">${dateStr} à ${timeStr}</div>
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            document.getElementById('statScans').textContent = stats.scans;
+            document.getElementById('statRefus').textContent = stats.refus;
+        }
+
+        // ========================================
+        // UTILITAIRES
+        // ========================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function playSound(success) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                if (success) {
+                    oscillator.frequency.value = 880;
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    
+                    // Deuxième beep
+                    setTimeout(() => {
+                        const osc2 = audioContext.createOscillator();
+                        const gain2 = audioContext.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioContext.destination);
+                        osc2.frequency.value = 1100;
+                        gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        osc2.start(audioContext.currentTime);
+                        osc2.stop(audioContext.currentTime + 0.1);
+                    }, 150);
+                } else {
+                    oscillator.frequency.value = 200;
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                }
+            } catch (e) {
+                // Son non disponible
+            }
+        }
+
+        // ========================================
+        // PROTECTION CONTRE LE ZOOM
+        // ========================================
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+
+        console.log('✅ Contrôle d\'accès chargé');
     </script>
 </body>
 </html>
