@@ -52,27 +52,108 @@ min-height: 100vh;
 display: flex;
 flex-direction: column;
 }
+
+/* ===== NOUVEAU HEADER ===== */
 header {
 background: var(--header-bg);
-padding: 12px 20px;
-text-align: center;
+padding: 8px 12px 12px;
 box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 position: relative;
 }
-.logo { width: 55px; height: 55px; margin: 0 auto 6px; border-radius: 12px; overflow: hidden; }
-.logo img { width: 100%; height: 100%; object-fit: contain; }
-header h1 { color: var(--header-text); font-size: 20px; margin-bottom: 2px; }
-header .version { color: var(--header-sub); font-size: 10px; }
-header .user { color: var(--header-sub); font-size: 12px; margin-top: 2px; }
-.dark-toggle { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+/* Version en haut à gauche */
+.header-version {
+position: absolute;
+top: 8px;
+left: 12px;
+color: var(--header-sub);
+font-size: 11px;
+font-weight: 600;
+letter-spacing: 0.5px;
+}
+
+/* Boutons en haut à droite */
+.header-actions {
+position: absolute;
+top: 6px;
+right: 12px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+/* Dark mode toggle */
+.dark-toggle {
+display: flex;
+align-items: center;
+gap: 5px;
+cursor: pointer;
+}
 .toggle-label { font-size: 14px; }
 .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
 .toggle-switch.on { background: #4a7fcb; }
 .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
 .toggle-switch.on .toggle-knob { left: 20px; }
-.deconnexion { position: absolute; top: 10px; left: 12px; cursor: pointer; text-align: center; color: var(--header-sub); }
+
+/* Déconnexion */
+.deconnexion {
+cursor: pointer;
+text-align: center;
+color: var(--header-sub);
+}
 .deconnexion .icon { font-size: 18px; }
 .deconnexion .label { font-size: 9px; margin-top: 1px; }
+
+/* Zone centrale : logo + infos utilisateur */
+.header-center {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 16px;
+padding-top: 28px; /* Espace pour la version en haut */
+padding-bottom: 4px;
+}
+
+/* Logo 4x plus gros : 55px × 4 = 220px */
+.logo {
+width: 220px;
+height: 220px;
+border-radius: 16px;
+overflow: hidden;
+flex-shrink: 0;
+}
+.logo img {
+width: 100%;
+height: 100%;
+object-fit: contain;
+}
+
+/* Infos utilisateur à droite du logo */
+.header-user-info {
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+.header-user-name {
+color: white;
+font-size: 22px;
+font-weight: 700;
+line-height: 1.2;
+}
+.header-user-statut {
+color: var(--header-sub);
+font-size: 15px;
+font-weight: 500;
+}
+.header-app-name {
+color: white;
+font-size: 28px;
+font-weight: 800;
+letter-spacing: 2px;
+margin-top: 2px;
+}
+
+/* ===== CONTENU PRINCIPAL ===== */
 .container { flex: 1; padding: 12px; max-width: 700px; margin: 0 auto; width: 100%; }
 .btn-group { background: var(--group-bg); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
 .btn-group-title { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--group-title-color); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--btn-bg); }
@@ -95,6 +176,13 @@ justify-content: center; text-decoration: none;
 .jtb-item:last-child { border-bottom: none; }
 .jtb-item:hover { background: rgba(74,127,203,0.12); }
 .jtb-item .city { font-size: 11px; color: var(--text-sub); display: block; margin-top: 2px; }
+
+/* Responsive : sur petit écran, logo un peu plus petit */
+@media (max-width: 480px) {
+.logo { width: 160px; height: 160px; }
+.header-user-name { font-size: 18px; }
+.header-app-name { font-size: 22px; }
+}
 </style>
 </head>
 <body>
@@ -107,7 +195,7 @@ justify-content: center; text-decoration: none;
 <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
 <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
 <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
-<p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;"> Saisissez votre code d'accès</p>
+<p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
 <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
 style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
 oninput="this.value=this.value.toUpperCase();resetAuthResult();"
@@ -119,23 +207,38 @@ aria-label="Code d'accès">
 <p style="color:var(--text-sub);font-size:12px;margin-top:15px;">Votre code d'accès figure sur votre convocation</p>
 </div>
 </div>
+
+<!-- NOUVEAU HEADER -->
 <header>
+<!-- Version en haut à gauche -->
+<div class="header-version">v42.0</div>
+
+<!-- Actions en haut à droite -->
+<div class="header-actions">
 <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Basculer le mode sombre">
 <span class="toggle-label" id="toggleLabel">☀️</span>
 <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
 </div>
 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
-<div class="icon">🚪</div>
+<div class="icon"></div>
 <div class="label">Quitter</div>
 </div>
+</div>
+
+<!-- Centre : Logo + Infos utilisateur -->
+<div class="header-center">
 <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
-<h1>AAMB</h1>
-<div class="version">v42.0</div>
-<div class="user" id="headerUser"></div>
+<div class="header-user-info">
+<div class="header-app-name">AAMB</div>
+<div class="header-user-name" id="headerUserName"></div>
+<div class="header-user-statut" id="headerUserStatut"></div>
+</div>
+</div>
 </header>
+
 <div class="container">
 <div class="btn-group">
-<div class="btn-group-title">🏛️ JTB Besançon</div>
+<div class="btn-group-title">️ JTB Besançon</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/programme.html">
 <span class="btn-tile-icon">📅</span>
@@ -152,14 +255,14 @@ aria-label="Code d'accès">
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title"> Communication</div>
+<div class="btn-group-title">💬 Communication</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/messagerie.html">
 <span class="btn-tile-icon">✉️</span>
 <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
 </a>
 <a class="btn-tile" href="pages/chat-ag.html">
-<span class="btn-tile-icon">️</span>
+<span class="btn-tile-icon">🗣️</span>
 <span class="btn-tile-label">Chat pour l'AG</span>
 </a>
 </div>
@@ -168,11 +271,11 @@ aria-label="Code d'accès">
 <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/transport.html">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">🚌</span>
 <span class="btn-tile-label">Transport</span>
 </a>
 <a class="btn-tile" href="pages/soirees.html">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">🎉</span>
 <span class="btn-tile-label">Soirées</span>
 </a>
 <a class="btn-tile" href="pages/restauration.html">
@@ -180,7 +283,7 @@ aria-label="Code d'accès">
 <span class="btn-tile-label">Restauration</span>
 </a>
 <a class="btn-tile" href="pages/reglementation.html">
-<span class="btn-tile-icon">📋</span>
+<span class="btn-tile-icon"></span>
 <span class="btn-tile-label">Réglementation</span>
 </a>
 <a class="btn-tile" href="pages/droit-image.html">
@@ -193,13 +296,13 @@ aria-label="Code d'accès">
 <div class="btn-group-title">⭐ Qualité – Questionnaire à chaud</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/qualite.html">
-<span class="btn-tile-icon">📊</span>
+<span class="btn-tile-icon"></span>
 <span class="btn-tile-label">Questionnaire à chaud</span>
 </a>
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title">🌐 Informations Diverses</div>
+<div class="btn-group-title"> Informations Diverses</div>
 <div class="btn-grid">
 <button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB">
 <span class="btn-tile-icon">🏠</span>
@@ -213,8 +316,8 @@ aria-label="Code d'accès">
 <div class="jtb-menu" id="jtbMenu">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city"> Montpellier</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city"> La Rochelle</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
 </div>
 </div>
 </div>
@@ -223,7 +326,7 @@ aria-label="Code d'accès">
 <div class="btn-group-title">🔐 JTB Admin</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/controle-acces.html">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">🔐</span>
 <span class="btn-tile-label">Contrôle d'accès</span>
 </a>
 </div>
@@ -262,13 +365,13 @@ async function verifierID() {
             document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
             document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
             document.getElementById('rEmail').textContent = '✉️ ' + a.email;
-            document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
+            document.getElementById('rStatut').textContent = '️ ' + a.statut;
         } else {
             resultContent.innerHTML = '<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p></div>';
         }
     } catch(e) {
         resultDiv.style.display = 'block';
-        resultContent.innerHTML = '<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;"><p style="color:#856404;font-weight:bold;">️ Erreur de connexion</p><p style="color:#856404;font-size:12px;margin-top:5px;">Vérifiez votre connexion internet</p></div>';
+        resultContent.innerHTML = '<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;"><p style="color:#856404;font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#856404;font-size:12px;margin-top:5px;">Vérifiez votre connexion internet</p></div>';
     } finally {
         btn.textContent = 'Valider →'; btn.disabled = false;
     }
@@ -282,7 +385,9 @@ function confirmerIdentite(adherent) {
 
 function afficherApp(adherent) {
     document.getElementById('authPage').style.display = 'none';
-    document.getElementById('headerUser').textContent = '👤 ' + adherent.prenom + ' ' + adherent.nom + ' — ' + adherent.statut;
+    // Nouveau header : nom + statut séparés
+    document.getElementById('headerUserName').textContent = adherent.prenom + ' ' + adherent.nom;
+    document.getElementById('headerUserStatut').textContent = '— ' + adherent.statut;
     const isOrga = adherent.statut === 'Organisateur';
     document.getElementById('btnMessagerieLabel').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
     document.getElementById('groupAdmin').style.display = isOrga ? 'block' : 'none';
