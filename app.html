@@ -94,6 +94,7 @@ justify-content: center; text-decoration: none;
 .jtb-item { padding: 11px 14px; font-size: 13px; color: var(--text); cursor: pointer; border-bottom: 1px solid rgba(128,128,128,0.1); }
 .jtb-item:last-child { border-bottom: none; }
 .jtb-item:hover { background: rgba(74,127,203,0.12); }
+.jtb-item .city { font-size: 11px; color: var(--text-sub); display: block; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -106,7 +107,7 @@ justify-content: center; text-decoration: none;
 <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
 <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
 <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
-<p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
+<p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;"> Saisissez votre code d'accès</p>
 <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
 style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
 oninput="this.value=this.value.toUpperCase();resetAuthResult();"
@@ -137,7 +138,7 @@ aria-label="Code d'accès">
 <div class="btn-group-title">🏛️ JTB Besançon</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/programme.html">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">📅</span>
 <span class="btn-tile-label">Programme des Journées</span>
 </a>
 <a class="btn-tile" href="pages/ateliers.html">
@@ -151,14 +152,14 @@ aria-label="Code d'accès">
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title">💬 Communication</div>
+<div class="btn-group-title"> Communication</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/messagerie.html">
 <span class="btn-tile-icon">✉️</span>
 <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
 </a>
 <a class="btn-tile" href="pages/chat-ag.html">
-<span class="btn-tile-icon">🗣️</span>
+<span class="btn-tile-icon">️</span>
 <span class="btn-tile-label">Chat pour l'AG</span>
 </a>
 </div>
@@ -167,11 +168,11 @@ aria-label="Code d'accès">
 <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/transport.html">
-<span class="btn-tile-icon">🚌</span>
+<span class="btn-tile-icon"></span>
 <span class="btn-tile-label">Transport</span>
 </a>
 <a class="btn-tile" href="pages/soirees.html">
-<span class="btn-tile-icon">🎉</span>
+<span class="btn-tile-icon"></span>
 <span class="btn-tile-label">Soirées</span>
 </a>
 <a class="btn-tile" href="pages/restauration.html">
@@ -201,7 +202,7 @@ aria-label="Code d'accès">
 <div class="btn-group-title">🌐 Informations Diverses</div>
 <div class="btn-grid">
 <button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">🏠</span>
 <span class="btn-tile-label">Site Internet de l'AAMB</span>
 </button>
 <div class="jtb-wrap">
@@ -210,10 +211,10 @@ aria-label="Code d'accès">
 <span class="btn-tile-label">Site Internet des JTB ▲</span>
 </button>
 <div class="jtb-menu" id="jtbMenu">
-<div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
-<div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025 – Metz</div>
-<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024</div>
-<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023</div>
+<div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city"> Montpellier</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city"> La Rochelle</span></div>
 </div>
 </div>
 </div>
@@ -222,7 +223,7 @@ aria-label="Code d'accès">
 <div class="btn-group-title">🔐 JTB Admin</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/controle-acces.html">
-<span class="btn-tile-icon">🔐</span>
+<span class="btn-tile-icon"></span>
 <span class="btn-tile-label">Contrôle d'accès</span>
 </a>
 </div>
