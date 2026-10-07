@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.01</title>
+<title>Messagerie v0.03</title>
 <link rel="manifest" href="../manifest.json">
 <script>
-// Dark mode inline pour éviter le FOUC
 if (localStorage.getItem('darkMode') === '1') {
     document.documentElement.classList.add('dark');
 }
@@ -28,28 +27,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .page-header h2 { font-size: 18px; flex: 1; }
 .page-content { padding: 16px; }
 .sync-status {
-    font-size: 11px;
-    color: var(--text-sub);
-    text-align: center;
-    padding: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    font-size: 11px; color: var(--text-sub); text-align: center; padding: 6px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
 }
-.sync-status .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--success);
-    display: inline-block;
-}
+.sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); display: inline-block; }
 .sync-status .dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
 .sync-status .dot.error { background: #ef4444; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-.refresh-btn {
-    background: none; border: none; color: var(--text-sub);
-    font-size: 16px; cursor: pointer; padding: 4px 8px;
-    transition: transform 0.3s;
-}
+.refresh-btn { background: none; border: none; color: var(--text-sub); font-size: 16px; cursor: pointer; padding: 4px 8px; transition: transform 0.3s; }
 .refresh-btn.spinning { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
@@ -70,14 +55,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <script>
 // ============================================
 // SYSTÈME DE CACHE LOCAL POUR MESSAGERIE
-// Stratégie : "Stale-while-revalidate"
-// 1. Afficher immédiatement le cache (instantané)
-// 2. Fetch en arrière-plan
-// 3. Mettre à jour seulement si changements détectés
 // ============================================
-
 const CACHE_KEY = 'aamb_messagerie_cache';
-const POLL_INTERVAL = 30000; // 30 secondes (au lieu de 15s)
+const POLL_INTERVAL = 30000;
 
 let refreshTimer = null;
 let filtreOrga = 'nonTraites';
@@ -93,7 +73,6 @@ function getCache() {
         const raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
         const cache = JSON.parse(raw);
-        // Vérifier que le cache appartient au même utilisateur
         if (cache.userId !== adherent?.id) return null;
         return cache;
     } catch (e) { return null; }
@@ -106,13 +85,10 @@ function saveCache(data) {
             timestamp: Date.now(),
             data: data
         }));
-    } catch (e) {
-        console.warn('Cache sauvegarde échouée:', e);
-    }
+    } catch (e) { console.warn('Cache sauvegarde échouée:', e); }
 }
 
 function hasCacheChanged(oldData, newData) {
-    // Comparaison rapide : nombre de conversations + dernier message de chaque conv
     if (!oldData || !newData) return true;
     const oldConvs = oldData.conversations || {};
     const newConvs = newData.conversations || {};
@@ -123,7 +99,6 @@ function hasCacheChanged(oldData, newData) {
         const oldMsgs = oldConvs[key] || [];
         const newMsgs = newConvs[key] || [];
         if (oldMsgs.length !== newMsgs.length) return true;
-        // Comparer le dernier message
         const oldLast = oldMsgs[oldMsgs.length - 1];
         const newLast = newMsgs[newMsgs.length - 1];
         if (oldLast?.idConvFull !== newLast?.idConvFull) return true;
@@ -161,7 +136,6 @@ async function synchroniser(force = false) {
             if (changed) {
                 saveCache(data);
                 lastSyncTime = Date.now();
-                // Re-render avec les nouvelles données
                 if (adherent.statut === 'Organisateur') {
                     renderMessagesOrganisateur(data.conversations);
                 } else {
@@ -177,7 +151,6 @@ async function synchroniser(force = false) {
         }
     } catch (e) {
         console.warn('Sync échouée, utilisation du cache:', e);
-        // Si on a un cache, on l'affiche quand même
         const cache = getCache();
         if (cache) {
             lastSyncTime = cache.timestamp;
@@ -200,9 +173,7 @@ function updateSyncUI(state, text) {
     txt.textContent = text;
 }
 
-function forcerRafraichissement() {
-    synchroniser(true);
-}
+function forcerRafraichissement() { synchroniser(true); }
 
 // ============================================
 // RENDU DES MESSAGES
@@ -216,7 +187,7 @@ function texteEnCours() {
 function init() {
     if (!adherent) return;
 
-    // 1. Afficher immédiatement le cache s'il existe (instantané !)
+    // Afficher immédiatement le cache s'il existe
     const cache = getCache();
     if (cache) {
         lastSyncTime = cache.timestamp;
@@ -233,18 +204,19 @@ function init() {
             '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement initial...</p>';
     }
 
-    // 2. Lancer la synchro en arrière-plan
+    // Synchro en arrière-plan
     synchroniser();
 
-    // 3. Polling toutes les 30s (seulement si pas de texte en cours)
+    // Polling toutes les 30s
     if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = setInterval(() => {
-        if (!texteEnCours() && !document.hidden) {
-            synchroniser();
-        }
+        if (!texteEnCours() && !document.hidden) synchroniser();
     }, POLL_INTERVAL);
 }
 
+// ============================================
+// RENDU PARTICIPANT
+// ============================================
 function renderMessagesParticipant(conversations) {
     const content = document.getElementById('messagerieContent');
     if (!conversations) {
@@ -252,7 +224,7 @@ function renderMessagesParticipant(conversations) {
         return;
     }
     const keys = Object.keys(conversations);
-    let html = '<button onclick="nouveauMessage()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
+    let html = '<button onclick="nouveauMessageParticipant()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
     if (!keys.length) {
         html += '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
     } else {
@@ -268,7 +240,7 @@ function renderMessagesParticipant(conversations) {
                 html += '<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' +
                 (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + '">' +
                 '<div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">' +
-                (m.userId===adherent.id?'👤 Vous':' Organisation') + ' — ' + m.dateHeure + '</div>' +
+                (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>' +
                 '<div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
             });
             html += '<div style="padding:10px;"><button onclick="repondreConversation(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">↩️ Continuer cette conversation</button></div></div>';
@@ -277,6 +249,9 @@ function renderMessagesParticipant(conversations) {
     content.innerHTML = html;
 }
 
+// ============================================
+// RENDU ORGANISATEUR (avec bouton "Contacter un participant")
+// ============================================
 function renderMessagesOrganisateur(conversations) {
     const content = document.getElementById('messagerieContent');
     if (!conversations) {
@@ -287,9 +262,13 @@ function renderMessagesOrganisateur(conversations) {
     let nb = 0;
     keys.forEach(k => { if (conversations[k][conversations[k].length-1].traite === 'NON') nb++; });
 
-    let html = '<div style="display:flex;gap:8px;margin-bottom:15px;">' +
+    // Boutons d'action pour l'organisateur
+    let html = '<div style="display:flex;gap:8px;margin-bottom:12px;">' +
+    '<button onclick="nouveauMessageOrga()" style="flex:1;padding:12px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">✉️ Contacter un participant</button>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:15px;">' +
     '<button onclick="filtreOrga=\'nonTraites\';renderMessagesOrganisateur(getCache()?.data?.conversations)" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:' +
-    (filtreOrga==='nonTraites'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='nonTraites'?'white':'#333') + ';"> Non traités (' + nb + ')</button>' +
+    (filtreOrga==='nonTraites'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='nonTraites'?'white':'#333') + ';">🔴 Non traités (' + nb + ')</button>' +
     '<button onclick="filtreOrga=\'tous\';renderMessagesOrganisateur(getCache()?.data?.conversations)" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:' +
     (filtreOrga==='tous'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='tous'?'white':'#333') + ';">📋 Tous</button></div>';
 
@@ -309,13 +288,13 @@ function renderMessagesOrganisateur(conversations) {
             html += '<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' +
             (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + '">' +
             '<div style="font-size:11px;color:var(--text-sub);">' +
-            (m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>' +
+            (m.userId===adherent.id?'🏢 Vous':' '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>' +
             '<div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
         });
         if (nonTraite) {
             html += '<div style="padding:10px;">' +
             '<textarea id="rep-' + convBase + '" placeholder="Votre réponse..." style="width:100%;height:80px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;background:var(--bg);color:var(--text);margin-bottom:8px;"></textarea>' +
-            '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">📤 Répondre</button></div>';
+            '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;"> Répondre</button></div>';
         }
         html += '</div>';
     });
@@ -324,21 +303,23 @@ function renderMessagesOrganisateur(conversations) {
 }
 
 // ============================================
-// ENVOI DE MESSAGES
+// FORMULAIRES D'ENVOI
 // ============================================
-function nouveauMessage() { afficherFormulaireMessage(null); }
-function repondreConversation(c) { afficherFormulaireMessage(c); }
 
-function afficherFormulaireMessage(convBase) {
+// Participant : nouveau message (pas de destinataire à préciser, c'est toujours l'AAMB)
+function nouveauMessageParticipant() { afficherFormulaireParticipant(null); }
+function repondreConversation(c) { afficherFormulaireParticipant(c); }
+
+function afficherFormulaireParticipant(convBase) {
     const content = document.getElementById('messagerieContent');
     content.innerHTML = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>' +
     '<div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">' +
-    '<h3 style="color:var(--text);margin-bottom:15px;">' + (convBase ? '↩️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>' +
+    '<h3 style="color:var(--text);margin-bottom:15px;">' + (convBase ? '️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>' +
     '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--bg);color:var(--text);"></textarea>' +
-    '<button onclick="envoyerMessage(\'' + (convBase||'') + '\')" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;"> Envoyer</button></div>';
+    '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">📤 Envoyer</button></div>';
 }
 
-async function envoyerMessage(convBase) {
+async function envoyerMessageParticipant(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
     const content = document.getElementById('messagerieContent');
@@ -347,21 +328,61 @@ async function envoyerMessage(convBase) {
         const params = new URLSearchParams({
             action:'sendMessage', userId:adherent.id, nom:adherent.nom,
             prenom:adherent.prenom, message:texte, convId:convBase||'',
-            isOrganisateur:adherent.statut==='Organisateur'?'true':'false'
+            isOrganisateur:'false'
+        });
+        const resp = await fetch(SCRIPT_URL + '?' + params);
+        const data = await resp.json();
+        if (data.success) { await synchroniser(true); }
+        else { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
+    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+}
+
+// Organisateur : contacter un participant (doit préciser l'ID du participant)
+function nouveauMessageOrga() { afficherFormulaireOrga(); }
+
+function afficherFormulaireOrga() {
+    const content = document.getElementById('messagerieContent');
+    content.innerHTML = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>' +
+    '<div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">' +
+    '<h3 style="color:var(--text);margin-bottom:15px;">✉️ Contacter un participant</h3>' +
+    '<label style="font-size:13px;color:var(--text-sub);display:block;margin-bottom:6px;">ID du participant (code d\'identification) :</label>' +
+    '<input id="msgDestinataire" type="text" placeholder="Ex: JD001" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;outline:none;background:var(--bg);color:var(--text);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">' +
+    '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--bg);color:var(--text);"></textarea>' +
+    '<button onclick="envoyerMessageOrga()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">📤 Envoyer</button></div>';
+}
+
+async function envoyerMessageOrga() {
+    const destinataire = document.getElementById('msgDestinataire').value.trim().toUpperCase();
+    const texte = document.getElementById('msgTexte').value.trim();
+    if (!destinataire) { alert('Veuillez saisir l\'ID du participant'); return; }
+    if (!texte) { alert('Veuillez écrire un message'); return; }
+    const content = document.getElementById('messagerieContent');
+    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+    try {
+        const params = new URLSearchParams({
+            action:'sendMessage', userId:destinataire, nom:adherent.nom,
+            prenom:adherent.prenom, message:texte, convId:'',
+            isOrganisateur:'true'
         });
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
         if (data.success) {
-            // Forcer un refresh immédiat après envoi
-            await synchroniser(true);
+            content.innerHTML = '<div style="text-align:center;padding:40px;">' +
+            '<p style="font-size:48px;margin-bottom:10px;">✅</p>' +
+            '<p style="color:var(--text);font-size:16px;font-weight:bold;">Message envoyé !</p>' +
+            '<p style="color:var(--text-sub);font-size:13px;margin-top:8px;">Le participant ' + destinataire + ' recevra votre message.</p>' +
+            '<button onclick="init()" style="margin-top:20px;padding:12px 24px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:14px;cursor:pointer;">← Retour aux messages</button></div>';
         } else {
-            content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>';
+            content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi. Vérifiez l\'ID du participant.</p>' +
+            '<button onclick="init()" style="margin-top:10px;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;cursor:pointer;">← Retour</button>';
         }
     } catch(e) {
-        content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';
+        content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>' +
+        '<button onclick="init()" style="margin-top:10px;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;cursor:pointer;">← Retour</button>';
     }
 }
 
+// Organisateur : répondre à un message existant
 async function envoyerReponseOrga(convBase) {
     const texte = document.getElementById('rep-' + convBase).value.trim();
     if (!texte) { alert('Veuillez écrire une réponse'); return; }
@@ -374,12 +395,8 @@ async function envoyerReponseOrga(convBase) {
         });
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
-        if (data.success) {
-            await synchroniser(true);
-        } else {
-            if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
-            alert('Erreur.');
-        }
+        if (data.success) { await synchroniser(true); }
+        else { if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; } alert('Erreur.'); }
     } catch(e) {
         if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
         alert('Erreur de connexion');
@@ -393,9 +410,7 @@ document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
     } else {
-        // Re-synchroniser immédiatement quand la page redevient visible
         synchroniser();
-        // Relancer le polling
         if (!refreshTimer) {
             refreshTimer = setInterval(() => {
                 if (!texteEnCours() && !document.hidden) synchroniser();
@@ -404,7 +419,6 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Nettoyage à la fermeture
 window.addEventListener('beforeunload', () => {
     if (refreshTimer) clearInterval(refreshTimer);
 });
