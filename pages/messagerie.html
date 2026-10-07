@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie</title>
+<title>Messagerie v0.01</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 // Dark mode inline pour éviter le FOUC
@@ -13,27 +13,200 @@ if (localStorage.getItem('darkMode') === '1') {
 </script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; --card-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; --card-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+:root {
+--bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
+--page-header-bg: #1a3a6b; --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+--success: #10b981; --warning: #f59e0b; --primary: #1a3a6b;
+}
+body.dark {
+--bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
+--page-header-bg: #0f1f3d; --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 20px; }
+.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 4px 8px; }
+.page-header h2 { font-size: 18px; flex: 1; }
+.page-content { padding: 16px; }
+.sync-status {
+    font-size: 11px;
+    color: var(--text-sub);
+    text-align: center;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.sync-status .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--success);
+    display: inline-block;
+}
+.sync-status .dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
+.sync-status .dot.error { background: #ef4444; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.refresh-btn {
+    background: none; border: none; color: var(--text-sub);
+    font-size: 16px; cursor: pointer; padding: 4px 8px;
+    transition: transform 0.3s;
+}
+.refresh-btn.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 <div class="page-header">
 <button class="back-btn" onclick="retourAccueil()" aria-label="Retour à l'accueil">←</button>
 <h2 id="messagerieTitle">Messagerie</h2>
+<button class="refresh-btn" id="refreshBtn" onclick="forcerRafraichissement()" aria-label="Rafraîchir">🔄</button>
+</div>
+<div class="sync-status" id="syncStatus">
+<span class="dot" id="syncDot"></span>
+<span id="syncText">Chargement...</span>
 </div>
 <div class="page-content" id="messagerieContent"></div>
+
 <script src="../js/commun.js"></script>
 <script>
+// ============================================
+// SYSTÈME DE CACHE LOCAL POUR MESSAGERIE
+// Stratégie : "Stale-while-revalidate"
+// 1. Afficher immédiatement le cache (instantané)
+// 2. Fetch en arrière-plan
+// 3. Mettre à jour seulement si changements détectés
+// ============================================
+
+const CACHE_KEY = 'aamb_messagerie_cache';
+const POLL_INTERVAL = 30000; // 30 secondes (au lieu de 15s)
+
 let refreshTimer = null;
 let filtreOrga = 'nonTraites';
+let lastSyncTime = null;
+let isSyncing = false;
 const adherent = verifierConnexionOuRediriger();
 
+// ============================================
+// GESTION DU CACHE
+// ============================================
+function getCache() {
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const cache = JSON.parse(raw);
+        // Vérifier que le cache appartient au même utilisateur
+        if (cache.userId !== adherent?.id) return null;
+        return cache;
+    } catch (e) { return null; }
+}
+
+function saveCache(data) {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            userId: adherent.id,
+            timestamp: Date.now(),
+            data: data
+        }));
+    } catch (e) {
+        console.warn('Cache sauvegarde échouée:', e);
+    }
+}
+
+function hasCacheChanged(oldData, newData) {
+    // Comparaison rapide : nombre de conversations + dernier message de chaque conv
+    if (!oldData || !newData) return true;
+    const oldConvs = oldData.conversations || {};
+    const newConvs = newData.conversations || {};
+    const oldKeys = Object.keys(oldConvs);
+    const newKeys = Object.keys(newConvs);
+    if (oldKeys.length !== newKeys.length) return true;
+    for (const key of newKeys) {
+        const oldMsgs = oldConvs[key] || [];
+        const newMsgs = newConvs[key] || [];
+        if (oldMsgs.length !== newMsgs.length) return true;
+        // Comparer le dernier message
+        const oldLast = oldMsgs[oldMsgs.length - 1];
+        const newLast = newMsgs[newMsgs.length - 1];
+        if (oldLast?.idConvFull !== newLast?.idConvFull) return true;
+    }
+    return false;
+}
+
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return 'jamais';
+    const diff = Math.floor((Date.now() - timestamp) / 1000);
+    if (diff < 10) return 'à l\'instant';
+    if (diff < 60) return `il y a ${diff}s`;
+    if (diff < 3600) return `il y a ${Math.floor(diff/60)}min`;
+    return `il y a ${Math.floor(diff/3600)}h`;
+}
+
+// ============================================
+// SYNCHRONISATION
+// ============================================
+async function synchroniser(force = false) {
+    if (isSyncing || !adherent) return;
+    isSyncing = true;
+    updateSyncUI('syncing', 'Synchronisation...');
+    document.getElementById('refreshBtn').classList.add('spinning');
+
+    try {
+        const action = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
+        const resp = await fetch(SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id));
+        const data = await resp.json();
+
+        if (data.success) {
+            const cache = getCache();
+            const changed = force || hasCacheChanged(cache?.data, data);
+
+            if (changed) {
+                saveCache(data);
+                lastSyncTime = Date.now();
+                // Re-render avec les nouvelles données
+                if (adherent.statut === 'Organisateur') {
+                    renderMessagesOrganisateur(data.conversations);
+                } else {
+                    renderMessagesParticipant(data.conversations);
+                }
+                updateSyncUI('ok', `Mis à jour ${formatTimeAgo(lastSyncTime)}`);
+            } else {
+                lastSyncTime = cache?.timestamp || Date.now();
+                updateSyncUI('ok', `À jour ${formatTimeAgo(lastSyncTime)}`);
+            }
+        } else {
+            updateSyncUI('error', 'Erreur serveur');
+        }
+    } catch (e) {
+        console.warn('Sync échouée, utilisation du cache:', e);
+        // Si on a un cache, on l'affiche quand même
+        const cache = getCache();
+        if (cache) {
+            lastSyncTime = cache.timestamp;
+            updateSyncUI('error', `Hors ligne — ${formatTimeAgo(lastSyncTime)}`);
+        } else {
+            updateSyncUI('error', 'Erreur de connexion');
+        }
+    } finally {
+        isSyncing = false;
+        document.getElementById('refreshBtn').classList.remove('spinning');
+    }
+}
+
+function updateSyncUI(state, text) {
+    const dot = document.getElementById('syncDot');
+    const txt = document.getElementById('syncText');
+    dot.className = 'dot';
+    if (state === 'syncing') dot.classList.add('syncing');
+    else if (state === 'error') dot.classList.add('error');
+    txt.textContent = text;
+}
+
+function forcerRafraichissement() {
+    synchroniser(true);
+}
+
+// ============================================
+// RENDU DES MESSAGES
+// ============================================
 function texteEnCours() {
     const t = document.querySelectorAll('#messagerieContent textarea');
     for (const ta of t) { if (ta.value.trim().length > 0) return true; }
@@ -42,58 +215,117 @@ function texteEnCours() {
 
 function init() {
     if (!adherent) return;
-    // Nettoyer l'ancien timer
-    if (refreshTimer) clearInterval(refreshTimer);
-    
-    if (adherent.statut === 'Organisateur') {
-        document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
-        chargerMessagesOrganisateur();
-        // 30s au lieu de 15s pour économiser la batterie
-        refreshTimer = setInterval(() => { if (!texteEnCours()) chargerMessagesOrganisateur(); }, 30000);
+
+    // 1. Afficher immédiatement le cache s'il existe (instantané !)
+    const cache = getCache();
+    if (cache) {
+        lastSyncTime = cache.timestamp;
+        if (adherent.statut === 'Organisateur') {
+            document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
+            renderMessagesOrganisateur(cache.data.conversations);
+        } else {
+            document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
+            renderMessagesParticipant(cache.data.conversations);
+        }
+        updateSyncUI('ok', `Cache affiché — ${formatTimeAgo(lastSyncTime)}`);
     } else {
-        document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
-        chargerMessagesParticipant();
-        refreshTimer = setInterval(() => { if (!texteEnCours()) chargerMessagesParticipant(); }, 30000);
+        document.getElementById('messagerieContent').innerHTML =
+            '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement initial...</p>';
     }
+
+    // 2. Lancer la synchro en arrière-plan
+    synchroniser();
+
+    // 3. Polling toutes les 30s (seulement si pas de texte en cours)
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(() => {
+        if (!texteEnCours() && !document.hidden) {
+            synchroniser();
+        }
+    }, POLL_INTERVAL);
 }
 
-init();
-
-// Gestion visibility améliorée
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = null;
-    } else {
-        // Recharger immédiatement quand la page redevient visible
-        init();
-    }
-});
-
-async function chargerMessagesParticipant() {
+function renderMessagesParticipant(conversations) {
     const content = document.getElementById('messagerieContent');
-    try {
-        const resp = await fetch(SCRIPT_URL + '?action=getMyMessages&userId=' + encodeURIComponent(adherent.id));
-        const data = await resp.json();
-        if (!data.success) { content.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-sub);">Erreur de chargement</p>'; return; }
-        const convs = data.conversations, keys = Object.keys(convs);
-        let html = '<button onclick="nouveauMessage()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
-        if (!keys.length) html += '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
-        else keys.forEach(convBase => {
-            const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+    if (!conversations) {
+        content.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucune donnée</p>';
+        return;
+    }
+    const keys = Object.keys(conversations);
+    let html = '<button onclick="nouveauMessage()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
+    if (!keys.length) {
+        html += '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
+    } else {
+        keys.forEach(convBase => {
+            const msgs = conversations[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
             const last = msgs[msgs.length-1];
             const enAttente = last.traite === 'NON' && last.userId === adherent.id;
             html += '<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;">' +
-            '<div style="background:' + (enAttente?'#fff3cd':'#d4edda') + ';padding:8px 12px;font-size:12px;font-weight:bold;color:' + (enAttente?'#856404':'#28a745') + ';">' + (enAttente?'⏳ En attente de réponse':'✅ Répondu') + ' <span style="float:right;font-weight:normal;color:var(--text-sub);">' + convBase + '</span></div>';
+            '<div style="background:' + (enAttente?'#fff3cd':'#d4edda') + ';padding:8px 12px;font-size:12px;font-weight:bold;color:' + (enAttente?'#856404':'#28a745') + ';">' +
+            (enAttente?'⏳ En attente de réponse':'✅ Répondu') +
+            ' <span style="float:right;font-weight:normal;color:var(--text-sub);">' + convBase + '</span></div>';
             msgs.forEach(m => {
-                html += '<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + '"><div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">' + (m.userId===adherent.id?'👤 Vous':' Organisation') + ' — ' + m.dateHeure + '</div><div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
+                html += '<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' +
+                (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + '">' +
+                '<div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">' +
+                (m.userId===adherent.id?'👤 Vous':' Organisation') + ' — ' + m.dateHeure + '</div>' +
+                '<div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
             });
             html += '<div style="padding:10px;"><button onclick="repondreConversation(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">↩️ Continuer cette conversation</button></div></div>';
         });
-        content.innerHTML = html;
-    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+    }
+    content.innerHTML = html;
 }
 
+function renderMessagesOrganisateur(conversations) {
+    const content = document.getElementById('messagerieContent');
+    if (!conversations) {
+        content.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucune donnée</p>';
+        return;
+    }
+    const keys = Object.keys(conversations);
+    let nb = 0;
+    keys.forEach(k => { if (conversations[k][conversations[k].length-1].traite === 'NON') nb++; });
+
+    let html = '<div style="display:flex;gap:8px;margin-bottom:15px;">' +
+    '<button onclick="filtreOrga=\'nonTraites\';renderMessagesOrganisateur(getCache()?.data?.conversations)" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:' +
+    (filtreOrga==='nonTraites'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='nonTraites'?'white':'#333') + ';"> Non traités (' + nb + ')</button>' +
+    '<button onclick="filtreOrga=\'tous\';renderMessagesOrganisateur(getCache()?.data?.conversations)" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:' +
+    (filtreOrga==='tous'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='tous'?'white':'#333') + ';">📋 Tous</button></div>';
+
+    let affiche = false;
+    keys.forEach(convBase => {
+        const msgs = conversations[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+        const nonTraite = msgs[msgs.length-1].traite === 'NON';
+        if (filtreOrga === 'nonTraites' && !nonTraite) return;
+        affiche = true;
+        const pm = msgs.find(m => m.userId !== adherent.id) || msgs[0];
+        html += '<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;border-left:4px solid ' +
+        (nonTraite?'#dc3545':'#28a745') + ';">' +
+        '<div style="padding:10px 12px;background:' + (nonTraite?'rgba(220,53,69,0.1)':'rgba(40,167,69,0.1)') + '">' +
+        '<strong style="color:var(--text);"> ' + pm.prenom + ' ' + pm.nom + '</strong>' +
+        '<span style="float:right;font-size:12px;color:var(--text-sub);">' + convBase + '</span></div>';
+        msgs.forEach(m => {
+            html += '<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' +
+            (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + '">' +
+            '<div style="font-size:11px;color:var(--text-sub);">' +
+            (m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>' +
+            '<div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
+        });
+        if (nonTraite) {
+            html += '<div style="padding:10px;">' +
+            '<textarea id="rep-' + convBase + '" placeholder="Votre réponse..." style="width:100%;height:80px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;background:var(--bg);color:var(--text);margin-bottom:8px;"></textarea>' +
+            '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">📤 Répondre</button></div>';
+        }
+        html += '</div>';
+    });
+    if (!affiche) html += '<p style="color:var(--text-sub);text-align:center;padding:20px;">Aucun message en attente</p>';
+    content.innerHTML = html;
+}
+
+// ============================================
+// ENVOI DE MESSAGES
+// ============================================
 function nouveauMessage() { afficherFormulaireMessage(null); }
 function repondreConversation(c) { afficherFormulaireMessage(c); }
 
@@ -101,9 +333,9 @@ function afficherFormulaireMessage(convBase) {
     const content = document.getElementById('messagerieContent');
     content.innerHTML = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>' +
     '<div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">' +
-    '<h3 style="color:var(--text);margin-bottom:15px;">' + (convBase ? '️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>' +
+    '<h3 style="color:var(--text);margin-bottom:15px;">' + (convBase ? '↩️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>' +
     '<textarea id="msgTexte" placeholder="Votre message..." style="width:100%;height:120px;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:15px;resize:none;outline:none;background:var(--bg);color:var(--text);"></textarea>' +
-    '<button onclick="envoyerMessage(\'' + (convBase||'') + '\')" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">📤 Envoyer</button></div>';
+    '<button onclick="envoyerMessage(\'' + (convBase||'') + '\')" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;"> Envoyer</button></div>';
 }
 
 async function envoyerMessage(convBase) {
@@ -112,43 +344,22 @@ async function envoyerMessage(convBase) {
     const content = document.getElementById('messagerieContent');
     content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
     try {
-        const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:convBase||'', isOrganisateur:adherent.statut==='Organisateur'?'true':'false' });
+        const params = new URLSearchParams({
+            action:'sendMessage', userId:adherent.id, nom:adherent.nom,
+            prenom:adherent.prenom, message:texte, convId:convBase||'',
+            isOrganisateur:adherent.statut==='Organisateur'?'true':'false'
+        });
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
-        if (data.success) { chargerMessagesParticipant(); }
-        else { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
-    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
-}
-
-async function chargerMessagesOrganisateur() {
-    const content = document.getElementById('messagerieContent');
-    try {
-        const resp = await fetch(SCRIPT_URL + '?action=getAllMessages&userId=' + encodeURIComponent(adherent.id));
-        const data = await resp.json();
-        if (!data.success) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Accès refusé</p>'; return; }
-        const convs = data.conversations, keys = Object.keys(convs);
-        let nb = 0; keys.forEach(k => { if (convs[k][convs[k].length-1].traite === 'NON') nb++; });
-        let html = '<div style="display:flex;gap:8px;margin-bottom:15px;">' +
-        '<button onclick="filtreOrga=\'nonTraites\';chargerMessagesOrganisateur()" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:' + (filtreOrga==='nonTraites'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='nonTraites'?'white':'#333') + ';">🔴 Non traités (' + nb + ')</button>' +
-        '<button onclick="filtreOrga=\'tous\';chargerMessagesOrganisateur()" style="flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;background:' + (filtreOrga==='tous'?'#1a3a6b':'#e0e0e0') + ';color:' + (filtreOrga==='tous'?'white':'#333') + ';"> Tous</button></div>';
-        let affiche = false;
-        keys.forEach(convBase => {
-            const msgs = convs[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-            const nonTraite = msgs[msgs.length-1].traite === 'NON';
-            if (filtreOrga === 'nonTraites' && !nonTraite) return;
-            affiche = true;
-            const pm = msgs.find(m => m.userId !== adherent.id) || msgs[0];
-            html += '<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;border-left:4px solid ' + (nonTraite?'#dc3545':'#28a745') + ';">' +
-            '<div style="padding:10px 12px;background:' + (nonTraite?'rgba(220,53,69,0.1)':'rgba(40,167,69,0.1)') + '"><strong style="color:var(--text);">👤 ' + pm.prenom + ' ' + pm.nom + '</strong><span style="float:right;font-size:12px;color:var(--text-sub);">' + convBase + '</span></div>';
-            msgs.forEach(m => {
-                html += '<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + '"><div style="font-size:11px;color:var(--text-sub);">' + (m.userId===adherent.id?'🏢 Vous':' '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div><div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
-            });
-            if (nonTraite) html += '<div style="padding:10px;"><textarea id="rep-' + convBase + '" placeholder="Votre réponse..." style="width:100%;height:80px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;resize:none;outline:none;background:var(--bg);color:var(--text);margin-bottom:8px;"></textarea><button onclick="envoyerReponseOrga(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">📤 Répondre</button></div>';
-            html += '</div>';
-        });
-        if (!affiche) html += '<p style="color:var(--text-sub);text-align:center;padding:20px;">Aucun message en attente</p>';
-        content.innerHTML = html;
-    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+        if (data.success) {
+            // Forcer un refresh immédiat après envoi
+            await synchroniser(true);
+        } else {
+            content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>';
+        }
+    } catch(e) {
+        content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>';
+    }
 }
 
 async function envoyerReponseOrga(convBase) {
@@ -157,13 +368,51 @@ async function envoyerReponseOrga(convBase) {
     const btn = document.querySelector('button[onclick="envoyerReponseOrga(\'' + convBase + '\')"]');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi...'; btn.style.opacity = '0.6'; }
     try {
-        const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:convBase, isOrganisateur:'true' });
+        const params = new URLSearchParams({
+            action:'sendMessage', userId:adherent.id, nom:adherent.nom,
+            prenom:adherent.prenom, message:texte, convId:convBase, isOrganisateur:'true'
+        });
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
-        if (data.success) { chargerMessagesOrganisateur(); }
-        else { if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; } alert('Erreur.'); }
-    } catch(e) { if (btn) { btn.disabled = false; btn.textContent = ' Répondre'; btn.style.opacity = '1'; } alert('Erreur de connexion'); }
+        if (data.success) {
+            await synchroniser(true);
+        } else {
+            if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
+            alert('Erreur.');
+        }
+    } catch(e) {
+        if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; }
+        alert('Erreur de connexion');
+    }
 }
+
+// ============================================
+// GESTION VISIBILITÉ & NETTOYAGE
+// ============================================
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+    } else {
+        // Re-synchroniser immédiatement quand la page redevient visible
+        synchroniser();
+        // Relancer le polling
+        if (!refreshTimer) {
+            refreshTimer = setInterval(() => {
+                if (!texteEnCours() && !document.hidden) synchroniser();
+            }, POLL_INTERVAL);
+        }
+    }
+});
+
+// Nettoyage à la fermeture
+window.addEventListener('beforeunload', () => {
+    if (refreshTimer) clearInterval(refreshTimer);
+});
+
+// ============================================
+// DÉMARRAGE
+// ============================================
+init();
 </script>
 </body>
 </html>
