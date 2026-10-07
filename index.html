@@ -1,82 +1,87 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAMB - Installation</title>
-    
-    <link rel="apple-touch-icon" href="icon-192.png?v=3">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <link rel="manifest" href="manifest.json?v=3">
-    
-    <style>
-        /* Styles de la page d'accueil */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .container { background: white; border-radius: 20px; padding: 40px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-        .logo { width: 120px; height: 120px; margin: 0 auto 30px; border-radius: 20px; overflow: hidden; }
-        .logo img { width: 100%; height: 100%; object-fit: contain; }
-        h1 { color: #2c5f2d; margin-bottom: 10px; font-size: 24px; }
-        p { color: #666; margin-bottom: 30px; line-height: 1.5; }
-        .install-btn { background: #2c5f2d; color: white; border: none; padding: 16px; font-size: 18px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; }
-        .manual-instructions { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; text-align: left; }
-        .step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #2c5f2d; font-size: 14px; }
-        .direct-link { margin-top: 15px; font-size: 14px; }
-        .direct-link a { color: #2c5f2d; text-decoration: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAMB - Installation</title>
+<link rel="apple-touch-icon" href="icon-192.png?v=3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json?v=3">
+<script>
+// Dark mode inline pour éviter le FOUC
+if (localStorage.getItem('darkMode') === '1') {
+    document.documentElement.classList.add('dark');
+}
+</script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+.container { background: white; border-radius: 20px; padding: 40px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+.logo { width: 120px; height: 120px; margin: 0 auto 30px; border-radius: 20px; overflow: hidden; }
+.logo img { width: 100%; height: 100%; object-fit: contain; }
+h1 { color: #2c5f2d; margin-bottom: 10px; font-size: 24px; }
+p { color: #666; margin-bottom: 30px; line-height: 1.5; }
+.install-btn { background: #2c5f2d; color: white; border: none; padding: 16px; font-size: 18px; border-radius: 50px; cursor: pointer; width: 100%; font-weight: bold; }
+.manual-instructions { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; text-align: left; }
+.step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #2c5f2d; font-size: 14px; }
+.direct-link { margin-top: 15px; font-size: 14px; }
+.direct-link a { color: #2c5f2d; text-decoration: none; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
-        <h1>Application AAMB v40.90</h1>
-        <p>Installez l'application pour accéder au scanner et aux outils de contrôle.</p>
-        
-        <button id="installBtn" class="install-btn" style="display: none;">➕ Installer l'application</button>
-        
-        <div id="iosInstructions" class="manual-instructions" style="display: none;">
-            <p><strong>📱 Installation iPhone :</strong></p>
-            <div class="step">1. Appuyez sur <strong>Partager</strong> <span style="font-size:18px">⎋</span></div>
-            <div class="step">2. Choisissez <strong>"Sur l'écran d'accueil"</strong></div>
-        </div>
+<div class="container">
+<div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
+<h1>Application AAMB v0.01</h1>
+<p>Installez l'application pour accéder au scanner et aux outils de contrôle.</p>
+<button id="installBtn" class="install-btn" style="display: none;">➕ Installer l'application</button>
+<div id="iosInstructions" class="manual-instructions" style="display: none;">
+<p><strong>📱 Installation iPhone :</strong></p>
+<div class="step">1. Appuyez sur <strong>Partager</strong> <span style="font-size:18px">⎋</span></div>
+<div class="step">2. Choisissez <strong>"Sur l'écran d'accueil"</strong></div>
+</div>
+<div class="direct-link">
+<a href="app.html">Ouvrir les outils sans installer</a>
+</div>
+</div>
+<script>
+// Enregistrement Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+        console.warn('SW registration failed:', err);
+    });
+}
 
-        <div class="direct-link">
-            <a href="app.html">Ouvrir les outils sans installer</a>
-        </div>
-    </div>
+// REDIRECTION : Si déjà en mode standalone, aller directement à app.html
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    window.location.replace("app.html");
+}
 
-    <script>
-        // Enregistrement Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
+// Détection iOS
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+if (isIOS && !window.navigator.standalone) {
+    document.getElementById('iosInstructions').style.display = 'block';
+}
 
-        // REDIRECTION : On redirige vers app.html (vos boutons) et non plus le site externe
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-            window.location.replace("app.html");
-        }
+// Bouton Android
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBtn').style.display = 'block';
+});
 
-        // Détection iOS
-        const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-        if (isIOS && !window.navigator.standalone) {
-            document.getElementById('iosInstructions').style.display = 'block';
-        }
-
-        // Bouton Android
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installBtn').style.display = 'block';
-        });
-
-        document.getElementById('installBtn').addEventListener('click', () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt = null;
+document.getElementById('installBtn').addEventListener('click', () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
             }
+            deferredPrompt = null;
         });
-    </script>
+    }
+});
+</script>
 </body>
 </html>
