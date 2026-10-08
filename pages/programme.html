@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026</title>
+<title>Programme JTB 2026 v0.01</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -25,56 +25,9 @@ body.dark {
 --jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-
-/* ===== HEADER PRINCIPAL (injecté par commun.js) ===== */
-#header-principal {
-    background: var(--page-header-bg);
-    padding: 8px 12px 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-#header-principal .header-version {
-    position: absolute; top: 8px; left: 12px;
-    color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; z-index: 5;
-}
-#header-principal .header-actions {
-    position: absolute; top: 6px; right: 12px;
-    display: flex; align-items: center; gap: 14px; z-index: 5;
-}
-#header-principal .dark-toggle { display: flex; align-items: center; gap: 5px; cursor: pointer; }
-#header-principal .toggle-label { font-size: 14px; }
-#header-principal .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
-#header-principal .toggle-switch.on { background: #4a7fcb; }
-#header-principal .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
-#header-principal .toggle-switch.on .toggle-knob { left: 20px; }
-#header-principal .deconnexion { cursor: pointer; text-align: center; color: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; gap: 1px; }
-#header-principal .deconnexion .icon { font-size: 18px; }
-#header-principal .deconnexion .label { font-size: 9px; }
-#header-principal .header-center { display: flex; align-items: center; justify-content: center; gap: 12px; padding-top: 24px; padding-bottom: 2px; }
-#header-principal .logo { width: 100px; height: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-#header-principal .logo img { width: 100%; height: 100%; object-fit: contain; }
-#header-principal .header-user-info { display: flex; flex-direction: column; gap: 2px; }
-#header-principal .header-user-name { color: white; font-size: 18px; font-weight: 700; line-height: 1.2; }
-#header-principal .header-user-statut { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500; }
-
-/* Header de page (titre + retour) */
-.page-header {
-    background: var(--page-header-bg);
-    color: white;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 130px;
-    z-index: 90;
-}
+.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
 .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
 .page-header h2 { font-size: 18px; }
-
-/* Contenu */
 .page-content { padding: 10px; }
 .jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
 .jour-btn { background: var(--jour-btn-bg); color: var(--jour-btn-text); border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer; font-size: 12px; white-space: nowrap; font-weight: 500; }
@@ -104,6 +57,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 @keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
 @keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
 
+/* ===== HEADER PRINCIPAL ===== */
+#header-principal { background: var(--page-header-bg); padding: 8px 12px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
+#header-principal .header-version { position: absolute; top: 8px; left: 12px; color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; z-index: 5; }
+#header-principal .header-actions { position: absolute; top: 6px; right: 12px; display: flex; align-items: center; gap: 14px; z-index: 5; }
+#header-principal .dark-toggle { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+#header-principal .toggle-label { font-size: 14px; }
+#header-principal .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
+#header-principal .toggle-switch.on { background: #4a7fcb; }
+#header-principal .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
+#header-principal .toggle-switch.on .toggle-knob { left: 20px; }
+#header-principal .deconnexion { cursor: pointer; text-align: center; color: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; gap: 1px; }
+#header-principal .deconnexion .icon { font-size: 18px; }
+#header-principal .deconnexion .label { font-size: 9px; }
+#header-principal .header-center { display: flex; align-items: center; justify-content: center; gap: 12px; padding-top: 24px; padding-bottom: 2px; }
+#header-principal .logo { width: 100px; height: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+#header-principal .logo img { width: 100%; height: 100%; object-fit: contain; }
+#header-principal .header-user-info { display: flex; flex-direction: column; gap: 2px; }
+#header-principal .header-user-name { color: white; font-size: 18px; font-weight: 700; line-height: 1.2; }
+#header-principal .header-user-statut { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500; }
+.page-header { position: sticky; top: 130px; z-index: 90; }
 @media (max-width: 480px) {
     #header-principal .logo { width: 80px; height: 80px; }
     #header-principal .header-user-name { font-size: 15px; }
@@ -138,8 +111,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 <div id="jour-mercredi" class="jour-content" style="display:none;">
 <div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier"> Atelier 2A<br><strong>LORDIL</strong></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf"> Visite des stands</div></div>
+<div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
+<div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
 <div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
 <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong></div></div></div>
@@ -154,7 +127,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong></div><div class="atelier"> Atelier 10B<br><strong>MORGATE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf"> Visite des stands</div></div>
+<div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
 <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS</strong></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
 </div>
