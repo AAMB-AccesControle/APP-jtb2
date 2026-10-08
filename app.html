@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AAMB v0.05</title>
+<title>AAMB v0.06</title>
 <link rel="manifest" href="manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') {
@@ -52,15 +52,16 @@ display: flex;
 flex-direction: column;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER STICKY ===== */
 header {
 background: var(--header-bg);
 padding: 8px 12px 12px;
 box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-position: relative;
+position: sticky;
+top: 0;
+z-index: 100;
 }
 
-/* Version en haut à gauche */
 .header-version {
 position: absolute;
 top: 8px;
@@ -72,7 +73,6 @@ letter-spacing: 0.5px;
 z-index: 5;
 }
 
-/* Actions en haut à droite : dark mode + déconnexion */
 .header-actions {
 position: absolute;
 top: 6px;
@@ -83,33 +83,17 @@ gap: 14px;
 z-index: 5;
 }
 
-/* Dark mode toggle */
-.dark-toggle {
-display: flex;
-align-items: center;
-gap: 5px;
-cursor: pointer;
-}
+.dark-toggle { display: flex; align-items: center; gap: 5px; cursor: pointer; }
 .toggle-label { font-size: 14px; }
 .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
 .toggle-switch.on { background: #4a7fcb; }
 .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
 .toggle-switch.on .toggle-knob { left: 20px; }
 
-/* Déconnexion */
-.deconnexion {
-cursor: pointer;
-text-align: center;
-color: var(--header-sub);
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 1px;
-}
+.deconnexion { cursor: pointer; text-align: center; color: var(--header-sub); display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .deconnexion .icon { font-size: 18px; }
 .deconnexion .label { font-size: 9px; }
 
-/* Zone centrale : logo + infos utilisateur */
 .header-center {
 display: flex;
 align-items: center;
@@ -119,40 +103,14 @@ padding-top: 28px;
 padding-bottom: 4px;
 }
 
-/* Logo : sans cadre, sans bordure */
-.logo {
-width: 220px;
-height: 220px;
-flex-shrink: 0;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-.logo img {
-width: 100%;
-height: 100%;
-object-fit: contain;
-}
+.logo { width: 220px; height: 220px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.logo img { width: 100%; height: 100%; object-fit: contain; }
 
-/* Infos utilisateur à droite du logo */
-.header-user-info {
-display: flex;
-flex-direction: column;
-gap: 2px;
-}
-.header-user-name {
-color: white;
-font-size: 22px;
-font-weight: 700;
-line-height: 1.2;
-}
-.header-user-statut {
-color: var(--header-sub);
-font-size: 15px;
-font-weight: 500;
-}
+.header-user-info { display: flex; flex-direction: column; gap: 2px; }
+.header-user-name { color: white; font-size: 22px; font-weight: 700; line-height: 1.2; }
+.header-user-statut { color: var(--header-sub); font-size: 15px; font-weight: 500; }
 
-/* ===== CONTENU PRINCIPAL ===== */
+/* ===== CONTENU ===== */
 .container { flex: 1; padding: 12px; max-width: 700px; margin: 0 auto; width: 100%; }
 .btn-group { background: var(--group-bg); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
 .btn-group-title { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--group-title-color); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--btn-bg); }
@@ -176,7 +134,6 @@ justify-content: center; text-decoration: none;
 .jtb-item:hover { background: rgba(74,127,203,0.12); }
 .jtb-item .city { font-size: 11px; color: var(--text-sub); display: block; margin-top: 2px; }
 
-/* Responsive */
 @media (max-width: 480px) {
 .logo { width: 160px; height: 160px; }
 .header-user-name { font-size: 18px; }
@@ -206,12 +163,9 @@ aria-label="Code d'accès">
 </div>
 </div>
 
-<!-- HEADER -->
+<!-- HEADER STICKY -->
 <header>
-<!-- Version en haut à gauche -->
 <div class="header-version">v42.0</div>
-
-<!-- Actions en haut à droite : dark mode + déconnexion -->
 <div class="header-actions">
 <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Basculer le mode sombre">
 <span class="toggle-label" id="toggleLabel">☀️</span>
@@ -222,8 +176,6 @@ aria-label="Code d'accès">
 <div class="label">Quitter</div>
 </div>
 </div>
-
-<!-- Centre : Logo + Infos utilisateur (sans "AAMB") -->
 <div class="header-center">
 <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
 <div class="header-user-info">
@@ -237,83 +189,44 @@ aria-label="Code d'accès">
 <div class="btn-group">
 <div class="btn-group-title">🏛️ JTB Besançon</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/programme.html">
-<span class="btn-tile-icon">📅</span>
-<span class="btn-tile-label">Programme des Journées</span>
-</a>
-<a class="btn-tile" href="pages/ateliers.html">
-<span class="btn-tile-icon">🔬</span>
-<span class="btn-tile-label">Ateliers</span>
-</a>
-<a class="btn-tile" href="pages/qcm.html">
-<span class="btn-tile-icon">📝</span>
-<span class="btn-tile-label">QCM</span>
-</a>
+<a class="btn-tile" href="pages/programme.html"><span class="btn-tile-icon">📅</span><span class="btn-tile-label">Programme des Journées</span></a>
+<a class="btn-tile" href="pages/ateliers.html"><span class="btn-tile-icon">🔬</span><span class="btn-tile-label">Ateliers</span></a>
+<a class="btn-tile" href="pages/qcm.html"><span class="btn-tile-icon">📝</span><span class="btn-tile-label">QCM</span></a>
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title">💬 Communication</div>
+<div class="btn-group-title"> Communication</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/messagerie.html">
-<span class="btn-tile-icon">✉️</span>
-<span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
-</a>
-<a class="btn-tile" href="pages/chat-ag.html">
-<span class="btn-tile-icon">🗣️</span>
-<span class="btn-tile-label">Chat pour l'AG</span>
-</a>
+<a class="btn-tile" href="pages/messagerie.html"><span class="btn-tile-icon">✉️</span><span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span></a>
+<a class="btn-tile" href="pages/chat-ag.html"><span class="btn-tile-icon">🗣️</span><span class="btn-tile-label">Chat pour l'AG</span></a>
 </div>
 </div>
 <div class="btn-group">
 <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/transport.html">
-<span class="btn-tile-icon">🚌</span>
-<span class="btn-tile-label">Transport</span>
-</a>
-<a class="btn-tile" href="pages/soirees.html">
-<span class="btn-tile-icon">🎉</span>
-<span class="btn-tile-label">Soirées</span>
-</a>
-<a class="btn-tile" href="pages/restauration.html">
-<span class="btn-tile-icon">🍽️</span>
-<span class="btn-tile-label">Restauration</span>
-</a>
-<a class="btn-tile" href="pages/reglementation.html">
-<span class="btn-tile-icon">📋</span>
-<span class="btn-tile-label">Réglementation</span>
-</a>
-<a class="btn-tile" href="pages/droit-image.html">
-<span class="btn-tile-icon">📸</span>
-<span class="btn-tile-label">Droit à l'image</span>
-</a>
+<a class="btn-tile" href="pages/transport.html"><span class="btn-tile-icon">🚌</span><span class="btn-tile-label">Transport</span></a>
+<a class="btn-tile" href="pages/soirees.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">Soirées</span></a>
+<a class="btn-tile" href="pages/restauration.html"><span class="btn-tile-icon">🍽️</span><span class="btn-tile-label">Restauration</span></a>
+<a class="btn-tile" href="pages/reglementation.html"><span class="btn-tile-icon">📋</span><span class="btn-tile-label">Réglementation</span></a>
+<a class="btn-tile" href="pages/droit-image.html"><span class="btn-tile-icon">📸</span><span class="btn-tile-label">Droit à l'image</span></a>
 </div>
 </div>
 <div class="btn-group">
 <div class="btn-group-title">⭐ Qualité – Questionnaire à chaud</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/qualite.html">
-<span class="btn-tile-icon">📊</span>
-<span class="btn-tile-label">Questionnaire à chaud</span>
-</a>
+<a class="btn-tile" href="pages/qualite.html"><span class="btn-tile-icon">📊</span><span class="btn-tile-label">Questionnaire à chaud</span></a>
 </div>
 </div>
 <div class="btn-group">
 <div class="btn-group-title">🌐 Informations Diverses</div>
 <div class="btn-grid">
-<button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB">
-<span class="btn-tile-icon">🏠</span>
-<span class="btn-tile-label">Site Internet de l'AAMB</span>
-</button>
+<button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB"><span class="btn-tile-icon">🏠</span><span class="btn-tile-label">Site Internet de l'AAMB</span></button>
 <div class="jtb-wrap">
-<button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;" aria-label="Sites Internet des JTB">
-<span class="btn-tile-icon">🌍</span>
-<span class="btn-tile-label">Site Internet des JTB ▲</span>
-</button>
+<button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;" aria-label="Sites Internet des JTB"><span class="btn-tile-icon"></span><span class="btn-tile-label">Site Internet des JTB ▲</span></button>
 <div class="jtb-menu" id="jtbMenu">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city"> Montpellier</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
 </div>
 </div>
@@ -322,13 +235,11 @@ aria-label="Code d'accès">
 <div class="btn-group" id="groupAdmin" style="display:none;">
 <div class="btn-group-title">🔐 JTB Admin</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/controle-acces.html">
-<span class="btn-tile-icon"></span>
-<span class="btn-tile-label">Contrôle d'accès</span>
-</a>
+<a class="btn-tile" href="pages/controle-acces.html"><span class="btn-tile-icon">🔐</span><span class="btn-tile-label">Contrôle d'accès</span></a>
 </div>
 </div>
 </div>
+
 <script src="js/commun.js"></script>
 <script>
 function resetAuthResult() { document.getElementById('authResult').style.display = 'none'; }
@@ -337,7 +248,7 @@ async function verifierID() {
     const id = document.getElementById('authInput').value.trim().toUpperCase();
     if (!id) { alert('Veuillez saisir votre code d\'accès'); return; }
     const btn = document.getElementById('authBtn');
-    btn.textContent = '⏳ Vérification...'; btn.disabled = true;
+    btn.textContent = ' Vérification...'; btn.disabled = true;
     const resultDiv = document.getElementById('authResult');
     const resultContent = document.getElementById('authResultContent');
     try {
@@ -347,8 +258,7 @@ async function verifierID() {
         if (data.success) {
             const a = data.adherent;
             window._adherentTemp = a;
-            resultContent.innerHTML =
-            '<div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">' +
+            resultContent.innerHTML = '<div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">' +
             '<p style="color:#28a745;font-weight:bold;margin-bottom:10px;">✅ Code reconnu !</p>' +
             '<p style="margin:5px 0;" id="rNom"></p>' +
             '<p style="margin:5px 0;color:#555;" id="rEtab"></p>' +
@@ -369,9 +279,7 @@ async function verifierID() {
     } catch(e) {
         resultDiv.style.display = 'block';
         resultContent.innerHTML = '<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;"><p style="color:#856404;font-weight:bold;">⚠️ Erreur de connexion</p><p style="color:#856404;font-size:12px;margin-top:5px;">Vérifiez votre connexion internet</p></div>';
-    } finally {
-        btn.textContent = 'Valider →'; btn.disabled = false;
-    }
+    } finally { btn.textContent = 'Valider →'; btn.disabled = false; }
 }
 
 function confirmerIdentite(adherent) {
@@ -392,23 +300,10 @@ function afficherApp(adherent) {
 const adherentSauvegarde = chargerAdherent();
 if (adherentSauvegarde) afficherApp(adherentSauvegarde);
 
-function openWebsite(type) {
-    if (type === 'aamb') window.open('https://www.aamb.asso.fr', '_blank');
-}
-
-function toggleJTBMenu(e) {
-    e.stopPropagation();
-    document.getElementById('jtbMenu').classList.toggle('open');
-}
-
-function openJTB(url) {
-    window.open(url, '_blank');
-    document.getElementById('jtbMenu').classList.remove('open');
-}
-
-document.addEventListener('click', () => {
-    document.getElementById('jtbMenu').classList.remove('open');
-});
+function openWebsite(type) { if (type === 'aamb') window.open('https://www.aamb.asso.fr', '_blank'); }
+function toggleJTBMenu(e) { e.stopPropagation(); document.getElementById('jtbMenu').classList.toggle('open'); }
+function openJTB(url) { window.open(url, '_blank'); document.getElementById('jtbMenu').classList.remove('open'); }
+document.addEventListener('click', () => { document.getElementById('jtbMenu').classList.remove('open'); });
 </script>
 </body>
 </html>
