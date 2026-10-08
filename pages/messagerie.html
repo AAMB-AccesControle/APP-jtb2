@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.05</title>
+<title>Messagerie v0.09</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') {
@@ -35,30 +35,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .refresh-btn.spinning { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* ===== CATÉGORIES ===== */
-.categorie-select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    font-size: 14px;
-    background: var(--bg);
-    color: var(--text);
-    margin-bottom: 10px;
-    outline: none;
-}
+/* Catégories */
+.categorie-select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; outline: none; }
 .categorie-select:focus { border-color: var(--primary); }
-
-.categorie-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-left: 8px;
-}
+.categorie-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; }
 .categorie-badge.partenaire { background: #dbeafe; color: #1e40af; }
 .categorie-badge.stagiaire { background: #dcfce7; color: #166534; }
 .categorie-badge.organisation { background: #f3e8ff; color: #6b21a8; }
@@ -74,136 +54,41 @@ body.dark .categorie-badge.atelier { background: #78350f; color: #fde68a; }
 body.dark .categorie-badge.handicap { background: #831843; color: #fbcfe8; }
 body.dark .categorie-badge.defaut { background: #374151; color: #d1d5db; }
 
-/* ===== FILTRES CATÉGORIES (organisateur) ===== */
-.cat-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 12px;
-}
-.cat-filter-btn {
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    border-radius: 20px;
-    background: var(--card-bg);
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.cat-filter-btn.active {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: white;
-}
-.cat-filter-btn .badge-count {
-    background: rgba(0,0,0,0.15);
-    padding: 1px 6px;
-    border-radius: 10px;
-    font-size: 10px;
-}
-.cat-filter-btn.active .badge-count {
-    background: rgba(255,255,255,0.3);
-}
+/* Filtres catégories */
+.cat-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cat-filter-btn { padding: 8px 12px; border: 2px solid #ddd; border-radius: 20px; background: var(--card-bg); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+.cat-filter-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+.cat-filter-btn .badge-count { background: rgba(0,0,0,0.15); padding: 1px 6px; border-radius: 10px; font-size: 10px; }
+.cat-filter-btn.active .badge-count { background: rgba(255,255,255,0.3); }
 
-/* ===== SECTIONS TRAITÉS / NON TRAITÉS ===== */
-.section-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 8px 12px;
-    margin: 12px 0 8px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.section-title.non-traites {
-    background: rgba(220, 53, 69, 0.1);
-    color: var(--danger);
-    border-left: 4px solid var(--danger);
-}
-.section-title.traites {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    border-left: 4px solid var(--success);
-}
+/* Sections */
+.section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; margin: 12px 0 8px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+.section-title.non-traites { background: rgba(220, 53, 69, 0.1); color: var(--danger); border-left: 4px solid var(--danger); }
+.section-title.traites { background: rgba(16, 185, 129, 0.1); color: var(--success); border-left: 4px solid var(--success); }
+.section-title.clos { background: rgba(107, 114, 128, 0.1); color: #6b7280; border-left: 4px solid #6b7280; }
 
-/* ===== ENVOI ===== */
-.send-section {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 15px;
-    box-shadow: var(--card-shadow);
-}
-.send-section h3 {
-    color: var(--text);
-    font-size: 15px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.mode-toggle {
-    display: flex;
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 4px;
-    margin-bottom: 12px;
-    gap: 4px;
-}
-.mode-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    background: transparent;
-    color: var(--text-sub);
-    transition: all 0.2s;
-}
-.mode-btn.active {
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-}
+/* Envoi */
+.send-section { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
+.send-section h3 { color: var(--text); font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.mode-toggle { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 12px; gap: 4px; }
+.mode-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-sub); transition: all 0.2s; }
+.mode-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
 .filters-section { margin-bottom: 12px; }
 .filters-title { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
 .filters-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.filter-chip {
-    display: flex; align-items: center; gap: 5px;
-    padding: 6px 10px; background: var(--bg); border-radius: 20px;
-    font-size: 12px; cursor: pointer; border: 2px solid transparent;
-    transition: all 0.2s; user-select: none;
-}
+.filter-chip { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--bg); border-radius: 20px; font-size: 12px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; }
 .filter-chip input[type="checkbox"] { accent-color: var(--primary); cursor: pointer; }
 .filter-chip.active { border-color: var(--primary); background: rgba(26, 58, 107, 0.08); }
 .filter-chip .count { font-size: 10px; color: var(--text-sub); background: var(--bg); padding: 1px 6px; border-radius: 10px; }
-.participant-select {
-    width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px;
-    font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; outline: none; max-height: 200px;
-}
+.participant-select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; outline: none; max-height: 200px; }
 .participant-select:focus { border-color: var(--primary); }
-.msg-textarea {
-    width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd;
-    border-radius: 10px; font-size: 14px; resize: vertical; outline: none;
-    background: var(--bg); color: var(--text); margin-bottom: 10px; font-family: inherit;
-}
+.msg-textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; resize: vertical; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; font-family: inherit; }
 .msg-textarea:focus { border-color: var(--primary); }
-.send-btn {
-    width: 100%; padding: 12px; background: var(--primary); color: white;
-    border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s;
-}
+.send-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
 .send-btn:hover { opacity: 0.9; }
 .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.send-btn.secondary { background: #6b7280; }
+.send-btn.danger { background: var(--danger); }
 .recipients-count { font-size: 12px; color: var(--text-sub); margin-bottom: 10px; padding: 8px; background: var(--bg); border-radius: 8px; text-align: center; }
 .recipients-count strong { color: var(--primary); }
 .progress-bar { width: 100%; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; margin: 10px 0; display: none; }
@@ -212,12 +97,31 @@ body.dark .categorie-badge.defaut { background: #374151; color: #d1d5db; }
 .progress-text { font-size: 12px; color: var(--text-sub); text-align: center; display: none; }
 .progress-text.visible { display: block; }
 .confirm-box { background: #d4edda; border-left: 4px solid var(--success); padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; color: #155724; }
+
+/* Conversation card */
+.conv-card { background: var(--card-bg); border-radius: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); overflow: hidden; }
+.conv-header { padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.conv-header.non-traite { background: rgba(220,53,69,0.1); }
+.conv-header.traite { background: rgba(40,167,69,0.1); }
+.conv-header.clos { background: rgba(107,114,128,0.1); }
+.conv-header strong { color: var(--text); font-size: 14px; }
+.conv-header .conv-id { font-size: 11px; color: var(--text-sub); }
+.conv-header .groupe-badge { font-size: 10px; background: #7c3aed; color: white; padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+.conv-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.conv-actions button { padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.conv-actions .btn-repondre { background: var(--primary); color: white; }
+.conv-actions .btn-groupe { background: #7c3aed; color: white; }
+.conv-actions .btn-clore { background: #6b7280; color: white; }
+.conv-msg { padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.1); }
+.conv-msg .msg-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
+.conv-msg .msg-text { font-size: 14px; color: var(--text); }
+.conv-reply { padding: 10px; }
 </style>
 </head>
 <body>
 <div class="page-header">
 <button class="back-btn" onclick="retourAccueil()" aria-label="Retour">←</button>
-<h2 id="messagerieTitle">Messagerie v0.0400</h2>
+<h2 id="messagerieTitle">Messagerie</h2>
 <button class="refresh-btn" id="refreshBtn" onclick="forcerRafraichissement()">🔄</button>
 </div>
 <div class="sync-status">
@@ -235,19 +139,17 @@ const CACHE_KEY = 'aamb_messagerie_cache';
 const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
 const POLL_INTERVAL = 30000;
 
-// Catégories disponibles
 const CATEGORIES = [
     { id: 'partenaire',   label: 'Relation Partenaire',   icon: '🤝' },
-    { id: 'stagiaire',    label: 'Relation Stagiaire',    icon: '🎓' },
+    { id: 'stagiaire',    label: 'Relation Stagiaire',    icon: '' },
     { id: 'organisation', label: 'Organisation',          icon: '🏢' },
-    { id: 'probleme',     label: 'Problème rencontré',    icon: '️' },
+    { id: 'probleme',     label: 'Problème rencontré',    icon: '⚠️' },
     { id: 'atelier',      label: 'Atelier',               icon: '🔬' },
     { id: 'handicap',     label: 'Handicap',              icon: '♿' }
 ];
 
 let refreshTimer = null;
-let filtreOrga = 'nonTraites';
-let filtreCategorie = 'toutes'; // Catégorie sélectionnée côté organisateur
+let filtreCategorie = 'toutes';
 let lastSyncTime = null;
 let isSyncing = false;
 let allAdherents = [];
@@ -388,6 +290,21 @@ function getCategorieBadgeHTML(catId) {
     return `<span class="categorie-badge ${cat.id}">${cat.icon} ${cat.label}</span>`;
 }
 
+// Détermine le statut d'une conversation basé sur le dernier message
+function getConvStatut(msgs) {
+    if (!msgs || msgs.length === 0) return 'non-traite';
+    const last = msgs[msgs.length - 1];
+    if (last.traite === 'CLOS') return 'clos';
+    // Si le dernier message vient de l'organisateur → traité (on a répondu)
+    // Si le dernier message vient du participant → non traité (on doit répondre)
+    if (adherent.statut === 'Organisateur') {
+        return last.traite === 'OUI' ? 'traite' : 'non-traite';
+    } else {
+        // Côté participant : non traité si c'est à lui de répondre (dernier message de l'orga)
+        return last.traite === 'OUI' ? 'non-traite' : 'traite';
+    }
+}
+
 // ============================================
 // INITIALISATION
 // ============================================
@@ -423,48 +340,98 @@ function renderMessagesParticipant(conversations) {
     const content = document.getElementById('messagerieContent');
     if (!conversations) { content.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucune donnée</p>'; return; }
     const keys = Object.keys(conversations);
+    
     let html = '<button onclick="afficherFormulaireParticipant(null)" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
-    if (!keys.length) html += '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
-    else keys.forEach(convBase => {
-        const msgs = conversations[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-        const last = msgs[msgs.length-1];
-        const enAttente = last.traite === 'NON' && last.userId === adherent.id;
-        const catBadge = getCategorieBadgeHTML(last.categorie);
-        html += '<div style="background:var(--card-bg);border-radius:12px;margin-bottom:12px;box-shadow:var(--card-shadow);overflow:hidden;">' +
-        '<div style="background:' + (enAttente?'#fff3cd':'#d4edda') + ';padding:8px 12px;font-size:12px;font-weight:bold;color:' + (enAttente?'#856404':'#28a745') + ';">' +
-        (enAttente?'⏳ En attente de réponse':'✅ Répondu') + catBadge +
-        ' <span style="float:right;font-weight:normal;color:var(--text-sub);">' + convBase + '</span></div>';
-        msgs.forEach(m => {
-            html += '<div style="padding:10px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + '">' +
-            '<div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>' +
-            '<div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
+    
+    if (!keys.length) {
+        html += '<p style="text-align:center;padding:20px;color:var(--text-sub);">Aucun message pour le moment</p>';
+    } else {
+        keys.forEach(convBase => {
+            const msgs = conversations[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+            const last = msgs[msgs.length - 1];
+            const statut = getConvStatut(msgs);
+            const catBadge = getCategorieBadgeHTML(last.categorie);
+            const estGroupe = last.groupeIds ? true : false;
+            
+            let headerBg, headerText, statusLabel;
+            if (statut === 'clos') {
+                headerBg = 'rgba(107,114,128,0.1)'; headerText = '#6b7280'; statusLabel = '🔒 Conversation close';
+            } else if (statut === 'non-traite') {
+                headerBg = '#fff3cd'; headerText = '#856404'; statusLabel = '⏳ En attente de réponse de l\'AAMB';
+            } else {
+                headerBg = '#d4edda'; headerText = '#28a745'; statusLabel = '✅ Réponse reçue — vous pouvez répondre';
+            }
+            
+            html += '<div class="conv-card" style="border-left:4px solid ' + (statut==='clos'?'#6b7280':statut==='non-traite'?'#f59e0b':'#10b981') + ';">';
+            html += '<div class="conv-header" style="background:' + headerBg + ';">';
+            html += '<div><strong style="color:' + headerText + ';">' + statusLabel + '</strong>' + catBadge;
+            if (estGroupe) html += '<span class="groupe-badge">👥 Groupe</span>';
+            html += '</div>';
+            html += '<span class="conv-id">' + convBase + '</span>';
+            html += '</div>';
+            
+            msgs.forEach(m => {
+                html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
+                html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
+                html += '<div class="msg-text">' + m.message + '</div>';
+                html += '</div>';
+            });
+            
+            // Bouton répondre toujours visible (sauf si clos)
+            if (statut !== 'clos') {
+                html += '<div class="conv-reply">';
+                html += '<button onclick="afficherFormulaireParticipant(\'' + convBase + '\')" class="send-btn">↩️ Répondre / Continuer la conversation</button>';
+                html += '</div>';
+            } else {
+                html += '<div style="padding:10px;text-align:center;color:var(--text-sub);font-size:12px;">🔒 Cette conversation a été close</div>';
+            }
+            html += '</div>';
         });
-        html += '<div style="padding:10px;"><button onclick="afficherFormulaireParticipant(\'' + convBase + '\')" style="width:100%;padding:10px;background:#1a3a6b;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">↩️ Continuer</button></div></div>';
-    });
+    }
     content.innerHTML = html;
 }
 
 function afficherFormulaireParticipant(convBase) {
     const content = document.getElementById('messagerieContent');
-    // Options catégories
     const catOptions = CATEGORIES.map(c => `<option value="${c.id}">${c.icon} ${c.label}</option>`).join('');
-    content.innerHTML = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>' +
-    '<div style="background:var(--card-bg);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);">' +
-    '<h3 style="color:var(--text);margin-bottom:15px;">' + (convBase ? '️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>' +
-    (convBase ? '' : '<label style="font-size:13px;color:var(--text-sub);display:block;margin-bottom:6px;">Catégorie du message :</label>' +
-    '<select id="msgCategorie" class="categorie-select">' + catOptions + '</select>') +
-    '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>' +
-    '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn">📤 Envoyer</button></div>';
+    
+    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
+    html += '<div class="send-section">';
+    html += '<h3>' + (convBase ? '️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>';
+    
+    if (!convBase) {
+        html += '<label style="font-size:13px;color:var(--text-sub);display:block;margin-bottom:6px;">Catégorie du message :</label>';
+        html += '<select id="msgCategorie" class="categorie-select">' + catOptions + '</select>';
+    }
+    
+    html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>';
+    html += '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn">📤 Envoyer</button>';
+    html += '</div>';
+    
+    content.innerHTML = html;
 }
 
 async function envoyerMessageParticipant(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
-    const categorie = convBase ? '' : (document.getElementById('msgCategorie')?.value || '');
+    
+    const selectCategorie = document.getElementById('msgCategorie');
+    const categorie = selectCategorie ? selectCategorie.value : '';
+    
     const content = document.getElementById('messagerieContent');
     content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+    
     try {
-        const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, categorie:categorie, convId:convBase||'', isOrganisateur:'false' });
+        const params = new URLSearchParams({ 
+            action:'sendMessage', 
+            userId:adherent.id, 
+            nom:adherent.nom, 
+            prenom:adherent.prenom, 
+            message:texte, 
+            categorie:categorie, 
+            convId:convBase||'', 
+            isOrganisateur:'false' 
+        });
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
         if (data.success) { await synchroniser(true); }
@@ -473,7 +440,7 @@ async function envoyerMessageParticipant(convBase) {
 }
 
 // ============================================
-// RENDU ORGANISATEUR (avec tri par catégorie)
+// RENDU ORGANISATEUR
 // ============================================
 function renderMessagesOrganisateur(conversations) {
     const content = document.getElementById('messagerieContent');
@@ -481,24 +448,24 @@ function renderMessagesOrganisateur(conversations) {
     const keys = Object.keys(conversations);
 
     // Compter par catégorie
-    const counts = { toutes: 0, nonTraitees: 0 };
+    const counts = { toutes: 0, nonTraitees: 0, traitees: 0, closes: 0 };
     CATEGORIES.forEach(c => { counts[c.id] = 0; counts[c.id + '_nt'] = 0; });
     keys.forEach(convBase => {
         const msgs = conversations[convBase];
         const last = msgs[msgs.length - 1];
         const cat = last.categorie || 'defaut';
+        const statut = getConvStatut(msgs);
         counts.toutes++;
-        if (last.traite === 'NON') {
-            counts.nonTraitees++;
-            if (counts[cat + '_nt'] !== undefined) counts[cat + '_nt']++;
-        }
+        if (statut === 'non-traite') { counts.nonTraitees++; if (counts[cat+'_nt']!==undefined) counts[cat+'_nt']++; }
+        else if (statut === 'traite') counts.traitees++;
+        else if (statut === 'clos') counts.closes++;
         if (counts[cat] !== undefined) counts[cat]++;
     });
 
     // Bouton nouveau message
-    let html = '<div style="display:flex;gap:8px;margin-bottom:12px;">' +
-    '<button onclick="afficherSectionEnvoi()" style="flex:1;padding:12px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">✉️ Nouveau message</button>' +
-    '</div>';
+    let html = '<div style="display:flex;gap:8px;margin-bottom:12px;">';
+    html += '<button onclick="afficherSectionEnvoi()" style="flex:1;padding:12px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">✉️ Nouveau message</button>';
+    html += '</div>';
 
     // Filtres par catégorie
     html += '<div class="cat-filters">';
@@ -508,7 +475,7 @@ function renderMessagesOrganisateur(conversations) {
     });
     html += '</div>';
 
-    // Filtrer les conversations par catégorie
+    // Filtrer par catégorie
     const convsFiltrees = {};
     keys.forEach(convBase => {
         const msgs = conversations[convBase];
@@ -519,63 +486,223 @@ function renderMessagesOrganisateur(conversations) {
         }
     });
 
-    // Séparer non traités / traités
-    const nonTraites = {};
-    const traites = {};
+    // Séparer par statut
+    const nonTraites = {}, traites = {}, closes = {};
     Object.keys(convsFiltrees).forEach(convBase => {
         const msgs = convsFiltrees[convBase];
-        const last = msgs[msgs.length - 1];
-        if (last.traite === 'NON') nonTraites[convBase] = msgs;
-        else traites[convBase] = msgs;
+        const statut = getConvStatut(msgs);
+        if (statut === 'non-traite') nonTraites[convBase] = msgs;
+        else if (statut === 'traite') traites[convBase] = msgs;
+        else if (statut === 'clos') closes[convBase] = msgs;
     });
 
     // Section Non traités
-    html += `<div class="section-title non-traites">🔴 Non traités (${Object.keys(nonTraites).length})</div>`;
+    html += `<div class="section-title non-traites">🔴 Non traités — en attente de réponse (${Object.keys(nonTraites).length})</div>`;
     if (Object.keys(nonTraites).length === 0) {
         html += '<p style="color:var(--text-sub);text-align:center;padding:15px;font-size:13px;">Aucun message en attente 🎉</p>';
     } else {
         Object.keys(nonTraites).forEach(convBase => {
-            html += renderConversationCard(convBase, nonTraites[convBase], true);
+            html += renderConvCardOrga(convBase, nonTraites[convBase], 'non-traite');
         });
     }
 
     // Section Traités
-    html += `<div class="section-title traites">✅ Traités (${Object.keys(traites).length})</div>`;
+    html += `<div class="section-title traites">✅ Traités — vous avez répondu (${Object.keys(traites).length})</div>`;
     if (Object.keys(traites).length === 0) {
         html += '<p style="color:var(--text-sub);text-align:center;padding:15px;font-size:13px;">Aucun message traité</p>';
     } else {
         Object.keys(traites).forEach(convBase => {
-            html += renderConversationCard(convBase, traites[convBase], false);
+            html += renderConvCardOrga(convBase, traites[convBase], 'traite');
+        });
+    }
+
+    // Section Clos
+    if (Object.keys(closes).length > 0) {
+        html += `<div class="section-title clos">🔒 Conversations closes (${Object.keys(closes).length})</div>`;
+        Object.keys(closes).forEach(convBase => {
+            html += renderConvCardOrga(convBase, closes[convBase], 'clos');
         });
     }
 
     content.innerHTML = html;
 }
 
-function renderConversationCard(convBase, msgs, nonTraite) {
+function renderConvCardOrga(convBase, msgs, statut) {
     const sorted = msgs.sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
     const last = sorted[sorted.length - 1];
     const pm = sorted.find(m => m.userId !== adherent.id) || sorted[0];
     const catBadge = getCategorieBadgeHTML(last.categorie);
+    const estGroupe = last.groupeIds ? true : false;
+    const groupeList = estGroupe ? last.groupeIds.split(',').filter(id => id.trim()) : [];
 
-    let html = '<div style="background:var(--card-bg);border-radius:12px;margin-bottom:10px;box-shadow:var(--card-shadow);overflow:hidden;border-left:4px solid ' + (nonTraite?'#dc3545':'#28a745') + ';">' +
-    '<div style="padding:10px 12px;background:' + (nonTraite?'rgba(220,53,69,0.1)':'rgba(40,167,69,0.1)') + '">' +
-    '<strong style="color:var(--text);">👤 ' + pm.prenom + ' ' + pm.nom + '</strong>' + catBadge +
-    '<span style="float:right;font-size:12px;color:var(--text-sub);">' + convBase + '</span></div>';
+    let headerClass = statut;
+    let statusIcon = statut === 'non-traite' ? '🔴' : statut === 'traite' ? '✅' : '🔒';
+
+    let html = '<div class="conv-card" style="border-left:4px solid ' + (statut==='non-traite'?'#dc3545':statut==='traite'?'#28a745':'#6b7280') + ';">';
+    html += '<div class="conv-header ' + headerClass + '">';
+    html += '<div><strong>' + statusIcon + ' ' + pm.prenom + ' ' + pm.nom + '</strong>' + catBadge;
+    if (estGroupe) html += '<span class="groupe-badge">👥 Groupe (' + groupeList.length + ')</span>';
+    html += '</div>';
+    html += '<span class="conv-id">' + convBase + '</span>';
+    html += '</div>';
 
     sorted.forEach(m => {
-        html += '<div style="padding:8px 12px;border-bottom:1px solid rgba(128,128,128,0.1);background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + '">' +
-        '<div style="font-size:11px;color:var(--text-sub);">' + (m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>' +
-        '<div style="font-size:14px;color:var(--text);">' + m.message + '</div></div>';
+        html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + ';">';
+        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>';
+        html += '<div class="msg-text">' + m.message + '</div>';
+        html += '</div>';
     });
 
-    if (nonTraite) {
-        html += '<div style="padding:10px;">' +
-        '<textarea id="rep-' + convBase + '" class="msg-textarea" placeholder="Votre réponse..."></textarea>' +
-        '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" class="send-btn">📤 Répondre</button></div>';
+    // Actions
+    html += '<div class="conv-actions" style="padding:10px;">';
+    
+    if (statut !== 'clos') {
+        // Bouton répondre (toujours disponible)
+        html += '<button class="btn-repondre" onclick="afficherReponseOrga(\'' + convBase + '\', false)">📤 Répondre à ' + pm.prenom + '</button>';
+        
+        // Bouton répondre au groupe (si c'est un envoi groupé)
+        if (estGroupe && groupeList.length > 0) {
+            html += '<button class="btn-groupe" onclick="afficherReponseOrga(\'' + convBase + '\', true)">👥 Répondre au groupe (' + groupeList.length + ')</button>';
+        }
+        
+        // Bouton clore
+        html += '<button class="btn-clore" onclick="cloturerConversation(\'' + convBase + '\')">🔒 Clore</button>';
+    } else {
+        // Conversation close : possibilité de rouvrir
+        html += '<button class="btn-repondre" onclick="afficherReponseOrga(\'' + convBase + '\', false)">📤 Rouvrir et répondre</button>';
+        if (estGroupe && groupeList.length > 0) {
+            html += '<button class="btn-groupe" onclick="afficherReponseOrga(\'' + convBase + '\', true)">👥 Rouvrir et répondre au groupe</button>';
+        }
     }
+    
+    html += '</div>';
     html += '</div>';
     return html;
+}
+
+function afficherReponseOrga(convBase, repondreAuGroupe) {
+    const content = document.getElementById('messagerieContent');
+    const cache = getCache();
+    const conversations = cache?.data?.conversations || {};
+    const msgs = conversations[convBase] || [];
+    const last = msgs[msgs.length - 1];
+    const pm = msgs.find(m => m.userId !== adherent.id) || msgs[0];
+    const estGroupe = last?.groupeIds ? true : false;
+    const groupeList = estGroupe ? last.groupeIds.split(',').filter(id => id.trim()) : [];
+    
+    let titre = '📤 Répondre à ' + pm.prenom + ' ' + pm.nom;
+    if (repondreAuGroupe && estGroupe) {
+        titre = '👥 Répondre au groupe (' + groupeList.length + ' personnes)';
+    }
+    
+    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
+    html += '<div class="send-section">';
+    html += '<h3>' + titre + '</h3>';
+    html += '<div style="font-size:12px;color:var(--text-sub);margin-bottom:10px;">Conversation : ' + convBase + '</div>';
+    
+    if (repondreAuGroupe && estGroupe) {
+        // Afficher la liste des destinataires
+        const noms = groupeList.map(id => {
+            const a = allAdherents.find(x => x.id === id);
+            return a ? a.prenom + ' ' + a.nom : id;
+        });
+        html += '<div style="background:var(--bg);padding:10px;border-radius:8px;margin-bottom:10px;font-size:12px;">';
+        html += '<strong>Destinataires :</strong><br>' + noms.join(', ');
+        html += '</div>';
+    }
+    
+    html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>';
+    html += '<button onclick="envoyerReponseOrga(\'' + convBase + '\', ' + repondreAuGroupe + ')" class="send-btn">📤 Envoyer</button>';
+    html += '</div>';
+    
+    content.innerHTML = html;
+}
+
+async function envoyerReponseOrga(convBase, repondreAuGroupe) {
+    const texte = document.getElementById('msgTexte').value.trim();
+    if (!texte) { alert('Veuillez écrire un message'); return; }
+    
+    const cache = getCache();
+    const conversations = cache?.data?.conversations || {};
+    const msgs = conversations[convBase] || [];
+    const last = msgs[msgs.length - 1];
+    const pm = msgs.find(m => m.userId !== adherent.id) || msgs[0];
+    const estGroupe = last?.groupeIds ? true : false;
+    const groupeList = estGroupe ? last.groupeIds.split(',').filter(id => id.trim()) : [];
+    
+    const content = document.getElementById('messagerieContent');
+    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);"> Envoi en cours...</p>';
+    
+    try {
+        if (repondreAuGroupe && estGroupe && groupeList.length > 0) {
+            // Envoi groupé : envoyer à chaque membre du groupe
+            let succes = 0, echecs = 0;
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar visible';
+            progressBar.innerHTML = '<div class="progress-fill" id="progressFill"></div>';
+            const progressText = document.createElement('div');
+            progressText.className = 'progress-text visible';
+            content.innerHTML = '';
+            content.appendChild(progressBar);
+            content.appendChild(progressText);
+            
+            for (let i = 0; i < groupeList.length; i++) {
+                const destId = groupeList[i];
+                const dest = allAdherents.find(a => a.id === destId);
+                progressText.textContent = `Envoi ${i+1}/${groupeList.length} — ${dest ? dest.prenom + ' ' + dest.nom : destId}...`;
+                document.getElementById('progressFill').style.width = ((i / groupeList.length) * 100) + '%';
+                
+                try {
+                    const params = new URLSearchParams({
+                        action:'sendMessage', userId:destId,
+                        nom:adherent.nom, prenom:adherent.prenom,
+                        message:texte, categorie:'organisation',
+                        convId:convBase, isOrganisateur:'true',
+                        groupeIds:groupeList.join(',')
+                    });
+                    const resp = await fetch(SCRIPT_URL + '?' + params);
+                    const data = await resp.json();
+                    if (data.success) succes++; else echecs++;
+                } catch(e) { echecs++; }
+                
+                if (i < groupeList.length - 1) await new Promise(r => setTimeout(r, 300));
+            }
+            
+            document.getElementById('progressFill').style.width = '100%';
+            progressText.textContent = `Terminé : ${succes} envoyé(s), ${echecs} échec(s)`;
+            
+            setTimeout(() => { synchroniser(true); }, 1500);
+        } else {
+            // Envoi individuel à pm
+            const params = new URLSearchParams({
+                action:'sendMessage', userId:pm.userId,
+                nom:adherent.nom, prenom:adherent.prenom,
+                message:texte, categorie:'organisation',
+                convId:convBase, isOrganisateur:'true'
+            });
+            const resp = await fetch(SCRIPT_URL + '?' + params);
+            const data = await resp.json();
+            if (data.success) { await synchroniser(true); }
+            else { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
+        }
+    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+}
+
+async function cloturerConversation(convBase) {
+    if (!confirm('Voulez-vous vraiment clore cette conversation ? Elle sera archivée mais pourra être rouverte si nécessaire.')) return;
+    
+    const content = document.getElementById('messagerieContent');
+    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Clôture en cours...</p>';
+    
+    try {
+        const params = new URLSearchParams({
+            action:'cloturerConversation', userId:adherent.id, convId:convBase
+        });
+        const resp = await fetch(SCRIPT_URL + '?' + params);
+        const data = await resp.json();
+        if (data.success) { await synchroniser(true); }
+        else { alert('Erreur : ' + (data.message || 'inconnue')); init(); }
+    } catch(e) { alert('Erreur de connexion'); init(); }
 }
 
 // ============================================
@@ -605,7 +732,7 @@ function renderFormulaireEnvoiHTML() {
     <div class="send-section">
         <h3>✉️ Envoyer un message</h3>
         <div class="mode-toggle">
-            <button class="mode-btn ${modeEnvoi==='individu'?'active':''}" data-mode="individu">👤 Individu</button>
+            <button class="mode-btn ${modeEnvoi==='individu'?'active':''}" data-mode="individu"> Individu</button>
             <button class="mode-btn ${modeEnvoi==='groupe'?'active':''}" data-mode="groupe">👥 Groupe / Catégorie</button>
         </div>
         <div class="filters-section">
@@ -616,12 +743,12 @@ function renderFormulaireEnvoiHTML() {
             <select id="participantSelect" class="participant-select" size="8">${optionsHTML || '<option value="">Aucun participant ne correspond aux filtres</option>'}</select>
         </div>
         <div id="modeGroupe" style="${modeEnvoi==='groupe'?'':'display:none'}">
-            <div class="recipients-count">📨 Destinataires : <strong id="countDestinataires">${totalFiltres}</strong> personne(s)${totalFiltres === 0 ? '<br><span style="color:var(--danger);">⚠️ Cochez au moins une catégorie</span>' : ''}</div>
+            <div class="recipients-count">📨 Destinataires : <strong id="countDestinataires">${totalFiltres}</strong> personne(s)${totalFiltres === 0 ? '<br><span style="color:var(--danger);">️ Cochez au moins une catégorie</span>' : ''}</div>
         </div>
         <textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>
         <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
         <div class="progress-text" id="progressText"></div>
-        <button class="send-btn" id="btnSend" onclick="envoyerMessage()">${modeEnvoi === 'individu' ? ' Envoyer' : `📤 Envoyer à ${totalFiltres} personne(s)`}</button>
+        <button class="send-btn" id="btnSend" onclick="envoyerMessage()">${modeEnvoi === 'individu' ? '📤 Envoyer' : `📤 Envoyer à ${totalFiltres} personne(s)`}</button>
     </div>`;
 }
 
@@ -665,12 +792,13 @@ async function envoyerMessage() {
         progressText.classList.add('visible');
         let succes = 0, echecs = 0;
         const total = destinataires.length;
+        const groupeIds = destinataires.map(d => d.id).join(',');
         for (let i = 0; i < total; i++) {
             const dest = destinataires[i];
             progressText.textContent = `Envoi ${i+1}/${total} — ${dest.prenom} ${dest.nom}...`;
             progressFill.style.width = ((i / total) * 100) + '%';
             try {
-                const params = new URLSearchParams({ action:'sendMessage', userId:dest.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, categorie:'organisation', convId:'', isOrganisateur:'true' });
+                const params = new URLSearchParams({ action:'sendMessage', userId:dest.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, categorie:'organisation', convId:'', isOrganisateur:'true', groupeIds:groupeIds });
                 const resp = await fetch(SCRIPT_URL + '?' + params);
                 const data = await resp.json();
                 if (data.success) succes++; else echecs++;
@@ -680,23 +808,9 @@ async function envoyerMessage() {
         progressFill.style.width = '100%';
         progressText.textContent = `Terminé : ${succes} envoyé(s), ${echecs} échec(s)`;
         setTimeout(() => {
-            document.getElementById('messagerieContent').innerHTML = '<div class="confirm-box">✅ Envoi terminé<br><strong>' + succes + '</strong> message(s) envoyé(s) avec succès<br>' + (echecs > 0 ? '<span style="color:#856404;">⚠️ ' + echecs + ' échec(s)</span>' : '') + '</div><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>';
+            document.getElementById('messagerieContent').innerHTML = '<div class="confirm-box">✅ Envoi terminé<br><strong>' + succes + '</strong> message(s) envoyé(s) avec succès<br>' + (echecs > 0 ? '<span style="color:#856404;">️ ' + echecs + ' échec(s)</span>' : '') + '</div><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>';
         }, 1500);
     }
-}
-
-async function envoyerReponseOrga(convBase) {
-    const texte = document.getElementById('rep-' + convBase).value.trim();
-    if (!texte) { alert('Veuillez écrire une réponse'); return; }
-    const btn = document.querySelector('button[onclick="envoyerReponseOrga(\'' + convBase + '\')"]');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi...'; btn.style.opacity = '0.6'; }
-    try {
-        const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:convBase, isOrganisateur:'true' });
-        const resp = await fetch(SCRIPT_URL + '?' + params);
-        const data = await resp.json();
-        if (data.success) { await synchroniser(true); }
-        else { if (btn) { btn.disabled = false; btn.textContent = ' Répondre'; btn.style.opacity = '1'; } alert('Erreur.'); }
-    } catch(e) { if (btn) { btn.disabled = false; btn.textContent = '📤 Répondre'; btn.style.opacity = '1'; } alert('Erreur de connexion'); }
 }
 
 // ============================================
