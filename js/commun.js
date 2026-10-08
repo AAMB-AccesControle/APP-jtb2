@@ -53,24 +53,54 @@ function getRacine() {
 function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
-    const sw = document.getElementById('toggleSwitch');
-    const lbl = document.getElementById('toggleLabel');
-    if (sw) sw.classList.toggle('on', isDark);
-    if (lbl) lbl.textContent = isDark ? '🌙' : '☀️';
+    // Mettre à jour tous les toggles de la page (il peut y en avoir plusieurs)
+    document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
+    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '☀️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
 }
 
 function appliquerDarkModeInitial() {
     if (localStorage.getItem('darkMode') === '1') {
         document.body.classList.add('dark');
-        const sw = document.getElementById('toggleSwitch');
-        const lbl = document.getElementById('toggleLabel');
-        if (sw) sw.classList.add('on');
-        if (lbl) lbl.textContent = '🌙';
+        document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.add('on'));
+        document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = '');
     }
 }
 
-// ===== EN-TÊTE STANDARD =====
+// ===== HEADER PRINCIPAL (injecté dans toutes les pages) =====
+function injecterHeaderPrincipal() {
+    const adherent = chargerAdherent();
+    if (!adherent) return;
+
+    // Créer le header principal
+    const header = document.createElement('header');
+    header.id = 'header-principal';
+    header.innerHTML = `
+        <div class="header-version">v42.0</div>
+        <div class="header-actions">
+            <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Basculer le mode sombre">
+                <span class="toggle-label">☀️</span>
+                <div class="toggle-switch"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
+                <div class="icon">🚪</div>
+                <div class="label">Quitter</div>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="logo"><img src="${getRacine()}logo-aamb.png" alt="AAMB"></div>
+            <div class="header-user-info">
+                <div class="header-user-name">${adherent.prenom} ${adherent.nom}</div>
+                <div class="header-user-statut">— ${adherent.statut}</div>
+            </div>
+        </div>
+    `;
+
+    // Insérer en haut du body
+    document.body.insertBefore(header, document.body.firstChild);
+}
+
+// ===== EN-TÊTE STANDARD POUR LES SOUS-PAGES =====
 function afficherInfosUtilisateur() {
     const adherent = chargerAdherent();
     const el = document.getElementById('headerUser');
@@ -100,12 +130,9 @@ function initOfflineDetection() {
 window.addEventListener('error', (e) => { console.error('Erreur globale:', e.error || e.message); });
 window.addEventListener('unhandledrejection', (e) => { console.error('Promesse rejetée:', e.reason); });
 
-// ============================================
-// SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN
-// Tourne sur TOUTES les pages pour garder le cache à jour
-// ============================================
+// ===== SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN =====
 const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
-const MESSAGERIE_SYNC_INTERVAL = 45000; // 45 secondes
+const MESSAGERIE_SYNC_INTERVAL = 45000;
 let messagerieSyncTimer = null;
 let messagerieSyncEnCours = false;
 
@@ -117,96 +144,70 @@ async function syncMessagerieBackground() {
     messagerieSyncEnCours = true;
     try {
         const action = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
-        const resp = await fetch(SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id), {
-            cache: 'no-store'
-        });
+        const resp = await fetch(SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id), { cache: 'no-store' });
         const data = await resp.json();
         
         if (data.success) {
             const ancienCache = JSON.parse(localStorage.getItem(MESSAGERIE_CACHE_KEY) || 'null');
-            // Comparaison rapide pour éviter les écritures inutiles
             const anciensIds = Object.keys(ancienCache?.data?.conversations || {}).sort().join(',');
             const nouveauxIds = Object.keys(data.conversations || {}).sort().join(',');
             const aChanged = anciensIds !== nouveauxIds;
             
-            // Vérifier aussi si le dernier message de chaque conv a changé
             let msgChanged = false;
             if (!aChanged && ancienCache?.data?.conversations) {
                 for (const key in data.conversations) {
                     const oldLast = ancienCache.data.conversations[key]?.slice(-1)[0];
                     const newLast = data.conversations[key]?.slice(-1)[0];
-                    if (oldLast?.idConvFull !== newLast?.idConvFull) {
-                        msgChanged = true;
-                        break;
-                    }
+                    if (oldLast?.idConvFull !== newLast?.idConvFull) { msgChanged = true; break; }
                 }
             }
             
             if (aChanged || msgChanged || !ancienCache) {
                 localStorage.setItem(MESSAGERIE_CACHE_KEY, JSON.stringify({
-                    userId: adherent.id,
-                    timestamp: Date.now(),
-                    data: data
+                    userId: adherent.id, timestamp: Date.now(), data: data
                 }));
-                // Dispatch un événement pour que messagerie.html se mette à jour si ouvert
                 window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
             }
         }
-    } catch (e) {
-        // Silencieux
-    } finally {
-        messagerieSyncEnCours = false;
-    }
+    } catch (e) { /* silencieux */ }
+    finally { messagerieSyncEnCours = false; }
 }
 
 function startMessagerieBackgroundSync() {
     const adherent = chargerAdherent();
     if (!adherent) return;
-    
-    // Synchro immédiate
     syncMessagerieBackground();
-    
-    // Puis régulièrement
     if (messagerieSyncTimer) clearInterval(messagerieSyncTimer);
     messagerieSyncTimer = setInterval(() => {
-        // Ne synchro que si la page est visible (économie batterie)
-        if (!document.hidden) {
-            syncMessagerieBackground();
-        }
+        if (!document.hidden) syncMessagerieBackground();
     }, MESSAGERIE_SYNC_INTERVAL);
 }
 
 function stopMessagerieBackgroundSync() {
-    if (messagerieSyncTimer) {
-        clearInterval(messagerieSyncTimer);
-        messagerieSyncTimer = null;
-    }
+    if (messagerieSyncTimer) { clearInterval(messagerieSyncTimer); messagerieSyncTimer = null; }
 }
 
-// Pause quand la page est en arrière-plan
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // On laisse le timer tourner mais il ne fera rien si document.hidden
-        // (géré dans le setInterval ci-dessus)
-    }
-});
-
-// ============================================
-// INITIALISATION AUTOMATIQUE
-// ============================================
+// ===== INITIALISATION AUTOMATIQUE =====
 document.addEventListener('DOMContentLoaded', function() {
     appliquerDarkModeInitial();
     afficherInfosUtilisateur();
     initOfflineDetection();
     
-    // Démarrer la synchro messagerie en arrière-plan si connecté
-    const adherent = chargerAdherent();
-    if (adherent) {
-        startMessagerieBackgroundSync();
+    // Injecter le header principal dans toutes les pages SAUF app.html et index.html
+    const chemin = window.location.pathname;
+    if (!chemin.endsWith('app.html') && !chemin.endsWith('index.html')) {
+        injecterHeaderPrincipal();
     }
+    
+    // Démarrer la synchro messagerie en arrière-plan
+    const adherent = chargerAdherent();
+    if (adherent) startMessagerieBackgroundSync();
 });
 
-// Arrêter proprement à la fermeture
-window.addEventListener('beforeunload', () => {
-    stopMessagerieBackgroundSync();
-});
+window.addEventListener('beforeunload', () => { stopMessagerieBackgroundSync(); });
+
+
+
+
+
+
