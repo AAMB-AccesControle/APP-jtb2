@@ -53,7 +53,6 @@ function getRacine() {
 function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
-    // Mettre à jour tous les toggles de la page (il peut y en avoir plusieurs)
     document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
     document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '☀️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
@@ -67,46 +66,39 @@ function appliquerDarkModeInitial() {
     }
 }
 
-// ===== HEADER PRINCIPAL (injecté dans toutes les pages) =====
+// ===== HEADER PRINCIPAL (injecté dans toutes les sous-pages) =====
 function injecterHeaderPrincipal() {
     const adherent = chargerAdherent();
     if (!adherent) return;
 
-    // Créer le header principal
     const header = document.createElement('header');
     header.id = 'header-principal';
     header.innerHTML = `
-        <div class="header-version">v42.0</div>
-        <div class="header-actions">
-            <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Basculer le mode sombre">
-                <span class="toggle-label">☀️</span>
-                <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        <div class="header-top">
+            <div class="header-left">
+                <div class="header-logo"><img src="${getRacine()}logo-aamb.png" alt="AAMB"></div>
+                <div class="header-user-info">
+                    <div class="header-user-name">${adherent.prenom} ${adherent.nom}</div>
+                    <div class="header-user-statut">${adherent.statut}</div>
+                </div>
             </div>
-            <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
-                <div class="icon">🚪</div>
-                <div class="label">Quitter</div>
+            <div class="header-right">
+                <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Mode sombre">
+                    <span class="toggle-label">☀️</span>
+                    <div class="toggle-switch"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
+                    <div class="icon">🚪</div>
+                    <div class="label">Quitter</div>
+                </div>
             </div>
         </div>
-        <div class="header-center">
-            <div class="logo"><img src="${getRacine()}logo-aamb.png" alt="AAMB"></div>
-            <div class="header-user-info">
-                <div class="header-user-name">${adherent.prenom} ${adherent.nom}</div>
-                <div class="header-user-statut">— ${adherent.statut}</div>
-            </div>
+        <div class="header-bottom">
+            <div class="header-version">v42.0</div>
         </div>
     `;
 
-    // Insérer en haut du body
     document.body.insertBefore(header, document.body.firstChild);
-}
-
-// ===== EN-TÊTE STANDARD POUR LES SOUS-PAGES =====
-function afficherInfosUtilisateur() {
-    const adherent = chargerAdherent();
-    const el = document.getElementById('headerUser');
-    if (el && adherent) {
-        el.textContent = '👤 ' + adherent.prenom + ' ' + adherent.nom + ' — ' + adherent.statut;
-    }
 }
 
 // ===== NAVIGATION RETOUR =====
@@ -190,7 +182,6 @@ function stopMessagerieBackgroundSync() {
 // ===== INITIALISATION AUTOMATIQUE =====
 document.addEventListener('DOMContentLoaded', function() {
     appliquerDarkModeInitial();
-    afficherInfosUtilisateur();
     initOfflineDetection();
     
     // Injecter le header principal dans toutes les pages SAUF app.html et index.html
@@ -205,9 +196,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.addEventListener('beforeunload', () => { stopMessagerieBackgroundSync(); });
-
-
-
-
-
-
