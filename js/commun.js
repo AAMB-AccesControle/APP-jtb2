@@ -3,7 +3,7 @@
 // Namespace pour éviter la pollution globale
 // ============================================
 const AAMB = {
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwPRnmLYoYp5swgYsFp0Xe7JjR1POS-0tZX8dr4SPOVJkZ6XZfz8VTwQ9nWpgMbZU8KjA/exec',
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz5iKSPP04WLLzjI-vPvnRlSSvf3_QQ7M29tSvOfTPWpnCnNdCoX3ZDUYq6reWq72B9rA/exec',
     config: {},
     utils: {}
 };
