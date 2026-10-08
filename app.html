@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AAMB v0.02</title>
+<title>AAMB v0.05</title>
 <link rel="manifest" href="manifest.json">
 <script>
-// Dark mode inline pour éviter le FOUC
 if (localStorage.getItem('darkMode') === '1') {
     document.documentElement.classList.add('dark');
 }
@@ -53,7 +52,7 @@ display: flex;
 flex-direction: column;
 }
 
-/* ===== NOUVEAU HEADER ===== */
+/* ===== HEADER ===== */
 header {
 background: var(--header-bg);
 padding: 8px 12px 12px;
@@ -70,16 +69,18 @@ color: var(--header-sub);
 font-size: 11px;
 font-weight: 600;
 letter-spacing: 0.5px;
+z-index: 5;
 }
 
-/* Boutons en haut à droite */
+/* Actions en haut à droite : dark mode + déconnexion */
 .header-actions {
 position: absolute;
 top: 6px;
 right: 12px;
 display: flex;
 align-items: center;
-gap: 10px;
+gap: 14px;
+z-index: 5;
 }
 
 /* Dark mode toggle */
@@ -100,9 +101,13 @@ cursor: pointer;
 cursor: pointer;
 text-align: center;
 color: var(--header-sub);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 1px;
 }
 .deconnexion .icon { font-size: 18px; }
-.deconnexion .label { font-size: 9px; margin-top: 1px; }
+.deconnexion .label { font-size: 9px; }
 
 /* Zone centrale : logo + infos utilisateur */
 .header-center {
@@ -110,17 +115,18 @@ display: flex;
 align-items: center;
 justify-content: center;
 gap: 16px;
-padding-top: 28px; /* Espace pour la version en haut */
+padding-top: 28px;
 padding-bottom: 4px;
 }
 
-/* Logo 4x plus gros : 55px × 4 = 220px */
+/* Logo : sans cadre, sans bordure */
 .logo {
 width: 220px;
 height: 220px;
-border-radius: 16px;
-overflow: hidden;
 flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
 }
 .logo img {
 width: 100%;
@@ -144,13 +150,6 @@ line-height: 1.2;
 color: var(--header-sub);
 font-size: 15px;
 font-weight: 500;
-}
-.header-app-name {
-color: white;
-font-size: 28px;
-font-weight: 800;
-letter-spacing: 2px;
-margin-top: 2px;
 }
 
 /* ===== CONTENU PRINCIPAL ===== */
@@ -177,11 +176,10 @@ justify-content: center; text-decoration: none;
 .jtb-item:hover { background: rgba(74,127,203,0.12); }
 .jtb-item .city { font-size: 11px; color: var(--text-sub); display: block; margin-top: 2px; }
 
-/* Responsive : sur petit écran, logo un peu plus petit */
+/* Responsive */
 @media (max-width: 480px) {
 .logo { width: 160px; height: 160px; }
 .header-user-name { font-size: 18px; }
-.header-app-name { font-size: 22px; }
 }
 </style>
 </head>
@@ -192,7 +190,7 @@ justify-content: center; text-decoration: none;
 <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;">
 <img src="logo-aamb.png" alt="AAMB" style="width:100%;height:100%;object-fit:contain;">
 </div>
-<h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v0.05</h1>
+<h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
 <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
 <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
 <p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
@@ -208,28 +206,27 @@ aria-label="Code d'accès">
 </div>
 </div>
 
-<!-- NOUVEAU HEADER -->
+<!-- HEADER -->
 <header>
 <!-- Version en haut à gauche -->
 <div class="header-version">v42.0</div>
 
-<!-- Actions en haut à droite -->
+<!-- Actions en haut à droite : dark mode + déconnexion -->
 <div class="header-actions">
 <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Basculer le mode sombre">
 <span class="toggle-label" id="toggleLabel">☀️</span>
 <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
 </div>
 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
-<div class="icon"></div>
+<div class="icon">🚪</div>
 <div class="label">Quitter</div>
 </div>
 </div>
 
-<!-- Centre : Logo + Infos utilisateur -->
+<!-- Centre : Logo + Infos utilisateur (sans "AAMB") -->
 <div class="header-center">
 <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
 <div class="header-user-info">
-<div class="header-app-name">AAMB</div>
 <div class="header-user-name" id="headerUserName"></div>
 <div class="header-user-statut" id="headerUserStatut"></div>
 </div>
@@ -238,7 +235,7 @@ aria-label="Code d'accès">
 
 <div class="container">
 <div class="btn-group">
-<div class="btn-group-title">️ JTB Besançon</div>
+<div class="btn-group-title">🏛️ JTB Besançon</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/programme.html">
 <span class="btn-tile-icon">📅</span>
@@ -283,7 +280,7 @@ aria-label="Code d'accès">
 <span class="btn-tile-label">Restauration</span>
 </a>
 <a class="btn-tile" href="pages/reglementation.html">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">📋</span>
 <span class="btn-tile-label">Réglementation</span>
 </a>
 <a class="btn-tile" href="pages/droit-image.html">
@@ -296,13 +293,13 @@ aria-label="Code d'accès">
 <div class="btn-group-title">⭐ Qualité – Questionnaire à chaud</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/qualite.html">
-<span class="btn-tile-icon"></span>
+<span class="btn-tile-icon">📊</span>
 <span class="btn-tile-label">Questionnaire à chaud</span>
 </a>
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title"> Informations Diverses</div>
+<div class="btn-group-title">🌐 Informations Diverses</div>
 <div class="btn-grid">
 <button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB">
 <span class="btn-tile-icon">🏠</span>
@@ -316,7 +313,7 @@ aria-label="Code d'accès">
 <div class="jtb-menu" id="jtbMenu">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city"> Montpellier</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
 </div>
 </div>
@@ -326,7 +323,7 @@ aria-label="Code d'accès">
 <div class="btn-group-title">🔐 JTB Admin</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/controle-acces.html">
-<span class="btn-tile-icon">🔐</span>
+<span class="btn-tile-icon"></span>
 <span class="btn-tile-label">Contrôle d'accès</span>
 </a>
 </div>
@@ -363,9 +360,9 @@ async function verifierID() {
             '<button onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">❌ Non</button>' +
             '</div></div>';
             document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
-            document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
+            document.getElementById('rEtab').textContent = ' ' + a.etablissement;
             document.getElementById('rEmail').textContent = '✉️ ' + a.email;
-            document.getElementById('rStatut').textContent = '️ ' + a.statut;
+            document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
         } else {
             resultContent.innerHTML = '<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p></div>';
         }
@@ -385,7 +382,6 @@ function confirmerIdentite(adherent) {
 
 function afficherApp(adherent) {
     document.getElementById('authPage').style.display = 'none';
-    // Nouveau header : nom + statut séparés
     document.getElementById('headerUserName').textContent = adherent.prenom + ' ' + adherent.nom;
     document.getElementById('headerUserStatut').textContent = '— ' + adherent.statut;
     const isOrga = adherent.statut === 'Organisateur';
