@@ -2,6 +2,8 @@
 // AAMB - Code commun partagé entre toutes les pages
 // ============================================
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyoFYvSYxuVhIaM_AIcozqLhdbySkpXzcyKWfl_rglH9F-iiCZ3QIhVQZ7pWbTq28PYtA/exec';
+const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
+const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 
 // ===== GESTION ADHÉRENT =====
 function chargerAdherent() {
@@ -66,47 +68,12 @@ function appliquerDarkModeInitial() {
     }
 }
 
-// ===== HEADER PRINCIPAL (injecté dans toutes les sous-pages) =====
-function injecterHeaderPrincipal() {
-    const adherent = chargerAdherent();
-    if (!adherent) return;
-
-    const header = document.createElement('header');
-    header.id = 'header-principal';
-    header.innerHTML = `
-        <div class="header-top">
-            <div class="header-left">
-                <div class="header-logo"><img src="${getRacine()}logo-aamb.png" alt="AAMB"></div>
-                <div class="header-user-info">
-                    <div class="header-user-name">${adherent.prenom} ${adherent.nom}</div>
-                    <div class="header-user-statut">${adherent.statut}</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Mode sombre">
-                    <span class="toggle-label">☀️</span>
-                    <div class="toggle-switch"><div class="toggle-knob"></div></div>
-                </div>
-                <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
-                    <div class="icon">🚪</div>
-                    <div class="label">Quitter</div>
-                </div>
-            </div>
-        </div>
-        <div class="header-bottom">
-            <div class="header-version">v42.0</div>
-        </div>
-    `;
-
-    document.body.insertBefore(header, document.body.firstChild);
-}
-
 // ===== NAVIGATION RETOUR =====
 function retourAccueil() {
     window.location.href = getRacine() + 'app.html';
 }
 
-// ===== GESTION HORS LIGNE =====
+// ===== HORS LIGNE =====
 function initOfflineDetection() {
     const banner = document.createElement('div');
     banner.id = 'offline-banner';
@@ -118,15 +85,38 @@ function initOfflineDetection() {
     if (!navigator.onLine) banner.style.display = 'block';
 }
 
-// ===== GESTION D'ERREUR GLOBALE =====
+// ===== ERREURS GLOBALES =====
 window.addEventListener('error', (e) => { console.error('Erreur globale:', e.error || e.message); });
 window.addEventListener('unhandledrejection', (e) => { console.error('Promesse rejetée:', e.reason); });
 
-// ===== SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN =====
-const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
-const MESSAGERIE_SYNC_INTERVAL = 45000;
+// ============================================
+// SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN
+// ============================================
 let messagerieSyncTimer = null;
 let messagerieSyncEnCours = false;
+
+function getMessagerieCache() {
+    try {
+        const raw = localStorage.getItem(MESSAGERIE_CACHE_KEY);
+        if (!raw) return null;
+        const cache = JSON.parse(raw);
+        const adherent = chargerAdherent();
+        if (!adherent || cache.userId !== adherent.id) return null;
+        return cache;
+    } catch (e) { return null; }
+}
+
+function saveMessagerieCache(data) {
+    try {
+        const adherent = chargerAdherent();
+        if (!adherent) return;
+        localStorage.setItem(MESSAGERIE_CACHE_KEY, JSON.stringify({
+            userId: adherent.id,
+            timestamp: Date.now(),
+            data: data
+        }));
+    } catch (e) { console.warn('Cache messagerie sauvegarde échouée:', e); }
+}
 
 async function syncMessagerieBackground() {
     if (messagerieSyncEnCours) return;
@@ -140,26 +130,9 @@ async function syncMessagerieBackground() {
         const data = await resp.json();
         
         if (data.success) {
-            const ancienCache = JSON.parse(localStorage.getItem(MESSAGERIE_CACHE_KEY) || 'null');
-            const anciensIds = Object.keys(ancienCache?.data?.conversations || {}).sort().join(',');
-            const nouveauxIds = Object.keys(data.conversations || {}).sort().join(',');
-            const aChanged = anciensIds !== nouveauxIds;
-            
-            let msgChanged = false;
-            if (!aChanged && ancienCache?.data?.conversations) {
-                for (const key in data.conversations) {
-                    const oldLast = ancienCache.data.conversations[key]?.slice(-1)[0];
-                    const newLast = data.conversations[key]?.slice(-1)[0];
-                    if (oldLast?.idConvFull !== newLast?.idConvFull) { msgChanged = true; break; }
-                }
-            }
-            
-            if (aChanged || msgChanged || !ancienCache) {
-                localStorage.setItem(MESSAGERIE_CACHE_KEY, JSON.stringify({
-                    userId: adherent.id, timestamp: Date.now(), data: data
-                }));
-                window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
-            }
+            saveMessagerieCache(data);
+            // Notifie les pages ouvertes
+            window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
         }
     } catch (e) { /* silencieux */ }
     finally { messagerieSyncEnCours = false; }
@@ -168,7 +141,9 @@ async function syncMessagerieBackground() {
 function startMessagerieBackgroundSync() {
     const adherent = chargerAdherent();
     if (!adherent) return;
+    // Synchro immédiate
     syncMessagerieBackground();
+    // Puis toutes les 30s (uniquement si page visible)
     if (messagerieSyncTimer) clearInterval(messagerieSyncTimer);
     messagerieSyncTimer = setInterval(() => {
         if (!document.hidden) syncMessagerieBackground();
@@ -184,13 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
     appliquerDarkModeInitial();
     initOfflineDetection();
     
-    // Injecter le header principal dans toutes les pages SAUF app.html et index.html
-    const chemin = window.location.pathname;
-    if (!chemin.endsWith('app.html') && !chemin.endsWith('index.html')) {
-        injecterHeaderPrincipal();
-    }
-    
-    // Démarrer la synchro messagerie en arrière-plan
     const adherent = chargerAdherent();
     if (adherent) startMessagerieBackgroundSync();
 });
