@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.10</title>
+<title>Messagerie</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -303,10 +303,10 @@ async function init() {
     if (cache) {
         // Cache disponible → afficher immédiatement
         if (adherent.statut === 'Organisateur') {
-            document.getElementById('messagerieTitle').textContent = '📨 Messagerie';
+            document.getElementById('messagerieTitle').textContent = '📨 Messagerie v0.06';
             renderMessagesOrganisateur(cache.data.conversations);
         } else {
-            document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
+            document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB v0.06';
             renderMessagesParticipant(cache.data.conversations);
         }
         
