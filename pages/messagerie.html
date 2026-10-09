@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.10</title>
+<title>Messagerie v0.12</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -22,13 +22,13 @@ body.dark {
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
-/* ===== HEADER DE PAGE (titre + retour) ===== */
+/* ===== HEADER DE PAGE ===== */
 .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
 .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
 .page-header h2 { font-size: 18px; flex: 1; }
 .page-content { padding: 16px; }
 
-/* ===== BARRE DE STATUT SYNC ===== */
+/* ===== BARRE SYNC ===== */
 .sync-status { font-size: 11px; color: var(--text-sub); text-align: center; padding: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); display: inline-block; }
 .sync-status .dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
@@ -38,7 +38,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .refresh-btn.spinning { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* ===== NIVEAU 1 : FILTRES STATUT (Non traités / Traités) ===== */
+/* ===== FILTRES STATUT (Niveau 1) ===== */
 .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
 .filter-btn {
 flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px;
@@ -46,19 +46,12 @@ background: var(--card-bg); color: var(--text); font-size: 13px; font-weight: 60
 cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .filter-btn .count { background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-
-/* État actif bien visible */
-.filter-btn.active-non-traite {
-border-color: var(--danger); background: var(--danger); color: white;
-}
+.filter-btn.active-non-traite { border-color: var(--danger); background: var(--danger); color: white; }
 .filter-btn.active-non-traite .count { background: rgba(255,255,255,0.3); }
-
-.filter-btn.active-traite {
-border-color: var(--success); background: var(--success); color: white;
-}
+.filter-btn.active-traite { border-color: var(--success); background: var(--success); color: white; }
 .filter-btn.active-traite .count { background: rgba(255,255,255,0.3); }
 
-/* ===== NIVEAU 2 : FILTRES CATÉGORIE ===== */
+/* ===== FILTRES CATEGORIE (Niveau 2) ===== */
 .cat-filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(128,128,128,0.15); }
 .cat-btn {
 padding: 6px 10px; border: 2px solid #ddd; border-radius: 16px;
@@ -66,11 +59,7 @@ background: var(--card-bg); color: var(--text); font-size: 11px; font-weight: 60
 cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px;
 }
 .cat-btn .cat-count { background: rgba(0,0,0,0.1); padding: 1px 5px; border-radius: 8px; font-size: 10px; font-weight: 700; }
-
-/* État actif catégorie bien visible */
-.cat-btn.active {
-border-color: var(--primary); background: var(--primary); color: white;
-}
+.cat-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
 .cat-btn.active .cat-count { background: rgba(255,255,255,0.3); }
 
 /* ===== CARTE CONVERSATION ===== */
@@ -89,24 +78,81 @@ border-color: var(--primary); background: var(--primary); color: white;
 .btn-clore { background: #6b7280; color: white; }
 .btn-declore { background: var(--warning); color: white; }
 
-/* ===== ENVOI ===== */
+/* ===== ENVOI - SECTION GÉNÉRALE ===== */
 .send-section { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 .send-section h3 { color: var(--text); font-size: 15px; margin-bottom: 12px; }
 .msg-textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; resize: vertical; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; font-family: inherit; }
 .msg-textarea:focus { border-color: var(--primary); }
 .send-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 6px; }
 .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.categorie-select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; outline: none; }
 .confirm-box { background: #d4edda; border-left: 4px solid var(--success); padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; color: #155724; }
 .empty-state { text-align: center; padding: 30px 20px; color: var(--text-sub); font-size: 13px; }
 .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+/* ===== SÉLECTION DESTINATAIRES (Organisateur) ===== */
+.dest-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.dest-panel { background: var(--bg); border-radius: 10px; padding: 10px; border: 2px solid #ddd; }
+.dest-panel h4 { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.dest-list {
+max-height: 200px; overflow-y: auto; background: var(--card-bg);
+border-radius: 8px; padding: 6px; border: 1px solid rgba(128,128,128,0.2);
+}
+.dest-list option, .dest-list label {
+padding: 6px 8px; font-size: 13px; cursor: pointer; display: block;
+border-radius: 4px; margin-bottom: 2px;
+}
+.dest-list option:hover, .dest-list label:hover { background: rgba(26,58,107,0.08); }
+.dest-list option:checked { background: var(--primary); color: white; }
+.dest-list .dest-item {
+display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+font-size: 13px; cursor: pointer; border-radius: 4px;
+}
+.dest-list .dest-item:hover { background: rgba(26,58,107,0.08); }
+.dest-list .dest-item input { accent-color: var(--primary); }
+
+.dest-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+.dest-actions button {
+flex: 1; padding: 10px; border: none; border-radius: 8px;
+font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn-add { background: var(--success); color: white; }
+.btn-add:hover { opacity: 0.9; }
+.btn-remove { background: var(--danger); color: white; }
+.btn-remove:hover { opacity: 0.9; }
+
+/* Boutons de pré-sélection par statut */
+.statut-presel-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.statut-presel-btn {
+padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px;
+background: var(--card-bg); color: var(--text); font-size: 12px; font-weight: 600;
+cursor: pointer; transition: all 0.15s;
+}
+.statut-presel-btn:hover { border-color: var(--primary); background: rgba(26,58,107,0.05); }
+.statut-presel-btn .count { background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 8px; font-size: 10px; margin-left: 4px; }
+
+.dest-count { font-size: 12px; color: var(--text-sub); text-align: center; padding: 6px; background: var(--bg); border-radius: 8px; margin-bottom: 10px; }
+.dest-count strong { color: var(--primary); }
+
+/* ===== CATÉGORIES PARTICIPANT ===== */
+.cat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cat-chip {
+padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px;
+background: var(--card-bg); color: var(--text); font-size: 12px; font-weight: 600;
+cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px;
+}
+.cat-chip:hover { border-color: var(--primary); }
+.cat-chip.active { border-color: var(--primary); background: var(--primary); color: white; }
+
+@media (max-width: 480px) {
+.dest-selector { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 <div class="page-header">
 <button class="back-btn" onclick="retourAccueil()">←</button>
 <h2 id="messagerieTitle">Messagerie</h2>
-<button class="refresh-btn" id="refreshBtn" onclick="forcerRafraichissement()" aria-label="Rafraîchir">🔄</button>
+<button class="refresh-btn" id="refreshBtn" onclick="forcerRafraichissement()">🔄</button>
 </div>
 <div class="sync-status">
 <span class="dot" id="syncDot"></span>
@@ -120,7 +166,7 @@ border-color: var(--primary); background: var(--primary); color: white;
 // CONFIGURATION
 // ============================================
 const CATEGORIES = [
-    { id: 'partenaire',   label: 'Partenaire',   icon: '🤝' },
+    { id: 'partenaire',   label: 'Partenaire',   icon: '' },
     { id: 'stagiaire',    label: 'Stagiaire',    icon: '🎓' },
     { id: 'organisation', label: 'Organisation', icon: '🏢' },
     { id: 'probleme',     label: 'Problème',     icon: '⚠️' },
@@ -128,17 +174,20 @@ const CATEGORIES = [
     { id: 'handicap',     label: 'Handicap',     icon: '♿' }
 ];
 
-// Filtres actifs (2 niveaux)
-let filtreStatut = 'nonTraites';   // 'nonTraites' | 'traites'
-let filtreCategorie = 'toutes';    // 'toutes' | id catégorie
-
-let conversations = {}; // Données en mémoire (depuis le cache)
+let filtreStatut = 'nonTraites';
+let filtreCategorie = 'toutes';
+let conversations = {};
 let refreshTimer = null;
+let allAdherents = [];
+let statutsDisponibles = [];
+
+// Pour la sélection de destinataires
+let selectedDestinataires = new Set(); // IDs des destinataires sélectionnés
 
 const adherent = verifierConnexionOuRediriger();
 
 // ============================================
-// LECTURE DU CACHE (instantané)
+// CACHE
 // ============================================
 function chargerDepuisCache() {
     const cache = getMessagerieCache();
@@ -159,7 +208,7 @@ function formatTimeAgo(ts) {
 }
 
 // ============================================
-// SYNCHRONISATION (silencieuse, en arrière-plan)
+// SYNCHRONISATION
 // ============================================
 async function synchroniserSilencieuse() {
     if (!adherent) return;
@@ -199,7 +248,6 @@ function updateSyncUI(state, text) {
     txt.textContent = text;
 }
 
-// Écouter les mises à jour du cache
 window.addEventListener('messagerie-updated', (e) => {
     conversations = e.detail.conversations;
     if (!messagerieFormulaireOuvert) {
@@ -219,7 +267,7 @@ function texteEnCours() {
 }
 
 function getCategorieInfo(catId) {
-    return CATEGORIES.find(c => c.id === catId) || { id: 'defaut', label: catId || 'Sans catégorie', icon: '📋' };
+    return CATEGORIES.find(c => c.id === catId) || { id: 'defaut', label: catId || 'Sans catégorie', icon: '' };
 }
 
 function getCategorieBadgeHTML(catId) {
@@ -227,22 +275,26 @@ function getCategorieBadgeHTML(catId) {
     return `<span style="display:inline-block;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:600;background:#e5e7eb;color:#374151;margin-left:6px;">${cat.icon} ${cat.label}</span>`;
 }
 
-function getCategorieLabel(catId) {
-    const categories = {
-        'partenaire': '🤝 Partenaire', 'stagiaire': '🎓 Stagiaire',
-        'organisation': '🏢 Organisation', 'probleme': '⚠️ Problème',
-        'atelier': '🔬 Atelier', 'handicap': '♿ Handicap'
-    };
-    return categories[catId] || catId;
+// ============================================
+// CHARGEMENT LISTE ADHÉRENTS
+// ============================================
+async function chargerListeAdherents() {
+    try {
+        const resp = await fetch(SCRIPT_URL + '?action=getAdherents&userId=' + encodeURIComponent(adherent.id));
+        const data = await resp.json();
+        if (data.success) {
+            allAdherents = data.adherents;
+            statutsDisponibles = data.statuts;
+        }
+    } catch (e) { console.warn('Erreur chargement adhérents:', e); }
 }
 
 // ============================================
-// INITIALISATION (INSTANTANÉE depuis le cache)
+// INITIALISATION
 // ============================================
 function init() {
     if (!adherent) return;
     
-    // 1. Charger depuis le cache local (instantané, < 1ms)
     chargerDepuisCache();
     
     if (adherent.statut === 'Organisateur') {
@@ -255,25 +307,27 @@ function init() {
     
     const cache = getMessagerieCache();
     if (cache) {
-        updateSyncUI('ok', `Affiché depuis le cache — ${formatTimeAgo(cache.timestamp)}`);
+        updateSyncUI('ok', `Cache — ${formatTimeAgo(cache.timestamp)}`);
     } else {
         updateSyncUI('syncing', 'Premier chargement...');
     }
     
-    // 2. Synchro silencieuse en arrière-plan
     synchroniserSilencieuse();
     
-    // 3. Polling toutes les 30s
     if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = setInterval(() => {
         if (!texteEnCours() && !document.hidden && !messagerieFormulaireOuvert) {
             synchroniserSilencieuse();
         }
     }, 30000);
+    
+    if (adherent.statut === 'Organisateur') {
+        chargerListeAdherents();
+    }
 }
 
 // ============================================
-// RENDU PARTICIPANT
+// RENDU PARTICIPANT (avec boutons catégorie)
 // ============================================
 function renderParticipant() {
     const content = document.getElementById('messagerieContent');
@@ -292,16 +346,16 @@ function renderParticipant() {
             
             html += '<div class="conv-card" style="border-left:4px solid ' + (enAttente ? '#f59e0b' : '#10b981') + ';">';
             html += '<div class="conv-header ' + (enAttente ? 'non-traite' : 'traite') + '">';
-            html += '<div><strong>' + (enAttente ? '⏳ En attente de réponse' : '✅ Répondu') + '</strong>' + catBadge;
+            html += '<div><strong>' + (enAttente ? '⏳ En attente' : '✅ Répondu') + '</strong>' + catBadge;
             html += '<span style="float:right;font-size:11px;color:var(--text-sub);">' + convBase + '</span></div></div>';
             
             msgs.forEach(m => {
                 html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
-                html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
+                html += '<div class="msg-meta">' + (m.userId===adherent.id?' Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
                 html += '<div class="msg-text">' + m.message + '</div></div>';
             });
             
-            html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">↩️ Répondre / Continuer</button></div>';
+            html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">️ Répondre</button></div>';
             html += '</div>';
         });
     }
@@ -311,24 +365,49 @@ function renderParticipant() {
 function afficherFormulaireParticipant(convBase) {
     messagerieFormulaireOuvert = true;
     const content = document.getElementById('messagerieContent');
-    const catOptions = CATEGORIES.map(c => `<option value="${c.id}">${c.icon} ${c.label}</option>`).join('');
+    
+    // Boutons de catégorie (uniquement pour nouveau message)
+    let catChipsHTML = '';
+    if (!convBase) {
+        catChipsHTML = '<div style="font-size:13px;color:var(--text-sub);margin-bottom:6px;">Catégorie du message :</div>';
+        catChipsHTML += '<div class="cat-chips" id="catChips">';
+        CATEGORIES.forEach((c, idx) => {
+            catChipsHTML += `<button class="cat-chip ${idx===0?'active':''}" data-cat="${c.id}" onclick="selectionnerCategorie(this)">${c.icon} ${c.label}</button>`;
+        });
+        catChipsHTML += '</div>';
+    }
+    
     let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
-    html += '<div class="send-section"><h3>' + (convBase ? '↩️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>';
-    if (!convBase) html += '<label style="font-size:13px;color:var(--text-sub);display:block;margin-bottom:6px;">Catégorie :</label><select id="msgCategorie" class="categorie-select">' + catOptions + '</select>';
+    html += '<div class="send-section">';
+    html += '<h3>' + (convBase ? '↩️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>';
+    html += catChipsHTML;
     html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>';
-    html += '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn">📤 Envoyer</button></div>';
+    html += '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn">📤 Envoyer</button>';
+    html += '</div>';
     content.innerHTML = html;
+}
+
+function selectionnerCategorie(btn) {
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
 }
 
 async function envoyerMessageParticipant(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
-    const selectCategorie = document.getElementById('msgCategorie');
-    const categorie = selectCategorie ? selectCategorie.value : '';
+    
+    // Récupérer la catégorie sélectionnée
+    const catBtn = document.querySelector('.cat-chip.active');
+    const categorie = catBtn ? catBtn.dataset.cat : '';
+    
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);"> Envoi en cours...</p>';
+    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+    
     try {
-        const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, categorie:categorie, convId:convBase||'', isOrganisateur:'false' });
+        const params = new URLSearchParams({ 
+            action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, 
+            message:texte, categorie:categorie, convId:convBase||'', isOrganisateur:'false' 
+        });
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
         if (data.success) {
@@ -339,13 +418,12 @@ async function envoyerMessageParticipant(convBase) {
 }
 
 // ============================================
-// RENDU ORGANISATEUR (avec filtres à 2 niveaux)
+// RENDU ORGANISATEUR (avec filtres 2 niveaux)
 // ============================================
 function renderOrganisateur() {
     const content = document.getElementById('messagerieContent');
     const keys = Object.keys(conversations);
     
-    // Compter par statut ET par catégorie
     let nbNonTraites = 0, nbTraites = 0;
     const catCounts = { 'toutes': 0, 'toutes_nt': 0, 'toutes_t': 0 };
     CATEGORIES.forEach(c => { catCounts[c.id] = 0; catCounts[c.id + '_nt'] = 0; catCounts[c.id + '_t'] = 0; });
@@ -366,24 +444,23 @@ function renderOrganisateur() {
     
     let html = '<button onclick="afficherSectionEnvoi()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
     
-    // ===== NIVEAU 1 : FILTRES STATUT =====
+    // Niveau 1 : Statut
     html += '<div class="filter-bar">';
     html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')">🔴 Non traités <span class="count">${nbNonTraites}</span></button>`;
     html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')">✅ Traités <span class="count">${nbTraites}</span></button>`;
     html += '</div>';
     
-    // ===== NIVEAU 2 : FILTRES CATÉGORIE =====
+    // Niveau 2 : Catégorie
     html += '<div class="cat-filter-bar">';
-    // Compteur pour "Toutes" selon le filtre statut actif
     const countToutes = filtreStatut === 'nonTraites' ? catCounts['toutes_nt'] : catCounts['toutes_t'];
-    html += `<button class="cat-btn ${filtreCategorie==='toutes'?'active':''}" onclick="changerFiltreCategorie('toutes')"> Toutes <span class="cat-count">${countToutes}</span></button>`;
+    html += `<button class="cat-btn ${filtreCategorie==='toutes'?'active':''}" onclick="changerFiltreCategorie('toutes')">📋 Toutes <span class="cat-count">${countToutes}</span></button>`;
     CATEGORIES.forEach(c => {
         const count = filtreStatut === 'nonTraites' ? (catCounts[c.id+'_nt']||0) : (catCounts[c.id+'_t']||0);
         html += `<button class="cat-btn ${filtreCategorie===c.id?'active':''}" onclick="changerFiltreCategorie('${c.id}')">${c.icon} ${c.label} <span class="cat-count">${count}</span></button>`;
     });
     html += '</div>';
     
-    // ===== FILTRAGE COMBINÉ (instantané, en mémoire) =====
+    // Filtrage combiné
     const convsFiltrees = {};
     keys.forEach(convBase => {
         const msgs = conversations[convBase];
@@ -392,20 +469,17 @@ function renderOrganisateur() {
         const nonTraite = last.traite === 'NON';
         const cat = last.categorie || 'defaut';
         
-        // Filtre statut
         if (filtreStatut === 'nonTraites' && !nonTraite) return;
         if (filtreStatut === 'traites' && nonTraite) return;
-        // Filtre catégorie
         if (filtreCategorie !== 'toutes' && filtreCategorie !== cat) return;
         
         convsFiltrees[convBase] = msgs;
     });
     
-    // ===== AFFICHAGE =====
     const convKeys = Object.keys(convsFiltrees);
     if (convKeys.length === 0) {
         let emptyIcon = '📭', emptyText = 'Aucune conversation';
-        if (filtreStatut === 'nonTraites') { emptyIcon = ''; emptyText = 'Aucun message en attente de réponse'; }
+        if (filtreStatut === 'nonTraites') { emptyIcon = '🎉'; emptyText = 'Aucun message en attente'; }
         else if (filtreStatut === 'traites') { emptyIcon = '📂'; emptyText = 'Aucun message traité'; }
         if (filtreCategorie !== 'toutes') {
             const catInfo = getCategorieInfo(filtreCategorie);
@@ -421,16 +495,8 @@ function renderOrganisateur() {
     content.innerHTML = html;
 }
 
-// Changement de filtre INSTANTANÉ (pas de réseau)
-function changerFiltreStatut(nouveauStatut) {
-    filtreStatut = nouveauStatut;
-    renderOrganisateur(); // Re-render local, < 1ms
-}
-
-function changerFiltreCategorie(nouvelleCategorie) {
-    filtreCategorie = nouvelleCategorie;
-    renderOrganisateur(); // Re-render local, < 1ms
-}
+function changerFiltreStatut(s) { filtreStatut = s; renderOrganisateur(); }
+function changerFiltreCategorie(c) { filtreCategorie = c; renderOrganisateur(); }
 
 function renderConvCard(convBase, msgs, nonTraite) {
     const sorted = msgs.sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
@@ -445,13 +511,13 @@ function renderConvCard(convBase, msgs, nonTraite) {
     
     sorted.forEach(m => {
         html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + ';">';
-        html += '<div class="msg-meta">' + (m.userId===adherent.id?' Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>';
+        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>';
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     
     if (nonTraite) {
         html += '<div class="conv-actions">';
-        html += '<button class="btn-repondre" onclick="afficherReponseOrga(\'' + convBase + '\')">📤 Répondre</button>';
+        html += '<button class="btn-repondre" onclick="afficherReponseOrga(\'' + convBase + '\')"> Répondre</button>';
         html += '</div>';
     }
     html += '</div>';
@@ -464,7 +530,7 @@ function afficherReponseOrga(convBase) {
     let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
     html += '<div class="send-section"><h3>📤 Répondre — ' + convBase + '</h3>';
     html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre réponse..."></textarea>';
-    html += '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" class="send-btn"> Envoyer</button></div>';
+    html += '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" class="send-btn">📤 Envoyer</button></div>';
     content.innerHTML = html;
 }
 
@@ -485,32 +551,249 @@ async function envoyerReponseOrga(convBase) {
 }
 
 // ============================================
-// SECTION ENVOI
+// SECTION ENVOI ORGANISATEUR (avec sélection destinataires)
 // ============================================
 function afficherSectionEnvoi() {
     messagerieFormulaireOuvert = true;
+    selectedDestinataires.clear();
+    
     const content = document.getElementById('messagerieContent');
-    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour aux messages</button></div>';
-    html += '<div class="send-section"><h3>✉️ Nouveau message</h3>';
-    html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>';
-    html += '<button onclick="envoyerMessageSimple()" class="send-btn"> Envoyer</button></div>';
-    content.innerHTML = html;
+    
+    // Si la liste n'est pas chargée, la charger d'abord
+    if (allAdherents.length === 0) {
+        content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement de la liste des participants...</p>';
+        chargerListeAdherents().then(() => {
+            content.innerHTML = renderFormulaireEnvoiHTML();
+            attacherEventsEnvoi();
+        });
+    } else {
+        content.innerHTML = renderFormulaireEnvoiHTML();
+        attacherEventsEnvoi();
+    }
 }
 
-async function envoyerMessageSimple() {
+function renderFormulaireEnvoiHTML() {
+    // Compter par statut pour les boutons de pré-sélection
+    const countsByStatut = {};
+    statutsDisponibles.forEach(s => { countsByStatut[s] = allAdherents.filter(a => a.statut === s).length; });
+    
+    // Options de la liste déroulante (triées par nom)
+    const sortedAdherents = [...allAdherents].sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom));
+    const optionsHTML = sortedAdherents.map(a => 
+        `<option value="${a.id}">${a.prenom} ${a.nom} — ${a.statut}</option>`
+    ).join('');
+    
+    // Boutons de pré-sélection par statut
+    const preselButtonsHTML = statutsDisponibles.map(s => 
+        `<button class="statut-presel-btn" onclick="preselectionnerStatut('${s}')">${s} <span class="count">${countsByStatut[s]||0}</span></button>`
+    ).join('');
+    
+    // Liste des destinataires sélectionnés
+    const destListHTML = sortedAdherents
+        .filter(a => selectedDestinataires.has(a.id))
+        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} — ${a.statut}</label>`)
+        .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
+    
+    return `
+    <div style="margin-bottom:15px;">
+        <button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour aux messages</button>
+    </div>
+    <div class="send-section">
+        <h3>✉️ Nouveau message</h3>
+        
+        <!-- Boutons de pré-sélection par statut -->
+        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">🏷️ Pré-sélectionner par statut (dans la liste de gauche) :</div>
+        <div class="statut-presel-bar">${preselButtonsHTML}</div>
+        
+        <!-- Sélecteur de destinataires -->
+        <div class="dest-selector">
+            <div class="dest-panel">
+                <h4>📋 Liste des participants</h4>
+                <select id="listeParticipants" class="dest-list" multiple size="8">
+                    ${optionsHTML}
+                </select>
+            </div>
+            <div class="dest-panel">
+                <h4>✅ Destinataires (${selectedDestinataires.size})</h4>
+                <div id="destinatairesList" class="dest-list" style="max-height:200px;overflow-y:auto;">
+                    ${destListHTML}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boutons Ajouter / Retirer -->
+        <div class="dest-actions">
+            <button class="btn-add" onclick="ajouterSelectionnes()">➕ Ajouter à la liste</button>
+            <button class="btn-remove" onclick="retirerSelectionnes()">➖ Retirer de la liste</button>
+        </div>
+        
+        <div class="dest-count"> <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
+        
+        <!-- Message -->
+        <textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>
+        
+        <button class="send-btn" id="btnSend" onclick="envoyerMessageGroupe()">📤 Envoyer à ${selectedDestinataires.size} personne(s)</button>
+    </div>`;
+}
+
+function attacherEventsEnvoi() {
+    // Mettre à jour le compteur quand on modifie la liste
+    updateDestCount();
+}
+
+function preselectionnerStatut(statut) {
+    const select = document.getElementById('listeParticipants');
+    if (!select) return;
+    
+    // Désélectionner tout d'abord
+    Array.from(select.options).forEach(opt => opt.selected = false);
+    
+    // Sélectionner tous ceux du statut demandé
+    allAdherents.filter(a => a.statut === statut).forEach(a => {
+        const opt = select.querySelector(`option[value="${a.id}"]`);
+        if (opt) opt.selected = true;
+    });
+}
+
+function ajouterSelectionnes() {
+    const select = document.getElementById('listeParticipants');
+    if (!select) return;
+    
+    let ajoutes = 0;
+    Array.from(select.selectedOptions).forEach(opt => {
+        if (!selectedDestinataires.has(opt.value)) {
+            selectedDestinataires.add(opt.value);
+            ajoutes++;
+        }
+    });
+    
+    // Désélectionner tout dans la liste de gauche
+    Array.from(select.options).forEach(opt => opt.selected = false);
+    
+    // Re-render la partie destinataires uniquement
+    refreshDestinatairesList();
+    
+    if (ajoutes > 0) {
+        // Petit feedback visuel
+        const btn = document.querySelector('.btn-add');
+        const originalText = btn.textContent;
+        btn.textContent = `✅ ${ajoutes} ajouté(s)`;
+        setTimeout(() => { btn.textContent = originalText; }, 1000);
+    }
+}
+
+function retirerSelectionnes() {
+    const checkboxes = document.querySelectorAll('.dest-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('Veuillez sélectionner au moins un destinataire à retirer');
+        return;
+    }
+    
+    let retires = 0;
+    checkboxes.forEach(cb => {
+        selectedDestinataires.delete(cb.value);
+        retires++;
+    });
+    
+    refreshDestinatairesList();
+    
+    const btn = document.querySelector('.btn-remove');
+    const originalText = btn.textContent;
+    btn.textContent = `✅ ${retires} retiré(s)`;
+    setTimeout(() => { btn.textContent = originalText; }, 1000);
+}
+
+function refreshDestinatairesList() {
+    const destList = document.getElementById('destinatairesList');
+    if (!destList) return;
+    
+    const sortedAdherents = [...allAdherents].sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom));
+    const destListHTML = sortedAdherents
+        .filter(a => selectedDestinataires.has(a.id))
+        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} — ${a.statut}</label>`)
+        .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
+    
+    destList.innerHTML = destListHTML;
+    updateDestCount();
+}
+
+function updateDestCount() {
+    const countEl = document.querySelector('.dest-count');
+    const btnSend = document.getElementById('btnSend');
+    const nb = selectedDestinataires.size;
+    
+    if (countEl) countEl.innerHTML = `📨 <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
+    if (btnSend) btnSend.textContent = `📤 Envoyer à ${nb} personne(s)`;
+    
+    // Mettre à jour le titre du panneau destinataires
+    const destPanelTitle = document.querySelector('#destinatairesList')?.previousElementSibling;
+    if (destPanelTitle) destPanelTitle.innerHTML = `✅ Destinataires (${nb})`;
+}
+
+async function envoyerMessageGroupe() {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
+    if (selectedDestinataires.size === 0) { alert('Veuillez sélectionner au moins un destinataire'); return; }
+    
+    const btn = document.getElementById('btnSend');
+    btn.disabled = true;
+    btn.textContent = '⏳ Envoi en cours...';
+    
+    const destinataires = allAdherents.filter(a => selectedDestinataires.has(a.id));
+    const total = destinataires.length;
+    const groupeIds = destinataires.map(d => d.id).join(',');
+    
+    // Afficher la progression
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);"> Envoi en cours...</p>';
-    try {
-        const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:'', isOrganisateur:'true' });
-        const resp = await fetch(SCRIPT_URL + '?' + params);
-        const data = await resp.json();
-        if (data.success) {
-            messagerieFormulaireOuvert = false;
-            document.getElementById('messagerieContent').innerHTML = '<div class="confirm-box">✅ Message envoyé</div><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>';
-        } else { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur.</p>'; }
-    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+    content.innerHTML = `
+        <div style="margin-bottom:15px;">
+            <button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button>
+        </div>
+        <div class="send-section">
+            <h3>📤 Envoi en cours...</h3>
+            <div class="progress-bar visible" style="width:100%;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:10px 0;">
+                <div class="progress-fill" id="progressFill" style="height:100%;background:var(--success);width:0%;transition:width 0.3s;"></div>
+            </div>
+            <div class="progress-text visible" id="progressText" style="font-size:12px;color:var(--text-sub);text-align:center;"></div>
+        </div>
+    `;
+    
+    let succes = 0, echecs = 0;
+    
+    for (let i = 0; i < total; i++) {
+        const dest = destinataires[i];
+        const progressText = document.getElementById('progressText');
+        const progressFill = document.getElementById('progressFill');
+        if (progressText) progressText.textContent = `Envoi ${i+1}/${total} — ${dest.prenom} ${dest.nom}...`;
+        if (progressFill) progressFill.style.width = (((i+1) / total) * 100) + '%';
+        
+        try {
+            const params = new URLSearchParams({ 
+                action:'sendMessage', userId:dest.id, 
+                nom:adherent.nom, prenom:adherent.prenom, 
+                message:texte, categorie:'organisation', 
+                convId:'', isOrganisateur:'true', 
+                groupeIds:groupeIds 
+            });
+            const resp = await fetch(SCRIPT_URL + '?' + params);
+            const data = await resp.json();
+            if (data.success) succes++; else echecs++;
+        } catch(e) { echecs++; }
+        
+        if (i < total - 1) await new Promise(r => setTimeout(r, 300));
+    }
+    
+    messagerieFormulaireOuvert = false;
+    selectedDestinataires.clear();
+    
+    content.innerHTML = `
+        <div class="confirm-box">
+            ✅ Envoi terminé<br>
+            <strong>${succes}</strong> message(s) envoyé(s) avec succès<br>
+            ${echecs > 0 ? '<span style="color:#856404;">⚠️ ' + echecs + ' échec(s)</span>' : ''}
+        </div>
+        <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>
+    `;
 }
 
 // ============================================
