@@ -1,3 +1,18 @@
+// ===== CHARGEMENT AUTOMATIQUE DU CSS DU HEADER =====
+function chargerCSSHeader() {
+    // Éviter de charger deux fois
+    if (document.getElementById('aamb-header-css')) return;
+    
+    const link = document.createElement('link');
+    link.id = 'aamb-header-css';
+    link.rel = 'stylesheet';
+    link.href = getRacine() + 'css/header.css';
+    document.head.appendChild(link);
+}
+
+// Appeler cette fonction au chargement
+chargerCSSHeader();
+
 // ============================================
 // AAMB - Code commun partagé entre toutes les pages
 // ============================================
