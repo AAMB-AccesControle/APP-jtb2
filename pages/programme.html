@@ -3,63 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.055</title>
+<title>Programme JTB 2026 v0.056</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
 </script>
 <style>
-/* ===== STYLES SPÉCIFIQUES À CETTE PAGE UNIQUEMENT ===== */
+/* ===== STYLES DE BASE ET VARIABLES ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
-body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
+:root {
+--bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
+--page-header-bg: #1a3a6b; --heure-bg: #555;
+--conf-bg: #ffe4ec; --conf-border: #c0002a;
+--atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
+--jour-btn-bg: #dde3ef; --jour-btn-text: #333;
+}
+body.dark {
+--bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
+--page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
+--conf-bg: #3d1525; --conf-border: #c0002a;
+--atelier-bg: #162030; --atelier-border: #1565c0; --atelier-text: #90caf9;
+--jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
+}
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+
+/* ===== HEADER DE PAGE (titre + retour) - styles de base ===== */
+.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
 .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
 .page-header h2 { font-size: 18px; }
 .page-content { padding: 10px; }
+
+/* ===== STYLES SPÉCIFIQUES AU PROGRAMME ===== */
 .jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
 .jour-btn { background: var(--jour-btn-bg); color: var(--jour-btn-text); border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer; font-size: 12px; white-space: nowrap; font-weight: 500; }
 .jour-btn.active { background: #1a3a6b; color: white; }
+
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
 .prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); }
+
 .prog-ateliers { display: flex; }
 .atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
 .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
 .atelier strong { font-size: 12px; }
+
 #zoneSwipe { overflow: hidden; position: relative; }
 .jour-content { transition: none; }
+
+/* Animations */
 .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
 .jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
 .jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
 .jour-content.slide-in-right { animation: slideInRight 0.3s ease forwards; }
+
 @keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
 @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
+
+/* Session en cours */
+.prog-slot.en-cours::before { content: ' EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
 .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
 .prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
 .prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
 .prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
+
 @keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
 @keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
-
-
-
-/* Header de page (titre + bouton retour) - styles de base */
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 20px; }
 </style>
 </head>
 <body>
 <div class="page-header">
 <button class="back-btn" onclick="retourAccueil()">←</button>
-    
 <h2>Programme JTB 2026</h2>
 </div>
 <div class="page-content">
@@ -99,7 +114,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong></div><div class="atelier"> Atelier 10B<br><strong>MORGATE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
+<div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf"> Visite des stands</div></div>
 <div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS</strong></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
 <div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
 </div>
@@ -112,6 +127,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 <script src="../js/commun.js"></script>
 <script>
+// Vérifier la connexion (redirige si pas connecté)
 verifierConnexionOuRediriger();
 const joursDates = {'mardi':'2026-06-23','mercredi':'2026-06-24','jeudi':'2026-06-25','vendredi':'2026-06-26'};
 const horaires = {
