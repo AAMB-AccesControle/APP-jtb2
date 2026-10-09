@@ -33,7 +33,7 @@ function deconnecter() {
     if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
     try {
         localStorage.removeItem('aamb_adherent');
-        document.cookie = 'aamb_adherent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+        document.cookie = 'aamb_adherent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
     } catch (e) {}
     window.location.href = getRacine() + 'index.html';
 }
@@ -90,7 +90,7 @@ function injecterHeaderPrincipal() {
                     <div class="toggle-switch"><div class="toggle-knob"></div></div>
                 </div>
                 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
-                    <div class="icon"></div>
+                    <div class="icon">🚪</div>
                     <div class="label">Quitter</div>
                 </div>
             </div>
@@ -113,7 +113,7 @@ function initOfflineDetection() {
     const banner = document.createElement('div');
     banner.id = 'offline-banner';
     banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ef4444;color:white;text-align:center;padding:8px;font-size:13px;font-weight:bold;z-index:99999;display:none;';
-    banner.textContent = '️ Vous êtes hors ligne';
+    banner.textContent = '⚠️ Vous êtes hors ligne';
     document.body.appendChild(banner);
     window.addEventListener('offline', () => { banner.style.display = 'block'; });
     window.addEventListener('online', () => { banner.style.display = 'none'; });
@@ -127,7 +127,7 @@ window.addEventListener('unhandledrejection', (e) => { console.error('Promesse r
 // ===== SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN =====
 let messagerieSyncTimer = null;
 let messagerieSyncEnCours = false;
-let messagerieFormulaireOuvert = false; // Flag pour protéger le formulaire en cours
+let messagerieFormulaireOuvert = false;
 
 function getMessagerieCache() {
     try {
@@ -165,7 +165,6 @@ async function syncMessagerieBackground() {
         
         if (data.success) {
             saveMessagerieCache(data);
-            // Ne notifier que si aucun formulaire n'est ouvert
             if (!messagerieFormulaireOuvert) {
                 window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
             }
