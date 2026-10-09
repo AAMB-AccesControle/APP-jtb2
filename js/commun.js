@@ -1,24 +1,10 @@
-// ===== CHARGEMENT AUTOMATIQUE DU CSS DU HEADER =====
-function chargerCSSHeader() {
-    // Éviter de charger deux fois
-    if (document.getElementById('aamb-header-css')) return;
-    
-    const link = document.createElement('link');
-    link.id = 'aamb-header-css';
-    link.rel = 'stylesheet';
-    link.href = getRacine() + 'css/header.css';
-    document.head.appendChild(link);
-}
-
-// Appeler cette fonction au chargement
-chargerCSSHeader();
 
 // ============================================
 // AAMB - Code commun partagé entre toutes les pages
 // ============================================
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPRnmLYoYp5swgYsFp0Xe7JjR1POS-0tZX8dr4SPOVJkZ6XZfz8VTwQ9nWpgMbZU8KjA/exec';
 const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
-const MESSAGERIE_SYNC_INTERVAL = 30000;
+const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 
 // ===== GESTION ADHÉRENT =====
 function chargerAdherent() {
@@ -71,7 +57,7 @@ function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
     document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
-    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '☀️');
+    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '' : '☀️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
 }
 
@@ -81,6 +67,16 @@ function appliquerDarkModeInitial() {
         document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.add('on'));
         document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = '🌙');
     }
+}
+
+// ===== CHARGEMENT CSS HEADER =====
+function chargerCSSHeader() {
+    if (document.getElementById('aamb-header-css')) return;
+    const link = document.createElement('link');
+    link.id = 'aamb-header-css';
+    link.rel = 'stylesheet';
+    link.href = getRacine() + 'css/header.css';
+    document.head.appendChild(link);
 }
 
 // ===== HEADER PRINCIPAL (injecté dans toutes les sous-pages) =====
@@ -139,7 +135,9 @@ function initOfflineDetection() {
 window.addEventListener('error', (e) => { console.error('Erreur globale:', e.error || e.message); });
 window.addEventListener('unhandledrejection', (e) => { console.error('Promesse rejetée:', e.reason); });
 
-// ===== SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN =====
+// ============================================
+// SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN
+// ============================================
 let messagerieSyncTimer = null;
 let messagerieSyncEnCours = false;
 let messagerieFormulaireOuvert = false;
@@ -206,6 +204,9 @@ function stopMessagerieBackgroundSync() {
 document.addEventListener('DOMContentLoaded', function() {
     appliquerDarkModeInitial();
     initOfflineDetection();
+    
+    // Charger le CSS du header
+    chargerCSSHeader();
     
     // Injecter le header principal dans toutes les pages SAUF app.html et index.html
     const chemin = window.location.pathname;
