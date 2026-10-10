@@ -351,12 +351,25 @@ function renderParticipant() {
             
             msgs.forEach(m => {
                 html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
-                html += '<div class="msg-meta">' + (m.userId===adherent.id?' Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
+                html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
                 html += '<div class="msg-text">' + m.message + '</div></div>';
             });
             
-            html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">️ Répondre</button></div>';
-            html += '</div>';
+            // ✅ VÉRIFICATION : Les réponses sont-elles autorisées ?
+            const reponseAutorisee = last.reponseAutorisee !== 'NON';
+            
+            if (reponseAutorisee) {
+                // Bouton de réponse normal
+                html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">↩️ Répondre / Continuer</button></div>';
+            } else {
+                // Bandeau informatif si les réponses sont désactivées
+                html += '<div style="padding:10px;background:rgba(245,158,11,0.1);border-radius:8px;margin:10px;text-align:center;">';
+                html += '<div style="font-size:13px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
+                html += '<div style="font-size:11px;color:#92400e;margin-top:4px;">Ce message ne permet pas de réponse</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>'; // Fin de la carte de conversation
         });
     }
     content.innerHTML = html;
@@ -550,8 +563,9 @@ async function envoyerReponseOrga(convBase) {
     } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
 }
 
+
 // ============================================
-// SECTION ENVOI ORGANISATEUR (avec sélection destinataires)
+// SECTION ENVOI ORGANISATEUR (envoi groupé rapide)
 // ============================================
 function afficherSectionEnvoi() {
     messagerieFormulaireOuvert = true;
@@ -559,7 +573,6 @@ function afficherSectionEnvoi() {
     
     const content = document.getElementById('messagerieContent');
     
-    // Si la liste n'est pas chargée, la charger d'abord
     if (allAdherents.length === 0) {
         content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement de la liste des participants...</p>';
         chargerListeAdherents().then(() => {
@@ -573,22 +586,18 @@ function afficherSectionEnvoi() {
 }
 
 function renderFormulaireEnvoiHTML() {
-    // Compter par statut pour les boutons de pré-sélection
     const countsByStatut = {};
     statutsDisponibles.forEach(s => { countsByStatut[s] = allAdherents.filter(a => a.statut === s).length; });
     
-    // Options de la liste déroulante (triées par nom)
     const sortedAdherents = [...allAdherents].sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom));
     const optionsHTML = sortedAdherents.map(a => 
         `<option value="${a.id}">${a.prenom} ${a.nom} — ${a.statut}</option>`
     ).join('');
     
-    // Boutons de pré-sélection par statut
     const preselButtonsHTML = statutsDisponibles.map(s => 
         `<button class="statut-presel-btn" onclick="preselectionnerStatut('${s}')">${s} <span class="count">${countsByStatut[s]||0}</span></button>`
     ).join('');
     
-    // Liste des destinataires sélectionnés
     const destListHTML = sortedAdherents
         .filter(a => selectedDestinataires.has(a.id))
         .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} — ${a.statut}</label>`)
@@ -601,14 +610,12 @@ function renderFormulaireEnvoiHTML() {
     <div class="send-section">
         <h3>✉️ Nouveau message</h3>
         
-        <!-- Boutons de pré-sélection par statut -->
-        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">🏷️ Pré-sélectionner par statut (dans la liste de gauche) :</div>
+        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">🏷️ Pré-sélectionner par statut :</div>
         <div class="statut-presel-bar">${preselButtonsHTML}</div>
         
-        <!-- Sélecteur de destinataires -->
         <div class="dest-selector">
             <div class="dest-panel">
-                <h4>📋 Liste des participants</h4>
+                <h4> Liste des participants</h4>
                 <select id="listeParticipants" class="dest-list" multiple size="8">
                     ${optionsHTML}
                 </select>
@@ -621,7 +628,6 @@ function renderFormulaireEnvoiHTML() {
             </div>
         </div>
         
-        <!-- Boutons Ajouter / Retirer -->
         <div class="dest-actions">
             <button class="btn-add" onclick="ajouterSelectionnes()">➕ Ajouter à la liste</button>
             <button class="btn-remove" onclick="retirerSelectionnes()">➖ Retirer de la liste</button>
@@ -629,7 +635,17 @@ function renderFormulaireEnvoiHTML() {
         
         <div class="dest-count"> <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
         
-        <!-- Message -->
+        <!-- ✅ NOUVEAU : Case à cocher "Autoriser les réponses" -->
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;border:2px solid #ddd;">
+            <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:var(--primary);">
+            <label for="reponseAutorisee" style="font-size:14px;color:var(--text);cursor:pointer;flex:1;">
+                <strong>✉️ Autoriser les réponses</strong>
+                <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">
+                    Si décoché, le message sera marqué comme "informatif" et les destinataires ne pourront pas y répondre.
+                </div>
+            </label>
+        </div>
+        
         <textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>
         
         <button class="send-btn" id="btnSend" onclick="envoyerMessageGroupe()">📤 Envoyer à ${selectedDestinataires.size} personne(s)</button>
@@ -637,18 +653,13 @@ function renderFormulaireEnvoiHTML() {
 }
 
 function attacherEventsEnvoi() {
-    // Mettre à jour le compteur quand on modifie la liste
     updateDestCount();
 }
 
 function preselectionnerStatut(statut) {
     const select = document.getElementById('listeParticipants');
     if (!select) return;
-    
-    // Désélectionner tout d'abord
     Array.from(select.options).forEach(opt => opt.selected = false);
-    
-    // Sélectionner tous ceux du statut demandé
     allAdherents.filter(a => a.statut === statut).forEach(a => {
         const opt = select.querySelector(`option[value="${a.id}"]`);
         if (opt) opt.selected = true;
@@ -658,7 +669,6 @@ function preselectionnerStatut(statut) {
 function ajouterSelectionnes() {
     const select = document.getElementById('listeParticipants');
     if (!select) return;
-    
     let ajoutes = 0;
     Array.from(select.selectedOptions).forEach(opt => {
         if (!selectedDestinataires.has(opt.value)) {
@@ -666,15 +676,9 @@ function ajouterSelectionnes() {
             ajoutes++;
         }
     });
-    
-    // Désélectionner tout dans la liste de gauche
     Array.from(select.options).forEach(opt => opt.selected = false);
-    
-    // Re-render la partie destinataires uniquement
     refreshDestinatairesList();
-    
     if (ajoutes > 0) {
-        // Petit feedback visuel
         const btn = document.querySelector('.btn-add');
         const originalText = btn.textContent;
         btn.textContent = `✅ ${ajoutes} ajouté(s)`;
@@ -688,15 +692,12 @@ function retirerSelectionnes() {
         alert('Veuillez sélectionner au moins un destinataire à retirer');
         return;
     }
-    
     let retires = 0;
     checkboxes.forEach(cb => {
         selectedDestinataires.delete(cb.value);
         retires++;
     });
-    
     refreshDestinatairesList();
-    
     const btn = document.querySelector('.btn-remove');
     const originalText = btn.textContent;
     btn.textContent = `✅ ${retires} retiré(s)`;
@@ -706,13 +707,11 @@ function retirerSelectionnes() {
 function refreshDestinatairesList() {
     const destList = document.getElementById('destinatairesList');
     if (!destList) return;
-    
     const sortedAdherents = [...allAdherents].sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom));
     const destListHTML = sortedAdherents
         .filter(a => selectedDestinataires.has(a.id))
         .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} — ${a.statut}</label>`)
         .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
-    
     destList.innerHTML = destListHTML;
     updateDestCount();
 }
@@ -721,80 +720,93 @@ function updateDestCount() {
     const countEl = document.querySelector('.dest-count');
     const btnSend = document.getElementById('btnSend');
     const nb = selectedDestinataires.size;
-    
-    if (countEl) countEl.innerHTML = `📨 <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
+    if (countEl) countEl.innerHTML = ` <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
     if (btnSend) btnSend.textContent = `📤 Envoyer à ${nb} personne(s)`;
-    
-    // Mettre à jour le titre du panneau destinataires
     const destPanelTitle = document.querySelector('#destinatairesList')?.previousElementSibling;
     if (destPanelTitle) destPanelTitle.innerHTML = `✅ Destinataires (${nb})`;
 }
 
+// ✅ NOUVELLE FONCTION : Envoi groupé rapide (1 seul appel API)
 async function envoyerMessageGroupe() {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
     if (selectedDestinataires.size === 0) { alert('Veuillez sélectionner au moins un destinataire'); return; }
+    
+    // Récupérer la case "Autoriser les réponses"
+    const reponseAutoriseeCheckbox = document.getElementById('reponseAutorisee');
+    const reponseAutorisee = reponseAutoriseeCheckbox ? reponseAutoriseeCheckbox.checked : true;
     
     const btn = document.getElementById('btnSend');
     btn.disabled = true;
     btn.textContent = '⏳ Envoi en cours...';
     
     const destinataires = allAdherents.filter(a => selectedDestinataires.has(a.id));
-    const total = destinataires.length;
-    const groupeIds = destinataires.map(d => d.id).join(',');
+    const destIds = destinataires.map(d => d.id).join(',');
     
-    // Afficher la progression
     const content = document.getElementById('messagerieContent');
     content.innerHTML = `
         <div style="margin-bottom:15px;">
             <button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button>
         </div>
         <div class="send-section">
-            <h3>📤 Envoi en cours...</h3>
-            <div class="progress-bar visible" style="width:100%;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:10px 0;">
-                <div class="progress-fill" id="progressFill" style="height:100%;background:var(--success);width:0%;transition:width 0.3s;"></div>
+            <h3>📤 Envoi groupé en cours...</h3>
+            <div style="text-align:center;padding:20px;">
+                <div style="font-size:48px;margin-bottom:10px;">⏳</div>
+                <div style="font-size:16px;color:var(--text);">Envoi à <strong>${destinataires.length}</strong> destinataire(s)...</div>
+                <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
             </div>
-            <div class="progress-text visible" id="progressText" style="font-size:12px;color:var(--text-sub);text-align:center;"></div>
         </div>
     `;
     
-    let succes = 0, echecs = 0;
-    
-    for (let i = 0; i < total; i++) {
-        const dest = destinataires[i];
-        const progressText = document.getElementById('progressText');
-        const progressFill = document.getElementById('progressFill');
-        if (progressText) progressText.textContent = `Envoi ${i+1}/${total} — ${dest.prenom} ${dest.nom}...`;
-        if (progressFill) progressFill.style.width = (((i+1) / total) * 100) + '%';
+    try {
+        // ✅ UN SEUL APPEL API pour tous les destinataires
+        const params = new URLSearchParams({ 
+            action: 'sendBulkMessage',
+            userId: adherent.id,
+            nom: adherent.nom,
+            prenom: adherent.prenom,
+            message: texte,
+            categorie: 'organisation',
+            destIds: destIds,
+            reponseAutorisee: reponseAutorisee ? 'true' : 'false',
+            isOrganisateur: 'true'
+        });
         
-        try {
-            const params = new URLSearchParams({ 
-                action:'sendMessage', userId:dest.id, 
-                nom:adherent.nom, prenom:adherent.prenom, 
-                message:texte, categorie:'organisation', 
-                convId:'', isOrganisateur:'true', 
-                groupeIds:groupeIds 
-            });
-            const resp = await fetch(SCRIPT_URL + '?' + params);
-            const data = await resp.json();
-            if (data.success) succes++; else echecs++;
-        } catch(e) { echecs++; }
+        const resp = await fetch(SCRIPT_URL + '?' + params);
+        const data = await resp.json();
         
-        if (i < total - 1) await new Promise(r => setTimeout(r, 300));
+        if (data.success) {
+            messagerieFormulaireOuvert = false;
+            selectedDestinataires.clear();
+            
+            content.innerHTML = `
+                <div class="confirm-box">
+                    ✅ Envoi groupé terminé !<br>
+                    <strong>${data.nbMessages}</strong> message(s) envoyé(s) en une seule opération<br>
+                    ${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : ' Message informatif - réponses désactivées'}
+                </div>
+                <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>
+            `;
+        } else {
+            content.innerHTML = `<p style="color:red;text-align:center;padding:20px;">Erreur : ${data.message || 'inconnue'}</p>
+                <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>`;
+        }
+    } catch(e) {
+        content.innerHTML = `<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>
+            <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>`;
     }
-    
-    messagerieFormulaireOuvert = false;
-    selectedDestinataires.clear();
-    
-    content.innerHTML = `
-        <div class="confirm-box">
-            ✅ Envoi terminé<br>
-            <strong>${succes}</strong> message(s) envoyé(s) avec succès<br>
-            ${echecs > 0 ? '<span style="color:#856404;">⚠️ ' + echecs + ' échec(s)</span>' : ''}
-        </div>
-        <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>
-    `;
 }
+
+
+
+
+
+
+
+
+
+
+    
 
 // ============================================
 // VISIBILITÉ & NETTOYAGE
