@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.17</title>
+<title>Messagerie</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -66,11 +66,34 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap:
 .conv-msg { padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.1); }
 .conv-msg .msg-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
 .conv-msg .msg-text { font-size: 14px; color: var(--text); }
-.conv-actions { padding: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.conv-actions { padding: 10px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .conv-actions button { padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
 .btn-repondre { background: var(--primary); color: white; }
 .btn-clore { background: #6b7280; color: white; }
 .btn-declore { background: var(--warning); color: white; }
+
+/* Case à cocher "Vu" */
+.vu-checkbox-wrapper {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 6px 10px;
+background: var(--bg);
+border-radius: 8px;
+font-size: 12px;
+cursor: pointer;
+}
+.vu-checkbox-wrapper input[type="checkbox"] {
+width: 18px;
+height: 18px;
+accent-color: var(--success);
+cursor: pointer;
+}
+.vu-checkbox-wrapper label {
+cursor: pointer;
+font-weight: 600;
+color: var(--text);
+}
 
 .send-section { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 .send-section h3 { color: var(--text); font-size: 15px; margin-bottom: 12px; }
@@ -82,12 +105,10 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap:
 .empty-state { text-align: center; padding: 30px 20px; color: var(--text-sub); font-size: 13px; }
 .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
 
-/* ===== SÉLECTION DESTINATAIRES ===== */
+/* Sélection destinataires */
 .dest-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .dest-panel { background: var(--bg); border-radius: 10px; padding: 10px; border: 2px solid #ddd; }
 .dest-panel h4 { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-/* ✅ Liste 2x plus haute (400px au lieu de 200px) */
 .dest-list {
 max-height: 400px; overflow-y: auto; background: var(--card-bg);
 border-radius: 8px; padding: 6px; border: 1px solid rgba(128,128,128,0.2);
@@ -99,7 +120,6 @@ font-size: 13px; cursor: pointer; border-radius: 4px;
 .dest-list .dest-item:hover { background: rgba(26,58,107,0.08); }
 .dest-list .dest-item input { accent-color: var(--primary); }
 
-/* ✅ Badge statut 4 lettres majuscules */
 .statut-badge {
 display: inline-block;
 padding: 1px 5px;
@@ -107,7 +127,7 @@ border-radius: 4px;
 font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.5px;
-margin-left: 6px;
+margin-right: 6px;
 background: #e5e7eb;
 color: #374151;
 }
@@ -132,7 +152,6 @@ cursor: pointer; transition: all 0.15s;
 .dest-count { font-size: 12px; color: var(--text-sub); text-align: center; padding: 6px; background: var(--bg); border-radius: 8px; margin-bottom: 10px; }
 .dest-count strong { color: var(--primary); }
 
-/* Catégories participant */
 .cat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .cat-chip {
 padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px;
@@ -166,11 +185,11 @@ cursor: pointer; transition: all 0.15s;
 // CONFIGURATION
 // ============================================
 const CATEGORIES = [
-    { id: 'partenaire',   label: 'Partenaire',   icon: '' },
-    { id: 'stagiaire',    label: 'Stagiaire',    icon: '🎓' },
+    { id: 'partenaire',   label: 'Partenaire',   icon: '🤝' },
+    { id: 'stagiaire',    label: 'Stagiaire',    icon: '' },
     { id: 'organisation', label: 'Organisation', icon: '🏢' },
     { id: 'probleme',     label: 'Problème',     icon: '️' },
-    { id: 'atelier',      label: 'Atelier',      icon: '🔬' },
+    { id: 'atelier',      label: 'Atelier',      icon: '' },
     { id: 'handicap',     label: 'Handicap',     icon: '♿' }
 ];
 
@@ -185,22 +204,22 @@ let selectedDestinataires = new Set();
 const adherent = verifierConnexionOuRediriger();
 
 // ============================================
-// UTILITAIRE : Formatage statut 4 lettres majuscules
+// UTILITAIRE : Formatage "ORGA - Prénom NOM"
 // ============================================
 function formatStatut(statut) {
     if (!statut) return '';
     return statut.substring(0, 4).toUpperCase();
 }
 
-// ============================================
-// UTILITAIRE : Tri par statut puis nom
-// ============================================
+function formatNomComplet(a) {
+    // "ORGA - Sédric BLIN"
+    return `${formatStatut(a.statut)} - ${a.prenom} ${a.nom}`;
+}
+
 function trierAdherentsParStatutPuisNom(liste) {
     return [...liste].sort((a, b) => {
-        // D'abord par statut (alphabétique)
         const compStatut = (a.statut || '').localeCompare(b.statut || '');
         if (compStatut !== 0) return compStatut;
-        // Puis par nom de famille
         return (a.nom || '').localeCompare(b.nom || '');
     });
 }
@@ -298,14 +317,12 @@ function getCategorieBadgeHTML(catId) {
 // CHARGEMENT LISTE ADHÉRENTS
 // ============================================
 async function chargerListeAdherents() {
-    // D'abord essayer le cache (chargé à l'ouverture de l'app)
     const cached = getAdherentsFromCache();
     if (cached) {
         allAdherents = cached.adherents;
         statutsDisponibles = cached.statuts;
         return;
     }
-    // Sinon fetch
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getAdherents&userId=' + encodeURIComponent(adherent.id));
         const data = await resp.json();
@@ -326,8 +343,7 @@ async function init() {
     chargerDepuisCache();
     
     if (adherent.statut === 'Organisateur') {
-        document.getElementById('messagerieTitle').textContent = ' Messages des participants';
-        // Charger la liste adhérents si pas déjà fait
+        document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
         await chargerListeAdherents();
         renderOrganisateur();
     } else {
@@ -353,47 +369,141 @@ async function init() {
 }
 
 // ============================================
-// RENDU PARTICIPANT
+// RENDU PARTICIPANT (avec filtres Non traités/Traités basés sur "vu")
 // ============================================
 function renderParticipant() {
     const content = document.getElementById('messagerieContent');
     const keys = Object.keys(conversations);
     
-    let html = '<button onclick="afficherFormulaireParticipant(null)" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:15px;">✉️ Nouveau message</button>';
+    // Compter par statut "vu"
+    let nbNonVus = 0, nbVus = 0;
+    const catCounts = { 'toutes': 0, 'toutes_nv': 0, 'toutes_v': 0 };
+    CATEGORIES.forEach(c => { catCounts[c.id] = 0; catCounts[c.id + '_nv'] = 0; catCounts[c.id + '_v'] = 0; });
     
-    if (!keys.length) {
-        html += '<div class="empty-state"><div class="empty-icon">📭</div>Aucun message pour le moment</div>';
+    keys.forEach(convBase => {
+        const msgs = conversations[convBase];
+        if (!msgs || msgs.length === 0) return;
+        const last = msgs[msgs.length - 1];
+        const nonVu = last.vu !== 'OUI';
+        const cat = last.categorie || 'defaut';
+        
+        if (nonVu) { nbNonVus++; catCounts['toutes_nv']++; if (catCounts[cat+'_nv'] !== undefined) catCounts[cat+'_nv']++; }
+        else { nbVus++; catCounts['toutes_v']++; if (catCounts[cat+'_v'] !== undefined) catCounts[cat+'_v']++; }
+        
+        catCounts['toutes']++;
+        if (catCounts[cat] !== undefined) catCounts[cat]++;
+    });
+    
+    let html = '<button onclick="afficherFormulaireParticipant(null)" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
+    
+    // Niveau 1 : Filtres Non vus / Vus (comme les organisateurs)
+    html += '<div class="filter-bar">';
+    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatutParticipant('nonTraites')">🔴 Non lus <span class="count">${nbNonVus}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatutParticipant('traites')">✅ Lus <span class="count">${nbVus}</span></button>`;
+    html += '</div>';
+    
+    // Niveau 2 : Filtres catégorie
+    html += '<div class="cat-filter-bar">';
+    const countToutes = filtreStatut === 'nonTraites' ? catCounts['toutes_nv'] : catCounts['toutes_v'];
+    html += `<button class="cat-btn ${filtreCategorie==='toutes'?'active':''}" onclick="changerFiltreCategorieParticipant('toutes')"> Toutes <span class="cat-count">${countToutes}</span></button>`;
+    CATEGORIES.forEach(c => {
+        const count = filtreStatut === 'nonTraites' ? (catCounts[c.id+'_nv']||0) : (catCounts[c.id+'_v']||0);
+        html += `<button class="cat-btn ${filtreCategorie===c.id?'active':''}" onclick="changerFiltreCategorieParticipant('${c.id}')">${c.icon} ${c.label} <span class="cat-count">${count}</span></button>`;
+    });
+    html += '</div>';
+    
+    // Filtrage combiné
+    const convsFiltrees = {};
+    keys.forEach(convBase => {
+        const msgs = conversations[convBase];
+        if (!msgs || msgs.length === 0) return;
+        const last = msgs[msgs.length - 1];
+        const nonVu = last.vu !== 'OUI';
+        const cat = last.categorie || 'defaut';
+        
+        if (filtreStatut === 'nonTraites' && !nonVu) return;
+        if (filtreStatut === 'traites' && nonVu) return;
+        if (filtreCategorie !== 'toutes' && filtreCategorie !== cat) return;
+        
+        convsFiltrees[convBase] = msgs;
+    });
+    
+    const convKeys = Object.keys(convsFiltrees);
+    if (convKeys.length === 0) {
+        let emptyIcon = '📭', emptyText = 'Aucun message';
+        if (filtreStatut === 'nonTraites') { emptyIcon = ''; emptyText = 'Aucun message non lu'; }
+        else if (filtreStatut === 'traites') { emptyIcon = ''; emptyText = 'Aucun message lu'; }
+        if (filtreCategorie !== 'toutes') {
+            const catInfo = getCategorieInfo(filtreCategorie);
+            emptyText += ` dans ${catInfo.icon} ${catInfo.label}`;
+        }
+        html += `<div class="empty-state"><div class="empty-icon">${emptyIcon}</div>${emptyText}</div>`;
     } else {
-        keys.forEach(convBase => {
-            const msgs = conversations[convBase].sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
-            const last = msgs[msgs.length - 1];
-            const enAttente = last.traite === 'NON' && last.userId === adherent.id;
-            const catBadge = getCategorieBadgeHTML(last.categorie);
-            
-            html += '<div class="conv-card" style="border-left:4px solid ' + (enAttente ? '#f59e0b' : '#10b981') + ';">';
-            html += '<div class="conv-header ' + (enAttente ? 'non-traite' : 'traite') + '">';
-            html += '<div><strong>' + (enAttente ? '⏳ En attente' : '✅ Répondu') + '</strong>' + catBadge;
-            html += '<span style="float:right;font-size:11px;color:var(--text-sub);">' + convBase + '</span></div></div>';
-            
-            msgs.forEach(m => {
-                html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
-                html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
-                html += '<div class="msg-text">' + m.message + '</div></div>';
-            });
-            
-            const reponseAutorisee = last.reponseAutorisee !== 'NON';
-            if (reponseAutorisee) {
-                html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">↩️ Répondre</button></div>';
-            } else {
-                html += '<div style="padding:10px;background:rgba(245,158,11,0.1);border-radius:8px;margin:10px;text-align:center;">';
-                html += '<div style="font-size:13px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
-                html += '<div style="font-size:11px;color:#92400e;margin-top:4px;">Ce message ne permet pas de réponse</div>';
-                html += '</div>';
-            }
-            html += '</div>';
+        convKeys.forEach(convBase => {
+            html += renderConvCardParticipant(convBase, convsFiltrees[convBase]);
         });
     }
+    
     content.innerHTML = html;
+}
+
+function changerFiltreStatutParticipant(s) { filtreStatut = s; renderParticipant(); }
+function changerFiltreCategorieParticipant(c) { filtreCategorie = c; renderParticipant(); }
+
+function renderConvCardParticipant(convBase, msgs) {
+    const sorted = msgs.sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
+    const last = sorted[sorted.length - 1];
+    const catBadge = getCategorieBadgeHTML(last.categorie);
+    const nonVu = last.vu !== 'OUI';
+    const reponseAutorisee = last.reponseAutorisee !== 'NON';
+    
+    let html = '<div class="conv-card" style="border-left:4px solid ' + (nonVu ? '#dc3545' : '#28a745') + ';">';
+    html += '<div class="conv-header ' + (nonVu ? 'non-traite' : 'traite') + '">';
+    html += '<div><strong>' + (nonVu ? '🔴 Non lu' : '✅ Lu') + '</strong>' + catBadge;
+    html += '<span style="float:right;font-size:11px;color:var(--text-sub);">' + convBase + '</span></div></div>';
+    
+    sorted.forEach(m => {
+        html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
+        html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
+        html += '<div class="msg-text">' + m.message + '</div></div>';
+    });
+    
+    // Actions : case "Vu" + bouton répondre (si autorisé)
+    html += '<div class="conv-actions">';
+    html += `<div class="vu-checkbox-wrapper">
+        <input type="checkbox" id="vu-${convBase}" ${nonVu ? '' : 'checked'} onchange="toggleVu('${convBase}', this.checked)">
+        <label for="vu-${convBase}">${nonVu ? 'Marquer comme lu' : 'Lu'}</label>
+    </div>`;
+    
+    if (reponseAutorisee) {
+        html += `<button class="btn-repondre" onclick="afficherFormulaireParticipant('${convBase}')">↩️ Répondre</button>`;
+    } else {
+        html += '<div style="padding:6px 10px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:11px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+async function toggleVu(convBase, estCoche) {
+    if (!estCoche) return; // On ne peut pas "dé-cocher" (remettre en non-lu)
+    try {
+        const params = new URLSearchParams({ 
+            action: 'marquerVu', 
+            userId: adherent.id, 
+            convId: convBase 
+        });
+        const resp = await fetch(SCRIPT_URL + '?' + params);
+        const data = await resp.json();
+        if (data.success) {
+            // Mettre à jour le cache local immédiatement
+            if (conversations[convBase]) {
+                conversations[convBase].forEach(m => { m.vu = 'OUI'; });
+            }
+            saveMessagerieCache({ conversations: conversations });
+            renderParticipant();
+        }
+    } catch (e) { console.warn('Erreur marquer vu:', e); }
 }
 
 function afficherFormulaireParticipant(convBase) {
@@ -517,7 +627,7 @@ function renderOrganisateur() {
         html += `<div class="empty-state"><div class="empty-icon">${emptyIcon}</div>${emptyText}</div>`;
     } else {
         convKeys.forEach(convBase => {
-            html += renderConvCard(convBase, convsFiltrees[convBase], convsFiltrees[convBase][convsFiltrees[convBase].length-1].traite === 'NON');
+            html += renderConvCardOrga(convBase, convsFiltrees[convBase], convsFiltrees[convBase][convsFiltrees[convBase].length-1].traite === 'NON');
         });
     }
     
@@ -527,7 +637,7 @@ function renderOrganisateur() {
 function changerFiltreStatut(s) { filtreStatut = s; renderOrganisateur(); }
 function changerFiltreCategorie(c) { filtreCategorie = c; renderOrganisateur(); }
 
-function renderConvCard(convBase, msgs, nonTraite) {
+function renderConvCardOrga(convBase, msgs, nonTraite) {
     const sorted = msgs.sort((a,b) => a.idConvFull.localeCompare(b.idConvFull));
     const pm = sorted.find(m => m.userId !== adherent.id) || sorted[0];
     const last = sorted[sorted.length - 1];
@@ -535,12 +645,13 @@ function renderConvCard(convBase, msgs, nonTraite) {
     
     let html = '<div class="conv-card" style="border-left:4px solid ' + (nonTraite ? '#dc3545' : '#28a745') + ';">';
     html += '<div class="conv-header ' + (nonTraite ? 'non-traite' : 'traite') + '">';
-    html += '<div><strong>👤 ' + pm.prenom + ' ' + pm.nom + '</strong>' + catBadge;
+    // ✅ Format : "ORGA - Prénom NOM"
+    html += '<div><strong>👤 ' + formatNomComplet(pm) + '</strong>' + catBadge;
     html += '<span class="conv-id">' + convBase + '</span></div></div>';
     
     sorted.forEach(m => {
         html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + ';">';
-        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':' '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>';
+        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':'👤 '+formatNomComplet(m)) + ' — ' + m.dateHeure + '</div>';
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     
@@ -567,7 +678,7 @@ async function envoyerReponseOrga(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire une réponse'); return; }
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);"> Envoi en cours...</p>';
+    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
     try {
         const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:convBase, isOrganisateur:'true' });
         const resp = await fetch(SCRIPT_URL + '?' + params);
@@ -604,24 +715,24 @@ function renderFormulaireEnvoiHTML() {
     const countsByStatut = {};
     statutsDisponibles.forEach(s => { countsByStatut[s] = allAdherents.filter(a => a.statut === s).length; });
     
-    // ✅ Tri par statut puis nom
     const sortedAdherents = trierAdherentsParStatutPuisNom(allAdherents);
     
+    // ✅ Format : "ORGA - Prénom NOM" dans les options
     const optionsHTML = sortedAdherents.map(a => 
-        `<option value="${a.id}">${a.prenom} ${a.nom} <span class="statut-badge">${formatStatut(a.statut)}</span></option>`
+        `<option value="${a.id}">${formatNomComplet(a)}</option>`
     ).join('');
     
-    // ✅ Boutons de pré-sélection (avec "TOUS sans organisateur")
     const preselButtonsHTML = statutsDisponibles.map(s => 
         `<button class="statut-presel-btn" onclick="preselectionnerStatut('${s}')">${s} <span class="count">${countsByStatut[s]||0}</span></button>`
     ).join('');
     
     const totalSansOrga = allAdherents.filter(a => a.statut !== 'Organisateur').length;
-    const tousSansOrgaBtn = `<button class="statut-presel-btn" onclick="preselectionnerTousSaufOrga()" style="border-color:var(--primary);font-weight:700;"> TOUS (sauf orga) <span class="count">${totalSansOrga}</span></button>`;
+    const tousSansOrgaBtn = `<button class="statut-presel-btn" onclick="preselectionnerTousSaufOrga()" style="border-color:var(--primary);font-weight:700;">📢 TOUS (sauf orga) <span class="count">${totalSansOrga}</span></button>`;
     
+    // ✅ Format : "ORGA - Prénom NOM" dans la liste destinataires
     const destListHTML = sortedAdherents
         .filter(a => selectedDestinataires.has(a.id))
-        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} <span class="statut-badge">${formatStatut(a.statut)}</span></label>`)
+        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${formatNomComplet(a)}</label>`)
         .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
     
     return `
@@ -631,7 +742,7 @@ function renderFormulaireEnvoiHTML() {
     <div class="send-section">
         <h3>✉️ Nouveau message</h3>
         
-        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">️ Pré-sélectionner par statut :</div>
+        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">🏷️ Pré-sélectionner par statut :</div>
         <div class="statut-presel-bar">
             ${tousSansOrgaBtn}
             ${preselButtonsHTML}
@@ -657,7 +768,7 @@ function renderFormulaireEnvoiHTML() {
             <button class="btn-remove" onclick="retirerSelectionnes()">➖ Retirer de la liste</button>
         </div>
         
-        <div class="dest-count"> <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
+        <div class="dest-count">📨 <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
         
         <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;border:2px solid #ddd;">
             <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:var(--primary);">
@@ -677,7 +788,6 @@ function attacherEventsEnvoi() {
     updateDestCount();
 }
 
-// ✅ Pré-sélectionner TOUS sauf organisateur
 function preselectionnerTousSaufOrga() {
     const select = document.getElementById('listeParticipants');
     if (!select) return;
@@ -742,7 +852,7 @@ function refreshDestinatairesList() {
     const sortedAdherents = trierAdherentsParStatutPuisNom(allAdherents);
     const destListHTML = sortedAdherents
         .filter(a => selectedDestinataires.has(a.id))
-        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} <span class="statut-badge">${formatStatut(a.statut)}</span></label>`)
+        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${formatNomComplet(a)}</label>`)
         .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
     destList.innerHTML = destListHTML;
     updateDestCount();
@@ -753,7 +863,7 @@ function updateDestCount() {
     const btnSend = document.getElementById('btnSend');
     const nb = selectedDestinataires.size;
     if (countEl) countEl.innerHTML = `📨 <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
-    if (btnSend) btnSend.textContent = `📤 Envoyer à ${nb} personne(s)`;
+    if (btnSend) btnSend.textContent = ` Envoyer à ${nb} personne(s)`;
     const destPanelTitle = document.querySelector('#destinatairesList')?.previousElementSibling;
     if (destPanelTitle) destPanelTitle.innerHTML = `✅ Destinataires (${nb})`;
 }
@@ -781,9 +891,9 @@ async function envoyerMessageGroupe() {
         <div class="send-section">
             <h3>📤 Envoi groupé en cours...</h3>
             <div style="text-align:center;padding:20px;">
-                <div style="font-size:48px;margin-bottom:10px;">⏳</div>
+                <div style="font-size:48px;margin-bottom:10px;"></div>
                 <div style="font-size:16px;color:var(--text);">Envoi à <strong>${destinataires.length}</strong> destinataire(s)...</div>
-                <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
+                <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
             </div>
         </div>
     `;
@@ -812,7 +922,7 @@ async function envoyerMessageGroupe() {
                 <div class="confirm-box">
                     ✅ Envoi groupé terminé !<br>
                     <strong>${data.nbMessages}</strong> message(s) envoyé(s) en une seule opération<br>
-                    ${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : '📢 Message informatif - réponses désactivées'}
+                    ${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : ' Message informatif - réponses désactivées'}
                 </div>
                 <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>
             `;
