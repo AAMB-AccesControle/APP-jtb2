@@ -2,7 +2,7 @@
 // ============================================
 // AAMB - Code commun partagé entre toutes les pages
 // ============================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUpUcKVdZv4EBWCUbCyDwRIlzGOCwXyEg7CNlSKU_Qwi9QJNEMfZQW9E7OfDdw-8ax/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxuj0RBchwQbOWJHpVxjlM29B0jRdxr8S2HFgRlWc1UpJ3-EXskuXkXDAdcXskyLuWGA/exec';
 const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
 const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 
@@ -198,6 +198,46 @@ function startMessagerieBackgroundSync() {
 
 function stopMessagerieBackgroundSync() {
     if (messagerieSyncTimer) { clearInterval(messagerieSyncTimer); messagerieSyncTimer = null; }
+}
+
+
+// ===== CHARGEMENT LISTE ADHÉRENTS (pour organisateurs) =====
+const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
+const ADHERENTS_CACHE_DURATION = 3600000; // 1 heure
+
+function getAdherentsFromCache() {
+    try {
+        const raw = localStorage.getItem(ADHERENTS_CACHE_KEY);
+        if (!raw) return null;
+        const cache = JSON.parse(raw);
+        if (Date.now() - cache.timestamp > ADHERENTS_CACHE_DURATION) return null;
+        return cache.data;
+    } catch (e) { return null; }
+}
+
+function saveAdherentsToCache(data) {
+    try {
+        localStorage.setItem(ADHERENTS_CACHE_KEY, JSON.stringify({
+            timestamp: Date.now(),
+            data: data
+        }));
+    } catch (e) { console.warn('Cache adhérents échoué:', e); }
+}
+
+async function chargerListeAdherentsSilencieux() {
+    const adherent = chargerAdherent();
+    if (!adherent || adherent.statut !== 'Organisateur') return;
+    
+    // Si déjà en cache et frais, ne pas recharger
+    if (getAdherentsFromCache()) return;
+    
+    try {
+        const resp = await fetch(SCRIPT_URL + '?action=getAdherents&userId=' + encodeURIComponent(adherent.id));
+        const data = await resp.json();
+        if (data.success) {
+            saveAdherentsToCache({ adherents: data.adherents, statuts: data.statuts });
+        }
+    } catch (e) { console.warn('Chargement adhérents échoué:', e); }
 }
 
 // ===== INITIALISATION AUTOMATIQUE =====
