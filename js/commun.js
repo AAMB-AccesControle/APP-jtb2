@@ -5,6 +5,11 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxuj0RBchwQbOWJHpVxjlM29B0jRdxr8S2HFgRlWc1UpJ3-EXskuXkXDAdcXskyLuWGA/exec';
 const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
 const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
+const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
+const ADHERENTS_CACHE_DURATION = 3600000; // 1 heure
+
+// Variable globale pour empêcher le refresh de l'UI quand un formulaire est ouvert
+let messagerieFormulaireOuvert = false;
 
 // ===== GESTION ADHÉRENT =====
 function chargerAdherent() {
@@ -57,7 +62,7 @@ function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
     document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
-    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '' : '☀️');
+    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '☀️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
 }
 
@@ -140,7 +145,6 @@ window.addEventListener('unhandledrejection', (e) => { console.error('Promesse r
 // ============================================
 let messagerieSyncTimer = null;
 let messagerieSyncEnCours = false;
-let messagerieFormulaireOuvert = false;
 
 function getMessagerieCache() {
     try {
@@ -178,6 +182,7 @@ async function syncMessagerieBackground() {
         
         if (data.success) {
             saveMessagerieCache(data);
+            // Ne notifier que si aucun formulaire n'est ouvert
             if (!messagerieFormulaireOuvert) {
                 window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
             }
@@ -200,11 +205,9 @@ function stopMessagerieBackgroundSync() {
     if (messagerieSyncTimer) { clearInterval(messagerieSyncTimer); messagerieSyncTimer = null; }
 }
 
-
-// ===== CHARGEMENT LISTE ADHÉRENTS (pour organisateurs) =====
-const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
-const ADHERENTS_CACHE_DURATION = 3600000; // 1 heure
-
+// ============================================
+// CHARGEMENT LISTE ADHÉRENTS (pour organisateurs)
+// ============================================
 function getAdherentsFromCache() {
     try {
         const raw = localStorage.getItem(ADHERENTS_CACHE_KEY);
@@ -254,9 +257,12 @@ document.addEventListener('DOMContentLoaded', function() {
         injecterHeaderPrincipal();
     }
     
-    // Démarrer la synchro messagerie en arrière-plan
+    // Démarrer les tâches en arrière-plan
     const adherent = chargerAdherent();
-    if (adherent) startMessagerieBackgroundSync();
+    if (adherent) {
+        startMessagerieBackgroundSync();
+        chargerListeAdherentsSilencieux();
+    }
 });
 
 window.addEventListener('beforeunload', () => { stopMessagerieBackgroundSync(); });
