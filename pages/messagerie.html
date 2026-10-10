@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.12</title>
+<title>Messagerie v0.17</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
 </script>
 <style>
-/* ===== STYLES DE BASE ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
 --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
@@ -22,13 +21,11 @@ body.dark {
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
-/* ===== HEADER DE PAGE ===== */
 .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
 .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
 .page-header h2 { font-size: 18px; flex: 1; }
 .page-content { padding: 16px; }
 
-/* ===== BARRE SYNC ===== */
 .sync-status { font-size: 11px; color: var(--text-sub); text-align: center; padding: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); display: inline-block; }
 .sync-status .dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
@@ -38,7 +35,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .refresh-btn.spinning { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* ===== FILTRES STATUT (Niveau 1) ===== */
 .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
 .filter-btn {
 flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px;
@@ -51,7 +47,6 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; just
 .filter-btn.active-traite { border-color: var(--success); background: var(--success); color: white; }
 .filter-btn.active-traite .count { background: rgba(255,255,255,0.3); }
 
-/* ===== FILTRES CATEGORIE (Niveau 2) ===== */
 .cat-filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(128,128,128,0.15); }
 .cat-btn {
 padding: 6px 10px; border: 2px solid #ddd; border-radius: 16px;
@@ -62,7 +57,6 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap:
 .cat-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
 .cat-btn.active .cat-count { background: rgba(255,255,255,0.3); }
 
-/* ===== CARTE CONVERSATION ===== */
 .conv-card { background: var(--card-bg); border-radius: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); overflow: hidden; }
 .conv-header { padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
 .conv-header.non-traite { background: rgba(220,53,69,0.1); }
@@ -78,7 +72,6 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap:
 .btn-clore { background: #6b7280; color: white; }
 .btn-declore { background: var(--warning); color: white; }
 
-/* ===== ENVOI - SECTION GÉNÉRALE ===== */
 .send-section { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 .send-section h3 { color: var(--text); font-size: 15px; margin-bottom: 12px; }
 .msg-textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; resize: vertical; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; font-family: inherit; }
@@ -89,20 +82,16 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap:
 .empty-state { text-align: center; padding: 30px 20px; color: var(--text-sub); font-size: 13px; }
 .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
 
-/* ===== SÉLECTION DESTINATAIRES (Organisateur) ===== */
+/* ===== SÉLECTION DESTINATAIRES ===== */
 .dest-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .dest-panel { background: var(--bg); border-radius: 10px; padding: 10px; border: 2px solid #ddd; }
 .dest-panel h4 { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ✅ Liste 2x plus haute (400px au lieu de 200px) */
 .dest-list {
-max-height: 200px; overflow-y: auto; background: var(--card-bg);
+max-height: 400px; overflow-y: auto; background: var(--card-bg);
 border-radius: 8px; padding: 6px; border: 1px solid rgba(128,128,128,0.2);
 }
-.dest-list option, .dest-list label {
-padding: 6px 8px; font-size: 13px; cursor: pointer; display: block;
-border-radius: 4px; margin-bottom: 2px;
-}
-.dest-list option:hover, .dest-list label:hover { background: rgba(26,58,107,0.08); }
-.dest-list option:checked { background: var(--primary); color: white; }
 .dest-list .dest-item {
 display: flex; align-items: center; gap: 6px; padding: 6px 8px;
 font-size: 13px; cursor: pointer; border-radius: 4px;
@@ -110,17 +99,27 @@ font-size: 13px; cursor: pointer; border-radius: 4px;
 .dest-list .dest-item:hover { background: rgba(26,58,107,0.08); }
 .dest-list .dest-item input { accent-color: var(--primary); }
 
+/* ✅ Badge statut 4 lettres majuscules */
+.statut-badge {
+display: inline-block;
+padding: 1px 5px;
+border-radius: 4px;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.5px;
+margin-left: 6px;
+background: #e5e7eb;
+color: #374151;
+}
+
 .dest-actions { display: flex; gap: 8px; margin-bottom: 12px; }
 .dest-actions button {
 flex: 1; padding: 10px; border: none; border-radius: 8px;
 font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
 }
 .btn-add { background: var(--success); color: white; }
-.btn-add:hover { opacity: 0.9; }
 .btn-remove { background: var(--danger); color: white; }
-.btn-remove:hover { opacity: 0.9; }
 
-/* Boutons de pré-sélection par statut */
 .statut-presel-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .statut-presel-btn {
 padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px;
@@ -133,18 +132,19 @@ cursor: pointer; transition: all 0.15s;
 .dest-count { font-size: 12px; color: var(--text-sub); text-align: center; padding: 6px; background: var(--bg); border-radius: 8px; margin-bottom: 10px; }
 .dest-count strong { color: var(--primary); }
 
-/* ===== CATÉGORIES PARTICIPANT ===== */
+/* Catégories participant */
 .cat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .cat-chip {
 padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px;
 background: var(--card-bg); color: var(--text); font-size: 12px; font-weight: 600;
-cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px;
+cursor: pointer; transition: all 0.15s;
 }
 .cat-chip:hover { border-color: var(--primary); }
 .cat-chip.active { border-color: var(--primary); background: var(--primary); color: white; }
 
 @media (max-width: 480px) {
 .dest-selector { grid-template-columns: 1fr; }
+.dest-list { max-height: 250px; }
 }
 </style>
 </head>
@@ -169,7 +169,7 @@ const CATEGORIES = [
     { id: 'partenaire',   label: 'Partenaire',   icon: '' },
     { id: 'stagiaire',    label: 'Stagiaire',    icon: '🎓' },
     { id: 'organisation', label: 'Organisation', icon: '🏢' },
-    { id: 'probleme',     label: 'Problème',     icon: '⚠️' },
+    { id: 'probleme',     label: 'Problème',     icon: '️' },
     { id: 'atelier',      label: 'Atelier',      icon: '🔬' },
     { id: 'handicap',     label: 'Handicap',     icon: '♿' }
 ];
@@ -180,11 +180,30 @@ let conversations = {};
 let refreshTimer = null;
 let allAdherents = [];
 let statutsDisponibles = [];
-
-// Pour la sélection de destinataires
-let selectedDestinataires = new Set(); // IDs des destinataires sélectionnés
+let selectedDestinataires = new Set();
 
 const adherent = verifierConnexionOuRediriger();
+
+// ============================================
+// UTILITAIRE : Formatage statut 4 lettres majuscules
+// ============================================
+function formatStatut(statut) {
+    if (!statut) return '';
+    return statut.substring(0, 4).toUpperCase();
+}
+
+// ============================================
+// UTILITAIRE : Tri par statut puis nom
+// ============================================
+function trierAdherentsParStatutPuisNom(liste) {
+    return [...liste].sort((a, b) => {
+        // D'abord par statut (alphabétique)
+        const compStatut = (a.statut || '').localeCompare(b.statut || '');
+        if (compStatut !== 0) return compStatut;
+        // Puis par nom de famille
+        return (a.nom || '').localeCompare(b.nom || '');
+    });
+}
 
 // ============================================
 // CACHE
@@ -267,7 +286,7 @@ function texteEnCours() {
 }
 
 function getCategorieInfo(catId) {
-    return CATEGORIES.find(c => c.id === catId) || { id: 'defaut', label: catId || 'Sans catégorie', icon: '' };
+    return CATEGORIES.find(c => c.id === catId) || { id: 'defaut', label: catId || 'Sans catégorie', icon: '📋' };
 }
 
 function getCategorieBadgeHTML(catId) {
@@ -279,12 +298,21 @@ function getCategorieBadgeHTML(catId) {
 // CHARGEMENT LISTE ADHÉRENTS
 // ============================================
 async function chargerListeAdherents() {
+    // D'abord essayer le cache (chargé à l'ouverture de l'app)
+    const cached = getAdherentsFromCache();
+    if (cached) {
+        allAdherents = cached.adherents;
+        statutsDisponibles = cached.statuts;
+        return;
+    }
+    // Sinon fetch
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getAdherents&userId=' + encodeURIComponent(adherent.id));
         const data = await resp.json();
         if (data.success) {
             allAdherents = data.adherents;
             statutsDisponibles = data.statuts;
+            saveAdherentsToCache({ adherents: data.adherents, statuts: data.statuts });
         }
     } catch (e) { console.warn('Erreur chargement adhérents:', e); }
 }
@@ -292,13 +320,15 @@ async function chargerListeAdherents() {
 // ============================================
 // INITIALISATION
 // ============================================
-function init() {
+async function init() {
     if (!adherent) return;
     
     chargerDepuisCache();
     
     if (adherent.statut === 'Organisateur') {
-        document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
+        document.getElementById('messagerieTitle').textContent = ' Messages des participants';
+        // Charger la liste adhérents si pas déjà fait
+        await chargerListeAdherents();
         renderOrganisateur();
     } else {
         document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
@@ -320,14 +350,10 @@ function init() {
             synchroniserSilencieuse();
         }
     }, 30000);
-    
-    if (adherent.statut === 'Organisateur') {
-        chargerListeAdherents();
-    }
 }
 
 // ============================================
-// RENDU PARTICIPANT (avec boutons catégorie)
+// RENDU PARTICIPANT
 // ============================================
 function renderParticipant() {
     const content = document.getElementById('messagerieContent');
@@ -355,21 +381,16 @@ function renderParticipant() {
                 html += '<div class="msg-text">' + m.message + '</div></div>';
             });
             
-            // ✅ VÉRIFICATION : Les réponses sont-elles autorisées ?
             const reponseAutorisee = last.reponseAutorisee !== 'NON';
-            
             if (reponseAutorisee) {
-                // Bouton de réponse normal
-                html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">↩️ Répondre / Continuer</button></div>';
+                html += '<div class="conv-actions"><button class="btn-repondre" onclick="afficherFormulaireParticipant(\'' + convBase + '\')">↩️ Répondre</button></div>';
             } else {
-                // Bandeau informatif si les réponses sont désactivées
                 html += '<div style="padding:10px;background:rgba(245,158,11,0.1);border-radius:8px;margin:10px;text-align:center;">';
                 html += '<div style="font-size:13px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
                 html += '<div style="font-size:11px;color:#92400e;margin-top:4px;">Ce message ne permet pas de réponse</div>';
                 html += '</div>';
             }
-            
-            html += '</div>'; // Fin de la carte de conversation
+            html += '</div>';
         });
     }
     content.innerHTML = html;
@@ -379,7 +400,6 @@ function afficherFormulaireParticipant(convBase) {
     messagerieFormulaireOuvert = true;
     const content = document.getElementById('messagerieContent');
     
-    // Boutons de catégorie (uniquement pour nouveau message)
     let catChipsHTML = '';
     if (!convBase) {
         catChipsHTML = '<div style="font-size:13px;color:var(--text-sub);margin-bottom:6px;">Catégorie du message :</div>';
@@ -392,7 +412,7 @@ function afficherFormulaireParticipant(convBase) {
     
     let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
     html += '<div class="send-section">';
-    html += '<h3>' + (convBase ? '↩️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>';
+    html += '<h3>' + (convBase ? '↩️ Répondre — ' + convBase : '️ Nouveau message') + '</h3>';
     html += catChipsHTML;
     html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>';
     html += '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn">📤 Envoyer</button>';
@@ -409,7 +429,6 @@ async function envoyerMessageParticipant(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
     
-    // Récupérer la catégorie sélectionnée
     const catBtn = document.querySelector('.cat-chip.active');
     const categorie = catBtn ? catBtn.dataset.cat : '';
     
@@ -431,7 +450,7 @@ async function envoyerMessageParticipant(convBase) {
 }
 
 // ============================================
-// RENDU ORGANISATEUR (avec filtres 2 niveaux)
+// RENDU ORGANISATEUR
 // ============================================
 function renderOrganisateur() {
     const content = document.getElementById('messagerieContent');
@@ -457,13 +476,11 @@ function renderOrganisateur() {
     
     let html = '<button onclick="afficherSectionEnvoi()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
     
-    // Niveau 1 : Statut
     html += '<div class="filter-bar">';
     html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')">🔴 Non traités <span class="count">${nbNonTraites}</span></button>`;
     html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')">✅ Traités <span class="count">${nbTraites}</span></button>`;
     html += '</div>';
     
-    // Niveau 2 : Catégorie
     html += '<div class="cat-filter-bar">';
     const countToutes = filtreStatut === 'nonTraites' ? catCounts['toutes_nt'] : catCounts['toutes_t'];
     html += `<button class="cat-btn ${filtreCategorie==='toutes'?'active':''}" onclick="changerFiltreCategorie('toutes')">📋 Toutes <span class="cat-count">${countToutes}</span></button>`;
@@ -473,7 +490,6 @@ function renderOrganisateur() {
     });
     html += '</div>';
     
-    // Filtrage combiné
     const convsFiltrees = {};
     keys.forEach(convBase => {
         const msgs = conversations[convBase];
@@ -524,13 +540,13 @@ function renderConvCard(convBase, msgs, nonTraite) {
     
     sorted.forEach(m => {
         html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + ';">';
-        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':'👤 '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>';
+        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':' '+m.prenom+' '+m.nom) + ' — ' + m.dateHeure + '</div>';
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     
     if (nonTraite) {
         html += '<div class="conv-actions">';
-        html += '<button class="btn-repondre" onclick="afficherReponseOrga(\'' + convBase + '\')"> Répondre</button>';
+        html += '<button class="btn-repondre" onclick="afficherReponseOrga(\'' + convBase + '\')">📤 Répondre</button>';
         html += '</div>';
     }
     html += '</div>';
@@ -551,7 +567,7 @@ async function envoyerReponseOrga(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire une réponse'); return; }
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);"> Envoi en cours...</p>';
     try {
         const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:convBase, isOrganisateur:'true' });
         const resp = await fetch(SCRIPT_URL + '?' + params);
@@ -563,9 +579,8 @@ async function envoyerReponseOrga(convBase) {
     } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
 }
 
-
 // ============================================
-// SECTION ENVOI ORGANISATEUR (envoi groupé rapide)
+// SECTION ENVOI ORGANISATEUR
 // ============================================
 function afficherSectionEnvoi() {
     messagerieFormulaireOuvert = true;
@@ -574,7 +589,7 @@ function afficherSectionEnvoi() {
     const content = document.getElementById('messagerieContent');
     
     if (allAdherents.length === 0) {
-        content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement de la liste des participants...</p>';
+        content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement de la liste...</p>';
         chargerListeAdherents().then(() => {
             content.innerHTML = renderFormulaireEnvoiHTML();
             attacherEventsEnvoi();
@@ -589,18 +604,24 @@ function renderFormulaireEnvoiHTML() {
     const countsByStatut = {};
     statutsDisponibles.forEach(s => { countsByStatut[s] = allAdherents.filter(a => a.statut === s).length; });
     
-    const sortedAdherents = [...allAdherents].sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom));
+    // ✅ Tri par statut puis nom
+    const sortedAdherents = trierAdherentsParStatutPuisNom(allAdherents);
+    
     const optionsHTML = sortedAdherents.map(a => 
-        `<option value="${a.id}">${a.prenom} ${a.nom} — ${a.statut}</option>`
+        `<option value="${a.id}">${a.prenom} ${a.nom} <span class="statut-badge">${formatStatut(a.statut)}</span></option>`
     ).join('');
     
+    // ✅ Boutons de pré-sélection (avec "TOUS sans organisateur")
     const preselButtonsHTML = statutsDisponibles.map(s => 
         `<button class="statut-presel-btn" onclick="preselectionnerStatut('${s}')">${s} <span class="count">${countsByStatut[s]||0}</span></button>`
     ).join('');
     
+    const totalSansOrga = allAdherents.filter(a => a.statut !== 'Organisateur').length;
+    const tousSansOrgaBtn = `<button class="statut-presel-btn" onclick="preselectionnerTousSaufOrga()" style="border-color:var(--primary);font-weight:700;"> TOUS (sauf orga) <span class="count">${totalSansOrga}</span></button>`;
+    
     const destListHTML = sortedAdherents
         .filter(a => selectedDestinataires.has(a.id))
-        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} — ${a.statut}</label>`)
+        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} <span class="statut-badge">${formatStatut(a.statut)}</span></label>`)
         .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
     
     return `
@@ -610,19 +631,22 @@ function renderFormulaireEnvoiHTML() {
     <div class="send-section">
         <h3>✉️ Nouveau message</h3>
         
-        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">🏷️ Pré-sélectionner par statut :</div>
-        <div class="statut-presel-bar">${preselButtonsHTML}</div>
+        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">️ Pré-sélectionner par statut :</div>
+        <div class="statut-presel-bar">
+            ${tousSansOrgaBtn}
+            ${preselButtonsHTML}
+        </div>
         
         <div class="dest-selector">
             <div class="dest-panel">
-                <h4> Liste des participants</h4>
-                <select id="listeParticipants" class="dest-list" multiple size="8">
+                <h4>📋 Liste des participants</h4>
+                <select id="listeParticipants" class="dest-list" multiple size="16">
                     ${optionsHTML}
                 </select>
             </div>
             <div class="dest-panel">
                 <h4>✅ Destinataires (${selectedDestinataires.size})</h4>
-                <div id="destinatairesList" class="dest-list" style="max-height:200px;overflow-y:auto;">
+                <div id="destinatairesList" class="dest-list">
                     ${destListHTML}
                 </div>
             </div>
@@ -635,14 +659,11 @@ function renderFormulaireEnvoiHTML() {
         
         <div class="dest-count"> <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
         
-        <!-- ✅ NOUVEAU : Case à cocher "Autoriser les réponses" -->
         <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;border:2px solid #ddd;">
             <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:var(--primary);">
             <label for="reponseAutorisee" style="font-size:14px;color:var(--text);cursor:pointer;flex:1;">
                 <strong>✉️ Autoriser les réponses</strong>
-                <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">
-                    Si décoché, le message sera marqué comme "informatif" et les destinataires ne pourront pas y répondre.
-                </div>
+                <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">Si décoché, le message sera marqué comme "informatif" et les destinataires ne pourront pas y répondre.</div>
             </label>
         </div>
         
@@ -654,6 +675,17 @@ function renderFormulaireEnvoiHTML() {
 
 function attacherEventsEnvoi() {
     updateDestCount();
+}
+
+// ✅ Pré-sélectionner TOUS sauf organisateur
+function preselectionnerTousSaufOrga() {
+    const select = document.getElementById('listeParticipants');
+    if (!select) return;
+    Array.from(select.options).forEach(opt => opt.selected = false);
+    allAdherents.filter(a => a.statut !== 'Organisateur').forEach(a => {
+        const opt = select.querySelector(`option[value="${a.id}"]`);
+        if (opt) opt.selected = true;
+    });
 }
 
 function preselectionnerStatut(statut) {
@@ -707,10 +739,10 @@ function retirerSelectionnes() {
 function refreshDestinatairesList() {
     const destList = document.getElementById('destinatairesList');
     if (!destList) return;
-    const sortedAdherents = [...allAdherents].sort((a,b) => (a.nom+a.prenom).localeCompare(b.nom+b.prenom));
+    const sortedAdherents = trierAdherentsParStatutPuisNom(allAdherents);
     const destListHTML = sortedAdherents
         .filter(a => selectedDestinataires.has(a.id))
-        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} — ${a.statut}</label>`)
+        .map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${a.prenom} ${a.nom} <span class="statut-badge">${formatStatut(a.statut)}</span></label>`)
         .join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
     destList.innerHTML = destListHTML;
     updateDestCount();
@@ -720,19 +752,17 @@ function updateDestCount() {
     const countEl = document.querySelector('.dest-count');
     const btnSend = document.getElementById('btnSend');
     const nb = selectedDestinataires.size;
-    if (countEl) countEl.innerHTML = ` <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
+    if (countEl) countEl.innerHTML = `📨 <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
     if (btnSend) btnSend.textContent = `📤 Envoyer à ${nb} personne(s)`;
     const destPanelTitle = document.querySelector('#destinatairesList')?.previousElementSibling;
     if (destPanelTitle) destPanelTitle.innerHTML = `✅ Destinataires (${nb})`;
 }
 
-// ✅ NOUVELLE FONCTION : Envoi groupé rapide (1 seul appel API)
 async function envoyerMessageGroupe() {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire un message'); return; }
     if (selectedDestinataires.size === 0) { alert('Veuillez sélectionner au moins un destinataire'); return; }
     
-    // Récupérer la case "Autoriser les réponses"
     const reponseAutoriseeCheckbox = document.getElementById('reponseAutorisee');
     const reponseAutorisee = reponseAutoriseeCheckbox ? reponseAutoriseeCheckbox.checked : true;
     
@@ -753,13 +783,12 @@ async function envoyerMessageGroupe() {
             <div style="text-align:center;padding:20px;">
                 <div style="font-size:48px;margin-bottom:10px;">⏳</div>
                 <div style="font-size:16px;color:var(--text);">Envoi à <strong>${destinataires.length}</strong> destinataire(s)...</div>
-                <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
+                <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
             </div>
         </div>
     `;
     
     try {
-        // ✅ UN SEUL APPEL API pour tous les destinataires
         const params = new URLSearchParams({ 
             action: 'sendBulkMessage',
             userId: adherent.id,
@@ -783,7 +812,7 @@ async function envoyerMessageGroupe() {
                 <div class="confirm-box">
                     ✅ Envoi groupé terminé !<br>
                     <strong>${data.nbMessages}</strong> message(s) envoyé(s) en une seule opération<br>
-                    ${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : ' Message informatif - réponses désactivées'}
+                    ${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : '📢 Message informatif - réponses désactivées'}
                 </div>
                 <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>
             `;
@@ -796,17 +825,6 @@ async function envoyerMessageGroupe() {
             <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>`;
     }
 }
-
-
-
-
-
-
-
-
-
-
-    
 
 // ============================================
 // VISIBILITÉ & NETTOYAGE
