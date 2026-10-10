@@ -468,20 +468,23 @@ function renderConvCardParticipant(convBase, msgs) {
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     
-    // Actions : case "Vu" + bouton répondre (si autorisé)
+    // ✅ C'est ICI que se trouve la condition :
     html += '<div class="conv-actions">';
-    html += `<div class="vu-checkbox-wrapper">
-        <input type="checkbox" id="vu-${convBase}" ${nonVu ? '' : 'checked'} onchange="toggleVu('${convBase}', this.checked)">
-        <label for="vu-${convBase}">${nonVu ? 'Marquer comme lu' : 'Lu'}</label>
-    </div>`;
     
     if (reponseAutorisee) {
+        // Si la réponse est autorisée : on affiche SEULEMENT le bouton répondre
         html += `<button class="btn-repondre" onclick="afficherFormulaireParticipant('${convBase}')">↩️ Répondre</button>`;
     } else {
+        // Si la réponse N'EST PAS autorisée : on affiche la case "Vu" + le bandeau informatif
+        html += `<div class="vu-checkbox-wrapper">
+            <input type="checkbox" id="vu-${convBase}" ${nonVu ? '' : 'checked'} onchange="toggleVu('${convBase}', this.checked)">
+            <label for="vu-${convBase}">${nonVu ? 'Marquer comme lu' : 'Lu'}</label>
+        </div>`;
         html += '<div style="padding:6px 10px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:11px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
     }
-    html += '</div>';
-    html += '</div>';
+    
+    html += '</div>'; // Fin de conv-actions
+    html += '</div>'; // Fin de conv-card
     return html;
 }
 
