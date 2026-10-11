@@ -7,6 +7,7 @@ const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
 const ADHERENTS_CACHE_DURATION = 3600000; // 1 heure
 
+
 // Variable globale pour empêcher le refresh de l'UI quand un formulaire est ouvert
 let messagerieFormulaireOuvert = false;
 
@@ -171,18 +172,28 @@ function saveMessagerieCache(data) {
 async function syncMessagerieBackground() {
     if (messagerieSyncEnCours) return;
     const adherent = chargerAdherent();
-    if (!adherent) return;
+    if (!adherent) {
+        console.log('[Messagerie] Pas d\'adhérent connecté, synchro annulée');
+        return;
+    }
     
     messagerieSyncEnCours = true;
+    console.log('[Messagerie] Début synchro pour', adherent.id, '-', adherent.statut);
+    
     try {
         const action = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
-        const resp = await fetch(SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id), { cache: 'no-store' });
+        const url = SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id);
+        console.log('[Messagerie] Fetch:', url);
+        
+        const resp = await fetch(url, { cache: 'no-store' });
         const data = await resp.json();
+        console.log('[Messagerie] Réponse reçue:', data.success ? 'OK' : 'Erreur');
         
         if (data.success) {
             saveMessagerieCache(data);
+            console.log('[Messagerie] Cache sauvegardé avec', Object.keys(data.conversations || {}).length, 'conversations');
             
-            // ✅ NOUVEAU : Notifier les pages qu'une synchro est terminée
+            // Notifier les pages qu'une synchro est terminée
             if (typeof window.onMessagerieSynced === 'function') {
                 window.onMessagerieSynced(data);
             }
@@ -190,8 +201,12 @@ async function syncMessagerieBackground() {
             if (!messagerieFormulaireOuvert) {
                 window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
             }
+        } else {
+            console.warn('[Messagerie] Erreur API:', data.message);
         }
-    } catch (e) { /* silencieux */ }
+    } catch (e) {
+        console.error('[Messagerie] Erreur synchro:', e);
+    }
     finally { messagerieSyncEnCours = false; }
 }
 
