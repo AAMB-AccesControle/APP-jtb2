@@ -1,8 +1,7 @@
-
 // ============================================
 // AAMB - Code commun partagé entre toutes les pages
 // ============================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLRCBLuPXYBwgghHVw-AVr4FbClIJHgoPbqyxYXEBCcCLInnyvjUMR1SzscuvnY3mrQQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPRnmLYoYp5swgYsFp0Xe7JjR1POS-0tZX8dr4SPOVJkZ6XZfz8VTwQ9nWpgMbZU8KjA/exec';
 const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
 const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
@@ -62,7 +61,7 @@ function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
     document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
-    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '☀️');
+    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '' : '☀️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
 }
 
@@ -182,7 +181,12 @@ async function syncMessagerieBackground() {
         
         if (data.success) {
             saveMessagerieCache(data);
-            // Ne notifier que si aucun formulaire n'est ouvert
+            
+            // ✅ NOUVEAU : Notifier les pages qu'une synchro est terminée
+            if (typeof window.onMessagerieSynced === 'function') {
+                window.onMessagerieSynced(data);
+            }
+            
             if (!messagerieFormulaireOuvert) {
                 window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
             }
