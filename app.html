@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AAMB v0.08000</title>
+<title>AAMB v42.0</title>
 <link rel="manifest" href="manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -13,153 +13,54 @@ if (localStorage.getItem('darkMode') === '1') { document.documentElement.classLi
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
---bg: #eef2f8;
---header-bg: #1a3a6b;
---header-text: white;
---header-sub: #c5d0e8;
---card-bg: white;
---card-shadow: 0 2px 8px rgba(0,0,0,0.1);
---text: #222;
---text-sub: #666;
---page-bg: #f5f7fa;
---group-bg: white;
---group-title-color: #1a3a6b;
---btn-bg: #2d6abf;
---btn-bg2: #3a7fd4;
+--bg: #eef2f8; --header-bg: #1a3a6b; --header-text: white; --header-sub: #c5d0e8;
+--card-bg: white; --card-shadow: 0 2px 8px rgba(0,0,0,0.1); --text: #222; --text-sub: #666;
+--page-bg: #f5f7fa; --group-bg: white; --group-title-color: #1a3a6b;
+--btn-bg: #2d6abf; --btn-bg2: #3a7fd4;
 }
 body.dark {
---bg: #181c2a;
---header-bg: #0f1f3d;
---header-text: white;
---header-sub: #7a90bb;
---card-bg: #242840;
---card-shadow: 0 2px 8px rgba(0,0,0,0.4);
---text: #eee;
---text-sub: #999;
---page-bg: #181c2a;
---group-bg: #242840;
---group-title-color: #7aaaf0;
---btn-bg: #1a4a8a;
---btn-bg2: #2a5fa0;
+--bg: #181c2a; --header-bg: #0f1f3d; --header-text: white; --header-sub: #7a90bb;
+--card-bg: #242840; --card-shadow: 0 2px 8px rgba(0,0,0,0.4); --text: #eee; --text-sub: #999;
+--page-bg: #181c2a; --group-bg: #242840; --group-title-color: #7aaaf0;
+--btn-bg: #1a4a8a; --btn-bg2: #2a5fa0;
 }
-body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-background: var(--bg);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
 
-/* ===== EN-TÊTE UNIFORME (app.html + sous-pages) ===== */
-#header-principal, header#header-app {
-background: var(--header-bg);
-padding: 10px 12px 6px;
-box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-position: sticky;
-top: 0;
-z-index: 100;
-}
-
-.header-top {
-display: flex;
-align-items: flex-start;
-justify-content: space-between;
-gap: 10px;
-}
-
-.header-left {
-display: flex;
-align-items: flex-start;
-gap: 10px;
-flex: 1;
-}
-
-/* Logo sans cadre noir */
-.header-logo {
-width: 80px;
-height: 80px;
-flex-shrink: 0;
-display: flex;
-align-items: center;
-justify-content: center;
-background: transparent;
-}
-.header-logo img {
-width: 100%;
-height: 100%;
-object-fit: contain;
-border: none;
-border-radius: 0;
-}
-
-.header-user-info {
-display: flex;
-flex-direction: column;
-gap: 2px;
-padding-top: 4px;
-}
-.header-user-name {
-color: white;
-font-size: 18px;
-font-weight: 700;
-line-height: 1.2;
-}
-.header-user-statut {
-color: var(--header-sub);
-font-size: 13px;
-font-weight: 500;
-}
-
-.header-right {
-display: flex;
-align-items: flex-start;
-gap: 12px;
-flex-shrink: 0;
-}
-
-.dark-toggle {
-display: flex;
-align-items: center;
-gap: 5px;
-cursor: pointer;
-}
+#header-principal, header#header-app { background: var(--header-bg); padding: 10px 12px 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.header-left { display: flex; align-items: flex-start; gap: 10px; flex: 1; }
+.header-logo { width: 80px; height: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; }
+.header-logo img { width: 100%; height: 100%; object-fit: contain; border: none; border-radius: 0; }
+.header-user-info { display: flex; flex-direction: column; gap: 2px; padding-top: 4px; }
+.header-user-name { color: white; font-size: 18px; font-weight: 700; line-height: 1.2; }
+.header-user-statut { color: var(--header-sub); font-size: 13px; font-weight: 500; }
+.header-right { display: flex; align-items: flex-start; gap: 12px; flex-shrink: 0; }
+.dark-toggle { display: flex; align-items: center; gap: 5px; cursor: pointer; }
 .toggle-label { font-size: 14px; }
 .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
 .toggle-switch.on { background: #4a7fcb; }
 .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
 .toggle-switch.on .toggle-knob { left: 20px; }
-
-.deconnexion {
-cursor: pointer;
-text-align: center;
-color: var(--header-sub);
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 1px;
-}
+.deconnexion { cursor: pointer; text-align: center; color: var(--header-sub); display: flex; flex-direction: column; align-items: center; gap: 1px; }
 .deconnexion .icon { font-size: 18px; }
 .deconnexion .label { font-size: 9px; }
+.header-bottom { display: flex; justify-content: flex-end; padding-top: 2px; }
+.header-version { color: var(--header-sub); font-size: 10px; font-weight: 600; letter-spacing: 0.5px; opacity: 0.7; }
 
-/* Version en bas à droite du cadre header */
-.header-bottom {
-display: flex;
-justify-content: flex-end;
-padding-top: 2px;
-}
-.header-version {
-color: var(--header-sub);
-font-size: 10px;
-font-weight: 600;
-letter-spacing: 0.5px;
-opacity: 0.7;
-}
-
-/* ===== CONTENU PRINCIPAL ===== */
 .container { flex: 1; padding: 12px; max-width: 700px; margin: 0 auto; width: 100%; }
 .btn-group { background: var(--group-bg); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
 .btn-group-title { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--group-title-color); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--btn-bg); }
 .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+/* Wrapper pour la pastille */
+.btn-tile-wrapper { position: relative; display: flex; justify-content: center; }
+.messagerie-badge {
+    position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
+    background-color: #ef4444; border-radius: 50%; border: 2px solid var(--group-bg);
+    display: none; z-index: 10; animation: pulse-badge 2s infinite;
+}
+@keyframes pulse-badge { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
 .btn-tile {
 background: linear-gradient(145deg, var(--btn-bg2), var(--btn-bg));
 border-radius: 12px; padding: 10px 5px 8px; cursor: pointer;
@@ -187,21 +88,19 @@ justify-content: center; text-decoration: none;
 </style>
 </head>
 <body>
-<!-- PAGE AUTHENTIFICATION -->
 <div id="authPage" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--page-bg);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;">
 <div style="max-width:400px;width:100%;text-align:center;">
 <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;background:transparent;">
 <img src="logo-aamb.png" alt="AAMB" style="width:100%;height:100%;object-fit:contain;">
 </div>
-<h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v0.08</h1>
+<h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
 <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
 <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
 <p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
 <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
 style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
 oninput="this.value=this.value.toUpperCase();resetAuthResult();"
-onkeydown="if(event.key==='Enter')verifierID();"
-aria-label="Code d'accès">
+onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <button onclick="verifierID()" id="authBtn" style="width:100%;padding:14px;font-size:16px;font-weight:bold;background:#1a3a6b;color:white;border:none;border-radius:10px;cursor:pointer;" aria-label="Valider le code">Valider →</button>
 <div id="authResult" style="margin-top:15px;display:none;"><div id="authResultContent"></div></div>
 </div>
@@ -209,7 +108,6 @@ aria-label="Code d'accès">
 </div>
 </div>
 
-<!-- HEADER (même structure que les sous-pages) -->
 <header id="header-app">
 <div class="header-top">
 <div class="header-left">
@@ -221,7 +119,7 @@ aria-label="Code d'accès">
 </div>
 <div class="header-right">
 <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Mode sombre">
-<span class="toggle-label" id="toggleLabel">️</span>
+<span class="toggle-label" id="toggleLabel">☀️</span>
 <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
 </div>
 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
@@ -230,14 +128,12 @@ aria-label="Code d'accès">
 </div>
 </div>
 </div>
-<div class="header-bottom">
-<div class="header-version">v42.0</div>
-</div>
+<div class="header-bottom"><div class="header-version">v42.0</div></div>
 </header>
 
 <div class="container">
 <div class="btn-group">
-<div class="btn-group-title">️ JTB Besançon</div>
+<div class="btn-group-title">🏛️ JTB Besançon</div>
 <div class="btn-grid">
 <a class="btn-tile" href="pages/programme.html"><span class="btn-tile-icon">📅</span><span class="btn-tile-label">Programme des Journées</span></a>
 <a class="btn-tile" href="pages/ateliers.html"><span class="btn-tile-icon">🔬</span><span class="btn-tile-label">Ateliers</span></a>
@@ -247,7 +143,13 @@ aria-label="Code d'accès">
 <div class="btn-group">
 <div class="btn-group-title">💬 Communication</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/messagerie.html"><span class="btn-tile-icon">✉️</span><span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span></a>
+<div class="btn-tile-wrapper">
+    <span id="messagerieBadge" class="messagerie-badge"></span>
+    <a class="btn-tile" href="pages/messagerie.html">
+        <span class="btn-tile-icon">✉️</span>
+        <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
+    </a>
+</div>
 <a class="btn-tile" href="pages/chat-ag.html"><span class="btn-tile-icon">🗣️</span><span class="btn-tile-label">Chat pour l'AG</span></a>
 </div>
 </div>
@@ -276,7 +178,7 @@ aria-label="Code d'accès">
 <div class="jtb-menu" id="jtbMenu">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city"> Montpellier</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
 </div>
 </div>
@@ -285,7 +187,7 @@ aria-label="Code d'accès">
 <div class="btn-group" id="groupAdmin" style="display:none;">
 <div class="btn-group-title">🔐 JTB Admin</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/controle-acces.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">Contrôle d'accès</span></a>
+<a class="btn-tile" href="pages/controle-acces.html"><span class="btn-tile-icon">🔐</span><span class="btn-tile-label">Contrôle d'accès</span></a>
 </div>
 </div>
 </div>
@@ -310,10 +212,8 @@ async function verifierID() {
             window._adherentTemp = a;
             resultContent.innerHTML = '<div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">' +
             '<p style="color:#28a745;font-weight:bold;margin-bottom:10px;">✅ Code reconnu !</p>' +
-            '<p style="margin:5px 0;" id="rNom"></p>' +
-            '<p style="margin:5px 0;color:#555;" id="rEtab"></p>' +
-            '<p style="margin:5px 0;color:#555;" id="rEmail"></p>' +
-            '<p style="margin:5px 0;color:#555;" id="rStatut"></p>' +
+            '<p style="margin:5px 0;" id="rNom"></p>' + '<p style="margin:5px 0;color:#555;" id="rEtab"></p>' +
+            '<p style="margin:5px 0;color:#555;" id="rEmail"></p>' + '<p style="margin:5px 0;color:#555;" id="rStatut"></p>' +
             '<p style="margin-top:12px;font-size:13px;color:#666;">C\'est bien vous ?</p>' +
             '<div style="display:flex;gap:10px;margin-top:10px;">' +
             '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">✅ Oui, c\'est moi !</button>' +
@@ -340,13 +240,49 @@ function confirmerIdentite(adherent) {
 
 function afficherApp(adherent) {
     document.getElementById('authPage').style.display = 'none';
-    // Header : nom + statut (sans tiret)
     document.getElementById('headerUserName').textContent = adherent.prenom + ' ' + adherent.nom;
     document.getElementById('headerUserStatut').textContent = adherent.statut;
     const isOrga = adherent.statut === 'Organisateur';
     document.getElementById('btnMessagerieLabel').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
     document.getElementById('groupAdmin').style.display = isOrga ? 'block' : 'none';
+    
+    // ✅ Mettre à jour la pastille de notification
+    updateMessagerieBadge();
 }
+
+// ✅ Fonction pour afficher/masquer la pastille rouge
+function updateMessagerieBadge() {
+    const cache = getMessagerieCache();
+    const badge = document.getElementById('messagerieBadge');
+    if (!badge) return;
+    
+    if (cache && cache.data && cache.data.conversations) {
+        const convs = cache.data.conversations;
+        let hasUnread = false;
+        
+        for (const key in convs) {
+            const msgs = convs[key];
+            if (msgs && msgs.length > 0) {
+                const last = msgs[msgs.length - 1];
+                // Ignorer les sujets déjà clôturés
+                if (last.traite === 'CLOS') continue;
+                
+                if (adherent.statut === 'Organisateur') {
+                    if (last.traite === 'NON') { hasUnread = true; break; }
+                } else {
+                    // Pour un participant : non lu OU en attente de réponse de l'organisateur
+                    if (last.vu !== 'OUI' || last.traite === 'NON') { hasUnread = true; break; }
+                }
+            }
+        }
+        badge.style.display = hasUnread ? 'block' : 'none';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// Écouter les mises à jour en arrière-plan pour rafraîchir la pastille
+window.addEventListener('messagerie-updated', () => { updateMessagerieBadge(); });
 
 const adherentSauvegarde = chargerAdherent();
 if (adherentSauvegarde) afficherApp(adherentSauvegarde);
