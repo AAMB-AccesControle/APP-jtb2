@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AAMB v0.20</title>
+<title>AAMB v0.21</title>
 <link rel="manifest" href="manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -54,8 +54,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 /* Wrapper pour la pastille */
 .btn-tile-wrapper { position: relative; display: flex; justify-content: center; }
+
+/* ✅ Pastille agrandie (18x18px) */
 .messagerie-badge {
-    position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
+    position: absolute; top: -4px; right: -4px; width: 18px; height: 18px;
     background-color: #ef4444; border-radius: 50%; border: 2px solid var(--group-bg);
     display: none; z-index: 10; animation: pulse-badge 2s infinite;
 }
@@ -96,7 +98,7 @@ justify-content: center; text-decoration: none;
 <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
 <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
 <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
-<p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;"> Saisissez votre code d'accès</p>
+<p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
 <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
 style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
 oninput="this.value=this.value.toUpperCase();resetAuthResult();"
@@ -137,11 +139,11 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="btn-grid">
 <a class="btn-tile" href="pages/programme.html"><span class="btn-tile-icon">📅</span><span class="btn-tile-label">Programme des Journées</span></a>
 <a class="btn-tile" href="pages/ateliers.html"><span class="btn-tile-icon">🔬</span><span class="btn-tile-label">Ateliers</span></a>
-<a class="btn-tile" href="pages/qcm.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">QCM</span></a>
+<a class="btn-tile" href="pages/qcm.html"><span class="btn-tile-icon">📝</span><span class="btn-tile-label">QCM</span></a>
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title">💬 Communication</div>
+<div class="btn-group-title"> Communication</div>
 <div class="btn-grid">
 <div class="btn-tile-wrapper">
     <span id="messagerieBadge" class="messagerie-badge"></span>
@@ -158,7 +160,7 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="btn-grid">
 <a class="btn-tile" href="pages/transport.html"><span class="btn-tile-icon">🚌</span><span class="btn-tile-label">Transport</span></a>
 <a class="btn-tile" href="pages/soirees.html"><span class="btn-tile-icon">🎉</span><span class="btn-tile-label">Soirées</span></a>
-<a class="btn-tile" href="pages/restauration.html"><span class="btn-tile-icon">️</span><span class="btn-tile-label">Restauration</span></a>
+<a class="btn-tile" href="pages/restauration.html"><span class="btn-tile-icon">🍽️</span><span class="btn-tile-label">Restauration</span></a>
 <a class="btn-tile" href="pages/reglementation.html"><span class="btn-tile-icon">📋</span><span class="btn-tile-label">Réglementation</span></a>
 <a class="btn-tile" href="pages/droit-image.html"><span class="btn-tile-icon">📸</span><span class="btn-tile-label">Droit à l'image</span></a>
 </div>
@@ -170,7 +172,7 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title"> Informations Diverses</div>
+<div class="btn-group-title">🌐 Informations Diverses</div>
 <div class="btn-grid">
 <button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB"><span class="btn-tile-icon">🏠</span><span class="btn-tile-label">Site Internet de l'AAMB</span></button>
 <div class="jtb-wrap">
@@ -179,7 +181,7 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city"> La Rochelle</span></div>
 </div>
 </div>
 </div>
@@ -279,14 +281,21 @@ function updateMessagerieBadge() {
     }
 }
 
+// ✅ Callback appelé par commun.js après chaque synchro en arrière-plan
+window.onMessagerieSynced = function(data) {
+    updateMessagerieBadge();
+};
+
+// Écouter les mises à jour en arrière-plan pour rafraîchir la pastille
 window.addEventListener('messagerie-updated', () => { updateMessagerieBadge(); });
 
 const adherentSauvegarde = chargerAdherent();
 if (adherentSauvegarde) afficherApp(adherentSauvegarde);
 
-// ✅ Rafraîchir la pastille après un délai pour laisser le cache se charger
-setTimeout(updateMessagerieBadge, 1000);
-setTimeout(updateMessagerieBadge, 3000);
+// ✅ Rafraîchir la pastille après des délais progressifs (backup si le callback tarde)
+setTimeout(updateMessagerieBadge, 2000);
+setTimeout(updateMessagerieBadge, 5000);
+setTimeout(updateMessagerieBadge, 10000);
 
 function openWebsite(type) { if (type === 'aamb') window.open('https://www.aamb.asso.fr', '_blank'); }
 function toggleJTBMenu(e) { e.stopPropagation(); document.getElementById('jtbMenu').classList.toggle('open'); }
