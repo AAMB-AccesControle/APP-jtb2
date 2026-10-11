@@ -457,18 +457,23 @@ function renderConvCardParticipant(convBase, msgs) {
     const nonVu = last.vu !== 'OUI';
     const reponseAutorisee = last.reponseAutorisee !== 'NON';
     
+    // Déterminer qui a envoyé le dernier message
+    const lastSender = last.userId === adherent.id ? '👤 Vous' : '🏢 Organisation';
+    
     let html = '<div class="conv-card" style="border-left:4px solid ' + (nonVu ? '#dc3545' : '#28a745') + ';">';
     html += '<div class="conv-header ' + (nonVu ? 'non-traite' : 'traite') + '">';
-    html += '<div><strong>' + (nonVu ? '🔴 Non lu' : '✅ Lu') + '</strong>' + catBadge;
+    // ✅ Affiche le nom de l'expéditeur + indicateur de lecture
+    html += '<div><strong>' + lastSender + '</strong>' + catBadge;
+    html += '<span style="font-size:11px;color:' + (nonVu ? '#dc3545' : '#28a745') + ';margin-left:8px;">' + (nonVu ? '🔴 Non lu' : '✅ Lu') + '</span>';
     html += '<span style="float:right;font-size:11px;color:var(--text-sub);">' + convBase + '</span></div></div>';
     
     sorted.forEach(m => {
         html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
-        html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':'🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
+        html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':' Organisation') + ' — ' + m.dateHeure + '</div>';
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     
-    // ✅ C'est ICI que se trouve la condition :
+    // Actions : case "Vu" OU bouton répondre
     html += '<div class="conv-actions">';
     
     if (reponseAutorisee) {
@@ -483,8 +488,8 @@ function renderConvCardParticipant(convBase, msgs) {
         html += '<div style="padding:6px 10px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:11px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
     }
     
-    html += '</div>'; // Fin de conv-actions
-    html += '</div>'; // Fin de conv-card
+    html += '</div>';
+    html += '</div>';
     return html;
 }
 
