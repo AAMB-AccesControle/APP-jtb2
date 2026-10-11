@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AAMB v0.21</title>
+<title>AAMB v0.22</title>
 <link rel="manifest" href="manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -52,10 +52,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .btn-group-title { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--group-title-color); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--btn-bg); }
 .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
-/* Wrapper pour la pastille */
 .btn-tile-wrapper { position: relative; display: flex; justify-content: center; }
-
-/* ✅ Pastille agrandie (18x18px) */
 .messagerie-badge {
     position: absolute; top: -4px; right: -4px; width: 18px; height: 18px;
     background-color: #ef4444; border-radius: 50%; border: 2px solid var(--group-bg);
@@ -82,6 +79,17 @@ justify-content: center; text-decoration: none;
 .jtb-item:hover { background: rgba(74,127,203,0.12); }
 .jtb-item .city { font-size: 11px; color: var(--text-sub); display: block; margin-top: 2px; }
 
+/* Indicateur de synchro en cours */
+.sync-indicator {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: var(--warning, #f59e0b); color: white;
+    text-align: center; padding: 6px; font-size: 12px; font-weight: 600;
+    z-index: 9999; display: none;
+}
+.sync-indicator.visible { display: block; }
+@keyframes pulse-sync { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+.sync-indicator.visible { animation: pulse-sync 1s infinite; }
+
 @media (max-width: 480px) {
 .header-logo { width: 65px; height: 65px; }
 .header-user-name { font-size: 15px; }
@@ -90,6 +98,10 @@ justify-content: center; text-decoration: none;
 </style>
 </head>
 <body>
+
+<!-- Indicateur de synchro -->
+<div id="syncIndicator" class="sync-indicator">⏳ Synchronisation des messages en cours...</div>
+
 <div id="authPage" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--page-bg);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;">
 <div style="max-width:400px;width:100%;text-align:center;">
 <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;background:transparent;">
@@ -125,7 +137,7 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
 </div>
 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
-<div class="icon">🚪</div>
+<div class="icon"></div>
 <div class="label">Quitter</div>
 </div>
 </div>
@@ -137,18 +149,18 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="btn-group">
 <div class="btn-group-title">🏛️ JTB Besançon</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/programme.html"><span class="btn-tile-icon">📅</span><span class="btn-tile-label">Programme des Journées</span></a>
-<a class="btn-tile" href="pages/ateliers.html"><span class="btn-tile-icon">🔬</span><span class="btn-tile-label">Ateliers</span></a>
+<a class="btn-tile" href="pages/programme.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">Programme des Journées</span></a>
+<a class="btn-tile" href="pages/ateliers.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">Ateliers</span></a>
 <a class="btn-tile" href="pages/qcm.html"><span class="btn-tile-icon">📝</span><span class="btn-tile-label">QCM</span></a>
 </div>
 </div>
 <div class="btn-group">
-<div class="btn-group-title"> Communication</div>
+<div class="btn-group-title">💬 Communication</div>
 <div class="btn-grid">
 <div class="btn-tile-wrapper">
     <span id="messagerieBadge" class="messagerie-badge"></span>
     <a class="btn-tile" href="pages/messagerie.html">
-        <span class="btn-tile-icon">✉️</span>
+        <span class="btn-tile-icon">️</span>
         <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
     </a>
 </div>
@@ -158,7 +170,7 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="btn-group">
 <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/transport.html"><span class="btn-tile-icon">🚌</span><span class="btn-tile-label">Transport</span></a>
+<a class="btn-tile" href="pages/transport.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">Transport</span></a>
 <a class="btn-tile" href="pages/soirees.html"><span class="btn-tile-icon">🎉</span><span class="btn-tile-label">Soirées</span></a>
 <a class="btn-tile" href="pages/restauration.html"><span class="btn-tile-icon">🍽️</span><span class="btn-tile-label">Restauration</span></a>
 <a class="btn-tile" href="pages/reglementation.html"><span class="btn-tile-icon">📋</span><span class="btn-tile-label">Réglementation</span></a>
@@ -179,9 +191,9 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;" aria-label="Sites Internet des JTB"><span class="btn-tile-icon">🌍</span><span class="btn-tile-label">Site Internet des JTB ▲</span></button>
 <div class="jtb-menu" id="jtbMenu">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city"> Metz / Briey</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city"> La Rochelle</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
 </div>
 </div>
 </div>
@@ -222,7 +234,7 @@ async function verifierID() {
             '<button onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">❌ Non</button>' +
             '</div></div>';
             document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
-            document.getElementById('rEtab').textContent = ' ' + a.etablissement;
+            document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
             document.getElementById('rEmail').textContent = '✉️ ' + a.email;
             document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
         } else {
@@ -247,7 +259,6 @@ function afficherApp(adherent) {
     const isOrga = adherent.statut === 'Organisateur';
     document.getElementById('btnMessagerieLabel').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
     document.getElementById('groupAdmin').style.display = isOrga ? 'block' : 'none';
-    updateMessagerieBadge();
 }
 
 function updateMessagerieBadge() {
@@ -276,26 +287,69 @@ function updateMessagerieBadge() {
             }
         }
         badge.style.display = hasUnread ? 'block' : 'none';
+        console.log('[Pastille]', hasUnread ? 'AFFICHÉE' : 'CACHÉE', '- Conversations:', Object.keys(convs).length);
     } else {
         badge.style.display = 'none';
+        console.log('[Pastille] CACHÉE - Pas de cache');
     }
 }
 
-// ✅ Callback appelé par commun.js après chaque synchro en arrière-plan
+// ✅ Callback appelé par commun.js après chaque synchro
 window.onMessagerieSynced = function(data) {
+    console.log('[Pastille] Callback synchro reçu');
     updateMessagerieBadge();
+    // Cacher l'indicateur de synchro
+    document.getElementById('syncIndicator').classList.remove('visible');
 };
 
-// Écouter les mises à jour en arrière-plan pour rafraîchir la pastille
 window.addEventListener('messagerie-updated', () => { updateMessagerieBadge(); });
 
-const adherentSauvegarde = chargerAdherent();
-if (adherentSauvegarde) afficherApp(adherentSauvegarde);
-
-// ✅ Rafraîchir la pastille après des délais progressifs (backup si le callback tarde)
-setTimeout(updateMessagerieBadge, 2000);
-setTimeout(updateMessagerieBadge, 5000);
-setTimeout(updateMessagerieBadge, 10000);
+// ============================================
+// ✅ SYNCHRO IMMÉDIATE AU CHARGEMENT DE APP.HTML
+// ============================================
+(async function() {
+    const adherent = chargerAdherent();
+    if (!adherent) return;
+    
+    console.log('[App] Adhérent connecté:', adherent.prenom, adherent.nom, '-', adherent.statut);
+    
+    // Vérifier si le cache existe déjà
+    const cache = getMessagerieCache();
+    const cacheAge = cache ? Date.now() - cache.timestamp : Infinity;
+    const cacheFrais = cacheAge < 30000; // Moins de 30 secondes
+    
+    if (cacheFrais) {
+        console.log('[App] Cache frais (', Math.round(cacheAge/1000), 's) - Pas besoin de resynchroniser');
+        afficherApp(adherent);
+        updateMessagerieBadge();
+    } else {
+        console.log('[App] Cache absent ou ancien (', Math.round(cacheAge/1000), 's) - Lancement synchro immédiate...');
+        
+        // Afficher l'indicateur de synchro
+        document.getElementById('syncIndicator').classList.add('visible');
+        
+        try {
+            // Faire la synchro DIRECTEMENT ici (pas via commun.js)
+            const action = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
+            const resp = await fetch(SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id), { cache: 'no-store' });
+            const data = await resp.json();
+            
+            if (data.success) {
+                saveMessagerieCache(data);
+                console.log('[App] Synchro réussie -', Object.keys(data.conversations).length, 'conversations');
+            } else {
+                console.warn('[App] Erreur synchro:', data.message);
+            }
+        } catch (e) {
+            console.error('[App] Erreur synchro:', e);
+        }
+        
+        // Cacher l'indicateur et afficher l'app
+        document.getElementById('syncIndicator').classList.remove('visible');
+        afficherApp(adherent);
+        updateMessagerieBadge();
+    }
+})();
 
 function openWebsite(type) { if (type === 'aamb') window.open('https://www.aamb.asso.fr', '_blank'); }
 function toggleJTBMenu(e) { e.stopPropagation(); document.getElementById('jtbMenu').classList.toggle('open'); }
