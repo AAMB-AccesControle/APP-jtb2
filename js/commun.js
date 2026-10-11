@@ -8,7 +8,6 @@ const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
 const ADHERENTS_CACHE_DURATION = 3600000; // 1 heure
 
 
-// Variable globale pour empêcher le refresh de l'UI quand un formulaire est ouvert
 let messagerieFormulaireOuvert = false;
 
 // ===== GESTION ADHÉRENT =====
@@ -62,7 +61,7 @@ function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
     document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
-    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '' : '☀️');
+    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
 }
 
@@ -84,7 +83,7 @@ function chargerCSSHeader() {
     document.head.appendChild(link);
 }
 
-// ===== HEADER PRINCIPAL (injecté dans toutes les sous-pages) =====
+// ===== HEADER PRINCIPAL =====
 function injecterHeaderPrincipal() {
     const adherent = chargerAdherent();
     if (!adherent) return;
@@ -193,7 +192,6 @@ async function syncMessagerieBackground() {
             saveMessagerieCache(data);
             console.log('[Messagerie] Cache sauvegardé avec', Object.keys(data.conversations || {}).length, 'conversations');
             
-            // Notifier les pages qu'une synchro est terminée
             if (typeof window.onMessagerieSynced === 'function') {
                 window.onMessagerieSynced(data);
             }
@@ -250,7 +248,6 @@ async function chargerListeAdherentsSilencieux() {
     const adherent = chargerAdherent();
     if (!adherent || adherent.statut !== 'Organisateur') return;
     
-    // Si déjà en cache et frais, ne pas recharger
     if (getAdherentsFromCache()) return;
     
     try {
@@ -266,17 +263,13 @@ async function chargerListeAdherentsSilencieux() {
 document.addEventListener('DOMContentLoaded', function() {
     appliquerDarkModeInitial();
     initOfflineDetection();
-    
-    // Charger le CSS du header
     chargerCSSHeader();
     
-    // Injecter le header principal dans toutes les pages SAUF app.html et index.html
     const chemin = window.location.pathname;
     if (!chemin.endsWith('app.html') && !chemin.endsWith('index.html')) {
         injecterHeaderPrincipal();
     }
     
-    // Démarrer les tâches en arrière-plan
     const adherent = chargerAdherent();
     if (adherent) {
         startMessagerieBackgroundSync();
