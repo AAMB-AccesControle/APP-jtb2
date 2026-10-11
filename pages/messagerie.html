@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.19</title>
+<title>Messagerie v0.20</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -35,7 +35,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .refresh-btn.spinning { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* Filtres à 3 niveaux */
+/* ===== BANDEAU FILTRES STICKY ===== */
+.filter-sticky-wrapper {
+    position: sticky;
+    top: 106px;
+    background: var(--bg);
+    padding: 10px 0;
+    z-index: 80;
+    border-bottom: 1px solid rgba(128,128,128,0.15);
+}
+
 .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
 .filter-btn {
 flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px;
@@ -50,7 +59,7 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; just
 .filter-btn.active-cloture { border-color: #6b7280; background: #6b7280; color: white; }
 .filter-btn.active-cloture .count { background: rgba(255,255,255,0.3); }
 
-.cat-filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(128,128,128,0.15); }
+.cat-filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0; }
 .cat-btn {
 padding: 6px 10px; border: 2px solid #ddd; border-radius: 16px;
 background: var(--card-bg); color: var(--text); font-size: 11px; font-weight: 600;
@@ -116,6 +125,7 @@ cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap:
 @media (max-width: 480px) {
 .dest-selector { grid-template-columns: 1fr; }
 .dest-list { max-height: 250px; }
+.filter-sticky-wrapper { top: 90px; }
 }
 </style>
 </head>
@@ -139,7 +149,7 @@ const CATEGORIES = [
     { id: 'atelier', label: 'Atelier', icon: '🔬' }, { id: 'handicap', label: 'Handicap', icon: '♿' }
 ];
 
-let filtreStatut = 'nonTraites'; // 'nonTraites', 'traites', 'clotures'
+let filtreStatut = 'nonTraites';
 let filtreCategorie = 'toutes';
 let conversations = {};
 let refreshTimer = null;
@@ -292,7 +302,9 @@ function renderParticipant() {
         if (catCounts[cat] !== undefined) catCounts[cat]++;
     });
     
-    let html = '<button onclick="afficherFormulaireParticipant(null)" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
+    // ✅ Bandeau sticky avec bouton + filtres
+    let html = '<div class="filter-sticky-wrapper">';
+    html += '<button onclick="afficherFormulaireParticipant(null)" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
     
     html += '<div class="filter-bar">';
     html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')">🔴 Non traités <span class="count">${nbNonTraites}</span></button>`;
@@ -308,7 +320,9 @@ function renderParticipant() {
         html += `<button class="cat-btn ${filtreCategorie===c.id?'active':''}" onclick="changerFiltreCategorie('${c.id}')">${c.icon} ${c.label} <span class="cat-count">${count}</span></button>`;
     });
     html += '</div>';
+    html += '</div>'; // Fin filter-sticky-wrapper
     
+    // Contenu scrollable
     const convsFiltrees = {};
     keys.forEach(convBase => {
         const msgs = conversations[convBase];
@@ -331,7 +345,7 @@ function renderParticipant() {
         else if (filtreStatut === 'traites') emptyText = 'Aucun message traité';
         else if (filtreStatut === 'clotures') emptyText = 'Aucun sujet clôturé';
         if (filtreCategorie !== 'toutes') emptyText += ` dans ${getCategorieInfo(filtreCategorie).label}`;
-        html += `<div class="empty-state"><div class="empty-icon">📭</div>${emptyText}</div>`;
+        html += `<div class="empty-state"><div class="empty-icon"></div>${emptyText}</div>`;
     } else {
         convKeys.forEach(convBase => { html += renderConvCardParticipant(convBase, convsFiltrees[convBase]); });
     }
@@ -348,9 +362,9 @@ function renderConvCardParticipant(convBase, msgs) {
     const reponseAutorisee = last.reponseAutorisee !== 'NON';
     
     let headerClass = last.traite === 'NON' ? 'non-traite' : (last.traite === 'OUI' ? 'traite' : 'cloture');
-    let statusText = last.traite === 'NON' ? '🔴 Non traité' : (last.traite === 'OUI' ? '✅ Traité' : '🔒 Clôturé');
+    let statusText = last.traite === 'NON' ? ' Non traité' : (last.traite === 'OUI' ? '✅ Traité' : '🔒 Clôturé');
     
-    const lastSender = last.userId === adherent.id ? '👤 Vous' : '🏢 Organisation';
+    const lastSender = last.userId === adherent.id ? ' Vous' : '🏢 Organisation';
     
     let html = '<div class="conv-card" style="border-left:4px solid ' + (last.traite === 'NON' ? '#dc3545' : (last.traite === 'OUI' ? '#28a745' : '#6b7280')) + ';">';
     html += '<div class="conv-header ' + headerClass + '">';
@@ -367,7 +381,7 @@ function renderConvCardParticipant(convBase, msgs) {
     html += '<div class="conv-actions">';
     if (last.traite === 'CLOS') {
         html += '<div style="padding:6px 10px;background:rgba(107,114,128,0.1);border-radius:8px;font-size:11px;color:#4b5563;font-weight:600;">🔒 Sujet clôturé</div>';
-        html += `<button class="btn-declore" onclick="reouvrirSujet('${convBase}')">Rouvrir</button>`;
+        html += `<button class="btn-declore" onclick="reouvrirSujet('${convBase}')">🔓 Rouvrir</button>`;
     } else {
         if (reponseAutorisee) {
             html += `<button class="btn-repondre" onclick="afficherFormulaireParticipant('${convBase}')">↩️ Répondre</button>`;
@@ -497,10 +511,12 @@ function renderOrganisateur() {
         if (catCounts[cat] !== undefined) catCounts[cat]++;
     });
     
-    let html = '<button onclick="afficherSectionEnvoi()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
+    // ✅ Bandeau sticky
+    let html = '<div class="filter-sticky-wrapper">';
+    html += '<button onclick="afficherSectionEnvoi()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
     
     html += '<div class="filter-bar">';
-    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')">🔴 Non traités <span class="count">${nbNonTraites}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')"> Non traités <span class="count">${nbNonTraites}</span></button>`;
     html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')">✅ Traités <span class="count">${nbTraites}</span></button>`;
     html += `<button class="filter-btn ${filtreStatut==='clotures'?'active-cloture':''}" onclick="changerFiltreStatut('clotures')">🔒 Clôturés <span class="count">${nbClotures}</span></button>`;
     html += '</div>';
@@ -513,7 +529,9 @@ function renderOrganisateur() {
         html += `<button class="cat-btn ${filtreCategorie===c.id?'active':''}" onclick="changerFiltreCategorie('${c.id}')">${c.icon} ${c.label} <span class="cat-count">${count}</span></button>`;
     });
     html += '</div>';
+    html += '</div>'; // Fin filter-sticky-wrapper
     
+    // Contenu scrollable
     const convsFiltrees = {};
     keys.forEach(convBase => {
         const msgs = conversations[convBase];
@@ -568,8 +586,8 @@ function renderConvCardOrga(convBase, msgs, nonTraite) {
     
     html += '<div class="conv-actions">';
     if (last.traite === 'CLOS') {
-        html += '<div style="padding:6px 10px;background:rgba(107,114,128,0.1);border-radius:8px;font-size:11px;color:#4b5563;font-weight:600;">🔒 Sujet clôturé</div>';
-        html += `<button class="btn-declore" onclick="reouvrirSujet('${convBase}')">Rouvrir</button>`;
+        html += '<div style="padding:6px 10px;background:rgba(107,114,128,0.1);border-radius:8px;font-size:11px;color:#4b5563;font-weight:600;"> Sujet clôturé</div>';
+        html += `<button class="btn-declore" onclick="reouvrirSujet('${convBase}')"> Rouvrir</button>`;
     } else {
         html += `<button class="btn-repondre" onclick="afficherReponseOrga('${convBase}')">📤 Répondre</button>`;
         html += `<button class="btn-clore" onclick="cloturerSujet('${convBase}')">🔒 Clôturer</button>`;
@@ -612,7 +630,7 @@ function afficherSectionEnvoi() {
     selectedDestinataires.clear();
     const content = document.getElementById('messagerieContent');
     if (allAdherents.length === 0) {
-        content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement de la liste...</p>';
+        content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);"> Chargement de la liste...</p>';
         chargerListeAdherents().then(() => { content.innerHTML = renderFormulaireEnvoiHTML(); attacherEventsEnvoi(); });
     } else {
         content.innerHTML = renderFormulaireEnvoiHTML();
@@ -647,7 +665,7 @@ function renderFormulaireEnvoiHTML() {
         <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;border:2px solid #ddd;">
             <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:var(--primary);">
             <label for="reponseAutorisee" style="font-size:14px;color:var(--text);cursor:pointer;flex:1;">
-                <strong>✉️ Autoriser les réponses</strong>
+                <strong>️ Autoriser les réponses</strong>
                 <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">Si décoché, le message sera marqué comme "informatif" et les destinataires ne pourront pas y répondre.</div>
             </label>
         </div>
@@ -736,7 +754,7 @@ async function envoyerMessageGroupe() {
         <div style="text-align:center;padding:20px;">
             <div style="font-size:48px;margin-bottom:10px;">⏳</div>
             <div style="font-size:16px;color:var(--text);">Envoi à <strong>${destinataires.length}</strong> destinataire(s)...</div>
-            <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
+            <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : ' Message informatif (sans réponse)'}</div>
         </div></div>`;
     try {
         const params = new URLSearchParams({ action: 'sendBulkMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, categorie: 'organisation', destIds: destIds, reponseAutorisee: reponseAutorisee ? 'true' : 'false', isOrganisateur: 'true' });
