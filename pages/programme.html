@@ -168,7 +168,20 @@ function genererAffichage() {
         for (const key in groupes) {
             const groupe = groupes[key];
             const [debut, fin] = groupe.horaire.split('-');
-            const heureFormatted = debut.replace(':', 'h') + ' - ' + fin.replace(':', 'h');
+            
+            // Extraire juste HH:mm de n'importe quel format
+            function extraireHeure(str) {
+              if (!str) return '';
+              const match = String(str).match(/(\d{1,2}):(\d{2})/);
+              if (match) {
+                const h = String(parseInt(match[1])).padStart(2, '0');
+                const m = match[2];
+                return `${h}h${m}`;
+              }
+              return str;
+            }
+            
+            const heureFormatted = extraireHeure(debut) + ' - ' + extraireHeure(fin);
             
             // Trouver la conférence principale
             const conference = groupe.items.find(i => i.type === 'Conference' || i.type === 'Accueil' || i.type === 'Pause' || i.type === 'Visite' || i.type === 'AG' || i.type === 'Ouverture' || i.type === 'Cloture' || i.type === 'Soiree');
