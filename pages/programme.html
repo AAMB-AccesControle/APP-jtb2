@@ -139,7 +139,6 @@ let jourActif = 'mardi';
 
 async function chargerProgramme() {
     try {
-        // ✅ Essayer d'abord le cache (chargé en arrière-plan par commun.js)
         const cache = getProgrammeFromCache();
         let data;
         
@@ -169,10 +168,8 @@ async function chargerProgramme() {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('programmeContent').style.display = 'block';
             
-            // ✅ Afficher le jour par défaut (mardi) - CORRECTION DU BUG
             afficherJour('mardi');
             
-            // ✅ Surbrillance en temps réel (toutes les 30 secondes)
             surbrillanceEnCours();
             setInterval(surbrillanceEnCours, 30000);
         } else {
