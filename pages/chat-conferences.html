@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG</title>
+    <title>Chat Conférences/AG v0.02</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -29,7 +29,6 @@
         .page-header h2 { font-size: 18px; flex: 1; }
         .page-content { padding: 16px; max-width: 800px; margin: 0 auto; }
         
-        /* Sélecteur de conférence */
         .conference-selector {
             background: var(--card-bg);
             border-radius: 12px;
@@ -88,10 +87,9 @@
             border-color: #2e7d32 !important;
         }
         .conf-en-cours .conf-name::before {
-            content: '🔴 ';
+            content: ' ';
         }
         
-        /* Messages */
         .chat-container {
             background: var(--card-bg);
             border-radius: 12px;
@@ -145,7 +143,6 @@
             margin-bottom: 10px;
         }
         
-        /* Formulaire */
         .chat-form {
             border-top: 1px solid rgba(128,128,128,0.2);
             padding-top: 15px;
@@ -232,7 +229,7 @@
             </div>
             <div class="chat-form">
                 <textarea id="msgTexte" placeholder="Votre message..."></textarea>
-                <button id="btnSend" onclick="envoyerMessage()" disabled>📤 Envoyer</button>
+                <button id="btnSend" onclick="envoyerMessage()" disabled> Envoyer</button>
             </div>
         </div>
     </div>
@@ -256,10 +253,16 @@
                     conferences = data.conferences;
                     afficherListeConferences();
                     
-                    // Ouvrir automatiquement la conférence en cours
+                    // ✅ Ouvrir automatiquement la conférence en cours
                     const conferenceEnCours = determinerConferenceEnCours();
                     if (conferenceEnCours) {
+                        console.log('[Chat] Conférence en cours détectée:', conferenceEnCours.nom);
                         selectionnerConference(conferenceEnCours.id);
+                    } else {
+                        console.log('[Chat] Aucune conférence en cours, ouverture de la première');
+                        if (conferences.length > 0) {
+                            selectionnerConference(conferences[0].id);
+                        }
                     }
                 }
             } catch (e) {
@@ -272,22 +275,29 @@
             const dateAuj = maintenant.toISOString().split('T')[0];
             const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
             
+            console.log('[Chat] Date du jour:', dateAuj, 'Heure:', hNow, 'min');
+            
             for (const conf of conferences) {
                 const confDate = String(conf.date).split('T')[0];
+                console.log('[Chat] Vérification:', conf.nom, '- Date:', confDate, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
+                
                 if (confDate === dateAuj) {
                     const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
                     const [fh, fm] = String(conf.heureFin).split(':').map(Number);
                     const debutMin = dh * 60 + dm;
                     const finMin = fh * 60 + fm;
                     
+                    console.log('[Chat] -> Début:', debutMin, 'min, Fin:', finMin, 'min');
+                    
                     if (hNow >= debutMin && hNow < finMin) {
+                        console.log('[Chat] ✅ Conférence en cours trouvée:', conf.nom);
                         return conf;
                     }
                 }
             }
             
-            // Si aucune en cours, prendre la première
-            return conferences.length > 0 ? conferences[0] : null;
+            console.log('[Chat] Aucune conférence en cours trouvée');
+            return null;
         }
 
         function afficherListeConferences() {
@@ -335,6 +345,7 @@
             const conf = conferences.find(c => c.id === conferenceId);
             
             if (conf) {
+                console.log('[Chat] Conférence sélectionnée:', conf.nom);
                 document.getElementById('chatContainer').style.display = 'flex';
                 document.getElementById('btnSend').disabled = false;
                 afficherListeConferences(); // Mettre à jour la sélection visuelle
@@ -427,7 +438,7 @@
                 console.error(e);
             } finally {
                 btn.disabled = false;
-                btn.textContent = '📤 Envoyer';
+                btn.textContent = ' Envoyer';
             }
         }
 
