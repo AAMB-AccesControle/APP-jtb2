@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.29</title>
+<title>Programme JTB 2026 v0.30</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -14,21 +14,21 @@ if (localStorage.getItem('darkMode') === '1') { document.documentElement.classLi
 --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
 --page-header-bg: #1a3a6b; --heure-bg: #555;
 --conf-bg: #ffe4ec; --conf-border: #c0002a;
---conf-en-cours-bg: #ff4d7a; --conf-en-cours-border: #8b0000;
 --atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
---atelier-en-cours-bg: #4a90d9; --atelier-en-cours-border: #0d47a1;
 --jour-btn-bg: #dde3ef; --jour-btn-text: #333;
---badge-en-cours-bg: #1b5e20; --badge-en-cours-text: white;
+--badge-en-cours-bg: #b8860b; --badge-en-cours-text: white;
+--conf-en-cours-bg: #e53935; --conf-en-cours-border: #b71c1c;
+--atelier-en-cours-bg: #0d47a1; --atelier-en-cours-border: #002171;
 }
 body.dark {
 --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
 --page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
 --conf-bg: #3d1525; --conf-border: #c0002a;
---conf-en-cours-bg: #8b1a3a; --conf-en-cours-border: #ff4d6d;
 --atelier-bg: #162030; --atelier-border: #1565c0; --atelier-text: #90caf9;
---atelier-en-cours-bg: #1a3a6b; --atelier-en-cours-border: #42a5f5;
 --jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
---badge-en-cours-bg: #2e7d32; --badge-en-cours-text: white;
+--badge-en-cours-bg: #b8860b; --badge-en-cours-text: white;
+--conf-en-cours-bg: #ef5350; --conf-en-cours-border: #ff8a80;
+--atelier-en-cours-bg: #42a5f5; --atelier-en-cours-border: #90caf9;
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
@@ -43,7 +43,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 
-/* Barre d'heure avec badge EN COURS inline */
 .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
 .badge-en-cours {
     background: var(--badge-en-cours-bg);
@@ -63,20 +62,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
 .atelier strong { font-size: 12px; }
 
-/* Surbrillance EN COURS - couleurs beaucoup plus contrastées */
 .prog-slot.en-cours .prog-heure { background: var(--badge-en-cours-bg) !important; }
 .prog-slot.en-cours .prog-conf {
     background: var(--conf-en-cours-bg) !important;
     border-left: 4px solid var(--conf-en-cours-border) !important;
     font-weight: bold;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+    color: white !important;
 }
+.prog-slot.en-cours .prog-conf small { color: rgba(255,255,255,0.85) !important; }
 .prog-slot.en-cours .atelier {
     background: var(--atelier-en-cours-bg) !important;
     border-left: 4px solid var(--atelier-en-cours-border) !important;
     color: white !important;
     font-weight: bold;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 .prog-slot.en-cours .atelier strong { color: white !important; }
 
@@ -204,9 +202,8 @@ function genererAffichage() {
             const atelier1 = groupe.items.find(i => i.type === 'Atelier1');
             const atelier2 = groupe.items.find(i => i.type === 'Atelier2');
             
-            // ✅ Badge "EN COURS" intégré dans la barre d'heure
             html += '<div class="prog-slot" data-id="' + (conference ? conference.id : '') + '" data-debut="' + debut + '" data-fin="' + fin + '">';
-            html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours"> EN COURS</span></div>';
+            html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours">🔴 EN COURS</span></div>';
             
             if (conference) {
                 const desc = conference.description ? '<br><small>' + conference.description + '</small>' : '';
