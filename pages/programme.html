@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.35</title>
+<title>Programme JTB 2026 v0.36</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -37,8 +37,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .page-header h2 { font-size: 18px; }
 .page-content { padding: 10px; }
 
-.jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
-.jour-btn { background: var(--jour-btn-bg); color: var(--jour-btn-text); border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer; font-size: 12px; white-space: nowrap; font-weight: 500; }
+.jour-btns { display: flex; gap: 7px; margin-bottom: 12px; padding-bottom: 4px; }
+.jour-btn { 
+    flex: 1; 
+    background: var(--jour-btn-bg); 
+    color: var(--jour-btn-text); 
+    border: none; 
+    padding: 7px 10px; 
+    border-radius: 18px; 
+    cursor: pointer; 
+    font-size: 12px; 
+    font-weight: 500; 
+    text-align: center;
+    white-space: nowrap;
+}
 .jour-btn.active { background: #1a3a6b; color: white; }
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
@@ -133,10 +145,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 verifierConnexionOuRediriger();
 
 let programmeData = {};
-let datesParJour = {}; // ✅ NOUVEAU : mapping jour -> date (ex: {mardi: '2026-10-12', ...})
+let datesParJour = {};
 const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
 let isAnimating = false;
-let jourActif = null; // ✅ Changé de 'mardi' à null
+let jourActif = null;
 
 async function chargerProgramme() {
     try {
@@ -154,16 +166,15 @@ async function chargerProgramme() {
         
         if (data.success) {
             programmeData = {};
-            datesParJour = {}; // ✅ Reset
+            datesParJour = {};
             
             data.programme.forEach(item => {
                 const jour = item.jour.toLowerCase();
                 if (!programmeData[jour]) programmeData[jour] = [];
                 programmeData[jour].push(item);
                 
-                // ✅ Enregistrer la date pour chaque jour
                 if (item.date && !datesParJour[jour]) {
-                    datesParJour[jour] = String(item.date).split('T')[0]; // Ex: '2026-10-12'
+                    datesParJour[jour] = String(item.date).split('T')[0];
                 }
             });
             
@@ -178,7 +189,6 @@ async function chargerProgramme() {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('programmeContent').style.display = 'block';
             
-            // ✅ Ouvrir automatiquement le bon jour
             const jourAOuvrir = determinerJourAOuvrir();
             afficherJourInitial(jourAOuvrir);
             
@@ -193,14 +203,12 @@ async function chargerProgramme() {
     }
 }
 
-// ✅ NOUVEAU : Détermine quel jour ouvrir en fonction de la date actuelle
 function determinerJourAOuvrir() {
     const aujourdHui = new Date();
-    const dateAujStr = aujourdHui.toISOString().split('T')[0]; // Ex: '2026-10-12'
+    const dateAujStr = aujourdHui.toISOString().split('T')[0];
     
     console.log('[Programme] Date du jour:', dateAujStr);
     
-    // Chercher un jour dont la date correspond à aujourd'hui
     for (const [jour, date] of Object.entries(datesParJour)) {
         if (date === dateAujStr) {
             console.log('[Programme] Jour correspondant trouvé:', jour);
@@ -208,7 +216,6 @@ function determinerJourAOuvrir() {
         }
     }
     
-    // Si aucune correspondance, ouvrir le premier jour qui a des données
     for (const jour of jours) {
         if (programmeData[jour] && programmeData[jour].length > 0) {
             console.log('[Programme] Pas de correspondance, ouverture du premier jour:', jour);
@@ -216,18 +223,15 @@ function determinerJourAOuvrir() {
         }
     }
     
-    return 'mardi'; // Fallback
+    return 'mardi';
 }
 
-// ✅ NOUVEAU : Affichage initial sans animation
 function afficherJourInitial(jour) {
-    // Cacher tous les jours
     jours.forEach(j => {
         document.getElementById('jour-' + j).style.display = 'none';
         document.getElementById('btn-' + j).classList.remove('active');
     });
     
-    // Afficher le jour demandé
     document.getElementById('jour-' + jour).style.display = 'block';
     document.getElementById('btn-' + jour).classList.add('active');
     jourActif = jour;
