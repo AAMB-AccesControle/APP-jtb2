@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.36</title>
+<title>Programme JTB 2026 v0.37</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -15,20 +15,26 @@ if (localStorage.getItem('darkMode') === '1') { document.documentElement.classLi
 --page-header-bg: #1a3a6b; --heure-bg: #555;
 --conf-bg: #ffcdd5; --conf-border: #c0002a;
 --atelier-bg: #c8e0f7; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
---jour-btn-bg: #dde3ef; --jour-btn-text: #333;
 --badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
 --conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
 --atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
+--jour-btn-bg: #fff9c4; /* Jaune clair */
+--jour-btn-active-bg: #d4a017; /* Jaune foncé / Doré */
+--jour-btn-text: #333;
+--jour-btn-active-text: white;
 }
 body.dark {
 --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
 --page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
 --conf-bg: #3d1525; --conf-border: #c0002a;
 --atelier-bg: #1e2d42; --atelier-border: #1565c0; --atelier-text: #90caf9;
---jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
 --badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
 --conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
 --atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
+--jour-btn-bg: #3d3410; /* Jaune très foncé (mode sombre) */
+--jour-btn-active-bg: #fbbf24; /* Jaune doré vif (mode sombre) */
+--jour-btn-text: #fcd34d;
+--jour-btn-active-text: #1a1a1a; /* Texte foncé pour contraste sur le jaune vif */
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
@@ -50,8 +56,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     font-weight: 500; 
     text-align: center;
     white-space: nowrap;
+    transition: background 0.3s, color 0.3s;
 }
-.jour-btn.active { background: #1a3a6b; color: white; }
+.jour-btn.active { 
+    background: var(--jour-btn-active-bg); 
+    color: var(--jour-btn-active-text); 
+    font-weight: bold;
+}
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
