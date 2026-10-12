@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.26</title>
+<title>Programme JTB 2026 v0.29</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -14,14 +14,18 @@ if (localStorage.getItem('darkMode') === '1') { document.documentElement.classLi
 --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
 --page-header-bg: #1a3a6b; --heure-bg: #555;
 --conf-bg: #ffe4ec; --conf-border: #c0002a;
+--conf-en-cours-bg: #ff8fa3; --conf-en-cours-border: #8b0000;
 --atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
+--atelier-en-cours-bg: #90caf9; --atelier-en-cours-border: #0d47a1;
 --jour-btn-bg: #dde3ef; --jour-btn-text: #333;
 }
 body.dark {
 --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
 --page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
 --conf-bg: #3d1525; --conf-border: #c0002a;
+--conf-en-cours-bg: #5c1a30; --conf-en-cours-border: #ff4d6d;
 --atelier-bg: #162030; --atelier-border: #1565c0; --atelier-text: #90caf9;
+--atelier-en-cours-bg: #1a3a6b; --atelier-en-cours-border: #42a5f5;
 --jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
@@ -37,9 +41,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
-.prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); }
+.prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); transition: all 0.3s; }
 .prog-ateliers { display: flex; }
-.atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
+.atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); transition: all 0.3s; }
 .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
 .atelier strong { font-size: 12px; }
 
@@ -55,14 +59,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+/* ✅ Surbrillance EN COURS */
 .prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
 .prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
-.prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
-.prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
-.prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
-
-@keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
-@keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
+.prog-slot.en-cours .prog-conf { background: var(--conf-en-cours-bg) !important; border-left: 4px solid var(--conf-en-cours-border) !important; font-weight: bold; }
+.prog-slot.en-cours .atelier { background: var(--atelier-en-cours-bg) !important; border-left: 4px solid var(--atelier-en-cours-border) !important; color: white !important; font-weight: bold; }
+.prog-slot.en-cours .atelier strong { color: white !important; }
 
 .loading { text-align: center; padding: 40px; color: var(--text-sub); }
 .spinner { border: 4px solid rgba(128,128,128,0.2); border-top: 4px solid var(--page-header-bg); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
@@ -81,19 +83,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="page-content">
 <p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
 
-<!-- Loading -->
 <div id="loading" class="loading">
     <div class="spinner"></div>
     <div>Chargement du programme...</div>
 </div>
 
-<!-- Contenu dynamique -->
 <div id="programmeContent" style="display:none;">
     <div class="jour-btns">
-        <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi 23/06</button>
-        <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
-        <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi 25/06</button>
-        <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
+        <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi</button>
+        <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi</button>
+        <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi</button>
+        <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi</button>
     </div>
     <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
     <div id="zoneSwipe">
@@ -113,35 +113,29 @@ let programmeData = {};
 const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
 let isAnimating = false;
 
-// Charger le programme depuis le Google Sheet
 async function chargerProgramme() {
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
         const data = await resp.json();
         
         if (data.success) {
-            // Organiser par jour
             data.programme.forEach(item => {
                 const jour = item.jour.toLowerCase();
                 if (!programmeData[jour]) programmeData[jour] = [];
                 programmeData[jour].push(item);
             });
             
-            // Trier par heure de début
             for (const jour in programmeData) {
                 programmeData[jour].sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
             }
             
-            // Générer l'affichage
             genererAffichage();
             
-            // Cacher le loading, afficher le contenu
             document.getElementById('loading').style.display = 'none';
             document.getElementById('programmeContent').style.display = 'block';
             
-            // Lancer la surbrillance en cours
             surbrillanceEnCours();
-            setInterval(surbrillanceEnCours, 60000);
+            setInterval(surbrillanceEnCours, 30000);
         } else {
             document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur : ' + data.message + '</p>';
         }
@@ -151,12 +145,22 @@ async function chargerProgramme() {
     }
 }
 
+function extraireHeure(str) {
+    if (!str) return '';
+    const match = String(str).match(/(\d{1,2}):(\d{2})/);
+    if (match) {
+        const h = String(parseInt(match[1])).padStart(2, '0');
+        const m = match[2];
+        return `${h}h${m}`;
+    }
+    return str;
+}
+
 function genererAffichage() {
     jours.forEach(jour => {
         const container = document.getElementById('jour-' + jour);
         const items = programmeData[jour] || [];
         
-        // Grouper par horaire (pour afficher conférence + ateliers ensemble)
         const groupes = {};
         items.forEach(item => {
             const key = item.heureDebut + '-' + item.heureFin;
@@ -168,22 +172,8 @@ function genererAffichage() {
         for (const key in groupes) {
             const groupe = groupes[key];
             const [debut, fin] = groupe.horaire.split('-');
-            
-            // Extraire juste HH:mm de n'importe quel format
-            function extraireHeure(str) {
-              if (!str) return '';
-              const match = String(str).match(/(\d{1,2}):(\d{2})/);
-              if (match) {
-                const h = String(parseInt(match[1])).padStart(2, '0');
-                const m = match[2];
-                return `${h}h${m}`;
-              }
-              return str;
-            }
-            
             const heureFormatted = extraireHeure(debut) + ' - ' + extraireHeure(fin);
             
-            // Trouver la conférence principale
             const conference = groupe.items.find(i => i.type === 'Conference' || i.type === 'Accueil' || i.type === 'Pause' || i.type === 'Visite' || i.type === 'AG' || i.type === 'Ouverture' || i.type === 'Cloture' || i.type === 'Soiree');
             const atelier1 = groupe.items.find(i => i.type === 'Atelier1');
             const atelier2 = groupe.items.find(i => i.type === 'Atelier2');
@@ -200,11 +190,11 @@ function genererAffichage() {
                 html += '<div class="prog-ateliers">';
                 if (atelier1) {
                     const desc = atelier1.description ? '<br><strong>' + atelier1.description + '</strong>' : '';
-                    html += '<div class="atelier"> ' + atelier1.nom + desc + '</div>';
+                    html += '<div class="atelier">' + atelier1.nom + desc + '</div>';
                 }
                 if (atelier2) {
                     const desc = atelier2.description ? '<br><strong>' + atelier2.description + '</strong>' : '';
-                    html += '<div class="atelier"> ' + atelier2.nom + desc + '</div>';
+                    html += '<div class="atelier">' + atelier2.nom + desc + '</div>';
                 }
                 html += '</div>';
             }
@@ -259,28 +249,13 @@ function getJourActif() {
 
 function surbrillanceEnCours() {
     const maintenant = new Date();
-    const dateAujourd = maintenant.toISOString().split('T')[0];
     const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
     
-    // Trouver le jour actuel
-    const joursDates = { 'mardi': '2026-06-23', 'mercredi': '2026-06-24', 'jeudi': '2026-06-25', 'vendredi': '2026-06-26' };
-    let jourActuel = null;
-    for (const [j, d] of Object.entries(joursDates)) {
-        if (d === dateAujourd) { jourActuel = j; break; }
-    }
-    
-    // Retirer toutes les surbrillances
     document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
     
+    const jourActuel = getJourActif();
     if (!jourActuel) return;
     
-    // Afficher le jour actuel
-    document.querySelectorAll('.jour-content').forEach(d => d.style.display = 'none');
-    document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('jour-' + jourActuel).style.display = 'block';
-    document.getElementById('btn-' + jourActuel).classList.add('active');
-    
-    // Mettre en surbrillance le créneau en cours
     const slots = document.getElementById('jour-' + jourActuel).querySelectorAll('.prog-slot');
     slots.forEach(slot => {
         const debut = slot.dataset.debut;
@@ -299,7 +274,6 @@ function surbrillanceEnCours() {
     });
 }
 
-// Gestion du swipe
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('DOMContentLoaded', () => {
     const zoneSwipe = document.getElementById('zoneSwipe');
@@ -322,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Charger au démarrage
 chargerProgramme();
 </script>
 </body>
