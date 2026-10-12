@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG v0.02</title>
+    <title>Chat Conférences/AG v0.03</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -87,7 +87,7 @@
             border-color: #2e7d32 !important;
         }
         .conf-en-cours .conf-name::before {
-            content: ' ';
+            content: '🔴 ';
         }
         
         .chat-container {
@@ -229,7 +229,7 @@
             </div>
             <div class="chat-form">
                 <textarea id="msgTexte" placeholder="Votre message..."></textarea>
-                <button id="btnSend" onclick="envoyerMessage()" disabled> Envoyer</button>
+                <button id="btnSend" onclick="envoyerMessage()" disabled>📤 Envoyer</button>
             </div>
         </div>
     </div>
@@ -249,24 +249,32 @@
                 const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
                 const data = await resp.json();
                 
+                console.log('[Chat] Réponse API:', data);
+                
                 if (data.success) {
                     conferences = data.conferences;
+                    console.log('[Chat] Nombre de conférences chargées:', conferences.length);
+                    
                     afficherListeConferences();
                     
-                    // ✅ Ouvrir automatiquement la conférence en cours
                     const conferenceEnCours = determinerConferenceEnCours();
                     if (conferenceEnCours) {
-                        console.log('[Chat] Conférence en cours détectée:', conferenceEnCours.nom);
+                        console.log('[Chat] ✅ Conférence en cours détectée:', conferenceEnCours.nom);
                         selectionnerConference(conferenceEnCours.id);
                     } else {
-                        console.log('[Chat] Aucune conférence en cours, ouverture de la première');
+                        console.log('[Chat] ⚠️ Aucune conférence en cours trouvée');
+                        console.log('[Chat] Ouverture de la première conférence par défaut');
                         if (conferences.length > 0) {
                             selectionnerConference(conferences[0].id);
+                        } else {
+                            console.log('[Chat] ❌ Aucune conférence disponible');
                         }
                     }
+                } else {
+                    console.error('[Chat] Erreur API:', data.message);
                 }
             } catch (e) {
-                console.error('Erreur chargement conférences:', e);
+                console.error('[Chat] Erreur chargement conférences:', e);
             }
         }
 
@@ -278,7 +286,10 @@
             console.log('[Chat] Date du jour:', dateAuj, 'Heure:', hNow, 'min');
             
             for (const conf of conferences) {
-                const confDate = String(conf.date).split('T')[0];
+                // ✅ Correction : convertir conf.date (objet Date) en format ISO YYYY-MM-DD
+                const confDateObj = new Date(conf.date);
+                const confDate = confDateObj.toISOString().split('T')[0];
+                
                 console.log('[Chat] Vérification:', conf.nom, '- Date:', confDate, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
                 
                 if (confDate === dateAuj) {
@@ -320,8 +331,10 @@
                 const badgeText = conf.type === 'AG' ? 'AG' : 'Conférence';
                 const isActive = conferenceActuelle === conf.id ? 'active' : '';
                 
-                // Vérifier si c'est la conférence en cours
-                const confDate = String(conf.date).split('T')[0];
+                // ✅ Correction : convertir conf.date en format ISO pour comparaison
+                const confDateObj = new Date(conf.date);
+                const confDate = confDateObj.toISOString().split('T')[0];
+                
                 let enCoursClass = '';
                 if (confDate === dateAuj) {
                     const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
@@ -348,12 +361,11 @@
                 console.log('[Chat] Conférence sélectionnée:', conf.nom);
                 document.getElementById('chatContainer').style.display = 'flex';
                 document.getElementById('btnSend').disabled = false;
-                afficherListeConferences(); // Mettre à jour la sélection visuelle
+                afficherListeConferences();
                 chargerMessages();
                 
-                // Démarrer le rafraîchissement automatique
                 if (refreshTimer) clearInterval(refreshTimer);
-                refreshTimer = setInterval(chargerMessages, 15000); // Toutes les 15 secondes
+                refreshTimer = setInterval(chargerMessages, 15000);
             }
         }
 
@@ -393,7 +405,7 @@
                 html += `
                     <div class="chat-message ${isMine ? 'mine' : ''}">
                         <div class="msg-author">
-                            ${isMine ? '👤 Vous' : '👤 ' + msg.prenom + ' ' + msg.nom}
+                            ${isMine ? ' Vous' : '👤 ' + msg.prenom + ' ' + msg.nom}
                             <span class="msg-time">${msg.dateHeure}</span>
                         </div>
                         <div class="msg-text">${msg.message}</div>
@@ -402,7 +414,7 @@
             });
             
             container.innerHTML = html;
-            container.scrollTop = container.scrollHeight; // Scroll vers le bas
+            container.scrollTop = container.scrollHeight;
         }
 
         async function envoyerMessage() {
@@ -453,12 +465,10 @@
             return str;
         }
 
-        // Nettoyage à la fermeture
         window.addEventListener('beforeunload', () => {
             if (refreshTimer) clearInterval(refreshTimer);
         });
 
-        // Chargement initial
         chargerConferences();
     </script>
 </body>
