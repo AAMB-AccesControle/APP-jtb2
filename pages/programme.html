@@ -14,19 +14,21 @@ if (localStorage.getItem('darkMode') === '1') { document.documentElement.classLi
 --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
 --page-header-bg: #1a3a6b; --heure-bg: #555;
 --conf-bg: #ffe4ec; --conf-border: #c0002a;
---conf-en-cours-bg: #ff8fa3; --conf-en-cours-border: #8b0000;
+--conf-en-cours-bg: #ff4d7a; --conf-en-cours-border: #8b0000;
 --atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
---atelier-en-cours-bg: #90caf9; --atelier-en-cours-border: #0d47a1;
+--atelier-en-cours-bg: #4a90d9; --atelier-en-cours-border: #0d47a1;
 --jour-btn-bg: #dde3ef; --jour-btn-text: #333;
+--badge-en-cours-bg: #1b5e20; --badge-en-cours-text: white;
 }
 body.dark {
 --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
 --page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
 --conf-bg: #3d1525; --conf-border: #c0002a;
---conf-en-cours-bg: #5c1a30; --conf-en-cours-border: #ff4d6d;
+--conf-en-cours-bg: #8b1a3a; --conf-en-cours-border: #ff4d6d;
 --atelier-bg: #162030; --atelier-border: #1565c0; --atelier-text: #90caf9;
 --atelier-en-cours-bg: #1a3a6b; --atelier-en-cours-border: #42a5f5;
 --jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
+--badge-en-cours-bg: #2e7d32; --badge-en-cours-text: white;
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
@@ -40,12 +42,43 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .jour-btn.active { background: #1a3a6b; color: white; }
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-.prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
+
+/* Barre d'heure avec badge EN COURS inline */
+.prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
+.badge-en-cours {
+    background: var(--badge-en-cours-bg);
+    color: var(--badge-en-cours-text);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    display: none;
+}
+.prog-slot.en-cours .badge-en-cours { display: inline-block; }
+
 .prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); transition: all 0.3s; }
 .prog-ateliers { display: flex; }
 .atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); transition: all 0.3s; }
 .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
 .atelier strong { font-size: 12px; }
+
+/* Surbrillance EN COURS - couleurs beaucoup plus contrastées */
+.prog-slot.en-cours .prog-heure { background: var(--badge-en-cours-bg) !important; }
+.prog-slot.en-cours .prog-conf {
+    background: var(--conf-en-cours-bg) !important;
+    border-left: 4px solid var(--conf-en-cours-border) !important;
+    font-weight: bold;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+.prog-slot.en-cours .atelier {
+    background: var(--atelier-en-cours-bg) !important;
+    border-left: 4px solid var(--atelier-en-cours-border) !important;
+    color: white !important;
+    font-weight: bold;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+.prog-slot.en-cours .atelier strong { color: white !important; }
 
 #zoneSwipe { overflow: hidden; position: relative; }
 .jour-content { transition: none; }
@@ -58,13 +91,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-/* ✅ Surbrillance EN COURS */
-.prog-slot.en-cours::before { content: '🔴 EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
-.prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
-.prog-slot.en-cours .prog-conf { background: var(--conf-en-cours-bg) !important; border-left: 4px solid var(--conf-en-cours-border) !important; font-weight: bold; }
-.prog-slot.en-cours .atelier { background: var(--atelier-en-cours-bg) !important; border-left: 4px solid var(--atelier-en-cours-border) !important; color: white !important; font-weight: bold; }
-.prog-slot.en-cours .atelier strong { color: white !important; }
 
 .loading { text-align: center; padding: 40px; color: var(--text-sub); }
 .spinner { border: 4px solid rgba(128,128,128,0.2); border-top: 4px solid var(--page-header-bg); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
@@ -178,8 +204,9 @@ function genererAffichage() {
             const atelier1 = groupe.items.find(i => i.type === 'Atelier1');
             const atelier2 = groupe.items.find(i => i.type === 'Atelier2');
             
+            // ✅ Badge "EN COURS" intégré dans la barre d'heure
             html += '<div class="prog-slot" data-id="' + (conference ? conference.id : '') + '" data-debut="' + debut + '" data-fin="' + fin + '">';
-            html += '<div class="prog-heure">' + heureFormatted + '</div>';
+            html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours"> EN COURS</span></div>';
             
             if (conference) {
                 const desc = conference.description ? '<br><small>' + conference.description + '</small>' : '';
