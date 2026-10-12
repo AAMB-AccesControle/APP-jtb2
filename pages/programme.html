@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.33</title>
+<title>Programme JTB 2026 v0.35</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -133,9 +133,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 verifierConnexionOuRediriger();
 
 let programmeData = {};
+let datesParJour = {}; // ✅ NOUVEAU : mapping jour -> date (ex: {mardi: '2026-10-12', ...})
 const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
 let isAnimating = false;
-let jourActif = 'mardi';
+let jourActif = null; // ✅ Changé de 'mardi' à null
 
 async function chargerProgramme() {
     try {
@@ -153,22 +154,33 @@ async function chargerProgramme() {
         
         if (data.success) {
             programmeData = {};
+            datesParJour = {}; // ✅ Reset
+            
             data.programme.forEach(item => {
                 const jour = item.jour.toLowerCase();
                 if (!programmeData[jour]) programmeData[jour] = [];
                 programmeData[jour].push(item);
+                
+                // ✅ Enregistrer la date pour chaque jour
+                if (item.date && !datesParJour[jour]) {
+                    datesParJour[jour] = String(item.date).split('T')[0]; // Ex: '2026-10-12'
+                }
             });
             
             for (const jour in programmeData) {
                 programmeData[jour].sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
             }
             
+            console.log('[Programme] Dates par jour:', datesParJour);
+            
             genererAffichage();
             
             document.getElementById('loading').style.display = 'none';
             document.getElementById('programmeContent').style.display = 'block';
             
-            afficherJour('mardi');
+            // ✅ Ouvrir automatiquement le bon jour
+            const jourAOuvrir = determinerJourAOuvrir();
+            afficherJourInitial(jourAOuvrir);
             
             surbrillanceEnCours();
             setInterval(surbrillanceEnCours, 30000);
@@ -179,6 +191,48 @@ async function chargerProgramme() {
         document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur de connexion</p>';
         console.error(e);
     }
+}
+
+// ✅ NOUVEAU : Détermine quel jour ouvrir en fonction de la date actuelle
+function determinerJourAOuvrir() {
+    const aujourdHui = new Date();
+    const dateAujStr = aujourdHui.toISOString().split('T')[0]; // Ex: '2026-10-12'
+    
+    console.log('[Programme] Date du jour:', dateAujStr);
+    
+    // Chercher un jour dont la date correspond à aujourd'hui
+    for (const [jour, date] of Object.entries(datesParJour)) {
+        if (date === dateAujStr) {
+            console.log('[Programme] Jour correspondant trouvé:', jour);
+            return jour;
+        }
+    }
+    
+    // Si aucune correspondance, ouvrir le premier jour qui a des données
+    for (const jour of jours) {
+        if (programmeData[jour] && programmeData[jour].length > 0) {
+            console.log('[Programme] Pas de correspondance, ouverture du premier jour:', jour);
+            return jour;
+        }
+    }
+    
+    return 'mardi'; // Fallback
+}
+
+// ✅ NOUVEAU : Affichage initial sans animation
+function afficherJourInitial(jour) {
+    // Cacher tous les jours
+    jours.forEach(j => {
+        document.getElementById('jour-' + j).style.display = 'none';
+        document.getElementById('btn-' + j).classList.remove('active');
+    });
+    
+    // Afficher le jour demandé
+    document.getElementById('jour-' + jour).style.display = 'block';
+    document.getElementById('btn-' + jour).classList.add('active');
+    jourActif = jour;
+    
+    console.log('[Programme] Jour initial affiché:', jour);
 }
 
 function extraireHeure(str) {
