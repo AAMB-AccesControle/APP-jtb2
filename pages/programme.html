@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.32</title>
+<title>Programme JTB 2026 v0.33</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -42,7 +42,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .jour-btn.active { background: #1a3a6b; color: white; }
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-
 .prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
 .badge-en-cours {
     background: var(--badge-en-cours-bg);
@@ -136,13 +135,25 @@ verifierConnexionOuRediriger();
 let programmeData = {};
 const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
 let isAnimating = false;
+let jourActif = 'mardi';
 
 async function chargerProgramme() {
     try {
-        const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
-        const data = await resp.json();
+        // ✅ Essayer d'abord le cache (chargé en arrière-plan par commun.js)
+        const cache = getProgrammeFromCache();
+        let data;
+        
+        if (cache) {
+            console.log('[Programme] Chargement depuis le cache');
+            data = { success: true, programme: cache };
+        } else {
+            console.log('[Programme] Cache vide - Chargement depuis le serveur');
+            const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
+            data = await resp.json();
+        }
         
         if (data.success) {
+            programmeData = {};
             data.programme.forEach(item => {
                 const jour = item.jour.toLowerCase();
                 if (!programmeData[jour]) programmeData[jour] = [];
@@ -158,6 +169,10 @@ async function chargerProgramme() {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('programmeContent').style.display = 'block';
             
+            // ✅ Afficher le jour par défaut (mardi) - CORRECTION DU BUG
+            afficherJour('mardi');
+            
+            // ✅ Surbrillance en temps réel (toutes les 30 secondes)
             surbrillanceEnCours();
             setInterval(surbrillanceEnCours, 30000);
         } else {
@@ -232,7 +247,7 @@ function genererAffichage() {
 
 function afficherJour(jour, direction = null) {
     if (isAnimating) return;
-    const ancienJour = getJourActif();
+    const ancienJour = jourActif;
     if (ancienJour === jour) return;
     
     if (!direction) {
@@ -265,10 +280,8 @@ function afficherJour(jour, direction = null) {
         nouveauEl.style.top = '';
         isAnimating = false;
     }, 300);
-}
-
-function getJourActif() {
-    return jours.find(j => document.getElementById('jour-' + j).style.display !== 'none') || 'mardi';
+    
+    jourActif = jour;
 }
 
 function surbrillanceEnCours() {
@@ -277,10 +290,9 @@ function surbrillanceEnCours() {
     
     document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
     
-    const jourActuel = getJourActif();
-    if (!jourActuel) return;
+    if (!jourActif) return;
     
-    const slots = document.getElementById('jour-' + jourActuel).querySelectorAll('.prog-slot');
+    const slots = document.getElementById('jour-' + jourActif).querySelectorAll('.prog-slot');
     slots.forEach(slot => {
         const debut = slot.dataset.debut;
         const fin = slot.dataset.fin;
@@ -311,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dx = e.changedTouches[0].clientX - touchStartX;
             const dy = e.changedTouches[0].clientY - touchStartY;
             if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-                const idx = jours.indexOf(getJourActif());
+                const idx = jours.indexOf(jourActif);
                 let ni = idx + (dx < 0 ? 1 : -1);
                 ni = Math.max(0, Math.min(3, ni));
                 if (ni !== idx) afficherJour(jours[ni], dx < 0 ? 'left' : 'right');
