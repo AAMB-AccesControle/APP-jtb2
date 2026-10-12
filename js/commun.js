@@ -6,9 +6,13 @@ const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
 const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
 const ADHERENTS_CACHE_DURATION = 3600000; // 1 heure
-
+const PROGRAMME_CACHE_KEY = 'aamb_programme_cache';
+const PROGRAMME_CACHE_DURATION = 900000; // 15 minutes
 
 let messagerieFormulaireOuvert = false;
+let messagerieSyncTimer = null;
+let messagerieSyncEnCours = false;
+let programmeSyncTimer = null;
 
 // ===== GESTION ADHÉRENT =====
 function chargerAdherent() {
@@ -61,7 +65,7 @@ function toggleDark() {
     document.body.classList.toggle('dark');
     const isDark = document.body.classList.contains('dark');
     document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', isDark));
-    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '️');
+    document.querySelectorAll('.toggle-label').forEach(lbl => lbl.textContent = isDark ? '🌙' : '☀️');
     localStorage.setItem('darkMode', isDark ? '1' : '0');
 }
 
@@ -101,7 +105,7 @@ function injecterHeaderPrincipal() {
             </div>
             <div class="header-right">
                 <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Mode sombre">
-                    <span class="toggle-label">☀️</span>
+                    <span class="toggle-label">️</span>
                     <div class="toggle-switch"><div class="toggle-knob"></div></div>
                 </div>
                 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
@@ -142,9 +146,6 @@ window.addEventListener('unhandledrejection', (e) => { console.error('Promesse r
 // ============================================
 // SYNCHRONISATION MESSAGERIE EN ARRIÈRE-PLAN
 // ============================================
-let messagerieSyncTimer = null;
-let messagerieSyncEnCours = false;
-
 function getMessagerieCache() {
     try {
         const raw = localStorage.getItem(MESSAGERIE_CACHE_KEY);
@@ -259,6 +260,49 @@ async function chargerListeAdherentsSilencieux() {
     } catch (e) { console.warn('Chargement adhérents échoué:', e); }
 }
 
+// ============================================
+// CHARGEMENT PROGRAMME EN ARRIÈRE-PLAN
+// ============================================
+function getProgrammeFromCache() {
+    try {
+        const raw = localStorage.getItem(PROGRAMME_CACHE_KEY);
+        if (!raw) return null;
+        const cache = JSON.parse(raw);
+        if (Date.now() - cache.timestamp > PROGRAMME_CACHE_DURATION) return null;
+        return cache.data;
+    } catch (e) { return null; }
+}
+
+function saveProgrammeToCache(data) {
+    try {
+        localStorage.setItem(PROGRAMME_CACHE_KEY, JSON.stringify({
+            timestamp: Date.now(),
+            data: data
+        }));
+    } catch (e) { console.warn('Cache programme échoué:', e); }
+}
+
+async function chargerProgrammeBackground() {
+    try {
+        const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
+        const data = await resp.json();
+        if (data.success) {
+            saveProgrammeToCache(data.programme);
+            console.log('[Programme] Cache mis à jour -', data.programme.length, 'entrées');
+        }
+    } catch (e) { console.warn('[Programme] Erreur chargement:', e); }
+}
+
+function startProgrammeBackgroundSync() {
+    chargerProgrammeBackground();
+    if (programmeSyncTimer) clearInterval(programmeSyncTimer);
+    programmeSyncTimer = setInterval(chargerProgrammeBackground, PROGRAMME_CACHE_DURATION);
+}
+
+function stopProgrammeBackgroundSync() {
+    if (programmeSyncTimer) { clearInterval(programmeSyncTimer); programmeSyncTimer = null; }
+}
+
 // ===== INITIALISATION AUTOMATIQUE =====
 document.addEventListener('DOMContentLoaded', function() {
     appliquerDarkModeInitial();
@@ -274,7 +318,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (adherent) {
         startMessagerieBackgroundSync();
         chargerListeAdherentsSilencieux();
+        startProgrammeBackgroundSync();
     }
 });
 
-window.addEventListener('beforeunload', () => { stopMessagerieBackgroundSync(); });
+window.addEventListener('beforeunload', () => { 
+    stopMessagerieBackgroundSync();
+    stopProgrammeBackgroundSync();
+});
