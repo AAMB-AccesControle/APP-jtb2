@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AAMB v0.35</title>
+<title>AAMB v0.36</title>
 <link rel="manifest" href="manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -162,13 +162,13 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
         <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
     </a>
 </div>
-<a class="btn-tile" href="pages/chat-ag.html"><span class="btn-tile-icon">🗣️</span><span class="btn-tile-label">Chat pour l'AG</span></a>
+<a class="btn-tile" href="pages/chat-conferences.html"><span class="btn-tile-icon">🗣️</span><span class="btn-tile-label">Chat Conférences/AG</span></a>
 </div>
 </div>
 <div class="btn-group">
 <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
 <div class="btn-grid">
-<a class="btn-tile" href="pages/transport.html"><span class="btn-tile-icon"></span><span class="btn-tile-label">Transport</span></a>
+<a class="btn-tile" href="pages/transport.html"><span class="btn-tile-icon">🚌</span><span class="btn-tile-label">Transport</span></a>
 <a class="btn-tile" href="pages/soirees.html"><span class="btn-tile-icon">🎉</span><span class="btn-tile-label">Soirées</span></a>
 <a class="btn-tile" href="pages/restauration.html"><span class="btn-tile-icon">🍽️</span><span class="btn-tile-label">Restauration</span></a>
 <a class="btn-tile" href="pages/reglementation.html"><span class="btn-tile-icon">📋</span><span class="btn-tile-label">Réglementation</span></a>
@@ -186,12 +186,12 @@ onkeydown="if(event.key==='Enter')verifierID();" aria-label="Code d'accès">
 <div class="btn-grid">
 <button class="btn-tile" onclick="openWebsite('aamb')" aria-label="Site Internet de l'AAMB"><span class="btn-tile-icon">🏠</span><span class="btn-tile-label">Site Internet de l'AAMB</span></button>
 <div class="jtb-wrap">
-<button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;" aria-label="Sites Internet des JTB"><span class="btn-tile-icon">🌍</span><span class="btn-tile-label">Site Internet des JTB ▲</span></button>
+<button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;" aria-label="Sites Internet des JTB"><span class="btn-tile-icon"></span><span class="btn-tile-label">Site Internet des JTB ▲</span></button>
 <div class="jtb-menu" id="jtbMenu">
 <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026<span class="city">📍 Besançon</span></div>
 <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025<span class="city">📍 Metz / Briey</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city"> Montpellier</span></div>
-<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city"> La Rochelle</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024<span class="city">📍 Montpellier</span></div>
+<div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023<span class="city">📍 La Rochelle</span></div>
 </div>
 </div>
 </div>
@@ -212,7 +212,7 @@ async function verifierID() {
     const id = document.getElementById('authInput').value.trim().toUpperCase();
     if (!id) { alert('Veuillez saisir votre code d\'accès'); return; }
     const btn = document.getElementById('authBtn');
-    btn.textContent = '⏳ Vérification...'; btn.disabled = true;
+    btn.textContent = ' Vérification...'; btn.disabled = true;
     const resultDiv = document.getElementById('authResult');
     const resultContent = document.getElementById('authResultContent');
     try {
@@ -231,9 +231,9 @@ async function verifierID() {
             '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">✅ Oui, c\'est moi !</button>' +
             '<button onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">❌ Non</button>' +
             '</div></div>';
-            document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
+            document.getElementById('rNom').textContent = ' ' + a.prenom + ' ' + a.nom;
             document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
-            document.getElementById('rEmail').textContent = '✉️ ' + a.email;
+            document.getElementById('rEmail').textContent = '️ ' + a.email;
             document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
         } else {
             resultContent.innerHTML = '<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p></div>';
