@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code v0.04</title>
+    <title>Scan QR Code v0.05</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -254,17 +254,23 @@
         let participantScanne = null;
         let scansNonEnvoyes = [];
         
+        console.log('[ScanQR] Initialisation - Utilisateur:', adherent ? adherent.nom : 'NON CONNECTÉ');
+        
         async function chargerParticipants() {
             try {
+                console.log('[ScanQR] Chargement des participants...');
                 const resp = await fetch(SCRIPT_URL + '?action=getParticipants');
                 const data = await resp.json();
                 
                 if (data.success) {
                     participants = data.participants;
-                    console.log('[ScanQR] ' + participants.length + ' participants chargés');
+                    console.log('[ScanQR] ✅ ' + participants.length + ' participants chargés');
+                    console.log('[ScanQR] Exemple:', participants[0]);
+                } else {
+                    console.error('[ScanQR]  Erreur chargement:', data.message);
                 }
             } catch (e) {
-                console.error('[ScanQR] Erreur chargement participants:', e);
+                console.error('[ScanQR] ❌ Erreur chargement participants:', e);
             }
         }
         
@@ -286,10 +292,13 @@
         function demarrerScan() {
             if (scanEnCours) return;
             
+            console.log('[ScanQR] Démarrage du scan...');
+            console.log('[ScanQR] Nombre de participants en mémoire:', participants.length);
+            
             const reader = document.getElementById('reader');
             html5QrCode = new Html5Qrcode("reader");
             
-            const tailleZone = Math.min(window.innerWidth * 0.9, 400);
+            const tailleZone = Math.min(window.innerWidth * 0.95, 400);
             
             const config = { 
                 fps: 10, 
@@ -307,7 +316,9 @@
                 document.getElementById('btnStart').style.display = 'none';
                 document.getElementById('btnStop').style.display = 'block';
                 afficherStatus('📷 Caméra active - Pointez vers un QR code', 'success');
+                console.log('[ScanQR] ✅ Caméra démarrée');
             }).catch(err => {
+                console.error('[ScanQR] ❌ Erreur démarrage caméra:', err);
                 afficherStatus('❌ Erreur caméra: ' + err, 'error');
             });
         }
@@ -315,40 +326,60 @@
         function arreterScan() {
             if (!scanEnCours || !html5QrCode) return;
             
+            console.log('[ScanQR] Arrêt du scan...');
+            
             html5QrCode.stop().then(() => {
                 html5QrCode.clear();
                 scanEnCours = false;
                 document.getElementById('btnStart').style.display = 'block';
                 document.getElementById('btnStop').style.display = 'none';
                 afficherStatus('📷 Caméra arrêtée', 'success');
+                console.log('[ScanQR] ✅ Caméra arrêtée');
             }).catch(err => {
-                console.error('Erreur arrêt scan:', err);
+                console.error('[ScanQR] Erreur arrêt scan:', err);
             });
         }
         
         function onScanSuccess(decodedText, decodedResult) {
-            console.log('[ScanQR] QR code scanné:', decodedText);
+            console.log('[ScanQR] 🎯 QR code scanné:', decodedText);
+            console.log('[ScanQR] Type:', typeof decodedText);
             
-            const participant = participants.find(p => 
-                String(p.id).toUpperCase() === String(decodedText).toUpperCase()
-            );
+            // Chercher le participant dans la liste préchargée
+            const participant = participants.find(p => {
+                const match = String(p.id).toUpperCase() === String(decodedText).toUpperCase();
+                if (match) {
+                    console.log('[ScanQR] ✅ Participant trouvé:', p);
+                }
+                return match;
+            });
             
             if (participant) {
+                console.log('[ScanQR] Participant trouvé:', participant.nom, participant.prenom);
+                
+                // Vérifier si déjà scanné
                 const dejaScanne = scansNonEnvoyes.find(s => s.codeQR === participant.id);
                 if (dejaScanne) {
+                    console.log('[ScanQR] Déjà scanné!');
                     afficherStatus('⚠️ ' + participant.prenom + ' ' + participant.nom + ' déjà scanné(e)', 'error');
                 } else {
                     afficherStatus('✅ ' + participant.prenom + ' ' + participant.nom + ' détecté(e) !', 'success');
                     afficherParticipant(participant);
                 }
             } else {
+                console.log('[ScanQR] ❌ Participant NON TROUVÉ pour ID:', decodedText);
+                console.log('[ScanQR] Participants disponibles:', participants.map(p => p.id));
                 afficherStatus('❌ Code non reconnu: ' + decodedText, 'error');
             }
             
+            // Arrêter le scan après détection
+            console.log('[ScanQR] Arrêt automatique du scan');
             arreterScan();
         }
         
-        function onScanFailure(error) {}
+        function onScanFailure(error) {
+            // Silencieux - scan en cours
+            // console.log('[ScanQR] Scan failure:', error);
+        }
         
         function afficherParticipant(p) {
             participantScanne = p;
@@ -361,6 +392,7 @@
             document.getElementById('commentaire').value = '';
             document.getElementById('participantCard').classList.add('visible');
             document.getElementById('btnSave').disabled = false;
+            console.log('[ScanQR] Participant affiché dans l\'interface');
         }
         
         async function enregistrerScan() {
@@ -368,11 +400,13 @@
             
             const btn = document.getElementById('btnSave');
             btn.disabled = true;
-            btn.textContent = '⏳ Enregistrement...';
+            btn.textContent = ' Enregistrement...';
             
             const commentaire = document.getElementById('commentaire').value.trim();
             
             try {
+                console.log('[ScanQR] Enregistrement du scan:', participantScanne.id);
+                
                 const params = new URLSearchParams({
                     action: 'saveScan',
                     scannedId: participantScanne.id,
@@ -382,6 +416,8 @@
                 
                 const resp = await fetch(SCRIPT_URL + '?' + params);
                 const data = await resp.json();
+                
+                console.log('[ScanQR] Réponse API:', data);
                 
                 if (data.success) {
                     afficherStatus('✅ Scan enregistré avec succès !', 'success');
@@ -399,7 +435,7 @@
                 }
             } catch (e) {
                 afficherStatus('❌ Erreur de connexion', 'error');
-                console.error(e);
+                console.error('[ScanQR] Erreur enregistrement:', e);
             } finally {
                 btn.disabled = false;
                 btn.textContent = '💾 Enregistrer le scan';
@@ -435,7 +471,7 @@
             
             const emailDest = adherent.email;
             if (!emailDest) {
-                alert('❌ Votre adresse email n\'est pas renseignée');
+                alert(' Votre adresse email n\'est pas renseignée');
                 return;
             }
             
@@ -462,7 +498,7 @@
                     scansNonEnvoyes = [];
                     mettreAJourListeScans();
                 } else {
-                    alert(' Erreur: ' + data.message);
+                    alert('❌ Erreur: ' + data.message);
                 }
             } catch (e) {
                 alert('❌ Erreur de connexion');
@@ -487,6 +523,7 @@
         });
         
         // Initialisation
+        console.log('[ScanQR] Démarrage du chargement...');
         chargerParticipants();
         chargerScansNonEnvoyes();
     </script>
