@@ -290,7 +290,7 @@
             html5QrCode = new Html5Qrcode("reader");
             
             // ✅ Zone de scan adaptative (90% de la largeur de l'écran, max 400px)
-            const tailleZone = Math.min(window.innerWidth * 0.9, 400);
+            const tailleZone = Math.min(window.innerWidth * 0.95, 400);
             
             const config = { 
                 fps: 10, 
