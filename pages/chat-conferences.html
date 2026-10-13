@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG v0.04</title>
+    <title>Chat Conférences/AG v0.05</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -29,6 +29,7 @@
         .page-header h2 { font-size: 18px; flex: 1; }
         .page-content { padding: 16px; max-width: 800px; margin: 0 auto; }
         
+        /* Sélecteur organisateur */
         .conference-selector {
             background: var(--card-bg);
             border-radius: 12px;
@@ -88,6 +89,43 @@
         }
         .conf-en-cours .conf-name::before {
             content: '🔴 ';
+        }
+        
+        /* ✅ Badge conférence en cours pour participants */
+        .current-conference-badge {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #2e7d32;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .current-conference-badge .conf-icon {
+            font-size: 24px;
+        }
+        .current-conference-badge .conf-info {
+            flex: 1;
+        }
+        .current-conference-badge .conf-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .current-conference-badge .conf-time {
+            font-size: 11px;
+            color: var(--text-sub);
+        }
+        .current-conference-badge .conf-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            margin-left: 6px;
         }
         
         .chat-container {
@@ -213,10 +251,20 @@
         <span id="syncText">Connecté</span>
     </div>
     <div class="page-content">
-        <div class="conference-selector">
+        <!-- ✅ Sélecteur pour organisateurs uniquement -->
+        <div id="organisateurSelector" class="conference-selector" style="display:none;">
             <h3>📅 Sélectionner une conférence/AG :</h3>
             <div id="conferenceList" class="conference-list">
                 <div class="loading">Chargement des conférences...</div>
+            </div>
+        </div>
+        
+        <!-- ✅ Badge conférence en cours pour participants -->
+        <div id="participantBadge" class="current-conference-badge" style="display:none;">
+            <div class="conf-icon">📍</div>
+            <div class="conf-info">
+                <div class="conf-name" id="participantConfName">Chargement...</div>
+                <div class="conf-time" id="participantConfTime">--</div>
             </div>
         </div>
 
@@ -224,12 +272,13 @@
             <div id="chatMessages" class="chat-messages">
                 <div class="empty-state">
                     <div class="icon">💬</div>
-                    <div>Sélectionnez une conférence pour voir les messages</div>
+                    <div>Aucun message pour le moment</div>
+                    <div style="font-size:12px;margin-top:8px;">Soyez le premier à poster !</div>
                 </div>
             </div>
             <div class="chat-form">
                 <textarea id="msgTexte" placeholder="Votre message..."></textarea>
-                <button id="btnSend" onclick="envoyerMessage()" disabled>📤 Envoyer</button>
+                <button id="btnSend" onclick="envoyerMessage()" disabled> Envoyer</button>
             </div>
         </div>
     </div>
@@ -243,6 +292,7 @@
         let messages = [];
         let refreshTimer = null;
         const adherent = chargerAdherent();
+        const isOrganisateur = adherent && adherent.statut === 'Organisateur';
 
         async function chargerConferences() {
             try {
@@ -255,19 +305,24 @@
                     conferences = data.conferences;
                     console.log('[Chat] Nombre de conférences chargées:', conferences.length);
                     
-                    afficherListeConferences();
+                    // ✅ Afficher le bon sélecteur selon le rôle
+                    if (isOrganisateur) {
+                        document.getElementById('organisateurSelector').style.display = 'block';
+                        document.getElementById('participantBadge').style.display = 'none';
+                        afficherListeConferences();
+                    } else {
+                        document.getElementById('organisateurSelector').style.display = 'none';
+                        document.getElementById('participantBadge').style.display = 'block';
+                    }
                     
                     const conferenceEnCours = determinerConferenceEnCours();
                     if (conferenceEnCours) {
                         console.log('[Chat] ✅ Conférence en cours détectée:', conferenceEnCours.nom);
                         selectionnerConference(conferenceEnCours.id);
                     } else {
-                        console.log('[Chat] ⚠️ Aucune conférence en cours trouvée');
-                        console.log('[Chat] Ouverture de la première conférence par défaut');
+                        console.log('[Chat] ️ Aucune conférence en cours trouvée');
                         if (conferences.length > 0) {
                             selectionnerConference(conferences[0].id);
-                        } else {
-                            console.log('[Chat] ❌ Aucune conférence disponible');
                         }
                     }
                 } else {
@@ -278,93 +333,86 @@
             }
         }
 
-function determinerConferenceEnCours() {
-    const maintenant = new Date();
-    // ✅ Récupérer les composants de date en heure LOCALE
-    const aujYear = maintenant.getFullYear();
-    const aujMonth = maintenant.getMonth(); // 0-11
-    const aujDate = maintenant.getDate();
-    const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-    
-    console.log('[Chat] Date locale:', aujYear + '-' + (aujMonth+1) + '-' + aujDate, 'Heure:', hNow, 'min');
-    
-    for (const conf of conferences) {
-        const confDateObj = new Date(conf.date);
-        // ✅ Comparer les composants en heure LOCALE (pas UTC)
-        const confYear = confDateObj.getFullYear();
-        const confMonth = confDateObj.getMonth();
-        const confDay = confDateObj.getDate();
-        
-        console.log('[Chat] Vérification:', conf.nom, '- Date locale:', confYear + '-' + (confMonth+1) + '-' + confDay, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
-        
-        // Même jour ?
-        if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
-            const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
-            const [fh, fm] = String(conf.heureFin).split(':').map(Number);
-            const debutMin = dh * 60 + dm;
-            const finMin = fh * 60 + fm;
+        function determinerConferenceEnCours() {
+            const maintenant = new Date();
+            const aujYear = maintenant.getFullYear();
+            const aujMonth = maintenant.getMonth();
+            const aujDate = maintenant.getDate();
+            const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
             
-            console.log('[Chat] -> Début:', debutMin, 'min, Fin:', finMin, 'min');
+            console.log('[Chat] Date locale:', aujYear + '-' + (aujMonth+1) + '-' + aujDate, 'Heure:', hNow, 'min');
             
-            if (hNow >= debutMin && hNow < finMin) {
-                console.log('[Chat] ✅ Conférence en cours trouvée:', conf.nom);
-                return conf;
+            for (const conf of conferences) {
+                const confDateObj = new Date(conf.date);
+                const confYear = confDateObj.getFullYear();
+                const confMonth = confDateObj.getMonth();
+                const confDay = confDateObj.getDate();
+                
+                console.log('[Chat] Vérification:', conf.nom, '- Date locale:', confYear + '-' + (confMonth+1) + '-' + confDay, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
+                
+                if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
+                    const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
+                    const [fh, fm] = String(conf.heureFin).split(':').map(Number);
+                    const debutMin = dh * 60 + dm;
+                    const finMin = fh * 60 + fm;
+                    
+                    console.log('[Chat] -> Début:', debutMin, 'min, Fin:', finMin, 'min');
+                    
+                    if (hNow >= debutMin && hNow < finMin) {
+                        console.log('[Chat] ✅ Conférence en cours trouvée:', conf.nom);
+                        return conf;
+                    }
+                }
             }
+            
+            console.log('[Chat] Aucune conférence en cours trouvée');
+            return null;
         }
-    }
-    
-    console.log('[Chat] Aucune conférence en cours trouvée');
-    return null;
-}
 
-function afficherListeConferences() {
-    const container = document.getElementById('conferenceList');
-    
-    if (conferences.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence disponible</div>';
-        return;
-    }
-    
-    const maintenant = new Date();
-    // ✅ Récupérer les composants en heure LOCALE
-    const aujYear = maintenant.getFullYear();
-    const aujMonth = maintenant.getMonth();
-    const aujDate = maintenant.getDate();
-    const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-    
-    let html = '';
-    conferences.forEach(conf => {
-        const heureDebut = extraireHeure(conf.heureDebut);
-        const heureFin = extraireHeure(conf.heureFin);
-        const badgeClass = conf.type === 'AG' ? 'badge-ag' : 'badge-conf';
-        const badgeText = conf.type === 'AG' ? 'AG' : 'Conférence';
-        const isActive = conferenceActuelle === conf.id ? 'active' : '';
-        
-        const confDateObj = new Date(conf.date);
-        const confYear = confDateObj.getFullYear();
-        const confMonth = confDateObj.getMonth();
-        const confDay = confDateObj.getDate();
-        
-        let enCoursClass = '';
-        // ✅ Comparer en heure LOCALE
-        if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
-            const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
-            const [fh, fm] = String(conf.heureFin).split(':').map(Number);
-            if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) {
-                enCoursClass = 'conf-en-cours';
+        function afficherListeConferences() {
+            const container = document.getElementById('conferenceList');
+            
+            if (conferences.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence disponible</div>';
+                return;
             }
+            
+            const maintenant = new Date();
+            const aujYear = maintenant.getFullYear();
+            const aujMonth = maintenant.getMonth();
+            const aujDate = maintenant.getDate();
+            const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+            
+            let html = '';
+            conferences.forEach(conf => {
+                const heureDebut = extraireHeure(conf.heureDebut);
+                const heureFin = extraireHeure(conf.heureFin);
+                const badgeClass = conf.type === 'AG' ? 'badge-ag' : 'badge-conf';
+                const badgeText = conf.type === 'AG' ? 'AG' : 'Conférence';
+                const isActive = conferenceActuelle === conf.id ? 'active' : '';
+                
+                const confDateObj = new Date(conf.date);
+                const confYear = confDateObj.getFullYear();
+                const confMonth = confDateObj.getMonth();
+                const confDay = confDateObj.getDate();
+                
+                let enCoursClass = '';
+                if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
+                    const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
+                    const [fh, fm] = String(conf.heureFin).split(':').map(Number);
+                    if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) {
+                        enCoursClass = 'conf-en-cours';
+                    }
+                }
+                
+                html += `<div class="conference-item ${isActive} ${enCoursClass}" onclick="selectionnerConference('${conf.id}')">
+                    <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${badgeText}</span></div>
+                    <div class="conf-time">${heureDebut} - ${heureFin} • ${conf.jour}</div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
         }
-        
-        html += `<div class="conference-item ${isActive} ${enCoursClass}" onclick="selectionnerConference('${conf.id}')">
-            <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${badgeText}</span></div>
-            <div class="conf-time">${heureDebut} - ${heureFin} • ${conf.jour}</div>
-        </div>`;
-    });
-    
-    container.innerHTML = html;
-}
-
-        
 
         function selectionnerConference(conferenceId) {
             conferenceActuelle = conferenceId;
@@ -372,9 +420,20 @@ function afficherListeConferences() {
             
             if (conf) {
                 console.log('[Chat] Conférence sélectionnée:', conf.nom);
+                
+                // ✅ Mettre à jour le badge participant
+                if (!isOrganisateur) {
+                    document.getElementById('participantConfName').innerHTML = conf.nom + ' <span class="conf-badge ' + (conf.type === 'AG' ? 'badge-ag' : 'badge-conf') + '">' + (conf.type === 'AG' ? 'AG' : 'Conférence') + '</span>';
+                    document.getElementById('participantConfTime').textContent = extraireHeure(conf.heureDebut) + ' - ' + extraireHeure(conf.heureFin) + ' • ' + conf.jour;
+                }
+                
                 document.getElementById('chatContainer').style.display = 'flex';
                 document.getElementById('btnSend').disabled = false;
-                afficherListeConferences();
+                
+                if (isOrganisateur) {
+                    afficherListeConferences();
+                }
+                
                 chargerMessages();
                 
                 if (refreshTimer) clearInterval(refreshTimer);
@@ -418,7 +477,7 @@ function afficherListeConferences() {
                 html += `
                     <div class="chat-message ${isMine ? 'mine' : ''}">
                         <div class="msg-author">
-                            ${isMine ? ' Vous' : '👤 ' + msg.prenom + ' ' + msg.nom}
+                            ${isMine ? '👤 Vous' : ' ' + msg.prenom + ' ' + msg.nom}
                             <span class="msg-time">${msg.dateHeure}</span>
                         </div>
                         <div class="msg-text">${msg.message}</div>
@@ -437,7 +496,7 @@ function afficherListeConferences() {
             
             const btn = document.getElementById('btnSend');
             btn.disabled = true;
-            btn.textContent = '⏳ Envoi...';
+            btn.textContent = ' Envoi...';
             
             try {
                 const params = new URLSearchParams({
@@ -463,7 +522,7 @@ function afficherListeConferences() {
                 console.error(e);
             } finally {
                 btn.disabled = false;
-                btn.textContent = ' Envoyer';
+                btn.textContent = '📤 Envoyer';
             }
         }
 
