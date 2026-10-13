@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code v0.01</title>
+    <title>Scan QR Code v0.02</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -290,7 +290,7 @@
             html5QrCode = new Html5Qrcode("reader");
             
             // ✅ Zone de scan adaptative (90% de la largeur de l'écran, max 400px)
-            const tailleZone = Math.min(window.innerWidth * 0.95, 400);
+            const tailleZone = Math.min(window.innerWidth * 0.98, 400);
             
             const config = { 
                 fps: 10, 
