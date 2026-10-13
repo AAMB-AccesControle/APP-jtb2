@@ -289,9 +289,12 @@
             const reader = document.getElementById('reader');
             html5QrCode = new Html5Qrcode("reader");
             
+            // ✅ Zone de scan adaptative (90% de la largeur de l'écran, max 400px)
+            const tailleZone = Math.min(window.innerWidth * 0.9, 400);
+            
             const config = { 
                 fps: 10, 
-                qrbox: { width: 250, height: 250 },
+                qrbox: { width: tailleZone, height: tailleZone },
                 aspectRatio: 1.0
             };
             
@@ -304,9 +307,9 @@
                 scanEnCours = true;
                 document.getElementById('btnStart').style.display = 'none';
                 document.getElementById('btnStop').style.display = 'block';
-                afficherStatus(' Caméra active - Pointez vers un QR code', 'success');
+                afficherStatus('📷 Caméra active - Pointez vers un QR code', 'success');
             }).catch(err => {
-                afficherStatus(' Erreur caméra: ' + err, 'error');
+                afficherStatus('❌ Erreur caméra: ' + err, 'error');
             });
         }
         
