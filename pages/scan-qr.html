@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code v0.02</title>
+    <title>Scan QR Code v0.04</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
     </script>
-    <!-- Bibliothèque html5-qrcode pour le scan -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,7 +27,6 @@
         .page-header h2 { font-size: 18px; flex: 1; }
         .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
         
-        /* Zone de scan */
         .scan-section {
             background: var(--card-bg);
             border-radius: 12px;
@@ -48,7 +46,6 @@
             overflow: hidden;
             background: #000;
         }
-        #reader video { border-radius: 10px; }
         .scan-controls {
             display: flex;
             gap: 10px;
@@ -66,7 +63,6 @@
         .btn-start { background: var(--success); color: white; }
         .btn-stop { background: var(--danger); color: white; }
         
-        /* Infos participant scanné */
         .participant-card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -139,7 +135,6 @@
         }
         .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        /* Liste des scans */
         .scans-list {
             background: var(--card-bg);
             border-radius: 12px;
@@ -186,6 +181,7 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
+            margin-top: 10px;
         }
         .email-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
@@ -200,8 +196,6 @@
         .status-msg.success { background: #d4edda; color: #155724; display: block; }
         .status-msg.error { background: #f8d7da; color: #721c24; display: block; }
         
-        .loading { text-align: center; padding: 20px; color: var(--text-sub); }
-        
         @media (max-width: 480px) {
             .page-header { top: 90px; }
         }
@@ -213,7 +207,6 @@
         <h2>Scan QR Code</h2>
     </div>
     <div class="page-content">
-        <!-- Zone de scan -->
         <div class="scan-section">
             <h3>📷 Scanner le QR code d'un participant</h3>
             <div id="reader"></div>
@@ -224,9 +217,8 @@
             <div id="scanStatus" class="status-msg"></div>
         </div>
         
-        <!-- Carte participant scanné -->
         <div id="participantCard" class="participant-card">
-            <h3>👤 Participant détecté</h3>
+            <h3> Participant détecté</h3>
             <div class="participant-info">
                 <div class="info-row"><span class="info-label">Nom :</span><span class="info-value" id="pNom">-</span></div>
                 <div class="info-row"><span class="info-label">Prénom :</span><span class="info-value" id="pPrenom">-</span></div>
@@ -242,11 +234,10 @@
             </div>
         </div>
         
-        <!-- Liste des scans effectués -->
         <div class="scans-list">
-            <h3> Mes scans <span class="scan-count" id="scanCount">0</span></h3>
+            <h3>📋 Scans non envoyés <span class="scan-count" id="scanCount">0</span></h3>
             <div id="scansListContainer">
-                <div style="text-align:center;color:var(--text-sub);padding:20px;font-size:12px;">Aucun scan enregistré</div>
+                <div style="text-align:center;color:var(--text-sub);padding:20px;font-size:12px;">Aucun scan en attente d'envoi</div>
             </div>
             <button class="email-btn" id="btnEmail" onclick="envoyerParMail()" disabled>📧 Envoyer la liste par email</button>
         </div>
@@ -261,11 +252,8 @@
         let html5QrCode = null;
         let scanEnCours = false;
         let participantScanne = null;
-        let mesScans = []; // Liste locale des scans effectués
+        let scansNonEnvoyes = [];
         
-        // ============================================
-        // PRÉCHARGEMENT DES PARTICIPANTS
-        // ============================================
         async function chargerParticipants() {
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=getParticipants');
@@ -280,17 +268,28 @@
             }
         }
         
-        // ============================================
-        // SCAN QR CODE
-        // ============================================
+        async function chargerScansNonEnvoyes() {
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=getScansNonEnvoyes&scannerId=' + encodeURIComponent(adherent.id));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    scansNonEnvoyes = data.scans;
+                    mettreAJourListeScans();
+                    console.log('[ScanQR] ' + scansNonEnvoyes.length + ' scans non envoyés chargés');
+                }
+            } catch (e) {
+                console.error('[ScanQR] Erreur chargement scans:', e);
+            }
+        }
+        
         function demarrerScan() {
             if (scanEnCours) return;
             
             const reader = document.getElementById('reader');
             html5QrCode = new Html5Qrcode("reader");
             
-            // ✅ Zone de scan adaptative (90% de la largeur de l'écran, max 400px)
-            const tailleZone = Math.min(window.innerWidth * 0.98, 400);
+            const tailleZone = Math.min(window.innerWidth * 0.9, 400);
             
             const config = { 
                 fps: 10, 
@@ -330,14 +329,12 @@
         function onScanSuccess(decodedText, decodedResult) {
             console.log('[ScanQR] QR code scanné:', decodedText);
             
-            // Chercher le participant dans la liste préchargée
             const participant = participants.find(p => 
                 String(p.id).toUpperCase() === String(decodedText).toUpperCase()
             );
             
             if (participant) {
-                // Vérifier si déjà scanné
-                const dejaScanne = mesScans.find(s => s.id === participant.id);
+                const dejaScanne = scansNonEnvoyes.find(s => s.codeQR === participant.id);
                 if (dejaScanne) {
                     afficherStatus('⚠️ ' + participant.prenom + ' ' + participant.nom + ' déjà scanné(e)', 'error');
                 } else {
@@ -348,13 +345,10 @@
                 afficherStatus('❌ Code non reconnu: ' + decodedText, 'error');
             }
             
-            // Arrêter le scan après détection
             arreterScan();
         }
         
-        function onScanFailure(error) {
-            // Silencieux - scan en cours
-        }
+        function onScanFailure(error) {}
         
         function afficherParticipant(p) {
             participantScanne = p;
@@ -369,15 +363,12 @@
             document.getElementById('btnSave').disabled = false;
         }
         
-        // ============================================
-        // ENREGISTRER LE SCAN
-        // ============================================
         async function enregistrerScan() {
             if (!participantScanne) return;
             
             const btn = document.getElementById('btnSave');
             btn.disabled = true;
-            btn.textContent = ' Enregistrement...';
+            btn.textContent = '⏳ Enregistrement...';
             
             const commentaire = document.getElementById('commentaire').value.trim();
             
@@ -393,25 +384,13 @@
                 const data = await resp.json();
                 
                 if (data.success) {
-                    // Ajouter à la liste locale
-                    mesScans.push({
-                        id: participantScanne.id,
-                        nom: participantScanne.nom,
-                        prenom: participantScanne.prenom,
-                        statut: participantScanne.statut,
-                        etablissement: participantScanne.etablissement,
-                        email: participantScanne.email,
-                        telephone: participantScanne.telephone,
-                        commentaire: commentaire,
-                        horodatage: new Date().toLocaleString('fr-FR')
-                    });
-                    
                     afficherStatus('✅ Scan enregistré avec succès !', 'success');
                     document.getElementById('participantCard').classList.remove('visible');
                     participantScanne = null;
-                    mettreAJourListeScans();
                     
-                    // Redémarrer le scan automatiquement après 2 secondes
+                    // Recharger la liste des scans non envoyés
+                    await chargerScansNonEnvoyes();
+                    
                     setTimeout(() => {
                         if (!scanEnCours) demarrerScan();
                     }, 2000);
@@ -419,7 +398,7 @@
                     afficherStatus('❌ Erreur: ' + data.message, 'error');
                 }
             } catch (e) {
-                afficherStatus(' Erreur de connexion', 'error');
+                afficherStatus('❌ Erreur de connexion', 'error');
                 console.error(e);
             } finally {
                 btn.disabled = false;
@@ -429,17 +408,16 @@
         
         function mettreAJourListeScans() {
             const container = document.getElementById('scansListContainer');
-            document.getElementById('scanCount').textContent = mesScans.length;
-            document.getElementById('btnEmail').disabled = mesScans.length === 0;
+            document.getElementById('scanCount').textContent = scansNonEnvoyes.length;
+            document.getElementById('btnEmail').disabled = scansNonEnvoyes.length === 0;
             
-            if (mesScans.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;font-size:12px;">Aucun scan enregistré</div>';
+            if (scansNonEnvoyes.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;font-size:12px;">Aucun scan en attente d\'envoi</div>';
                 return;
             }
             
             let html = '';
-            // Afficher les plus récents en premier
-            [...mesScans].reverse().forEach(s => {
+            [...scansNonEnvoyes].reverse().forEach(s => {
                 html += `<div class="scan-item">
                     <div>
                         <div class="scan-name">${s.prenom} ${s.nom}</div>
@@ -452,23 +430,20 @@
             container.innerHTML = html;
         }
         
-        // ============================================
-        // ENVOI PAR EMAIL
-        // ============================================
         async function envoyerParMail() {
-            if (mesScans.length === 0) return;
+            if (scansNonEnvoyes.length === 0) return;
             
             const emailDest = adherent.email;
             if (!emailDest) {
-                alert('Votre adresse email n\'est pas renseignée');
+                alert('❌ Votre adresse email n\'est pas renseignée');
                 return;
             }
             
-            if (!confirm(`Envoyer la liste de ${mesScans.length} personne(s) scannée(s) à ${emailDest} ?`)) return;
+            if (!confirm(`📧 Envoyer la liste de ${scansNonEnvoyes.length} personne(s) scannée(s) à ${emailDest} ?`)) return;
             
             const btn = document.getElementById('btnEmail');
             btn.disabled = true;
-            btn.textContent = ' Envoi en cours...';
+            btn.textContent = '⏳ Envoi en cours...';
             
             try {
                 const params = new URLSearchParams({
@@ -481,7 +456,11 @@
                 const data = await resp.json();
                 
                 if (data.success) {
-                    alert('✅ Email envoyé avec succès !\n' + data.nbScans + ' scan(s) envoyé(s) à ' + emailDest);
+                    alert('✅ Email envoyé avec succès !\n\n' + data.nbScans + ' scan(s) envoyé(s) à ' + emailDest);
+                    
+                    // Vider la liste locale
+                    scansNonEnvoyes = [];
+                    mettreAJourListeScans();
                 } else {
                     alert(' Erreur: ' + data.message);
                 }
@@ -501,7 +480,6 @@
             setTimeout(() => { el.style.display = 'none'; }, 4000);
         }
         
-        // Nettoyage à la fermeture
         window.addEventListener('beforeunload', () => {
             if (scanEnCours && html5QrCode) {
                 html5QrCode.stop().catch(() => {});
@@ -510,6 +488,7 @@
         
         // Initialisation
         chargerParticipants();
+        chargerScansNonEnvoyes();
     </script>
 </body>
 </html>
