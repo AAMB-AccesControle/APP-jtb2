@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG v0.03</title>
+    <title>Chat Conférences/AG v0.04</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -278,80 +278,93 @@
             }
         }
 
-        function determinerConferenceEnCours() {
-            const maintenant = new Date();
-            const dateAuj = maintenant.toISOString().split('T')[0];
-            const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+function determinerConferenceEnCours() {
+    const maintenant = new Date();
+    // ✅ Récupérer les composants de date en heure LOCALE
+    const aujYear = maintenant.getFullYear();
+    const aujMonth = maintenant.getMonth(); // 0-11
+    const aujDate = maintenant.getDate();
+    const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+    
+    console.log('[Chat] Date locale:', aujYear + '-' + (aujMonth+1) + '-' + aujDate, 'Heure:', hNow, 'min');
+    
+    for (const conf of conferences) {
+        const confDateObj = new Date(conf.date);
+        // ✅ Comparer les composants en heure LOCALE (pas UTC)
+        const confYear = confDateObj.getFullYear();
+        const confMonth = confDateObj.getMonth();
+        const confDay = confDateObj.getDate();
+        
+        console.log('[Chat] Vérification:', conf.nom, '- Date locale:', confYear + '-' + (confMonth+1) + '-' + confDay, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
+        
+        // Même jour ?
+        if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
+            const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
+            const [fh, fm] = String(conf.heureFin).split(':').map(Number);
+            const debutMin = dh * 60 + dm;
+            const finMin = fh * 60 + fm;
             
-            console.log('[Chat] Date du jour:', dateAuj, 'Heure:', hNow, 'min');
+            console.log('[Chat] -> Début:', debutMin, 'min, Fin:', finMin, 'min');
             
-            for (const conf of conferences) {
-                // ✅ Correction : convertir conf.date (objet Date) en format ISO YYYY-MM-DD
-                const confDateObj = new Date(conf.date);
-                const confDate = confDateObj.toISOString().split('T')[0];
-                
-                console.log('[Chat] Vérification:', conf.nom, '- Date:', confDate, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
-                
-                if (confDate === dateAuj) {
-                    const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
-                    const [fh, fm] = String(conf.heureFin).split(':').map(Number);
-                    const debutMin = dh * 60 + dm;
-                    const finMin = fh * 60 + fm;
-                    
-                    console.log('[Chat] -> Début:', debutMin, 'min, Fin:', finMin, 'min');
-                    
-                    if (hNow >= debutMin && hNow < finMin) {
-                        console.log('[Chat] ✅ Conférence en cours trouvée:', conf.nom);
-                        return conf;
-                    }
-                }
+            if (hNow >= debutMin && hNow < finMin) {
+                console.log('[Chat] ✅ Conférence en cours trouvée:', conf.nom);
+                return conf;
             }
-            
-            console.log('[Chat] Aucune conférence en cours trouvée');
-            return null;
         }
+    }
+    
+    console.log('[Chat] Aucune conférence en cours trouvée');
+    return null;
+}
 
-        function afficherListeConferences() {
-            const container = document.getElementById('conferenceList');
-            
-            if (conferences.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence disponible</div>';
-                return;
+function afficherListeConferences() {
+    const container = document.getElementById('conferenceList');
+    
+    if (conferences.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence disponible</div>';
+        return;
+    }
+    
+    const maintenant = new Date();
+    // ✅ Récupérer les composants en heure LOCALE
+    const aujYear = maintenant.getFullYear();
+    const aujMonth = maintenant.getMonth();
+    const aujDate = maintenant.getDate();
+    const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+    
+    let html = '';
+    conferences.forEach(conf => {
+        const heureDebut = extraireHeure(conf.heureDebut);
+        const heureFin = extraireHeure(conf.heureFin);
+        const badgeClass = conf.type === 'AG' ? 'badge-ag' : 'badge-conf';
+        const badgeText = conf.type === 'AG' ? 'AG' : 'Conférence';
+        const isActive = conferenceActuelle === conf.id ? 'active' : '';
+        
+        const confDateObj = new Date(conf.date);
+        const confYear = confDateObj.getFullYear();
+        const confMonth = confDateObj.getMonth();
+        const confDay = confDateObj.getDate();
+        
+        let enCoursClass = '';
+        // ✅ Comparer en heure LOCALE
+        if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
+            const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
+            const [fh, fm] = String(conf.heureFin).split(':').map(Number);
+            if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) {
+                enCoursClass = 'conf-en-cours';
             }
-            
-            const maintenant = new Date();
-            const dateAuj = maintenant.toISOString().split('T')[0];
-            const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-            
-            let html = '';
-            conferences.forEach(conf => {
-                const heureDebut = extraireHeure(conf.heureDebut);
-                const heureFin = extraireHeure(conf.heureFin);
-                const badgeClass = conf.type === 'AG' ? 'badge-ag' : 'badge-conf';
-                const badgeText = conf.type === 'AG' ? 'AG' : 'Conférence';
-                const isActive = conferenceActuelle === conf.id ? 'active' : '';
-                
-                // ✅ Correction : convertir conf.date en format ISO pour comparaison
-                const confDateObj = new Date(conf.date);
-                const confDate = confDateObj.toISOString().split('T')[0];
-                
-                let enCoursClass = '';
-                if (confDate === dateAuj) {
-                    const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
-                    const [fh, fm] = String(conf.heureFin).split(':').map(Number);
-                    if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) {
-                        enCoursClass = 'conf-en-cours';
-                    }
-                }
-                
-                html += `<div class="conference-item ${isActive} ${enCoursClass}" onclick="selectionnerConference('${conf.id}')">
-                    <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${badgeText}</span></div>
-                    <div class="conf-time">${heureDebut} - ${heureFin} • ${conf.jour}</div>
-                </div>`;
-            });
-            
-            container.innerHTML = html;
         }
+        
+        html += `<div class="conference-item ${isActive} ${enCoursClass}" onclick="selectionnerConference('${conf.id}')">
+            <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${badgeText}</span></div>
+            <div class="conf-time">${heureDebut} - ${heureFin} • ${conf.jour}</div>
+        </div>`;
+    });
+    
+    container.innerHTML = html;
+}
+
+        
 
         function selectionnerConference(conferenceId) {
             conferenceActuelle = conferenceId;
