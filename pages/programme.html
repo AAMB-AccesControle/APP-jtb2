@@ -3,54 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.056</title>
+<title>Programme JTB 2026 v0.57</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
 </script>
 <style>
-/* ===== STYLES DE BASE ET VARIABLES ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
 --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
 --page-header-bg: #1a3a6b; --heure-bg: #555;
---conf-bg: #ffe4ec; --conf-border: #c0002a;
---atelier-bg: #e3f0ff; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
---jour-btn-bg: #dde3ef; --jour-btn-text: #333;
+--conf-bg: #ffcdd5; --conf-border: #c0002a;
+--atelier-bg: #c8e0f7; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
+--badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
+--conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
+--atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
+--jour-btn-bg: #fff9c4; /* Jaune clair */
+--jour-btn-active-bg: #d4a017; /* Jaune foncé / Doré */
+--jour-btn-text: #333;
+--jour-btn-active-text: white;
 }
 body.dark {
 --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
 --page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
 --conf-bg: #3d1525; --conf-border: #c0002a;
---atelier-bg: #162030; --atelier-border: #1565c0; --atelier-text: #90caf9;
---jour-btn-bg: #2a2d45; --jour-btn-text: #ccc;
+--atelier-bg: #1e2d42; --atelier-border: #1565c0; --atelier-text: #90caf9;
+--badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
+--conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
+--atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
+--jour-btn-bg: #3d3410; /* Jaune très foncé (mode sombre) */
+--jour-btn-active-bg: #fbbf24; /* Jaune doré vif (mode sombre) */
+--jour-btn-text: #fcd34d;
+--jour-btn-active-text: #1a1a1a; /* Texte foncé pour contraste sur le jaune vif */
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
-/* ===== HEADER DE PAGE (titre + retour) - styles de base ===== */
 .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
 .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
 .page-header h2 { font-size: 18px; }
 .page-content { padding: 10px; }
 
-/* ===== STYLES SPÉCIFIQUES AU PROGRAMME ===== */
-.jour-btns { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
-.jour-btn { background: var(--jour-btn-bg); color: var(--jour-btn-text); border: none; padding: 7px 13px; border-radius: 18px; cursor: pointer; font-size: 12px; white-space: nowrap; font-weight: 500; }
-.jour-btn.active { background: #1a3a6b; color: white; }
+.jour-btns { display: flex; gap: 7px; margin-bottom: 12px; padding-bottom: 4px; }
+.jour-btn { 
+    flex: 1; 
+    background: var(--jour-btn-bg); 
+    color: var(--jour-btn-text); 
+    border: none; 
+    padding: 7px 10px; 
+    border-radius: 18px; 
+    cursor: pointer; 
+    font-size: 12px; 
+    font-weight: 500; 
+    text-align: center;
+    white-space: nowrap;
+    transition: background 0.3s, color 0.3s;
+}
+.jour-btn.active { 
+    background: var(--jour-btn-active-bg); 
+    color: var(--jour-btn-active-text); 
+    font-weight: bold;
+}
 
 .prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-.prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; }
-.prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); }
+.prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
+.badge-en-cours {
+    background: var(--badge-en-cours-bg);
+    color: var(--badge-en-cours-text);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    display: none;
+}
+.prog-slot.en-cours .badge-en-cours { display: inline-block; }
 
+.prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); transition: all 0.3s; }
 .prog-ateliers { display: flex; }
-.atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); }
+.atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); transition: all 0.3s; }
 .atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
 .atelier strong { font-size: 12px; }
 
+.prog-slot.en-cours .prog-heure { background: var(--badge-en-cours-bg) !important; }
+.prog-slot.en-cours .prog-conf {
+    background: var(--conf-en-cours-bg) !important;
+    border-left: 4px solid var(--conf-en-cours-border) !important;
+    font-weight: bold;
+    color: white !important;
+}
+.prog-slot.en-cours .prog-conf small { color: rgba(255,255,255,0.85) !important; }
+.prog-slot.en-cours .atelier {
+    background: var(--atelier-en-cours-bg) !important;
+    border-left: 4px solid var(--atelier-en-cours-border) !important;
+    color: white !important;
+    font-weight: bold;
+}
+.prog-slot.en-cours .atelier strong { color: white !important; }
+
 #zoneSwipe { overflow: hidden; position: relative; }
 .jour-content { transition: none; }
-
-/* Animations */
 .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
 .jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
 .jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
@@ -61,15 +112,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-/* Session en cours */
-.prog-slot.en-cours::before { content: ' EN COURS'; display: block; background: #c0002a !important; color: white !important; text-align: center; font-size: 11px; font-weight: bold; padding: 3px; letter-spacing: 1px; }
-.prog-slot.en-cours .prog-heure { background: #c0002a !important; color: white !important; }
-.prog-slot.en-cours .prog-conf { animation: pulse-conf 2s infinite !important; border-left: 4px solid #c0002a !important; }
-.prog-slot.en-cours .atelier { animation: pulse-atelier 2s infinite !important; border-left: 4px solid #1565c0 !important; color: white !important; }
-.prog-slot.en-cours .atelier strong, .prog-slot.en-cours .atelier small { color: white !important; }
+.loading { text-align: center; padding: 40px; color: var(--text-sub); }
+.spinner { border: 4px solid rgba(128,128,128,0.2); border-top: 4px solid var(--page-header-bg); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-@keyframes pulse-conf { 0% { background-color: #c0002a !important; color: white; } 50% { background-color: #ff4d6d !important; color: white; } 100% { background-color: #c0002a !important; color: white; } }
-@keyframes pulse-atelier { 0% { background-color: #1565c0 !important; color: white; } 50% { background-color: #42a5f5 !important; color: white; } 100% { background-color: #1565c0 !important; color: white; } }
+@media (max-width: 480px) {
+    .page-header { top: 90px; }
+}
 </style>
 </head>
 <body>
@@ -79,111 +128,277 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 <div class="page-content">
 <p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
-<div class="jour-btns">
-<button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi 23/06</button>
-<button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi 24/06</button>
-<button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi 25/06</button>
-<button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi 26/06</button>
+
+<div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div>Chargement du programme...</div>
 </div>
-<div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
-<div id="zoneSwipe">
-<div id="jour-mardi" class="jour-content" style="display:none;">
-<div class="prog-slot"><div class="prog-heure">13h00 - 13h45</div><div class="prog-conf">Accueil &amp; Inscription des stagiaires</div></div>
-<div class="prog-slot"><div class="prog-heure">14h00 - 14h15</div><div class="prog-conf">Présentation</div></div>
-<div class="prog-slot"><div class="prog-heure">14h15 - 15h00</div><div class="prog-conf"><strong>L'aEEG en néonatalogie</strong><br><small>Mahmoud ROUABAH — CHR METZ THIONVILLE</small></div></div>
-<div class="prog-slot"><div class="prog-heure">15h05 - 15h50</div><div class="prog-conf"><strong>Dispositif d'EEG continu : Le Cerebair</strong><br><small>Mickael GUYOCHET — NIHON KOHDEN</small></div></div>
-<div class="prog-slot"><div class="prog-heure">15h50 - 16h10</div><div class="prog-conf">☕ Pause</div></div>
-<div class="prog-slot"><div class="prog-heure">16h15 - 17h00</div><div class="prog-conf"><strong>Collaboration pharmacie hospitalière &amp; biomédicaux en pharmacotechnie</strong><br><small>Pascale MONFORT — CHR METZ THIONVILLE</small></div></div>
-<div class="prog-slot"><div class="prog-heure">17h15 - 18h30</div><div class="prog-conf">🏛️ AAMB AG — Salle Verlaine</div></div>
-</div>
-<div id="jour-mercredi" class="jour-content" style="display:none;">
-<div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Les techniques d'aphérèse thérapeutique en néphrologie</strong><br><small>Benjamin SAVENKOFF — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 1A<br><strong>STRYKER</strong></div><div class="atelier">🔵 Atelier 1B<br><strong>Parc Moteurs</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Machine d'aphérèse thérapeutique : Le PLASAUTO</strong><br><small>Sébastien DECAMPS — HEMAT MEDICAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 2A<br><strong>LORDIL</strong></div><div class="atelier">🔵 Atelier 2B<br><strong>SOCIETE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-<div class="prog-slot"><div class="prog-heure">11h00 - 12h00</div><div class="prog-conf">🎉 Ouverture des 43èmes JTB</div></div>
-<div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>SAMU/SMUR</strong><br><small>S. PETREMENT / R. VENDRICH — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 3A<br><strong>GE HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 3B<br><strong>DRAGER MEDICAL</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>Système de prélèvement et façonnage du greffon cornéen</strong><br><small>Arnaud FADIN — MORIA</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 4A<br><strong>MEDIPLUS</strong></div><div class="atelier">🔵 Atelier 4B<br><strong>LORDIL</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf">🚶 Visite des stands</div></div>
-<div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Actualités sur les différentes greffes de cornées</strong><br><small>J-M. PERONE / R. BABENKO — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 5A<br><strong>DRAEGER MEDICAL</strong></div><div class="atelier">🔵 Atelier 5B<br><strong>GE HEALTHCARE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">19h00 - 23h00</div><div class="prog-conf">🍷 Soirée terroir — Saint Pierre aux Nonnains</div></div>
-</div>
-<div id="jour-jeudi" class="jour-content" style="display:none;">
-<div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Sensibilisation aux enjeux des réformes</strong><br><small>I. GRANGE / Y. FOURGEUX — FME / CHU BESANCON</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 6A<br><strong>APITRAK</strong></div><div class="atelier">🔵 Atelier 6B<br><strong>PLANON</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Technicité en Simulation</strong><br><small>Camille DIB — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 7A<br><strong>MORGATE</strong></div><div class="atelier">🔵 Atelier 7B<br><strong>CHRU METZ</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">10h05 - 11h00</div><div class="prog-conf">🚶 Visite des stands</div></div>
-<div class="prog-slot"><div class="prog-heure">11h00 - 11h45</div><div class="prog-conf"><strong>Simulateur Haute Fidélité</strong><br><small>Noel NGUYEN — LAERDAL</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 8A<br><strong>PLANON</strong></div><div class="atelier">🔵 Atelier 8B<br><strong>APITRAK</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">13h45 - 14h30</div><div class="prog-conf"><strong>Innovations en médecine de réadaptation</strong><br><small>Etienne SCHMITT — CHR METZ THIONVILLE</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 9A<br><strong>PRS HEALTHCARE</strong></div><div class="atelier">🔵 Atelier 9B<br><strong>CHRU METZ</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">14h35 - 15h20</div><div class="prog-conf"><strong>L'exosquelette aide à la rééducation</strong><br><small>Remi CHERET — MEDIMEX</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 10A<br><strong>MORIA</strong></div><div class="atelier"> Atelier 10B<br><strong>MORGATE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">15h20 - 16h20</div><div class="prog-conf"> Visite des stands</div></div>
-<div class="prog-slot"><div class="prog-heure">16h20 - 17h05</div><div class="prog-conf"><strong>Certification AFAQ Service Biomédical</strong><br><small>S. BENCHEHIDA / G. FARGE — UTC Compiègne</small></div><div class="prog-ateliers"><div class="atelier">🔵 Atelier 11A<br><strong>HAEMONETICS</strong></div><div class="atelier">🔵 Atelier 11B<br><strong>SOCIETE</strong></div></div></div>
-<div class="prog-slot"><div class="prog-heure">19h00 - 01h00</div><div class="prog-conf">🎉 Soirée de gala — Le NEC</div></div>
-</div>
-<div id="jour-vendredi" class="jour-content" style="display:none;">
-<div class="prog-slot"><div class="prog-heure">8h30 - 9h15</div><div class="prog-conf"><strong>Chirurgie valvulaire par minithoracotomie</strong><br><small>Erick PORTOCARRERO — CHR METZ THIONVILLE</small></div></div>
-<div class="prog-slot"><div class="prog-heure">9h20 - 10h05</div><div class="prog-conf"><strong>Etat de l'art en chirurgie vidéothoracique</strong><br><small>Sébastien RICHARD — OLYMPUS</small></div></div>
-<div class="prog-slot"><div class="prog-heure">10h00 - 12h00</div><div class="prog-conf">🏁 Clôture des Journées</div></div>
+
+<div id="programmeContent" style="display:none;">
+    <div class="jour-btns">
+        <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi</button>
+        <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi</button>
+        <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi</button>
+        <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi</button>
+    </div>
+    <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
+    <div id="zoneSwipe">
+        <div id="jour-mardi" class="jour-content" style="display:none;"></div>
+        <div id="jour-mercredi" class="jour-content" style="display:none;"></div>
+        <div id="jour-jeudi" class="jour-content" style="display:none;"></div>
+        <div id="jour-vendredi" class="jour-content" style="display:none;"></div>
+    </div>
 </div>
 </div>
-</div>
+
 <script src="../js/commun.js"></script>
 <script>
-// Vérifier la connexion (redirige si pas connecté)
 verifierConnexionOuRediriger();
-const joursDates = {'mardi':'2026-06-23','mercredi':'2026-06-24','jeudi':'2026-06-25','vendredi':'2026-06-26'};
-const horaires = {
-'mardi':    [['13:00','13:45'],['14:00','14:15'],['14:15','15:00'],['15:05','15:50'],['15:50','16:10'],['16:15','17:00'],['17:15','18:30']],
-'mercredi': [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','12:00'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','23:00']],
-'jeudi':    [['08:30','09:15'],['09:20','10:05'],['10:05','11:00'],['11:00','11:45'],['13:45','14:30'],['14:35','15:20'],['15:20','16:20'],['16:20','17:05'],['19:00','25:00']],
-'vendredi': [['08:30','09:15'],['09:20','10:05'],['10:00','12:00']]
-};
-function toMin(h) { const [hh,mm]=h.split(':').map(Number); return hh*60+mm; }
-let isAnimating=false;
-const jours=['mardi','mercredi','jeudi','vendredi'];
-function getJourActif() { return jours.find(j=>document.getElementById('jour-'+j).style.display!=='none')||'mardi'; }
-function afficherJour(jour,direction=null) {
-if (isAnimating) return;
-const ancienJour=getJourActif();
-if (ancienJour===jour) return;
-if (!direction) { const ia=jours.indexOf(ancienJour),in2=jours.indexOf(jour); direction=in2>ia?'left':'right'; }
-const ancienEl=document.getElementById('jour-'+ancienJour);
-const nouveauEl=document.getElementById('jour-'+jour);
-isAnimating=true;
-document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
-document.getElementById('btn-'+jour).classList.add('active');
-nouveauEl.style.display='block'; nouveauEl.style.position='absolute'; nouveauEl.style.width='100%'; nouveauEl.style.top='0';
-ancienEl.classList.add(direction==='left'?'slide-out-left':'slide-out-right');
-nouveauEl.classList.add(direction==='left'?'slide-in-left':'slide-in-right');
-setTimeout(()=>{
-ancienEl.classList.remove('slide-out-left','slide-out-right');
-nouveauEl.classList.remove('slide-in-left','slide-in-right');
-ancienEl.style.display='none'; nouveauEl.style.position=''; nouveauEl.style.width=''; nouveauEl.style.top='';
-isAnimating=false;
-},300);
+
+let programmeData = {};
+let datesParJour = {};
+const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
+let isAnimating = false;
+let jourActif = null;
+
+async function chargerProgramme() {
+    try {
+        const cache = getProgrammeFromCache();
+        let data;
+        
+        if (cache) {
+            console.log('[Programme] Chargement depuis le cache');
+            data = { success: true, programme: cache };
+        } else {
+            console.log('[Programme] Cache vide - Chargement depuis le serveur');
+            const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
+            data = await resp.json();
+        }
+        
+        if (data.success) {
+            programmeData = {};
+            datesParJour = {};
+            
+            data.programme.forEach(item => {
+                const jour = item.jour.toLowerCase();
+                if (!programmeData[jour]) programmeData[jour] = [];
+                programmeData[jour].push(item);
+                
+                if (item.date && !datesParJour[jour]) {
+                    datesParJour[jour] = String(item.date).split('T')[0];
+                }
+            });
+            
+            for (const jour in programmeData) {
+                programmeData[jour].sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
+            }
+            
+            console.log('[Programme] Dates par jour:', datesParJour);
+            
+            genererAffichage();
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('programmeContent').style.display = 'block';
+            
+            const jourAOuvrir = determinerJourAOuvrir();
+            afficherJourInitial(jourAOuvrir);
+            
+            surbrillanceEnCours();
+            setInterval(surbrillanceEnCours, 30000);
+        } else {
+            document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur : ' + data.message + '</p>';
+        }
+    } catch (e) {
+        document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur de connexion</p>';
+        console.error(e);
+    }
 }
+
+function determinerJourAOuvrir() {
+    const aujourdHui = new Date();
+    const dateAujStr = aujourdHui.toISOString().split('T')[0];
+    
+    console.log('[Programme] Date du jour:', dateAujStr);
+    
+    for (const [jour, date] of Object.entries(datesParJour)) {
+        if (date === dateAujStr) {
+            console.log('[Programme] Jour correspondant trouvé:', jour);
+            return jour;
+        }
+    }
+    
+    for (const jour of jours) {
+        if (programmeData[jour] && programmeData[jour].length > 0) {
+            console.log('[Programme] Pas de correspondance, ouverture du premier jour:', jour);
+            return jour;
+        }
+    }
+    
+    return 'mardi';
+}
+
+function afficherJourInitial(jour) {
+    jours.forEach(j => {
+        document.getElementById('jour-' + j).style.display = 'none';
+        document.getElementById('btn-' + j).classList.remove('active');
+    });
+    
+    document.getElementById('jour-' + jour).style.display = 'block';
+    document.getElementById('btn-' + jour).classList.add('active');
+    jourActif = jour;
+    
+    console.log('[Programme] Jour initial affiché:', jour);
+}
+
+function extraireHeure(str) {
+    if (!str) return '';
+    const match = String(str).match(/(\d{1,2}):(\d{2})/);
+    if (match) {
+        const h = String(parseInt(match[1])).padStart(2, '0');
+        const m = match[2];
+        return `${h}h${m}`;
+    }
+    return str;
+}
+
+function genererAffichage() {
+    jours.forEach(jour => {
+        const container = document.getElementById('jour-' + jour);
+        const items = programmeData[jour] || [];
+        
+        const groupes = {};
+        items.forEach(item => {
+            const key = item.heureDebut + '-' + item.heureFin;
+            if (!groupes[key]) groupes[key] = { horaire: key, items: [] };
+            groupes[key].items.push(item);
+        });
+        
+        let html = '';
+        for (const key in groupes) {
+            const groupe = groupes[key];
+            const [debut, fin] = groupe.horaire.split('-');
+            const heureFormatted = extraireHeure(debut) + ' - ' + extraireHeure(fin);
+            
+            const conference = groupe.items.find(i => i.type === 'Conference' || i.type === 'Accueil' || i.type === 'Pause' || i.type === 'Visite' || i.type === 'AG' || i.type === 'Ouverture' || i.type === 'Cloture' || i.type === 'Soiree');
+            const atelier1 = groupe.items.find(i => i.type === 'Atelier1');
+            const atelier2 = groupe.items.find(i => i.type === 'Atelier2');
+            
+            html += '<div class="prog-slot" data-id="' + (conference ? conference.id : '') + '" data-debut="' + debut + '" data-fin="' + fin + '">';
+            html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours">🔴 EN COURS</span></div>';
+            
+            if (conference) {
+                const desc = conference.description ? '<br><small>' + conference.description + '</small>' : '';
+                html += '<div class="prog-conf"><strong>' + conference.nom + '</strong>' + desc + '</div>';
+            }
+            
+            if (atelier1 || atelier2) {
+                html += '<div class="prog-ateliers">';
+                if (atelier1) {
+                    const desc = atelier1.description ? '<br><strong>' + atelier1.description + '</strong>' : '';
+                    html += '<div class="atelier">' + atelier1.nom + desc + '</div>';
+                }
+                if (atelier2) {
+                    const desc = atelier2.description ? '<br><strong>' + atelier2.description + '</strong>' : '';
+                    html += '<div class="atelier">' + atelier2.nom + desc + '</div>';
+                }
+                html += '</div>';
+            }
+            
+            html += '</div>';
+        }
+        
+        container.innerHTML = html;
+    });
+}
+
+function afficherJour(jour, direction = null) {
+    if (isAnimating) return;
+    const ancienJour = jourActif;
+    if (ancienJour === jour) return;
+    
+    if (!direction) {
+        const ia = jours.indexOf(ancienJour);
+        const in2 = jours.indexOf(jour);
+        direction = in2 > ia ? 'left' : 'right';
+    }
+    
+    const ancienEl = document.getElementById('jour-' + ancienJour);
+    const nouveauEl = document.getElementById('jour-' + jour);
+    
+    isAnimating = true;
+    document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + jour).classList.add('active');
+    
+    nouveauEl.style.display = 'block';
+    nouveauEl.style.position = 'absolute';
+    nouveauEl.style.width = '100%';
+    nouveauEl.style.top = '0';
+    
+    ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
+    nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
+    
+    setTimeout(() => {
+        ancienEl.classList.remove('slide-out-left', 'slide-out-right');
+        nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
+        ancienEl.style.display = 'none';
+        nouveauEl.style.position = '';
+        nouveauEl.style.width = '';
+        nouveauEl.style.top = '';
+        isAnimating = false;
+    }, 300);
+    
+    jourActif = jour;
+}
+
 function surbrillanceEnCours() {
-const maintenant=new Date();
-const dateAujourd=maintenant.toISOString().split('T')[0];
-document.querySelectorAll('.prog-slot').forEach(s=>s.classList.remove('en-cours'));
-let jourActuel=null;
-for (const [j,d] of Object.entries(joursDates)) { if (d===dateAujourd){jourActuel=j;break;} }
-const ja=jourActuel||'mardi';
-document.querySelectorAll('.jour-content').forEach(d=>d.style.display='none');
-document.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));
-document.getElementById('jour-'+ja).style.display='block';
-document.getElementById('btn-'+ja).classList.add('active');
-if (!jourActuel) return;
-const hNow=maintenant.getHours()*60+maintenant.getMinutes();
-const slotsDiv=document.getElementById('jour-'+jourActuel).querySelectorAll('.prog-slot');
-horaires[jourActuel].forEach(([d,f],i)=>{ if (hNow>=toMin(d)&&hNow<toMin(f)&&slotsDiv[i]){slotsDiv[i].classList.add('en-cours');setTimeout(()=>slotsDiv[i].scrollIntoView({behavior:'smooth',block:'center'}),300);} });
+    const maintenant = new Date();
+    const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
+    
+    document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
+    
+    if (!jourActif) return;
+    
+    const slots = document.getElementById('jour-' + jourActif).querySelectorAll('.prog-slot');
+    slots.forEach(slot => {
+        const debut = slot.dataset.debut;
+        const fin = slot.dataset.fin;
+        if (debut && fin) {
+            const [dh, dm] = debut.split(':').map(Number);
+            const [fh, fm] = fin.split(':').map(Number);
+            const debutMin = dh * 60 + dm;
+            const finMin = fh * 60 + fm;
+            
+            if (hNow >= debutMin && hNow < finMin) {
+                slot.classList.add('en-cours');
+                setTimeout(() => slot.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+            }
+        }
+    });
 }
-setInterval(surbrillanceEnCours,60000);
-surbrillanceEnCours();
-let touchStartX=0,touchStartY=0;
-document.getElementById('zoneSwipe').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
-document.getElementById('zoneSwipe').addEventListener('touchend',e=>{
-const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
-if (Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){const idx=jours.indexOf(getJourActif());let ni=idx+(dx<0?1:-1);ni=Math.max(0,Math.min(3,ni));if(ni!==idx)afficherJour(jours[ni],dx<0?'left':'right');}
-},{passive:true});
+
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('DOMContentLoaded', () => {
+    const zoneSwipe = document.getElementById('zoneSwipe');
+    if (zoneSwipe) {
+        zoneSwipe.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        zoneSwipe.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                const idx = jours.indexOf(jourActif);
+                let ni = idx + (dx < 0 ? 1 : -1);
+                ni = Math.max(0, Math.min(3, ni));
+                if (ni !== idx) afficherJour(jours[ni], dx < 0 ? 'left' : 'right');
+            }
+        }, { passive: true });
+    }
+});
+
+chargerProgramme();
 </script>
 </body>
 </html>
