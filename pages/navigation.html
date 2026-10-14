@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.21</title>
+    <title>Navigation entre stands v0.22</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -74,7 +74,7 @@
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
-                 Calculer l'itinéraire
+                🧭 Calculer l'itinéraire
             </button>
         </div>
         
@@ -146,22 +146,23 @@
         
         // ============================================
         // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
-        // ✅ CORRECTION : Les "x" (minuscule ou majuscule) sont maintenant des obstacles
+        // ✅ "x" ou "X" = obstacle (mur/stand)
+        // ✅ Numéro de stand (seul ou avec nom) = obstacle
+        // ✅ "PAUSE" ou "AAMB" = obstacle
+        // ✅ Cellule vide = allée (traversable)
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
             
-            // ✅ Obstacle si le texte est "x" ou "X" (mur/stand)
+            // Obstacle si "x" ou "X"
             if (texte.toUpperCase() === 'X') return true;
             
-            // Obstacle si le texte commence par 1 ou 2 chiffres (numéro de stand)
+            // Obstacle si commence par 1 ou 2 chiffres (numéro de stand)
             if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ@]*/.test(texte)) return true;
             
-            // Obstacle si le texte est "PAUSE"
+            // Obstacle si "PAUSE" ou "AAMB"
             if (texte.toUpperCase() === 'PAUSE') return true;
-            
-            // Obstacle si le texte est "AAMB"
             if (texte.toUpperCase() === 'AAMB') return true;
             
             return false;
@@ -170,11 +171,10 @@
         // ============================================
         // TROUVER L'ENTRÉE EXACTE D'UN STAND
         // Cherche une cellule contenant EXACTEMENT le numéro (ex: "13")
-        // ✅ CORRECTION : Accepte aussi les cellules avec juste le numéro (pas "x")
         // ============================================
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
-            console.log('[Nav] 🔍 Recherche entrée exacte pour stand ' + numeroStand + '...');
+            console.log('[Nav]  Recherche entrée exacte pour stand ' + numeroStand + '...');
             
             const entrees = [];
             
@@ -184,7 +184,6 @@
                     const texte = String(cellule || '').trim();
                     
                     // Correspondance EXACTE avec le numéro du stand
-                    // (ni "13 SECA", ni "x", juste "13")
                     if (texte === numStr) {
                         entrees.push({x: x, y: y});
                         console.log('[Nav] ✅ Entrée exacte trouvée en (' + x + ', ' + y + ')');
@@ -198,7 +197,7 @@
         
         // ============================================
         // ALGORITHME A* (plus court chemin)
-        // Exception : la cellule de destination est toujours accessible même si c'est un obstacle
+        // Exception : la cellule de destination est toujours accessible
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
@@ -251,7 +250,7 @@
                     
                     const voisin = grid[v.y][v.x];
                     
-                    // ✅ EXCEPTION : la destination est toujours accessible même si c'est un obstacle
+                    // ✅ EXCEPTION : la destination est toujours accessible
                     const estDestination = (v.x === end.x && v.y === end.y);
                     
                     if (estObstacle(voisin) && !estDestination) continue;
@@ -279,12 +278,13 @@
         
         // ============================================
         // CALCULER L'ITINÉRAIRE (avec débogage visuel)
+        // ✅ NOMMAGE CORRIGÉ : trouverEntreeStand (pas trouverEntreesStand)
         // ============================================
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
             const numArrivee = parseInt(document.getElementById('standArrivee').value);
             
-            console.log('[Nav] 🧭 Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
+            console.log('[Nav]  Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
             
             if (!numDepart || !numArrivee) {
                 alert('Veuillez sélectionner les deux stands');
@@ -296,14 +296,14 @@
                 return;
             }
             
-            // 1. Trouver les entrées exactes des deux stands
-            const entreesDepart = trouverEntreesStand(numDepart);
-            const entreesArrivee = trouverEntreesStand(numArrivee);
+            // ✅ CORRECTION : trouverEntreeStand (pas trouverEntreesStand)
+            const entreesDepart = trouverEntreeStand(numDepart);
+            const entreesArrivee = trouverEntreeStand(numArrivee);
             
             // ============================================
             // ZONE DE DÉBOGAGE VISUEL
             // ============================================
-            let debugHtml = '<div class="debug-title"> RAISONNEMENT DE L\'ALGORITHME</div>';
+            let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT DE L\'ALGORITHME</div>';
             
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + '</div>';
@@ -358,7 +358,7 @@
             
             debugHtml += '<div class="chemin"> Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
             debugHtml += '<div class="chemin">🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
-            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
+            debugHtml += '<div class="chemin"> Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             // 3. Lancer l'algorithme A*
@@ -381,7 +381,7 @@
                     debugHtml += '<div class="info">   ... (' + (chemin.length - 10) + ' cellules supplémentaires) ...</div>';
                 }
                 debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                debugHtml += '<div class="info"> Dernières cellules du chemin :</div>';
+                debugHtml += '<div class="info">🏁 Dernières cellules du chemin :</div>';
                 const nbFin = Math.min(5, chemin.length);
                 for (let i = chemin.length - nbFin; i < chemin.length; i++) {
                     const c = chemin[i];
@@ -402,7 +402,7 @@
             debugSection.classList.add('visible');
             
             if (!chemin) {
-                alert(' Impossible de trouver un chemin entre ces deux stands.\n\nConsultez la zone de débogage ci-dessous.');
+                alert('❌ Impossible de trouver un chemin entre ces deux stands.\n\nConsultez la zone de débogage ci-dessous.');
             }
         }
         
