@@ -1,404 +1,546 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.37</title>
-<link rel="manifest" href="../manifest.json">
-<script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-</script>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
---bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
---page-header-bg: #1a3a6b; --heure-bg: #555;
---conf-bg: #ffcdd5; --conf-border: #c0002a;
---atelier-bg: #c8e0f7; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
---badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
---conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
---atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
---jour-btn-bg: #fff9c4; /* Jaune clair */
---jour-btn-active-bg: #d4a017; /* Jaune foncé / Doré */
---jour-btn-text: #333;
---jour-btn-active-text: white;
-}
-body.dark {
---bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
---page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
---conf-bg: #3d1525; --conf-border: #c0002a;
---atelier-bg: #1e2d42; --atelier-border: #1565c0; --atelier-text: #90caf9;
---badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
---conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
---atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
---jour-btn-bg: #3d3410; /* Jaune très foncé (mode sombre) */
---jour-btn-active-bg: #fbbf24; /* Jaune doré vif (mode sombre) */
---jour-btn-text: #fcd34d;
---jour-btn-active-text: #1a1a1a; /* Texte foncé pour contraste sur le jaune vif */
-}
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 10px; }
-
-.jour-btns { display: flex; gap: 7px; margin-bottom: 12px; padding-bottom: 4px; }
-.jour-btn { 
-    flex: 1; 
-    background: var(--jour-btn-bg); 
-    color: var(--jour-btn-text); 
-    border: none; 
-    padding: 7px 10px; 
-    border-radius: 18px; 
-    cursor: pointer; 
-    font-size: 12px; 
-    font-weight: 500; 
-    text-align: center;
-    white-space: nowrap;
-    transition: background 0.3s, color 0.3s;
-}
-.jour-btn.active { 
-    background: var(--jour-btn-active-bg); 
-    color: var(--jour-btn-active-text); 
-    font-weight: bold;
-}
-
-.prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-.prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
-.badge-en-cours {
-    background: var(--badge-en-cours-bg);
-    color: var(--badge-en-cours-text);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    display: none;
-}
-.prog-slot.en-cours .badge-en-cours { display: inline-block; }
-
-.prog-conf { background: var(--conf-bg); padding: 10px 12px; font-size: 13px; color: var(--text); border-left: 4px solid var(--conf-border); transition: all 0.3s; }
-.prog-ateliers { display: flex; }
-.atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); transition: all 0.3s; }
-.atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
-.atelier strong { font-size: 12px; }
-
-.prog-slot.en-cours .prog-heure { background: var(--badge-en-cours-bg) !important; }
-.prog-slot.en-cours .prog-conf {
-    background: var(--conf-en-cours-bg) !important;
-    border-left: 4px solid var(--conf-en-cours-border) !important;
-    font-weight: bold;
-    color: white !important;
-}
-.prog-slot.en-cours .prog-conf small { color: rgba(255,255,255,0.85) !important; }
-.prog-slot.en-cours .atelier {
-    background: var(--atelier-en-cours-bg) !important;
-    border-left: 4px solid var(--atelier-en-cours-border) !important;
-    color: white !important;
-    font-weight: bold;
-}
-.prog-slot.en-cours .atelier strong { color: white !important; }
-
-#zoneSwipe { overflow: hidden; position: relative; }
-.jour-content { transition: none; }
-.jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
-.jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
-.jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
-.jour-content.slide-in-right { animation: slideInRight 0.3s ease forwards; }
-
-@keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
-@keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-@keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-.loading { text-align: center; padding: 40px; color: var(--text-sub); }
-.spinner { border: 4px solid rgba(128,128,128,0.2); border-top: 4px solid var(--page-header-bg); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-@media (max-width: 480px) {
-    .page-header { top: 90px; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation entre stands v0.21</title>
+    <link rel="manifest" href="../manifest.json">
+    <script>
+    if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
+            --page-header-bg: #1a3a6b; --primary: #1a3a6b; --success: #10b981;
+        }
+        body.dark {
+            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
+            --page-header-bg: #0f1f3d; --primary: #2a5f9f;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+        
+        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+        .page-header h2 { font-size: 18px; flex: 1; }
+        .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
+        
+        .nav-section { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .nav-section h3 { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
+        .nav-section select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; }
+        .nav-section select:focus { border-color: var(--primary); outline: none; }
+        
+        .btn-calculate { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-calculate:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .instructions { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
+        .instructions.visible { display: block; }
+        .instructions h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; font-weight: 700; }
+        
+        .instruction-step { padding: 10px; margin-bottom: 8px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 13px; color: var(--text); }
+        .instruction-step .step-number { font-weight: bold; color: var(--primary); margin-right: 8px; }
+        
+        .stats { display: flex; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
+        .stat-item { flex: 1; text-align: center; }
+        .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 11px; color: var(--text-sub); }
+        .loading { text-align: center; padding: 20px; color: var(--text-sub); }
+        
+        .debug-section { background: #1e1e1e; color: #00ff00; border-radius: 12px; padding: 15px; margin-bottom: 15px; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.6; max-height: 400px; overflow-y: auto; display: none; white-space: pre-wrap; word-wrap: break-word; }
+        .debug-section.visible { display: block; }
+        .debug-section .debug-title { color: #ffcc00; font-weight: bold; font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .debug-section .obstacle { color: #ff4444; }
+        .debug-section .libre { color: #00ff00; }
+        .debug-section .chemin { color: #00ccff; }
+        .debug-section .info { color: #aaaaaa; }
+        .debug-section .entree { color: #ff00ff; }
+        
+        @media (max-width: 480px) { .page-header { top: 90px; } }
+    </style>
 </head>
 <body>
-<div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2>Programme JTB 2026</h2>
-</div>
-<div class="page-content">
-<p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
-
-<div id="loading" class="loading">
-    <div class="spinner"></div>
-    <div>Chargement du programme...</div>
-</div>
-
-<div id="programmeContent" style="display:none;">
-    <div class="jour-btns">
-        <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi</button>
-        <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi</button>
-        <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi</button>
-        <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi</button>
+    <div class="page-header">
+        <button class="back-btn" onclick="retourAccueil()">←</button>
+        <h2>🗺️ Navigation entre stands</h2>
     </div>
-    <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
-    <div id="zoneSwipe">
-        <div id="jour-mardi" class="jour-content" style="display:none;"></div>
-        <div id="jour-mercredi" class="jour-content" style="display:none;"></div>
-        <div id="jour-jeudi" class="jour-content" style="display:none;"></div>
-        <div id="jour-vendredi" class="jour-content" style="display:none;"></div>
-    </div>
-</div>
-</div>
-
-<script src="../js/commun.js"></script>
-<script>
-verifierConnexionOuRediriger();
-
-let programmeData = {};
-let datesParJour = {};
-const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
-let isAnimating = false;
-let jourActif = null;
-
-async function chargerProgramme() {
-    try {
-        const cache = getProgrammeFromCache();
-        let data;
+    <div class="page-content">
+        <div id="loading" class="loading">Chargement du plan de la salle...</div>
         
-        if (cache) {
-            console.log('[Programme] Chargement depuis le cache');
-            data = { success: true, programme: cache };
-        } else {
-            console.log('[Programme] Cache vide - Chargement depuis le serveur');
-            const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
-            data = await resp.json();
+        <div class="nav-section" id="navForm" style="display:none;">
+            <h3>📍 Je suis au stand :</h3>
+            <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
+            
+            <h3>🎯 Je veux aller au stand :</h3>
+            <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
+            
+            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
+                 Calculer l'itinéraire
+            </button>
+        </div>
+        
+        <div id="debugSection" class="debug-section"></div>
+        
+        <div id="instructions" class="instructions">
+            <h3>📋 Itinéraire :</h3>
+            <div id="instructionsList"></div>
+            <div class="stats">
+                <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
+                <div class="stat-item"><div class="stat-value" id="statTime">-</div><div class="stat-label">Temps (sec)</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/commun.js"></script>
+    <script>
+        verifierConnexionOuRediriger();
+        
+        let stands = [];
+        let grille = [];
+        
+        // ============================================
+        // CHARGEMENT DES DONNÉES
+        // ============================================
+        async function chargerDonnees() {
+            try {
+                const respStands = await fetch(SCRIPT_URL + '?action=getStands');
+                const dataStands = await respStands.json();
+                if (dataStands.success) {
+                    stands = dataStands.stands.sort((a, b) => a.numero - b.numero);
+                    remplirSelects();
+                    console.log('[Nav] ' + stands.length + ' stands chargés');
+                }
+                
+                const respGrille = await fetch(SCRIPT_URL + '?action=getGrilleSalle');
+                const dataGrille = await respGrille.json();
+                if (dataGrille.success) {
+                    grille = dataGrille.grille;
+                    console.log('[Nav] Grille chargée: ' + grille.length + ' x ' + grille[0].length);
+                }
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('navForm').style.display = 'block';
+            } catch (e) {
+                console.error('[Nav] Erreur:', e);
+                document.getElementById('loading').textContent = 'Erreur de chargement. Vérifiez votre connexion.';
+            }
         }
         
-        if (data.success) {
-            programmeData = {};
-            datesParJour = {};
+        function remplirSelects() {
+            const selectDepart = document.getElementById('standDepart');
+            const selectArrivee = document.getElementById('standArrivee');
             
-            data.programme.forEach(item => {
-                const jour = item.jour.toLowerCase();
-                if (!programmeData[jour]) programmeData[jour] = [];
-                programmeData[jour].push(item);
-                
-                if (item.date && !datesParJour[jour]) {
-                    datesParJour[jour] = String(item.date).split('T')[0];
-                }
+            stands.forEach(stand => {
+                const text = stand.numero + ' - ' + stand.nom;
+                selectDepart.add(new Option(text, stand.numero));
+                selectArrivee.add(new Option(text, stand.numero));
             });
             
-            for (const jour in programmeData) {
-                programmeData[jour].sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
-            }
-            
-            console.log('[Programme] Dates par jour:', datesParJour);
-            
-            genererAffichage();
-            
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('programmeContent').style.display = 'block';
-            
-            const jourAOuvrir = determinerJourAOuvrir();
-            afficherJourInitial(jourAOuvrir);
-            
-            surbrillanceEnCours();
-            setInterval(surbrillanceEnCours, 30000);
-        } else {
-            document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur : ' + data.message + '</p>';
+            const verifier = () => {
+                const d = selectDepart.value;
+                const a = selectArrivee.value;
+                document.getElementById('btnCalculate').disabled = !(d && a && d !== a);
+            };
+            selectDepart.addEventListener('change', verifier);
+            selectArrivee.addEventListener('change', verifier);
         }
-    } catch (e) {
-        document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur de connexion</p>';
-        console.error(e);
-    }
-}
-
-function determinerJourAOuvrir() {
-    const aujourdHui = new Date();
-    const dateAujStr = aujourdHui.toISOString().split('T')[0];
-    
-    console.log('[Programme] Date du jour:', dateAujStr);
-    
-    for (const [jour, date] of Object.entries(datesParJour)) {
-        if (date === dateAujStr) {
-            console.log('[Programme] Jour correspondant trouvé:', jour);
-            return jour;
-        }
-    }
-    
-    for (const jour of jours) {
-        if (programmeData[jour] && programmeData[jour].length > 0) {
-            console.log('[Programme] Pas de correspondance, ouverture du premier jour:', jour);
-            return jour;
-        }
-    }
-    
-    return 'mardi';
-}
-
-function afficherJourInitial(jour) {
-    jours.forEach(j => {
-        document.getElementById('jour-' + j).style.display = 'none';
-        document.getElementById('btn-' + j).classList.remove('active');
-    });
-    
-    document.getElementById('jour-' + jour).style.display = 'block';
-    document.getElementById('btn-' + jour).classList.add('active');
-    jourActif = jour;
-    
-    console.log('[Programme] Jour initial affiché:', jour);
-}
-
-function extraireHeure(str) {
-    if (!str) return '';
-    const match = String(str).match(/(\d{1,2}):(\d{2})/);
-    if (match) {
-        const h = String(parseInt(match[1])).padStart(2, '0');
-        const m = match[2];
-        return `${h}h${m}`;
-    }
-    return str;
-}
-
-function genererAffichage() {
-    jours.forEach(jour => {
-        const container = document.getElementById('jour-' + jour);
-        const items = programmeData[jour] || [];
         
-        const groupes = {};
-        items.forEach(item => {
-            const key = item.heureDebut + '-' + item.heureFin;
-            if (!groupes[key]) groupes[key] = { horaire: key, items: [] };
-            groupes[key].items.push(item);
-        });
+        // ============================================
+        // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
+        // ✅ CORRECTION : Les "x" (minuscule ou majuscule) sont maintenant des obstacles
+        // ============================================
+        function estObstacle(cellule) {
+            if (!cellule) return false;
+            const texte = String(cellule).trim();
+            
+            // ✅ Obstacle si le texte est "x" ou "X" (mur/stand)
+            if (texte.toUpperCase() === 'X') return true;
+            
+            // Obstacle si le texte commence par 1 ou 2 chiffres (numéro de stand)
+            if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ@]*/.test(texte)) return true;
+            
+            // Obstacle si le texte est "PAUSE"
+            if (texte.toUpperCase() === 'PAUSE') return true;
+            
+            // Obstacle si le texte est "AAMB"
+            if (texte.toUpperCase() === 'AAMB') return true;
+            
+            return false;
+        }
         
-        let html = '';
-        for (const key in groupes) {
-            const groupe = groupes[key];
-            const [debut, fin] = groupe.horaire.split('-');
-            const heureFormatted = extraireHeure(debut) + ' - ' + extraireHeure(fin);
+        // ============================================
+        // TROUVER L'ENTRÉE EXACTE D'UN STAND
+        // Cherche une cellule contenant EXACTEMENT le numéro (ex: "13")
+        // ✅ CORRECTION : Accepte aussi les cellules avec juste le numéro (pas "x")
+        // ============================================
+        function trouverEntreeStand(numeroStand) {
+            const numStr = String(numeroStand);
+            console.log('[Nav] 🔍 Recherche entrée exacte pour stand ' + numeroStand + '...');
             
-            const conference = groupe.items.find(i => i.type === 'Conference' || i.type === 'Accueil' || i.type === 'Pause' || i.type === 'Visite' || i.type === 'AG' || i.type === 'Ouverture' || i.type === 'Cloture' || i.type === 'Soiree');
-            const atelier1 = groupe.items.find(i => i.type === 'Atelier1');
-            const atelier2 = groupe.items.find(i => i.type === 'Atelier2');
+            const entrees = [];
             
-            html += '<div class="prog-slot" data-id="' + (conference ? conference.id : '') + '" data-debut="' + debut + '" data-fin="' + fin + '">';
-            html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours">🔴 EN COURS</span></div>';
-            
-            if (conference) {
-                const desc = conference.description ? '<br><small>' + conference.description + '</small>' : '';
-                html += '<div class="prog-conf"><strong>' + conference.nom + '</strong>' + desc + '</div>';
-            }
-            
-            if (atelier1 || atelier2) {
-                html += '<div class="prog-ateliers">';
-                if (atelier1) {
-                    const desc = atelier1.description ? '<br><strong>' + atelier1.description + '</strong>' : '';
-                    html += '<div class="atelier">' + atelier1.nom + desc + '</div>';
+            for (let y = 0; y < grille.length; y++) {
+                for (let x = 0; x < grille[0].length; x++) {
+                    const cellule = grille[y][x];
+                    const texte = String(cellule || '').trim();
+                    
+                    // Correspondance EXACTE avec le numéro du stand
+                    // (ni "13 SECA", ni "x", juste "13")
+                    if (texte === numStr) {
+                        entrees.push({x: x, y: y});
+                        console.log('[Nav] ✅ Entrée exacte trouvée en (' + x + ', ' + y + ')');
+                    }
                 }
-                if (atelier2) {
-                    const desc = atelier2.description ? '<br><strong>' + atelier2.description + '</strong>' : '';
-                    html += '<div class="atelier">' + atelier2.nom + desc + '</div>';
+            }
+            
+            console.log('[Nav] 📊 Total entrées exactes trouvées : ' + entrees.length);
+            return entrees;
+        }
+        
+        // ============================================
+        // ALGORITHME A* (plus court chemin)
+        // Exception : la cellule de destination est toujours accessible même si c'est un obstacle
+        // ============================================
+        function aStar(start, end, grid) {
+            if (!start || !end) {
+                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
+                return null;
+            }
+            
+            console.log('[Nav] 🚀 A* démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
+            
+            const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null}];
+            const closedSet = new Set();
+            const height = grid.length;
+            const width = grid[0].length;
+            let iterations = 0;
+            
+            while (openSet.length > 0) {
+                iterations++;
+                if (iterations > 10000) {
+                    console.error('[Nav] ❌ Trop d\'itérations (10000), abandon');
+                    return null;
                 }
-                html += '</div>';
+                
+                openSet.sort((a, b) => a.f - b.f);
+                const current = openSet.shift();
+                const key = current.x + ',' + current.y;
+                
+                if (current.x === end.x && current.y === end.y) {
+                    const chemin = [];
+                    let node = current;
+                    while (node) {
+                        chemin.unshift({x: node.x, y: node.y});
+                        node = node.parent;
+                    }
+                    console.log('[Nav] ✅ Chemin trouvé: ' + chemin.length + ' cellules en ' + iterations + ' itérations');
+                    return chemin;
+                }
+                
+                closedSet.add(key);
+                const voisins = [
+                    {x: current.x+1, y: current.y},
+                    {x: current.x-1, y: current.y},
+                    {x: current.x, y: current.y+1},
+                    {x: current.x, y: current.y-1}
+                ];
+                
+                for (const v of voisins) {
+                    if (v.x < 0 || v.x >= width || v.y < 0 || v.y >= height) continue;
+                    const vKey = v.x + ',' + v.y;
+                    if (closedSet.has(vKey)) continue;
+                    
+                    const voisin = grid[v.y][v.x];
+                    
+                    // ✅ EXCEPTION : la destination est toujours accessible même si c'est un obstacle
+                    const estDestination = (v.x === end.x && v.y === end.y);
+                    
+                    if (estObstacle(voisin) && !estDestination) continue;
+                    
+                    const g = current.g + 1;
+                    const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
+                    const f = g + h;
+                    
+                    const existing = openSet.find(n => n.x === v.x && n.y === v.y);
+                    if (existing) {
+                        if (g < existing.g) {
+                            existing.g = g;
+                            existing.f = f;
+                            existing.parent = current;
+                        }
+                    } else {
+                        openSet.push({x: v.x, y: v.y, g: g, h: h, f: f, parent: current});
+                    }
+                }
             }
             
-            html += '</div>';
+            console.error('[Nav] ❌ Aucun chemin trouvé après ' + iterations + ' itérations');
+            return null;
         }
         
-        container.innerHTML = html;
-    });
-}
-
-function afficherJour(jour, direction = null) {
-    if (isAnimating) return;
-    const ancienJour = jourActif;
-    if (ancienJour === jour) return;
-    
-    if (!direction) {
-        const ia = jours.indexOf(ancienJour);
-        const in2 = jours.indexOf(jour);
-        direction = in2 > ia ? 'left' : 'right';
-    }
-    
-    const ancienEl = document.getElementById('jour-' + ancienJour);
-    const nouveauEl = document.getElementById('jour-' + jour);
-    
-    isAnimating = true;
-    document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + jour).classList.add('active');
-    
-    nouveauEl.style.display = 'block';
-    nouveauEl.style.position = 'absolute';
-    nouveauEl.style.width = '100%';
-    nouveauEl.style.top = '0';
-    
-    ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
-    nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
-    
-    setTimeout(() => {
-        ancienEl.classList.remove('slide-out-left', 'slide-out-right');
-        nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
-        ancienEl.style.display = 'none';
-        nouveauEl.style.position = '';
-        nouveauEl.style.width = '';
-        nouveauEl.style.top = '';
-        isAnimating = false;
-    }, 300);
-    
-    jourActif = jour;
-}
-
-function surbrillanceEnCours() {
-    const maintenant = new Date();
-    const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-    
-    document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
-    
-    if (!jourActif) return;
-    
-    const slots = document.getElementById('jour-' + jourActif).querySelectorAll('.prog-slot');
-    slots.forEach(slot => {
-        const debut = slot.dataset.debut;
-        const fin = slot.dataset.fin;
-        if (debut && fin) {
-            const [dh, dm] = debut.split(':').map(Number);
-            const [fh, fm] = fin.split(':').map(Number);
-            const debutMin = dh * 60 + dm;
-            const finMin = fh * 60 + fm;
+        // ============================================
+        // CALCULER L'ITINÉRAIRE (avec débogage visuel)
+        // ============================================
+        function calculerItineraire() {
+            const numDepart = parseInt(document.getElementById('standDepart').value);
+            const numArrivee = parseInt(document.getElementById('standArrivee').value);
             
-            if (hNow >= debutMin && hNow < finMin) {
-                slot.classList.add('en-cours');
-                setTimeout(() => slot.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+            console.log('[Nav] 🧭 Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
+            
+            if (!numDepart || !numArrivee) {
+                alert('Veuillez sélectionner les deux stands');
+                return;
+            }
+            
+            if (numDepart === numArrivee) {
+                alert('Veuillez sélectionner deux stands différents');
+                return;
+            }
+            
+            // 1. Trouver les entrées exactes des deux stands
+            const entreesDepart = trouverEntreesStand(numDepart);
+            const entreesArrivee = trouverEntreesStand(numArrivee);
+            
+            // ============================================
+            // ZONE DE DÉBOGAGE VISUEL
+            // ============================================
+            let debugHtml = '<div class="debug-title"> RAISONNEMENT DE L\'ALGORITHME</div>';
+            
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
+            debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + '</div>';
+            debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
+            
+            if (entreesDepart.length === 0) {
+                debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numDepart + '" trouvée</div>';
+                debugHtml += '<div class="info">Vérifiez qu\'une cellule contient uniquement le texte "' + numDepart + '" (sans nom de stand).</div>';
+            } else {
+                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) exacte(s) trouvée(s) :</div>';
+                entreesDepart.forEach(e => {
+                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
+                });
+            }
+            
+            if (entreesArrivee.length === 0) {
+                debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numArrivee + '" trouvée</div>';
+                debugHtml += '<div class="info">Vérifiez qu\'une cellule contient uniquement le texte "' + numArrivee + '" (sans nom de stand).</div>';
+            } else {
+                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) exacte(s) trouvée(s) :</div>';
+                entreesArrivee.forEach(e => {
+                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
+                });
+            }
+            
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
+            
+            if (entreesDepart.length === 0 || entreesArrivee.length === 0) {
+                const debugSection = document.getElementById('debugSection');
+                debugSection.innerHTML = debugHtml;
+                debugSection.classList.add('visible');
+                alert('❌ Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
+                return;
+            }
+            
+            // 2. Trouver la meilleure paire (entrée_départ, entrée_arrivée) qui minimise la distance
+            let meilleureDistance = Infinity;
+            let meilleurStart = null;
+            let meilleurEnd = null;
+            
+            for (const entreeD of entreesDepart) {
+                for (const entreeA of entreesArrivee) {
+                    const dist = Math.abs(entreeD.x - entreeA.x) + Math.abs(entreeD.y - entreeA.y);
+                    if (dist < meilleureDistance) {
+                        meilleureDistance = dist;
+                        meilleurStart = entreeD;
+                        meilleurEnd = entreeA;
+                    }
+                }
+            }
+            
+            debugHtml += '<div class="chemin"> Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
+            debugHtml += '<div class="chemin">🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
+            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
+            
+            // 3. Lancer l'algorithme A*
+            const chemin = aStar(meilleurStart, meilleurEnd, grille);
+            
+            if (chemin) {
+                debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
+                debugHtml += '<div class="chemin">   Distance : ' + (chemin.length * 0.5).toFixed(1) + ' m</div>';
+                debugHtml += '<div class="chemin">   ⏱️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
+                debugHtml += '<div class="info">───────────────────────────────────────</div>';
+                debugHtml += '<div class="info">📍 Premières cellules du chemin :</div>';
+                const nbAffiche = Math.min(10, chemin.length);
+                for (let i = 0; i < nbAffiche; i++) {
+                    const c = chemin[i];
+                    const cellule = grille[c.y][c.x];
+                    const texte = String(cellule || '').trim();
+                    debugHtml += '<div class="chemin">   → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
+                }
+                if (chemin.length > 10) {
+                    debugHtml += '<div class="info">   ... (' + (chemin.length - 10) + ' cellules supplémentaires) ...</div>';
+                }
+                debugHtml += '<div class="info">───────────────────────────────────────</div>';
+                debugHtml += '<div class="info"> Dernières cellules du chemin :</div>';
+                const nbFin = Math.min(5, chemin.length);
+                for (let i = chemin.length - nbFin; i < chemin.length; i++) {
+                    const c = chemin[i];
+                    const cellule = grille[c.y][c.x];
+                    const texte = String(cellule || '').trim();
+                    debugHtml += '<div class="chemin">   → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
+                }
+                
+                afficherInstructions(chemin, numDepart, numArrivee);
+            } else {
+                debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
+                debugHtml += '<div class="obstacle">L\'algorithme n\'a pas pu trouver de chemin entre ces deux stands.</div>';
+            }
+            
+            // Afficher la zone de débogage
+            const debugSection = document.getElementById('debugSection');
+            debugSection.innerHTML = debugHtml;
+            debugSection.classList.add('visible');
+            
+            if (!chemin) {
+                alert(' Impossible de trouver un chemin entre ces deux stands.\n\nConsultez la zone de débogage ci-dessous.');
             }
         }
-    });
-}
-
-let touchStartX = 0, touchStartY = 0;
-document.addEventListener('DOMContentLoaded', () => {
-    const zoneSwipe = document.getElementById('zoneSwipe');
-    if (zoneSwipe) {
-        zoneSwipe.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
         
-        zoneSwipe.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-                const idx = jours.indexOf(jourActif);
-                let ni = idx + (dx < 0 ? 1 : -1);
-                ni = Math.max(0, Math.min(3, ni));
-                if (ni !== idx) afficherJour(jours[ni], dx < 0 ? 'left' : 'right');
+        // ============================================
+        // AFFICHER LES INSTRUCTIONS
+        // ============================================
+        function afficherInstructions(chemin, numDepart, numArrivee) {
+            if (!chemin || chemin.length < 2) return;
+            
+            const instructions = [];
+            const standArrivee = stands.find(s => s.numero === numArrivee);
+            
+            const estAllee = function(x, y) {
+                if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
+                return !estObstacle(grille[y][x]);
+            };
+            
+            const estVraieAllee = function(x, y, direction) {
+                let count = 0;
+                if (direction === 'droite' || direction === 'gauche') {
+                    let up = 0;
+                    for (let i = y - 1; i >= 0 && estAllee(x, i); i--) up++;
+                    let down = 0;
+                    for (let i = y + 1; i < grille.length && estAllee(x, i); i++) down++;
+                    count = up + down;
+                } else {
+                    let left = 0;
+                    for (let i = x - 1; i >= 0 && estAllee(i, y); i--) left++;
+                    let right = 0;
+                    for (let i = x + 1; i < grille[0].length && estAllee(i, y); i++) right++;
+                    count = left + right;
+                }
+                return count >= 3;
+            };
+            
+            const getOrdinal = function(n) {
+                return n === 1 ? '1ère' : n + 'ème';
+            };
+            
+            let segments = [];
+            let currentDir = null;
+            let currentDist = 0;
+            let currentAllees = 0;
+            
+            for (let i = 1; i < chemin.length; i++) {
+                const prev = chemin[i-1];
+                const curr = chemin[i];
+                const dx = curr.x - prev.x;
+                const dy = curr.y - prev.y;
+                const dir = dx === 1 ? 'droite' : dx === -1 ? 'gauche' : dy === 1 ? 'bas' : 'haut';
+                
+                if (currentDir === null) {
+                    currentDir = dir;
+                    currentDist = 1;
+                    currentAllees = 0;
+                } else if (dir === currentDir) {
+                    currentDist++;
+                    if (estVraieAllee(curr.x, curr.y, currentDir)) {
+                        currentAllees++;
+                    }
+                } else {
+                    segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+                    currentDir = dir;
+                    currentDist = 1;
+                    currentAllees = 0;
+                }
             }
-        }, { passive: true });
-    }
-});
-
-chargerProgramme();
-</script>
+            if (currentDir !== null) {
+                segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+            }
+            
+            console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
+            
+            let totalDistance = 0;
+            
+            for (let i = 0; i < segments.length; i++) {
+                const seg = segments[i];
+                const metres = (seg.distance * 0.5).toFixed(1);
+                totalDistance += seg.distance;
+                
+                if (i === 0) {
+                    if (segments.length > 1) {
+                        const virage = calculerVirage(seg.direction, segments[1].direction);
+                        if (seg.allees > 0) {
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + virage);
+                        } else {
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m, puis tournez à ' + virage);
+                        }
+                    } else {
+                        instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m');
+                    }
+                } else if (i < segments.length - 1) {
+                    const nextVirage = calculerVirage(seg.direction, segments[i+1].direction);
+                    if (seg.allees > 0) {
+                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + nextVirage);
+                    } else {
+                        instructions.push('Avancez de ' + metres + ' m, puis tournez à ' + nextVirage);
+                    }
+                } else {
+                    const virage = calculerVirage(segments[i-1].direction, seg.direction);
+                    instructions.push('Tournez à ' + virage + ' et avancez de ' + metres + ' m');
+                    instructions.push('Vous êtes arrivé au stand ' + numArrivee + ' (' + standArrivee.nom + ')');
+                }
+            }
+            
+            const distanceMetres = (totalDistance * 0.5).toFixed(1);
+            const tempsSecondes = Math.round(totalDistance * 0.5 / 1.2);
+            
+            let html = '';
+            instructions.forEach(function(inst, idx) {
+                html += '<div class="instruction-step"><span class="step-number">' + (idx + 1) + '.</span>' + inst + '</div>';
+            });
+            
+            document.getElementById('instructionsList').innerHTML = html;
+            document.getElementById('statDistance').textContent = distanceMetres;
+            document.getElementById('statTime').textContent = tempsSecondes;
+            document.getElementById('instructions').classList.add('visible');
+        }
+        
+        // ============================================
+        // CALCULER LE VIRAGE
+        // ============================================
+        function calculerVirage(directionActuelle, nouvelleDirection) {
+            const ordres = ['haut', 'droite', 'bas', 'gauche'];
+            const idxActuel = ordres.indexOf(directionActuelle);
+            const idxNouveau = ordres.indexOf(nouvelleDirection);
+            const diff = (idxNouveau - idxActuel + 4) % 4;
+            
+            if (diff === 1) return 'DROITE';
+            if (diff === 3) return 'GAUCHE';
+            if (diff === 2) return 'DEMI-TOUR';
+            return 'TOUT DROIT';
+        }
+        
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        chargerDonnees();
+    </script>
 </body>
 </html>
