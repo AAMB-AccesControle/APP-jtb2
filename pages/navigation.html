@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.18</title>
+    <title>Navigation entre stands v0.19</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -25,76 +25,35 @@
         .page-header h2 { font-size: 18px; flex: 1; }
         .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
         
-        .nav-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+        .nav-section { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .nav-section h3 { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
-        .nav-section select {
-            width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px;
-            font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px;
-        }
+        .nav-section select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; }
         .nav-section select:focus { border-color: var(--primary); outline: none; }
         
-        .btn-calculate {
-            width: 100%; padding: 12px; background: var(--primary); color: white;
-            border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer;
-        }
+        .btn-calculate { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-calculate:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .instructions {
-            background: var(--card-bg); border-radius: 12px; padding: 15px;
-            margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none;
-        }
+        .instructions { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
         .instructions.visible { display: block; }
         .instructions h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; font-weight: 700; }
         
-        .instruction-step {
-            padding: 10px; margin-bottom: 8px; background: var(--bg); border-radius: 8px;
-            border-left: 4px solid var(--primary); font-size: 13px; color: var(--text);
-        }
+        .instruction-step { padding: 10px; margin-bottom: 8px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 13px; color: var(--text); }
         .instruction-step .step-number { font-weight: bold; color: var(--primary); margin-right: 8px; }
         
-        .stats {
-            display: flex; gap: 15px; margin-top: 12px; padding-top: 12px;
-            border-top: 1px solid rgba(128,128,128,0.2);
-        }
+        .stats { display: flex; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
         .stat-item { flex: 1; text-align: center; }
         .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); }
         .stat-label { font-size: 11px; color: var(--text-sub); }
         .loading { text-align: center; padding: 20px; color: var(--text-sub); }
         
-        .debug-section {
-            background: #1e1e1e;
-            color: #00ff00;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.6;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
+        .debug-section { background: #1e1e1e; color: #00ff00; border-radius: 12px; padding: 15px; margin-bottom: 15px; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.6; max-height: 400px; overflow-y: auto; display: none; white-space: pre-wrap; word-wrap: break-word; }
         .debug-section.visible { display: block; }
-        .debug-section .debug-title {
-            color: #ffcc00;
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-        }
+        .debug-section .debug-title { color: #ffcc00; font-weight: bold; font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .debug-section .obstacle { color: #ff4444; }
         .debug-section .libre { color: #00ff00; }
         .debug-section .chemin { color: #00ccff; }
         .debug-section .info { color: #aaaaaa; }
+        .debug-section .entree { color: #ff00ff; }
         
         @media (max-width: 480px) { .page-header { top: 90px; } }
     </style>
@@ -111,7 +70,7 @@
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
             
-            <h3> Je veux aller au stand :</h3>
+            <h3>🎯 Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
@@ -122,7 +81,7 @@
         <div id="debugSection" class="debug-section"></div>
         
         <div id="instructions" class="instructions">
-            <h3> Itinéraire :</h3>
+            <h3>📋 Itinéraire :</h3>
             <div id="instructionsList"></div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
@@ -187,80 +146,42 @@
         
         // ============================================
         // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
+        // Règle : Un stand a toujours un numéro suivi d'un espace/saut de ligne et d'une lettre
+        // Ex: "13 SECA", "13\nSECA", "44\nAIR LIQUIDE" -> Obstacle
+        // Ex: "13", "44" (cellule d'entrée seule) -> Traversable
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
-            const texte = String(cellule).trim().toUpperCase();
-            // Obstacle si le texte commence par un numéro (1-2 chiffres) suivi d'un espace
-            if (/^\d{1,2}[\s\n]/.test(texte)) return true;
-            // Les cellules "ENTREE" sont traversables
-            if (texte.includes('ENTREE')) return false;
+            const texte = String(cellule).trim();
+            // Regex : commence par 1 ou 2 chiffres, suivi d'un espace ou saut de ligne, suivi d'une lettre
+            if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ@]/.test(texte)) return true;
             return false;
         }
         
         // ============================================
-        // TROUVER LES CELLULES "ENTREE" ADJACENTES À UN STAND
-        // Rayon élargi à 5 cellules pour être sûr de trouver les zones rouges
+        // TROUVER L'ENTRÉE EXACTE D'UN STAND
+        // Cherche une cellule contenant EXACTEMENT le numéro (ex: "13")
         // ============================================
-        function trouverEntreesStand(numeroStand) {
+        function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
-            console.log('[Nav] 🔍 Recherche entrées pour stand ' + numeroStand + '...');
+            console.log('[Nav] 🔍 Recherche entrée exacte pour stand ' + numeroStand + '...');
             
             const entrees = [];
-            const vus = new Set();
-            const RAYON_RECHERCHE = 5; // Élargi de 3 à 5
             
-            // 1. Trouver toutes les cellules du stand
-            const cellulesStand = [];
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
-                    const texte = String(cellule || '').trim().toUpperCase();
+                    const texte = String(cellule || '').trim();
                     
-                    const estStand = texte.startsWith(numStr + ' ') || 
-                                    texte.startsWith(numStr + '\n') || 
-                                    texte === numStr;
-                    
-                    if (estStand) {
-                        cellulesStand.push({x: x, y: y});
+                    // Correspondance EXACTE (ni "13 SECA", ni "13\nSECA", juste "13")
+                    if (texte === numStr) {
+                        entrees.push({x: x, y: y});
+                        console.log('[Nav] ✅ Entrée exacte trouvée en (' + x + ', ' + y + ')');
                     }
                 }
             }
             
-            console.log('[Nav] 📊 Stand ' + numeroStand + ' : ' + cellulesStand.length + ' cellule(s) trouvée(s)');
-            
-            if (cellulesStand.length === 0) {
-                console.error('[Nav] ❌ Stand ' + numeroStand + ' introuvable dans la grille !');
-                return [];
-            }
-            
-            // 2. Chercher les cellules "ENTREE" dans un rayon de 5 cellules autour du stand
-            for (const standCell of cellulesStand) {
-                for (let dy = -RAYON_RECHERCHE; dy <= RAYON_RECHERCHE; dy++) {
-                    for (let dx = -RAYON_RECHERCHE; dx <= RAYON_RECHERCHE; dx++) {
-                        const vy = standCell.y + dy;
-                        const vx = standCell.x + dx;
-                        
-                        if (vy >= 0 && vy < grille.length && vx >= 0 && vx < grille[0].length) {
-                            const voisin = grille[vy][vx];
-                            const texteVoisin = String(voisin || '').trim().toUpperCase();
-                            
-                            // Cherche "ENTREE" dans le texte (accepte "ENTREE", "ENTRÉE", etc.)
-                            if (texteVoisin.includes('ENTREE')) {
-                                const key = vx + ',' + vy;
-                                if (!vus.has(key)) {
-                                    vus.add(key);
-                                    entrees.push({x: vx, y: vy});
-                                    console.log('[Nav] ✅ Entrée trouvée en (' + vx + ', ' + vy + ') : "' + voisin + '"');
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            console.log('[Nav] 📊 Total entrées trouvées pour stand ' + numeroStand + ' : ' + entrees.length);
-            
+            console.log('[Nav] 📊 Total entrées exactes trouvées : ' + entrees.length);
             return entrees;
         }
         
@@ -269,7 +190,7 @@
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
-                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
+                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
@@ -341,7 +262,7 @@
         }
         
         // ============================================
-        // CALCULER L'ITINÉRAIRE
+        // CALCULER L'ITINÉRAIRE (avec débogage visuel)
         // ============================================
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
@@ -359,16 +280,47 @@
                 return;
             }
             
-            // 1. Trouver les entrées des deux stands
-            const entreesDepart = trouverEntreesStand(numDepart);
-            const entreesArrivee = trouverEntreesStand(numArrivee);
+            // 1. Trouver les entrées exactes des deux stands
+            const entreesDepart = trouverEntreeStand(numDepart);
+            const entreesArrivee = trouverEntreeStand(numArrivee);
+            
+            // ============================================
+            // ZONE DE DÉBOGAGE VISUEL
+            // ============================================
+            let debugHtml = '<div class="debug-title"> RAISONNEMENT DE L\'ALGORITHME</div>';
+            
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
+            debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + '</div>';
+            debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             if (entreesDepart.length === 0) {
-                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numDepart + '.\n\nVérifiez que le texte "ENTREE" est bien présent dans les cellules rouges devant ce stand.');
-                return;
+                debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numDepart + '" trouvée</div>';
+                debugHtml += '<div class="info">Vérifiez qu\'une cellule contient uniquement le texte "' + numDepart + '" (sans nom de stand).</div>';
+            } else {
+                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) exacte(s) trouvée(s) :</div>';
+                entreesDepart.forEach(e => {
+                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
+                });
             }
+            
             if (entreesArrivee.length === 0) {
-                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numArrivee + '.\n\nVérifiez que le texte "ENTREE" est bien présent dans les cellules rouges devant ce stand.');
+                debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numArrivee + '" trouvée</div>';
+                debugHtml += '<div class="info">Vérifiez qu\'une cellule contient uniquement le texte "' + numArrivee + '" (sans nom de stand).</div>';
+            } else {
+                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) exacte(s) trouvée(s) :</div>';
+                entreesArrivee.forEach(e => {
+                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
+                });
+            }
+            
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
+            
+            if (entreesDepart.length === 0 || entreesArrivee.length === 0) {
+                const debugSection = document.getElementById('debugSection');
+                debugSection.innerHTML = debugHtml;
+                debugSection.classList.add('visible');
+                alert('❌ Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
                 return;
             }
             
@@ -388,17 +340,53 @@
                 }
             }
             
-            console.log('[Nav] 📍 Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')');
-            console.log('[Nav] 🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')');
-            console.log('[Nav] 📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)');
+            debugHtml += '<div class="chemin"> Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
+            debugHtml += '<div class="chemin">🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
+            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
+            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             // 3. Lancer l'algorithme A*
             const chemin = aStar(meilleurStart, meilleurEnd, grille);
             
             if (chemin) {
+                debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
+                debugHtml += '<div class="chemin">   Distance : ' + (chemin.length * 0.5).toFixed(1) + ' m</div>';
+                debugHtml += '<div class="chemin">   ⏱️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
+                debugHtml += '<div class="info">───────────────────────────────────────</div>';
+                debugHtml += '<div class="info">📍 Premières cellules du chemin :</div>';
+                const nbAffiche = Math.min(10, chemin.length);
+                for (let i = 0; i < nbAffiche; i++) {
+                    const c = chemin[i];
+                    const cellule = grille[c.y][c.x];
+                    const texte = String(cellule || '').trim();
+                    debugHtml += '<div class="chemin">   → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
+                }
+                if (chemin.length > 10) {
+                    debugHtml += '<div class="info">   ... (' + (chemin.length - 10) + ' cellules supplémentaires) ...</div>';
+                }
+                debugHtml += '<div class="info">───────────────────────────────────────</div>';
+                debugHtml += '<div class="info"> Dernières cellules du chemin :</div>';
+                const nbFin = Math.min(5, chemin.length);
+                for (let i = chemin.length - nbFin; i < chemin.length; i++) {
+                    const c = chemin[i];
+                    const cellule = grille[c.y][c.x];
+                    const texte = String(cellule || '').trim();
+                    debugHtml += '<div class="chemin">   → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
+                }
+                
                 afficherInstructions(chemin, numDepart, numArrivee);
             } else {
-                alert('❌ Impossible de trouver un chemin entre ces deux stands.');
+                debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
+                debugHtml += '<div class="obstacle">L\'algorithme n\'a pas pu trouver de chemin entre ces deux stands.</div>';
+            }
+            
+            // Afficher la zone de débogage
+            const debugSection = document.getElementById('debugSection');
+            debugSection.innerHTML = debugHtml;
+            debugSection.classList.add('visible');
+            
+            if (!chemin) {
+                alert(' Impossible de trouver un chemin entre ces deux stands.\n\nConsultez la zone de débogage ci-dessous.');
             }
         }
         
@@ -470,7 +458,7 @@
                 segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
             }
             
-            console.log('[Nav] 📊 Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
+            console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
             
             let totalDistance = 0;
             
