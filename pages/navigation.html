@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands</title>
+    <title>Navigation entre stands v0.17</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -102,7 +102,7 @@
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>️ Navigation entre stands</h2>
+        <h2>🗺️ Navigation entre stands</h2>
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement du plan de la salle...</div>
@@ -111,7 +111,7 @@
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
             
-            <h3>🎯 Je veux aller au stand :</h3>
+            <h3> Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
@@ -122,7 +122,7 @@
         <div id="debugSection" class="debug-section"></div>
         
         <div id="instructions" class="instructions">
-            <h3>📋 Itinéraire :</h3>
+            <h3> Itinéraire :</h3>
             <div id="instructionsList"></div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
@@ -187,15 +187,11 @@
         
         // ============================================
         // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
-        // Règle : seul un stand numéroté (ex: "27 HYDREX...") est un obstacle
-        // "ENTREE" est traversable
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
-            // Obstacle si le texte commence par un numéro (1-2 chiffres) suivi d'un espace ou retour à la ligne
             if (/^\d{1,2}[\s\n]/.test(texte)) return true;
-            // Tout le reste (ENTREE, PAUSE, cellules vides, etc.) est traversable
             return false;
         }
         
@@ -207,24 +203,45 @@
             console.log('[Nav] 🔍 Recherche entrées pour stand ' + numeroStand + '...');
             
             const entrees = [];
+            const vus = new Set();
+            
+            // Fonction pour normaliser le texte (supprime accents, espaces, met en majuscules)
+            const normaliser = function(texte) {
+                return String(texte || '')
+                    .trim()
+                    .toUpperCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            };
             
             // 1. Trouver toutes les cellules du stand
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
-                    const texte = String(cellule || '').trim();
+                    const texte = normaliser(cellule);
                     
-                    if (texte.startsWith(numStr + ' ') || texte.startsWith(numStr + '\n') || texte === numStr) {
-                        // 2. Chercher les cellules "ENTREE" adjacentes
-                        const directions = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
-                        for (const dir of directions) {
-                            const vx = x + dir.x;
-                            const vy = y + dir.y;
-                            if (vy >= 0 && vy < grille.length && vx >= 0 && vx < grille[0].length) {
-                                const voisin = grille[vy][vx];
-                                const texteVoisin = String(voisin || '').trim();
-                                if (texteVoisin === 'ENTREE') {
-                                    entrees.push({x: vx, y: vy});
+                    const estStand = texte.startsWith(numStr + ' ') || 
+                                    texte.startsWith(numStr + '\n') || 
+                                    texte === numStr;
+                    
+                    if (estStand) {
+                        // 2. Chercher les cellules "ENTREE" dans un rayon de 3 cellules
+                        for (let dy = -3; dy <= 3; dy++) {
+                            for (let dx = -3; dx <= 3; dx++) {
+                                const vy = y + dy;
+                                const vx = x + dx;
+                                if (vy >= 0 && vy < grille.length && vx >= 0 && vx < grille[0].length) {
+                                    const voisin = grille[vy][vx];
+                                    const texteVoisin = normaliser(voisin);
+                                    
+                                    if (texteVoisin === 'ENTREE') {
+                                        const key = vx + ',' + vy;
+                                        if (!vus.has(key)) {
+                                            vus.add(key);
+                                            entrees.push({x: vx, y: vy});
+                                            console.log('[Nav] ✅ Entrée trouvée en (' + vx + ', ' + vy + ') : "' + voisin + '"');
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -232,21 +249,9 @@
                 }
             }
             
-            // Supprimer les doublons
-            const entreesUniques = [];
-            const vus = new Set();
-            for (const e of entrees) {
-                const key = e.x + ',' + e.y;
-                if (!vus.has(key)) {
-                    vus.add(key);
-                    entreesUniques.push(e);
-                }
-            }
+            console.log('[Nav] 📊 Total entrées trouvées pour stand ' + numeroStand + ' : ' + entrees.length);
             
-            console.log('[Nav] ✅ ' + entreesUniques.length + ' entrée(s) trouvée(s) pour stand ' + numeroStand);
-            entreesUniques.forEach(e => console.log('[Nav]    → (' + e.x + ', ' + e.y + ')'));
-            
-            return entreesUniques;
+            return entrees;
         }
         
         // ============================================
@@ -254,7 +259,7 @@
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
-                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
+                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
