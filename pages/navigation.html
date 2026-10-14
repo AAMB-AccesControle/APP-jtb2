@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.22</title>
+    <title>Navigation entre stands v0.23</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -70,7 +70,7 @@
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
             
-            <h3>🎯 Je veux aller au stand :</h3>
+            <h3> Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
@@ -146,35 +146,23 @@
         
         // ============================================
         // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
-        // ✅ "x" ou "X" = obstacle (mur/stand)
-        // ✅ Numéro de stand (seul ou avec nom) = obstacle
-        // ✅ "PAUSE" ou "AAMB" = obstacle
-        // ✅ Cellule vide = allée (traversable)
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
-            
-            // Obstacle si "x" ou "X"
             if (texte.toUpperCase() === 'X') return true;
-            
-            // Obstacle si commence par 1 ou 2 chiffres (numéro de stand)
             if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ@]*/.test(texte)) return true;
-            
-            // Obstacle si "PAUSE" ou "AAMB"
             if (texte.toUpperCase() === 'PAUSE') return true;
             if (texte.toUpperCase() === 'AAMB') return true;
-            
             return false;
         }
         
         // ============================================
         // TROUVER L'ENTRÉE EXACTE D'UN STAND
-        // Cherche une cellule contenant EXACTEMENT le numéro (ex: "13")
         // ============================================
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
-            console.log('[Nav]  Recherche entrée exacte pour stand ' + numeroStand + '...');
+            console.log('[Nav] 🔍 Recherche entrée exacte pour stand ' + numeroStand + '...');
             
             const entrees = [];
             
@@ -183,7 +171,6 @@
                     const cellule = grille[y][x];
                     const texte = String(cellule || '').trim();
                     
-                    // Correspondance EXACTE avec le numéro du stand
                     if (texte === numStr) {
                         entrees.push({x: x, y: y});
                         console.log('[Nav] ✅ Entrée exacte trouvée en (' + x + ', ' + y + ')');
@@ -197,11 +184,10 @@
         
         // ============================================
         // ALGORITHME A* (plus court chemin)
-        // Exception : la cellule de destination est toujours accessible
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
-                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
+                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
@@ -249,8 +235,6 @@
                     if (closedSet.has(vKey)) continue;
                     
                     const voisin = grid[v.y][v.x];
-                    
-                    // ✅ EXCEPTION : la destination est toujours accessible
                     const estDestination = (v.x === end.x && v.y === end.y);
                     
                     if (estObstacle(voisin) && !estDestination) continue;
@@ -277,14 +261,13 @@
         }
         
         // ============================================
-        // CALCULER L'ITINÉRAIRE (avec débogage visuel)
-        // ✅ NOMMAGE CORRIGÉ : trouverEntreeStand (pas trouverEntreesStand)
+        // CALCULER L'ITINÉRAIRE
         // ============================================
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
             const numArrivee = parseInt(document.getElementById('standArrivee').value);
             
-            console.log('[Nav]  Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
+            console.log('[Nav] 🧭 Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
             
             if (!numDepart || !numArrivee) {
                 alert('Veuillez sélectionner les deux stands');
@@ -296,15 +279,10 @@
                 return;
             }
             
-            // ✅ CORRECTION : trouverEntreeStand (pas trouverEntreesStand)
             const entreesDepart = trouverEntreeStand(numDepart);
             const entreesArrivee = trouverEntreeStand(numArrivee);
             
-            // ============================================
-            // ZONE DE DÉBOGAGE VISUEL
-            // ============================================
             let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT DE L\'ALGORITHME</div>';
-            
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + '</div>';
             debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
@@ -312,9 +290,8 @@
             
             if (entreesDepart.length === 0) {
                 debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numDepart + '" trouvée</div>';
-                debugHtml += '<div class="info">Vérifiez qu\'une cellule contient uniquement le texte "' + numDepart + '" (sans nom de stand).</div>';
             } else {
-                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) exacte(s) trouvée(s) :</div>';
+                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) trouvée(s) :</div>';
                 entreesDepart.forEach(e => {
                     debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
                 });
@@ -322,9 +299,8 @@
             
             if (entreesArrivee.length === 0) {
                 debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numArrivee + '" trouvée</div>';
-                debugHtml += '<div class="info">Vérifiez qu\'une cellule contient uniquement le texte "' + numArrivee + '" (sans nom de stand).</div>';
             } else {
-                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) exacte(s) trouvée(s) :</div>';
+                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) trouvée(s) :</div>';
                 entreesArrivee.forEach(e => {
                     debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
                 });
@@ -340,7 +316,6 @@
                 return;
             }
             
-            // 2. Trouver la meilleure paire (entrée_départ, entrée_arrivée) qui minimise la distance
             let meilleureDistance = Infinity;
             let meilleurStart = null;
             let meilleurEnd = null;
@@ -357,57 +332,33 @@
             }
             
             debugHtml += '<div class="chemin"> Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
-            debugHtml += '<div class="chemin">🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
-            debugHtml += '<div class="chemin"> Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
+            debugHtml += '<div class="chemin"> Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
+            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
-            // 3. Lancer l'algorithme A*
             const chemin = aStar(meilleurStart, meilleurEnd, grille);
             
             if (chemin) {
                 debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
                 debugHtml += '<div class="chemin">   Distance : ' + (chemin.length * 0.5).toFixed(1) + ' m</div>';
                 debugHtml += '<div class="chemin">   ⏱️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                debugHtml += '<div class="info">📍 Premières cellules du chemin :</div>';
-                const nbAffiche = Math.min(10, chemin.length);
-                for (let i = 0; i < nbAffiche; i++) {
-                    const c = chemin[i];
-                    const cellule = grille[c.y][c.x];
-                    const texte = String(cellule || '').trim();
-                    debugHtml += '<div class="chemin">   → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
-                }
-                if (chemin.length > 10) {
-                    debugHtml += '<div class="info">   ... (' + (chemin.length - 10) + ' cellules supplémentaires) ...</div>';
-                }
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                debugHtml += '<div class="info">🏁 Dernières cellules du chemin :</div>';
-                const nbFin = Math.min(5, chemin.length);
-                for (let i = chemin.length - nbFin; i < chemin.length; i++) {
-                    const c = chemin[i];
-                    const cellule = grille[c.y][c.x];
-                    const texte = String(cellule || '').trim();
-                    debugHtml += '<div class="chemin">   → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
-                }
                 
                 afficherInstructions(chemin, numDepart, numArrivee);
             } else {
                 debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
-                debugHtml += '<div class="obstacle">L\'algorithme n\'a pas pu trouver de chemin entre ces deux stands.</div>';
             }
             
-            // Afficher la zone de débogage
             const debugSection = document.getElementById('debugSection');
             debugSection.innerHTML = debugHtml;
             debugSection.classList.add('visible');
             
             if (!chemin) {
-                alert('❌ Impossible de trouver un chemin entre ces deux stands.\n\nConsultez la zone de débogage ci-dessous.');
+                alert('❌ Impossible de trouver un chemin entre ces deux stands.');
             }
         }
         
         // ============================================
-        // AFFICHER LES INSTRUCTIONS
+        // AFFICHER LES INSTRUCTIONS (avec segments d'au moins 2m)
         // ============================================
         function afficherInstructions(chemin, numDepart, numArrivee) {
             if (!chemin || chemin.length < 2) return;
@@ -420,7 +371,8 @@
                 return !estObstacle(grille[y][x]);
             };
             
-            const estVraieAllee = function(x, y, direction) {
+            // Détecte une intersection (allée perpendiculaire d'au moins 3 cellules)
+            const estIntersection = function(x, y, direction) {
                 let count = 0;
                 if (direction === 'droite' || direction === 'gauche') {
                     let up = 0;
@@ -442,10 +394,13 @@
                 return n === 1 ? '1ère' : n + 'ème';
             };
             
+            // ✅ NOUVELLE LOGIQUE : Segmenter le chemin en respectant les intersections
+            // On ne tourne que quand on atteint une intersection
             let segments = [];
             let currentDir = null;
             let currentDist = 0;
-            let currentAllees = 0;
+            let currentIntersections = 0;
+            let lastIntersectionIndex = 0;
             
             for (let i = 1; i < chemin.length; i++) {
                 const prev = chemin[i-1];
@@ -457,25 +412,55 @@
                 if (currentDir === null) {
                     currentDir = dir;
                     currentDist = 1;
-                    currentAllees = 0;
+                    currentIntersections = 0;
+                    lastIntersectionIndex = i;
                 } else if (dir === currentDir) {
                     currentDist++;
-                    if (estVraieAllee(curr.x, curr.y, currentDir)) {
-                        currentAllees++;
+                    // Compter les intersections traversées
+                    if (estIntersection(curr.x, curr.y, currentDir)) {
+                        currentIntersections++;
+                        lastIntersectionIndex = i;
                     }
                 } else {
-                    segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
-                    currentDir = dir;
-                    currentDist = 1;
-                    currentAllees = 0;
+                    // Changement de direction
+                    // ✅ Vérifier si on a parcouru au moins 4 cellules (2m) OU si on est à une intersection
+                    const minDist = 4; // 2 mètres minimum
+                    
+                    if (currentDist >= minDist || currentIntersections > 0) {
+                        // On peut tourner
+                        segments.push({
+                            direction: currentDir,
+                            distance: currentDist,
+                            intersections: currentIntersections
+                        });
+                        currentDir = dir;
+                        currentDist = 1;
+                        currentIntersections = 0;
+                        lastIntersectionIndex = i;
+                    } else {
+                        // Segment trop court, on continue dans la même direction jusqu'à la prochaine intersection
+                        // On ignore ce changement de direction et on continue
+                        currentDist++;
+                        if (estIntersection(curr.x, curr.y, currentDir)) {
+                            currentIntersections++;
+                            lastIntersectionIndex = i;
+                        }
+                    }
                 }
             }
+            
+            // Ajouter le dernier segment
             if (currentDir !== null) {
-                segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+                segments.push({
+                    direction: currentDir,
+                    distance: currentDist,
+                    intersections: currentIntersections
+                });
             }
             
-            console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
+            console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.intersections + ' intersections)'));
             
+            // Générer les instructions
             let totalDistance = 0;
             
             for (let i = 0; i < segments.length; i++) {
@@ -486,8 +471,8 @@
                 if (i === 0) {
                     if (segments.length > 1) {
                         const virage = calculerVirage(seg.direction, segments[1].direction);
-                        if (seg.allees > 0) {
-                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + virage);
+                        if (seg.intersections > 0) {
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.intersections) + ' intersection (' + metres + ' m), tournez à ' + virage);
                         } else {
                             instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m, puis tournez à ' + virage);
                         }
@@ -496,8 +481,8 @@
                     }
                 } else if (i < segments.length - 1) {
                     const nextVirage = calculerVirage(seg.direction, segments[i+1].direction);
-                    if (seg.allees > 0) {
-                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + nextVirage);
+                    if (seg.intersections > 0) {
+                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.intersections) + ' intersection (' + metres + ' m), tournez à ' + nextVirage);
                     } else {
                         instructions.push('Avancez de ' + metres + ' m, puis tournez à ' + nextVirage);
                     }
