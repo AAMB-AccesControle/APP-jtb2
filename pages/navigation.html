@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation entre stands</title>
+    <link rel="manifest" href="../manifest.json">
+    <script>
+    if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
+            --page-header-bg: #1a3a6b; --primary: #1a3a6b; --success: #10b981;
+        }
+        body.dark {
+            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
+            --page-header-bg: #0f1f3d; --primary: #2a5f9f;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+        
+        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+        .page-header h2 { font-size: 18px; flex: 1; }
+        .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
+        
+        .nav-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .nav-section h3 {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .nav-section select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .nav-section select:focus { border-color: var(--primary); outline: none; }
+        
+        .btn-calculate {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-calculate:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .instructions {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .instructions.visible { display: block; }
+        .instructions h3 {
+            font-size: 14px;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        .instruction-step {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            font-size: 13px;
+            color: var(--text);
+        }
+        .instruction-step .step-number {
+            font-weight: bold;
+            color: var(--primary);
+            margin-right: 8px;
+        }
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(128,128,128,0.2);
+        }
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-sub);
+        }
+        
+        .loading { text-align: center; padding: 20px; color: var(--text-sub); }
+        
+        @media (max-width: 480px) {
+            .page-header { top: 90px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <button class="back-btn" onclick="retourAccueil()">←</button>
+        <h2>️ Navigation entre stands</h2>
+    </div>
+    <div class="page-content">
+        <div class="nav-section">
+            <h3>📍 Je suis au stand :</h3>
+            <select id="standDepart">
+                <option value="">-- Sélectionnez votre stand actuel --</option>
+            </select>
+            
+            <h3>🎯 Je veux aller au stand :</h3>
+            <select id="standArrivee">
+                <option value="">-- Sélectionnez le stand de destination --</option>
+            </select>
+            
+            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
+                🧭 Calculer l'itinéraire
+            </button>
+        </div>
+        
+        <div id="instructions" class="instructions">
+            <h3>📋 Itinéraire :</h3>
+            <div id="instructionsList"></div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="statDistance">-</div>
+                    <div class="stat-label">Distance (m)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statTime">-</div>
+                    <div class="stat-label">Temps (sec)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/commun.js"></script>
+    <script>
+        verifierConnexionOuRediriger();
+        
+        let stands = [];
+        let grille = [];
+        
+        async function chargerDonnees() {
+            try {
+                // Charger la liste des stands
+                const respStands = await fetch(SCRIPT_URL + '?action=getStands');
+                const dataStands = await respStands.json();
+                
+                if (dataStands.success) {
+                    stands = dataStands.stands;
+                    remplirSelects();
+                    console.log('[Nav] ' + stands.length + ' stands chargés');
+                }
+                
+                // Charger la grille
+                const respGrille = await fetch(SCRIPT_URL + '?action=getGrilleSalle');
+                const dataGrille = await respGrille.json();
+                
+                if (dataGrille.success) {
+                    grille = dataGrille.grille;
+                    console.log('[Nav] Grille chargée: ' + grille.length + 'x' + grille[0].length);
+                }
+            } catch (e) {
+                console.error('[Nav] Erreur chargement:', e);
+            }
+        }
+        
+        function remplirSelects() {
+            const selectDepart = document.getElementById('standDepart');
+            const selectArrivee = document.getElementById('standArrivee');
+            
+            stands.forEach(stand => {
+                const option1 = document.createElement('option');
+                option1.value = stand.numero;
+                option1.textContent = stand.numero + ' - ' + stand.nom;
+                selectDepart.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = stand.numero;
+                option2.textContent = stand.numero + ' - ' + stand.nom;
+                selectArrivee.appendChild(option2);
+            });
+            
+            selectDepart.addEventListener('change', verifierSelection);
+            selectArrivee.addEventListener('change', verifierSelection);
+        }
+        
+        function verifierSelection() {
+            const depart = document.getElementById('standDepart').value;
+            const arrivee = document.getElementById('standArrivee').value;
+            document.getElementById('btnCalculate').disabled = !(depart && arrivee && depart !== arrivee);
+        }
+        
+        function calculerItineraire() {
+            const departNum = parseInt(document.getElementById('standDepart').value);
+            const arriveeNum = parseInt(document.getElementById('standArrivee').value);
+            
+            const standDepart = stands.find(s => s.numero === departNum);
+            const standArrivee = stands.find(s => s.numero === arriveeNum);
+            
+            if (!standDepart || !standArrivee) {
+                alert('Stands non trouvés');
+                return;
+            }
+            
+            // Algorithme A* simplifié (en attendant la grille complète)
+            const chemin = calculerCheminSimple(standDepart, standArrivee);
+            afficherInstructions(chemin, standDepart, standArrivee);
+        }
+        
+        function calculerCheminSimple(depart, arrivee) {
+            // Version simplifiée : instructions basées sur les coordonnées
+            const dx = arrivee.x - depart.x;
+            const dy = arrivee.y - depart.y;
+            
+            const instructions = [];
+            instructions.push(`Dirigez-vous vers le stand ${arrivee.numero} (${arrivee.nom})`);
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0) instructions.push(`Avancez vers la droite de ${Math.abs(dx)} emplacements`);
+                else instructions.push(`Avancez vers la gauche de ${Math.abs(dx)} emplacements`);
+            } else {
+                if (dy > 0) instructions.push(`Avancez vers le fond de ${Math.abs(dy)} emplacements`);
+                else instructions.push(`Revenez vers l'entrée de ${Math.abs(dy)} emplacements`);
+            }
+            
+            instructions.push(`Vous êtes arrivé au stand ${arrivee.numero}`);
+            
+            const distance = Math.sqrt(dx*dx + dy*dy) * 0.5; // 1 cellule = 0.5m
+            const temps = Math.round(distance / 1.5); // 1.5 m/s
+            
+            return { instructions, distance: distance.toFixed(1), temps };
+        }
+        
+        function afficherInstructions(chemin, depart, arrivee) {
+            const container = document.getElementById('instructions');
+            const list = document.getElementById('instructionsList');
+            
+            let html = '';
+            chemin.instructions.forEach((inst, idx) => {
+                html += `<div class="instruction-step">
+                    <span class="step-number">${idx + 1}.</span>
+                    ${inst}
+                </div>`;
+            });
+            
+            list.innerHTML = html;
+            document.getElementById('statDistance').textContent = chemin.distance;
+            document.getElementById('statTime').textContent = chemin.temps;
+            
+            container.classList.add('visible');
+        }
+        
+        // Initialisation
+        chargerDonnees();
+    </script>
+</body>
+</html>
