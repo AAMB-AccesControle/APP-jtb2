@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.01</title>
+    <title>Navigation entre stands v0.02</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -239,48 +239,108 @@
             if (!chemin || chemin.length < 2) return;
             
             const instructions = [];
-            let directionActuelle = null;
-            let distance = 0;
             const standArrivee = stands.find(s => s.numero === numArrivee);
-
+            
+            // Vérifie si une cellule est une allée (vide ou "0")
+            const estAllee = (x, y) => {
+                if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
+                const val = String(grille[y][x]).trim();
+                return val === '' || val === '0';
+            };
+            
+            // Détecte une allée transversale (intersection) selon la direction
+            const estIntersection = (x, y, direction) => {
+                if (direction === 'droite' || direction === 'gauche') {
+                    return estAllee(x, y - 1) || estAllee(x, y + 1);
+                } else {
+                    return estAllee(x - 1, y) || estAllee(x + 1, y);
+                }
+            };
+            
+            const getOrdinal = (n) => n === 1 ? '1ère' : n + 'ème';
+            
+            // Analyser le chemin par segments de direction
+            let segments = [];
+            let currentDir = null;
+            let currentDist = 0;
+            let currentAllees = 0;
+            
             for (let i = 1; i < chemin.length; i++) {
                 const prev = chemin[i-1];
                 const curr = chemin[i];
                 const dx = curr.x - prev.x;
                 const dy = curr.y - prev.y;
+                const dir = dx === 1 ? 'droite' : dx === -1 ? 'gauche' : dy === 1 ? 'bas' : 'haut';
                 
-                let nouvelleDirection = dx === 1 ? 'droite' : dx === -1 ? 'gauche' : dy === 1 ? 'bas' : 'haut';
-                
-                if (directionActuelle === null) {
-                    instructions.push(`Dirigez-vous vers le ${nouvelleDirection.toUpperCase()}`);
-                    directionActuelle = nouvelleDirection;
-                } else if (nouvelleDirection !== directionActuelle) {
-                    const virage = calculerVirage(directionActuelle, nouvelleDirection);
-                    instructions.push(`Tournez à ${virage}`);
-                    directionActuelle = nouvelleDirection;
+                if (currentDir === null) {
+                    currentDir = dir;
+                    currentDist = 1;
+                    currentAllees = 0;
+                } else if (dir === currentDir) {
+                    currentDist++;
+                    // Compter les allées transversales traversées
+                    if (estIntersection(curr.x, curr.y, currentDir)) {
+                        currentAllees++;
+                    }
+                } else {
+                    segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+                    currentDir = dir;
+                    currentDist = 1;
+                    currentAllees = 0;
                 }
-                distance++;
             }
-            instructions.push(`Vous êtes arrivé au stand ${numArrivee} (${standArrivee.nom})`);
-
-            const distanceMetres = (distance * 0.5).toFixed(1);
-            const tempsSecondes = Math.round(distance * 0.5 / 1.2); // 1.2 m/s vitesse de marche
-
+            if (currentDir !== null) {
+                segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+            }
+            
+            // Générer les instructions
+            let totalDistance = 0;
+            
+            for (let i = 0; i < segments.length; i++) {
+                const seg = segments[i];
+                const metres = (seg.distance * 0.5).toFixed(1);
+                totalDistance += seg.distance;
+                
+                if (i === 0) {
+                    // Première direction
+                    if (segments.length > 1) {
+                        const virage = calculerVirage(seg.direction, segments[1].direction);
+                        if (seg.allees > 0) {
+                            instructions.push(`Dirigez-vous vers le ${seg.direction.toUpperCase()}. À la ${getOrdinal(seg.allees)} allée, tournez à ${virage}`);
+                        } else {
+                            instructions.push(`Dirigez-vous vers le ${seg.direction.toUpperCase()} (${metres} m), puis tournez à ${virage}`);
+                        }
+                    } else {
+                        instructions.push(`Dirigez-vous vers le ${seg.direction.toUpperCase()} (${metres} m)`);
+                    }
+                } else if (i < segments.length - 1) {
+                    // Segments intermédiaires
+                    const nextVirage = calculerVirage(seg.direction, segments[i+1].direction);
+                    if (seg.allees > 0) {
+                        instructions.push(`Continuez tout droit. À la ${getOrdinal(seg.allees)} allée, tournez à ${nextVirage}`);
+                    } else {
+                        instructions.push(`Avancez de ${metres} m, puis tournez à ${nextVirage}`);
+                    }
+                } else {
+                    // Dernier segment
+                    const virage = calculerVirage(segments[i-1].direction, seg.direction);
+                    instructions.push(`Tournez à ${virage} et avancez de ${metres} m`);
+                    instructions.push(`Vous êtes arrivé au stand ${numArrivee} (${standArrivee.nom})`);
+                }
+            }
+        
+            const distanceMetres = (totalDistance * 0.5).toFixed(1);
+            const tempsSecondes = Math.round(totalDistance * 0.5 / 1.2);
+        
             let html = '';
             instructions.forEach((inst, idx) => {
                 html += `<div class="instruction-step"><span class="step-number">${idx + 1}.</span>${inst}</div>`;
             });
-
+        
             document.getElementById('instructionsList').innerHTML = html;
             document.getElementById('statDistance').textContent = distanceMetres;
             document.getElementById('statTime').textContent = tempsSecondes;
             document.getElementById('instructions').classList.add('visible');
-        }
-
-        function calculerVirage(actuelle, nouvelle) {
-            const ordres = ['haut', 'droite', 'bas', 'gauche'];
-            const diff = (ordres.indexOf(nouvelle) - ordres.indexOf(actuelle) + 4) % 4;
-            return diff === 1 ? 'DROITE' : diff === 3 ? 'GAUCHE' : 'DEMI-TOUR';
         }
         
         chargerDonnees();
