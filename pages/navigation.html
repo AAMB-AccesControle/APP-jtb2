@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.15</title>
+    <title>Navigation entre stands</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -67,7 +67,6 @@
         .stat-label { font-size: 11px; color: var(--text-sub); }
         .loading { text-align: center; padding: 20px; color: var(--text-sub); }
         
-        /* NOUVEAU : Zone de débogage */
         .debug-section {
             background: #1e1e1e;
             color: #00ff00;
@@ -120,7 +119,6 @@
             </button>
         </div>
         
-        <!-- NOUVEAU : Zone de débogage -->
         <div id="debugSection" class="debug-section"></div>
         
         <div id="instructions" class="instructions">
@@ -189,45 +187,44 @@
         
         // ============================================
         // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
+        // Règle : seul un stand numéroté (ex: "27 HYDREX...") est un obstacle
+        // "ENTREE" est traversable
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
             // Obstacle si le texte commence par un numéro (1-2 chiffres) suivi d'un espace ou retour à la ligne
             if (/^\d{1,2}[\s\n]/.test(texte)) return true;
-            // Tout le reste est traversable (PAUSE, AAMB, cellules vides, etc.)
+            // Tout le reste (ENTREE, PAUSE, cellules vides, etc.) est traversable
             return false;
         }
         
         // ============================================
-        // TROUVER L'ENTRÉE D'UN STAND
+        // TROUVER LES CELLULES "ENTREE" ADJACENTES À UN STAND
         // ============================================
-        function trouverEntreeStand(numeroStand) {
+        function trouverEntreesStand(numeroStand) {
             const numStr = String(numeroStand);
-            console.log('[Nav] 🔍 Recherche entrée stand ' + numeroStand + '...');
+            console.log('[Nav] 🔍 Recherche entrées pour stand ' + numeroStand + '...');
             
-            let celluleTrouvee = null;
+            const entrees = [];
             
+            // 1. Trouver toutes les cellules du stand
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
                     const texte = String(cellule || '').trim();
                     
                     if (texte.startsWith(numStr + ' ') || texte.startsWith(numStr + '\n') || texte === numStr) {
-                        console.log('[Nav] ✅ Cellule stand trouvée en (' + x + ', ' + y + '): "' + texte + '"');
-                        celluleTrouvee = {x: x, y: y};
-                        
-                        const voisins = [
-                            {x: x+1, y: y}, {x: x-1, y: y},
-                            {x: x, y: y+1}, {x: x, y: y-1}
-                        ];
-                        
-                        for (const v of voisins) {
-                            if (v.y >= 0 && v.y < grille.length && v.x >= 0 && v.x < grille[0].length) {
-                                const voisin = grille[v.y][v.x];
-                                if (!estObstacle(voisin)) {
-                                    console.log('[Nav] ✅ Entrée trouvée en (' + v.x + ', ' + v.y + ')');
-                                    return {x: v.x, y: v.y};
+                        // 2. Chercher les cellules "ENTREE" adjacentes
+                        const directions = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
+                        for (const dir of directions) {
+                            const vx = x + dir.x;
+                            const vy = y + dir.y;
+                            if (vy >= 0 && vy < grille.length && vx >= 0 && vx < grille[0].length) {
+                                const voisin = grille[vy][vx];
+                                const texteVoisin = String(voisin || '').trim();
+                                if (texteVoisin === 'ENTREE') {
+                                    entrees.push({x: vx, y: vy});
                                 }
                             }
                         }
@@ -235,13 +232,21 @@
                 }
             }
             
-            if (celluleTrouvee) {
-                console.log('[Nav] ️ Stand trouvé mais aucune allée adjacente');
-                return celluleTrouvee;
+            // Supprimer les doublons
+            const entreesUniques = [];
+            const vus = new Set();
+            for (const e of entrees) {
+                const key = e.x + ',' + e.y;
+                if (!vus.has(key)) {
+                    vus.add(key);
+                    entreesUniques.push(e);
+                }
             }
             
-            console.error('[Nav] ❌ Stand ' + numeroStand + ' NON TROUVÉ dans la grille');
-            return null;
+            console.log('[Nav] ✅ ' + entreesUniques.length + ' entrée(s) trouvée(s) pour stand ' + numeroStand);
+            entreesUniques.forEach(e => console.log('[Nav]    → (' + e.x + ', ' + e.y + ')'));
+            
+            return entreesUniques;
         }
         
         // ============================================
@@ -249,7 +254,7 @@
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
-                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
+                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
@@ -321,7 +326,7 @@
         }
         
         // ============================================
-        // CALCULER L'ITINÉRAIRE (avec débogage visuel)
+        // CALCULER L'ITINÉRAIRE
         // ============================================
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
@@ -339,151 +344,46 @@
                 return;
             }
             
-            const start = trouverEntreeStand(numDepart);
-            const end = trouverEntreeStand(numArrivee);
+            // 1. Trouver les entrées des deux stands
+            const entreesDepart = trouverEntreesStand(numDepart);
+            const entreesArrivee = trouverEntreesStand(numArrivee);
             
-            if (!start) {
-                alert('❌ Impossible de trouver le stand ' + numDepart + ' dans le plan.');
+            if (entreesDepart.length === 0) {
+                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numDepart + '.\n\nAjoutez le texte "ENTREE" dans les cellules rouges devant ce stand.');
                 return;
             }
-            if (!end) {
-                alert('❌ Impossible de trouver le stand ' + numArrivee + ' dans le plan.');
+            if (entreesArrivee.length === 0) {
+                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numArrivee + '.\n\nAjoutez le texte "ENTREE" dans les cellules rouges devant ce stand.');
                 return;
             }
             
-            console.log('[Nav] 📍 Départ: (' + start.x + ', ' + start.y + ')');
-            console.log('[Nav] 🏁 Arrivée: (' + end.x + ', ' + end.y + ')');
+            // 2. Trouver la meilleure paire (entrée_départ, entrée_arrivée) qui minimise la distance
+            let meilleureDistance = Infinity;
+            let meilleurStart = null;
+            let meilleurEnd = null;
             
-            // ============================================
-            // NOUVEAU : Afficher le raisonnement
-            // ============================================
-            let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT DE L\'ALGORITHME</div>';
-            
-            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + ' → cellule (' + start.x + ', ' + start.y + ')</div>';
-            debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + ' → cellule (' + end.x + ', ' + end.y + ')</div>';
-            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            
-            // Scanner la ligne directe entre départ et arrivée
-            if (start.y === end.y) {
-                // Même ligne horizontale
-                debugHtml += '<div class="info">➡️ Ligne directe HORIZONTALE (y=' + start.y + ')</div>';
-                debugHtml += '<div class="info">Scan de x=' + Math.min(start.x, end.x) + ' à x=' + Math.max(start.x, end.x) + ' :</div>';
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                
-                const xMin = Math.min(start.x, end.x);
-                const xMax = Math.max(start.x, end.x);
-                let obstaclesSurLigne = [];
-                
-                for (let x = xMin; x <= xMax; x++) {
-                    const cellule = grille[start.y][x];
-                    const texte = String(cellule || '').trim();
-                    const estObs = estObstacle(cellule);
-                    
-                    if (estObs) {
-                        obstaclesSurLigne.push({x: x, texte: texte});
-                        debugHtml += '<div class="obstacle">  ❌ x=' + x + ' : OBSTACLE → "' + texte + '"</div>';
-                    } else {
-                        debugHtml += '<div class="libre">  ✅ x=' + x + ' : libre' + (texte ? ' ("' + texte + '")' : '') + '</div>';
+            for (const entreeD of entreesDepart) {
+                for (const entreeA of entreesArrivee) {
+                    const dist = Math.abs(entreeD.x - entreeA.x) + Math.abs(entreeD.y - entreeA.y);
+                    if (dist < meilleureDistance) {
+                        meilleureDistance = dist;
+                        meilleurStart = entreeD;
+                        meilleurEnd = entreeA;
                     }
                 }
-                
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                
-                if (obstaclesSurLigne.length > 0) {
-                    debugHtml += '<div class="obstacle">⚠️ ' + obstaclesSurLigne.length + ' obstacle(s) détecté(s) sur la ligne directe :</div>';
-                    obstaclesSurLigne.forEach(obs => {
-                        debugHtml += '<div class="obstacle">   → x=' + obs.x + ' : "' + obs.texte + '"</div>';
-                    });
-                    debugHtml += '<div class="info"> L\'algorithme doit contourner ces obstacles</div>';
-                } else {
-                    debugHtml += '<div class="libre">✅ Aucun obstacle sur la ligne directe !</div>';
-                    debugHtml += '<div class="info"> Le chemin devrait être direct</div>';
-                }
-            } else if (start.x === end.x) {
-                // Même colonne verticale
-                debugHtml += '<div class="info">⬇️ Ligne directe VERTICALE (x=' + start.x + ')</div>';
-                debugHtml += '<div class="info">Scan de y=' + Math.min(start.y, end.y) + ' à y=' + Math.max(start.y, end.y) + ' :</div>';
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                
-                const yMin = Math.min(start.y, end.y);
-                const yMax = Math.max(start.y, end.y);
-                let obstaclesSurLigne = [];
-                
-                for (let y = yMin; y <= yMax; y++) {
-                    const cellule = grille[y][start.x];
-                    const texte = String(cellule || '').trim();
-                    const estObs = estObstacle(cellule);
-                    
-                    if (estObs) {
-                        obstaclesSurLigne.push({y: y, texte: texte});
-                        debugHtml += '<div class="obstacle">  ❌ y=' + y + ' : OBSTACLE → "' + texte + '"</div>';
-                    } else {
-                        debugHtml += '<div class="libre">  ✅ y=' + y + ' : libre' + (texte ? ' ("' + texte + '")' : '') + '</div>';
-                    }
-                }
-                
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                
-                if (obstaclesSurLigne.length > 0) {
-                    debugHtml += '<div class="obstacle">⚠️ ' + obstaclesSurLigne.length + ' obstacle(s) détecté(s) sur la ligne directe :</div>';
-                    obstaclesSurLigne.forEach(obs => {
-                        debugHtml += '<div class="obstacle">   → y=' + obs.y + ' : "' + obs.texte + '"</div>';
-                    });
-                    debugHtml += '<div class="info">👉 L\'algorithme doit contourner ces obstacles</div>';
-                } else {
-                    debugHtml += '<div class="libre">✅ Aucun obstacle sur la ligne directe !</div>';
-                }
-            } else {
-                debugHtml += '<div class="info">️ Trajet diagonal (pas sur la même ligne/colonne)</div>';
-                debugHtml += '<div class="info">L\'algorithme cherche le plus court chemin...</div>';
             }
             
-            // Lancer l'algorithme A*
-            const chemin = aStar(start, end, grille);
+            console.log('[Nav] 📍 Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')');
+            console.log('[Nav] 🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')');
+            console.log('[Nav] 📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)');
+            
+            // 3. Lancer l'algorithme A*
+            const chemin = aStar(meilleurStart, meilleurEnd, grille);
             
             if (chemin) {
-                debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-                debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
-                debugHtml += '<div class="chemin"> Distance : ' + (chemin.length * 0.5).toFixed(1) + ' m</div>';
-                debugHtml += '<div class="chemin">⏱️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
-                
-                // Afficher les premières et dernières cellules du chemin
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                debugHtml += '<div class="info"> Premières cellules du chemin :</div>';
-                const nbAffiche = Math.min(10, chemin.length);
-                for (let i = 0; i < nbAffiche; i++) {
-                    const c = chemin[i];
-                    const cellule = grille[c.y][c.x];
-                    const texte = String(cellule || '').trim();
-                    debugHtml += '<div class="chemin">  → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
-                }
-                if (chemin.length > 10) {
-                    debugHtml += '<div class="info">  ... (' + (chemin.length - 10) + ' cellules supplémentaires) ...</div>';
-                }
-                debugHtml += '<div class="info">───────────────────────────────────────</div>';
-                debugHtml += '<div class="info">🏁 Dernières cellules du chemin :</div>';
-                const nbFin = Math.min(5, chemin.length);
-                for (let i = chemin.length - nbFin; i < chemin.length; i++) {
-                    const c = chemin[i];
-                    const cellule = grille[c.y][c.x];
-                    const texte = String(cellule || '').trim();
-                    debugHtml += '<div class="chemin">  → (' + c.x + ', ' + c.y + ')' + (texte ? ' : "' + texte + '"' : ' : vide') + '</div>';
-                }
-                
                 afficherInstructions(chemin, numDepart, numArrivee);
             } else {
-                debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
-                debugHtml += '<div class="obstacle">L\'algorithme n\'a pas pu trouver de chemin entre ces deux stands.</div>';
-            }
-            
-            // Afficher la zone de débogage
-            const debugSection = document.getElementById('debugSection');
-            debugSection.innerHTML = debugHtml;
-            debugSection.classList.add('visible');
-            
-            if (!chemin) {
-                alert('❌ Impossible de trouver un chemin entre ces deux stands.\n\nConsultez la zone de débogage ci-dessous pour comprendre pourquoi.');
+                alert('❌ Impossible de trouver un chemin entre ces deux stands.');
             }
         }
         
@@ -496,13 +396,11 @@
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            // Vérifie si une cellule est une allée (traversable)
             const estAllee = function(x, y) {
                 if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
                 return !estObstacle(grille[y][x]);
             };
             
-            // Détecte une VRAIE allée (intersection) : espace vide significatif sur le côté perpendiculaire
             const estVraieAllee = function(x, y, direction) {
                 let count = 0;
                 if (direction === 'droite' || direction === 'gauche') {
@@ -525,7 +423,6 @@
                 return n === 1 ? '1ère' : n + 'ème';
             };
             
-            // Analyser le chemin par segments de direction
             let segments = [];
             let currentDir = null;
             let currentDist = 0;
@@ -560,7 +457,6 @@
             
             console.log('[Nav] 📊 Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
             
-            // Générer les instructions
             let totalDistance = 0;
             
             for (let i = 0; i < segments.length; i++) {
