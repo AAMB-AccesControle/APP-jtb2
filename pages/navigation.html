@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.20</title>
+    <title>Navigation entre stands v0.21</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -74,7 +74,7 @@
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
-                🧭 Calculer l'itinéraire
+                 Calculer l'itinéraire
             </button>
         </div>
         
@@ -146,21 +146,31 @@
         
         // ============================================
         // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
-        // Règle : Un stand a toujours un numéro suivi d'un espace/saut de ligne et d'une lettre
-        // Ex: "13 SECA", "13\nSECA", "44\nAIR LIQUIDE" -> Obstacle
-        // Ex: "13", "44" (cellule d'entrée seule) -> Traversable
+        // ✅ CORRECTION : Les "x" (minuscule ou majuscule) sont maintenant des obstacles
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
-            // Regex : commence par 1 ou 2 chiffres, suivi d'un espace ou saut de ligne, suivi d'une lettre
-            if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ@]/.test(texte)) return true;
+            
+            // ✅ Obstacle si le texte est "x" ou "X" (mur/stand)
+            if (texte.toUpperCase() === 'X') return true;
+            
+            // Obstacle si le texte commence par 1 ou 2 chiffres (numéro de stand)
+            if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ@]*/.test(texte)) return true;
+            
+            // Obstacle si le texte est "PAUSE"
+            if (texte.toUpperCase() === 'PAUSE') return true;
+            
+            // Obstacle si le texte est "AAMB"
+            if (texte.toUpperCase() === 'AAMB') return true;
+            
             return false;
         }
         
         // ============================================
         // TROUVER L'ENTRÉE EXACTE D'UN STAND
         // Cherche une cellule contenant EXACTEMENT le numéro (ex: "13")
+        // ✅ CORRECTION : Accepte aussi les cellules avec juste le numéro (pas "x")
         // ============================================
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
@@ -173,7 +183,8 @@
                     const cellule = grille[y][x];
                     const texte = String(cellule || '').trim();
                     
-                    // Correspondance EXACTE (ni "13 SECA", ni "13\nSECA", juste "13")
+                    // Correspondance EXACTE avec le numéro du stand
+                    // (ni "13 SECA", ni "x", juste "13")
                     if (texte === numStr) {
                         entrees.push({x: x, y: y});
                         console.log('[Nav] ✅ Entrée exacte trouvée en (' + x + ', ' + y + ')');
@@ -187,6 +198,7 @@
         
         // ============================================
         // ALGORITHME A* (plus court chemin)
+        // Exception : la cellule de destination est toujours accessible même si c'est un obstacle
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
@@ -238,7 +250,11 @@
                     if (closedSet.has(vKey)) continue;
                     
                     const voisin = grid[v.y][v.x];
-                    if (estObstacle(voisin)) continue;
+                    
+                    // ✅ EXCEPTION : la destination est toujours accessible même si c'est un obstacle
+                    const estDestination = (v.x === end.x && v.y === end.y);
+                    
+                    if (estObstacle(voisin) && !estDestination) continue;
                     
                     const g = current.g + 1;
                     const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
@@ -281,8 +297,8 @@
             }
             
             // 1. Trouver les entrées exactes des deux stands
-            const entreesDepart = trouverEntreeStand(numDepart);
-            const entreesArrivee = trouverEntreeStand(numArrivee);
+            const entreesDepart = trouverEntreesStand(numDepart);
+            const entreesArrivee = trouverEntreesStand(numArrivee);
             
             // ============================================
             // ZONE DE DÉBOGAGE VISUEL
