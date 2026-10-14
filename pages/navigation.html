@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.17</title>
+    <title>Navigation entre stands v0.18</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -190,13 +190,17 @@
         // ============================================
         function estObstacle(cellule) {
             if (!cellule) return false;
-            const texte = String(cellule).trim();
+            const texte = String(cellule).trim().toUpperCase();
+            // Obstacle si le texte commence par un numéro (1-2 chiffres) suivi d'un espace
             if (/^\d{1,2}[\s\n]/.test(texte)) return true;
+            // Les cellules "ENTREE" sont traversables
+            if (texte.includes('ENTREE')) return false;
             return false;
         }
         
         // ============================================
         // TROUVER LES CELLULES "ENTREE" ADJACENTES À UN STAND
+        // Rayon élargi à 5 cellules pour être sûr de trouver les zones rouges
         // ============================================
         function trouverEntreesStand(numeroStand) {
             const numStr = String(numeroStand);
@@ -204,44 +208,50 @@
             
             const entrees = [];
             const vus = new Set();
-            
-            // Fonction pour normaliser le texte (supprime accents, espaces, met en majuscules)
-            const normaliser = function(texte) {
-                return String(texte || '')
-                    .trim()
-                    .toUpperCase()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '');
-            };
+            const RAYON_RECHERCHE = 5; // Élargi de 3 à 5
             
             // 1. Trouver toutes les cellules du stand
+            const cellulesStand = [];
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
-                    const texte = normaliser(cellule);
+                    const texte = String(cellule || '').trim().toUpperCase();
                     
                     const estStand = texte.startsWith(numStr + ' ') || 
                                     texte.startsWith(numStr + '\n') || 
                                     texte === numStr;
                     
                     if (estStand) {
-                        // 2. Chercher les cellules "ENTREE" dans un rayon de 3 cellules
-                        for (let dy = -3; dy <= 3; dy++) {
-                            for (let dx = -3; dx <= 3; dx++) {
-                                const vy = y + dy;
-                                const vx = x + dx;
-                                if (vy >= 0 && vy < grille.length && vx >= 0 && vx < grille[0].length) {
-                                    const voisin = grille[vy][vx];
-                                    const texteVoisin = normaliser(voisin);
-                                    
-                                    if (texteVoisin === 'ENTREE') {
-                                        const key = vx + ',' + vy;
-                                        if (!vus.has(key)) {
-                                            vus.add(key);
-                                            entrees.push({x: vx, y: vy});
-                                            console.log('[Nav] ✅ Entrée trouvée en (' + vx + ', ' + vy + ') : "' + voisin + '"');
-                                        }
-                                    }
+                        cellulesStand.push({x: x, y: y});
+                    }
+                }
+            }
+            
+            console.log('[Nav] 📊 Stand ' + numeroStand + ' : ' + cellulesStand.length + ' cellule(s) trouvée(s)');
+            
+            if (cellulesStand.length === 0) {
+                console.error('[Nav] ❌ Stand ' + numeroStand + ' introuvable dans la grille !');
+                return [];
+            }
+            
+            // 2. Chercher les cellules "ENTREE" dans un rayon de 5 cellules autour du stand
+            for (const standCell of cellulesStand) {
+                for (let dy = -RAYON_RECHERCHE; dy <= RAYON_RECHERCHE; dy++) {
+                    for (let dx = -RAYON_RECHERCHE; dx <= RAYON_RECHERCHE; dx++) {
+                        const vy = standCell.y + dy;
+                        const vx = standCell.x + dx;
+                        
+                        if (vy >= 0 && vy < grille.length && vx >= 0 && vx < grille[0].length) {
+                            const voisin = grille[vy][vx];
+                            const texteVoisin = String(voisin || '').trim().toUpperCase();
+                            
+                            // Cherche "ENTREE" dans le texte (accepte "ENTREE", "ENTRÉE", etc.)
+                            if (texteVoisin.includes('ENTREE')) {
+                                const key = vx + ',' + vy;
+                                if (!vus.has(key)) {
+                                    vus.add(key);
+                                    entrees.push({x: vx, y: vy});
+                                    console.log('[Nav] ✅ Entrée trouvée en (' + vx + ', ' + vy + ') : "' + voisin + '"');
                                 }
                             }
                         }
@@ -259,7 +269,7 @@
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
-                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
+                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
@@ -354,11 +364,11 @@
             const entreesArrivee = trouverEntreesStand(numArrivee);
             
             if (entreesDepart.length === 0) {
-                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numDepart + '.\n\nAjoutez le texte "ENTREE" dans les cellules rouges devant ce stand.');
+                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numDepart + '.\n\nVérifiez que le texte "ENTREE" est bien présent dans les cellules rouges devant ce stand.');
                 return;
             }
             if (entreesArrivee.length === 0) {
-                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numArrivee + '.\n\nAjoutez le texte "ENTREE" dans les cellules rouges devant ce stand.');
+                alert('❌ Aucune entrée "ENTREE" trouvée pour le stand ' + numArrivee + '.\n\nVérifiez que le texte "ENTREE" est bien présent dans les cellules rouges devant ce stand.');
                 return;
             }
             
