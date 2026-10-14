@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.03</title>
+    <title>Navigation entre stands v0.05</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -82,7 +82,7 @@
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
             
-            <h3>🎯 Je veux aller au stand :</h3>
+            <h3> Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
@@ -107,20 +107,24 @@
         let stands = [];
         let grille = [];
         
+        // ============================================
+        // CHARGEMENT DES DONNÉES
+        // ============================================
         async function chargerDonnees() {
             try {
                 const respStands = await fetch(SCRIPT_URL + '?action=getStands');
                 const dataStands = await respStands.json();
                 if (dataStands.success) {
-                    stands = dataStands.stands.sort((a,b) => a.numero - b.numero);
+                    stands = dataStands.stands.sort((a, b) => a.numero - b.numero);
                     remplirSelects();
+                    console.log('[Nav] ' + stands.length + ' stands chargés');
                 }
                 
                 const respGrille = await fetch(SCRIPT_URL + '?action=getGrilleSalle');
                 const dataGrille = await respGrille.json();
                 if (dataGrille.success) {
                     grille = dataGrille.grille;
-                    console.log('[Nav] Grille chargée:', grille.length, 'x', grille[0].length);
+                    console.log('[Nav] Grille chargée: ' + grille.length + ' x ' + grille[0].length);
                 }
                 
                 document.getElementById('loading').style.display = 'none';
@@ -150,18 +154,23 @@
             selectArrivee.addEventListener('change', verifier);
         }
         
+        // ============================================
+        // TROUVER L'ENTRÉE D'UN STAND (case allée adjacente)
+        // ============================================
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
+            console.log('[Nav] 🔍 Recherche entrée stand ' + numeroStand + '...');
             
-            // Chercher une cellule contenant le numéro du stand
+            let celluleTrouvee = null;
+            
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = String(grille[y][x] || '').trim();
                     
-                    // Vérifier si la cellule contient le numéro du stand
-                    // Ex: "27 HYDREX INTERNATIONAL" contient "27"
                     if (cellule.startsWith(numStr + ' ') || cellule.startsWith(numStr + '\n') || cellule === numStr) {
-                        // Trouver une case adjacente qui est une allée (vide ou "PAUSE")
+                        console.log('[Nav] ✅ Cellule stand trouvée en (' + x + ', ' + y + '): "' + cellule + '"');
+                        celluleTrouvee = {x: x, y: y};
+                        
                         const voisins = [
                             {x: x+1, y: y}, {x: x-1, y: y},
                             {x: x, y: y+1}, {x: x, y: y-1}
@@ -170,9 +179,8 @@
                         for (const v of voisins) {
                             if (v.y >= 0 && v.y < grille.length && v.x >= 0 && v.x < grille[0].length) {
                                 const valVoisin = String(grille[v.y][v.x] || '').trim();
-                                // Une allée = cellule vide ou "PAUSE"
                                 if (valVoisin === '' || valVoisin === 'PAUSE') {
-                                    console.log(`[Nav] Entrée stand ${numeroStand} trouvée en (${v.x}, ${v.y})`);
+                                    console.log('[Nav] ✅ Entrée trouvée en (' + v.x + ', ' + v.y + ')');
                                     return {x: v.x, y: v.y};
                                 }
                             }
@@ -181,60 +189,43 @@
                 }
             }
             
-            console.warn(`[Nav] ⚠️ Entrée stand ${numeroStand} NON TROUVÉE`);
+            if (celluleTrouvee) {
+                console.log('[Nav] ⚠️ Stand trouvé mais aucune allée adjacente');
+                return celluleTrouvee;
+            }
+            
+            console.error('[Nav] ❌ Stand ' + numeroStand + ' NON TROUVÉ dans la grille');
             return null;
         }
-
-        function calculerItineraire() {
-            const numDepart = parseInt(document.getElementById('standDepart').value);
-            const numArrivee = parseInt(document.getElementById('standArrivee').value);
-            
-            if (!numDepart || !numArrivee) {
-                alert('Veuillez sélectionner les deux stands');
-                return;
-            }
-            
-            console.log(`[Nav] Calcul itinéraire: ${numDepart} → ${numArrivee}`);
-            
-            const start = trouverEntreeStand(numDepart);
-            const end = trouverEntreeStand(numArrivee);
-            
-            if (!start) {
-                alert(`Impossible de trouver l'entrée du stand ${numDepart}. Vérifiez que le stand existe dans la grille.`);
-                return;
-            }
-            if (!end) {
-                alert(`Impossible de trouver l'entrée du stand ${numArrivee}. Vérifiez que le stand existe dans la grille.`);
-                return;
-            }
-            
-            const chemin = aStar(start, end, grille);
-            
-            if (chemin) {
-                afficherInstructions(chemin, numDepart, numArrivee);
-            } else {
-                alert("Impossible de trouver un chemin entre ces deux stands. Vérifiez que les allées sont bien vides dans la grille.");
-            }
-        }
-
+        
+        // ============================================
+        // ALGORITHME A* (plus court chemin)
+        // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
-                console.error('[Nav] Points de départ ou d\'arrivée invalides');
+                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
                 return null;
             }
+            
+            console.log('[Nav] 🚀 A* démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
             
             const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null}];
             const closedSet = new Set();
             const height = grid.length;
             const width = grid[0].length;
-        
-            console.log(`[Nav] A* démarré: (${start.x},${start.y}) → (${end.x},${end.y})`);
-        
+            let iterations = 0;
+            
             while (openSet.length > 0) {
+                iterations++;
+                if (iterations > 10000) {
+                    console.error('[Nav] ❌ Trop d\'itérations (10000), abandon');
+                    return null;
+                }
+                
                 openSet.sort((a, b) => a.f - b.f);
                 const current = openSet.shift();
-                const key = `${current.x},${current.y}`;
-        
+                const key = current.x + ',' + current.y;
+                
                 if (current.x === end.x && current.y === end.y) {
                     const chemin = [];
                     let node = current;
@@ -242,10 +233,10 @@
                         chemin.unshift({x: node.x, y: node.y});
                         node = node.parent;
                     }
-                    console.log(`[Nav] ✅ Chemin trouvé: ${chemin.length} cellules`);
+                    console.log('[Nav] ✅ Chemin trouvé: ' + chemin.length + ' cellules en ' + iterations + ' itérations');
                     return chemin;
                 }
-        
+                
                 closedSet.add(key);
                 const voisins = [
                     {x: current.x+1, y: current.y},
@@ -253,22 +244,20 @@
                     {x: current.x, y: current.y+1},
                     {x: current.x, y: current.y-1}
                 ];
-        
+                
                 for (const v of voisins) {
                     if (v.x < 0 || v.x >= width || v.y < 0 || v.y >= height) continue;
-                    const vKey = `${v.x},${v.y}`;
+                    const vKey = v.x + ',' + v.y;
                     if (closedSet.has(vKey)) continue;
                     
-                    // Considérer comme allée si la cellule est vide ou contient "PAUSE"
                     const val = String(grid[v.y][v.x] || '').trim();
                     const estAllee = val === '' || val === 'PAUSE';
-                    
                     if (!estAllee) continue;
-        
+                    
                     const g = current.g + 1;
                     const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
                     const f = g + h;
-        
+                    
                     const existing = openSet.find(n => n.x === v.x && n.y === v.y);
                     if (existing) {
                         if (g < existing.g) {
@@ -277,30 +266,76 @@
                             existing.parent = current;
                         }
                     } else {
-                        openSet.push({x: v.x, y: v.y, g, h, f, parent: current});
+                        openSet.push({x: v.x, y: v.y, g: g, h: h, f: f, parent: current});
                     }
                 }
             }
             
-            console.error('[Nav] ❌ Aucun chemin trouvé');
+            console.error('[Nav] ❌ Aucun chemin trouvé après ' + iterations + ' itérations');
             return null;
         }
-
+        
+        // ============================================
+        // CALCULER L'ITINÉRAIRE
+        // ============================================
+        function calculerItineraire() {
+            const numDepart = parseInt(document.getElementById('standDepart').value);
+            const numArrivee = parseInt(document.getElementById('standArrivee').value);
+            
+            console.log('[Nav] 🧭 Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
+            
+            if (!numDepart || !numArrivee) {
+                alert('Veuillez sélectionner les deux stands');
+                return;
+            }
+            
+            if (numDepart === numArrivee) {
+                alert('Veuillez sélectionner deux stands différents');
+                return;
+            }
+            
+            const start = trouverEntreeStand(numDepart);
+            const end = trouverEntreeStand(numArrivee);
+            
+            if (!start) {
+                alert('❌ Impossible de trouver le stand ' + numDepart + ' dans le plan.');
+                return;
+            }
+            if (!end) {
+                alert('❌ Impossible de trouver le stand ' + numArrivee + ' dans le plan.');
+                return;
+            }
+            
+            console.log('[Nav] 📍 Départ: (' + start.x + ', ' + start.y + ')');
+            console.log('[Nav] 🏁 Arrivée: (' + end.x + ', ' + end.y + ')');
+            
+            const chemin = aStar(start, end, grille);
+            
+            if (chemin) {
+                afficherInstructions(chemin, numDepart, numArrivee);
+            } else {
+                alert('❌ Impossible de trouver un chemin entre ces deux stands.\n\nVérifiez que les allées sont bien vides dans la grille.');
+            }
+        }
+        
+        // ============================================
+        // AFFICHER LES INSTRUCTIONS
+        // ============================================
         function afficherInstructions(chemin, numDepart, numArrivee) {
             if (!chemin || chemin.length < 2) return;
             
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            // Vérifie si une cellule est une allée (vide ou "0")
-            const estAllee = (x, y) => {
+            // Vérifie si une cellule est une allée
+            const estAllee = function(x, y) {
                 if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
-                const val = String(grille[y][x]).trim();
-                return val === '' || val === '0';
+                const val = String(grille[y][x] || '').trim();
+                return val === '' || val === 'PAUSE';
             };
             
             // Détecte une allée transversale (intersection) selon la direction
-            const estIntersection = (x, y, direction) => {
+            const estIntersection = function(x, y, direction) {
                 if (direction === 'droite' || direction === 'gauche') {
                     return estAllee(x, y - 1) || estAllee(x, y + 1);
                 } else {
@@ -308,7 +343,9 @@
                 }
             };
             
-            const getOrdinal = (n) => n === 1 ? '1ère' : n + 'ème';
+            const getOrdinal = function(n) {
+                return n === 1 ? '1ère' : n + 'ème';
+            };
             
             // Analyser le chemin par segments de direction
             let segments = [];
@@ -329,7 +366,6 @@
                     currentAllees = 0;
                 } else if (dir === currentDir) {
                     currentDist++;
-                    // Compter les allées transversales traversées
                     if (estIntersection(curr.x, curr.y, currentDir)) {
                         currentAllees++;
                     }
@@ -344,6 +380,8 @@
                 segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
             }
             
+            console.log('[Nav] 📊 Segments:', segments.length);
+            
             // Générer les instructions
             let totalDistance = 0;
             
@@ -353,47 +391,62 @@
                 totalDistance += seg.distance;
                 
                 if (i === 0) {
-                    // Première direction
                     if (segments.length > 1) {
                         const virage = calculerVirage(seg.direction, segments[1].direction);
                         if (seg.allees > 0) {
-                            instructions.push(`Dirigez-vous vers le ${seg.direction.toUpperCase()}. À la ${getOrdinal(seg.allees)} allée, tournez à ${virage}`);
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.allees) + ' allée, tournez à ' + virage);
                         } else {
-                            instructions.push(`Dirigez-vous vers le ${seg.direction.toUpperCase()} (${metres} m), puis tournez à ${virage}`);
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' (' + metres + ' m), puis tournez à ' + virage);
                         }
                     } else {
-                        instructions.push(`Dirigez-vous vers le ${seg.direction.toUpperCase()} (${metres} m)`);
+                        instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' (' + metres + ' m)');
                     }
                 } else if (i < segments.length - 1) {
-                    // Segments intermédiaires
                     const nextVirage = calculerVirage(seg.direction, segments[i+1].direction);
                     if (seg.allees > 0) {
-                        instructions.push(`Continuez tout droit. À la ${getOrdinal(seg.allees)} allée, tournez à ${nextVirage}`);
+                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.allees) + ' allée, tournez à ' + nextVirage);
                     } else {
-                        instructions.push(`Avancez de ${metres} m, puis tournez à ${nextVirage}`);
+                        instructions.push('Avancez de ' + metres + ' m, puis tournez à ' + nextVirage);
                     }
                 } else {
-                    // Dernier segment
                     const virage = calculerVirage(segments[i-1].direction, seg.direction);
-                    instructions.push(`Tournez à ${virage} et avancez de ${metres} m`);
-                    instructions.push(`Vous êtes arrivé au stand ${numArrivee} (${standArrivee.nom})`);
+                    instructions.push('Tournez à ' + virage + ' et avancez de ' + metres + ' m');
+                    instructions.push('Vous êtes arrivé au stand ' + numArrivee + ' (' + standArrivee.nom + ')');
                 }
             }
-        
+            
             const distanceMetres = (totalDistance * 0.5).toFixed(1);
             const tempsSecondes = Math.round(totalDistance * 0.5 / 1.2);
-        
+            
             let html = '';
-            instructions.forEach((inst, idx) => {
-                html += `<div class="instruction-step"><span class="step-number">${idx + 1}.</span>${inst}</div>`;
+            instructions.forEach(function(inst, idx) {
+                html += '<div class="instruction-step"><span class="step-number">' + (idx + 1) + '.</span>' + inst + '</div>';
             });
-        
+            
             document.getElementById('instructionsList').innerHTML = html;
             document.getElementById('statDistance').textContent = distanceMetres;
             document.getElementById('statTime').textContent = tempsSecondes;
             document.getElementById('instructions').classList.add('visible');
         }
         
+        // ============================================
+        // CALCULER LE VIRAGE
+        // ============================================
+        function calculerVirage(directionActuelle, nouvelleDirection) {
+            const ordres = ['haut', 'droite', 'bas', 'gauche'];
+            const idxActuel = ordres.indexOf(directionActuelle);
+            const idxNouveau = ordres.indexOf(nouvelleDirection);
+            const diff = (idxNouveau - idxActuel + 4) % 4;
+            
+            if (diff === 1) return 'DROITE';
+            if (diff === 3) return 'GAUCHE';
+            if (diff === 2) return 'DEMI-TOUR';
+            return 'TOUT DROIT';
+        }
+        
+        // ============================================
+        // INITIALISATION
+        // ============================================
         chargerDonnees();
     </script>
 </body>
