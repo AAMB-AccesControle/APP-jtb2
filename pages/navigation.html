@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.07</title>
+    <title>Navigation entre stands v0.09</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -73,7 +73,7 @@
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>️ Navigation entre stands</h2>
+        <h2>🗺️ Navigation entre stands</h2>
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement du plan de la salle...</div>
@@ -91,7 +91,7 @@
         </div>
         
         <div id="instructions" class="instructions">
-            <h3> Itinéraire :</h3>
+            <h3>📋 Itinéraire :</h3>
             <div id="instructionsList"></div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
@@ -155,34 +155,17 @@
         }
         
         // ============================================
-        // FONCTIONS DE VÉRIFICATION DES COULEURS
+        // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
+        // Règle simple : si la cellule contient du texte = obstacle
         // ============================================
-        function estCouleurAllee(couleur) {
-            const c = couleur.toLowerCase().replace('#', '');
-            // Blanc ou presque blanc
-            if (c === 'ffffff' || c.startsWith('fff')) return true;
-            // Rouge (rouge vif ou variantes)
-            if (c === 'ff0000' || c === 'cc0000' || c === '990000' || c.startsWith('ff00') || c.startsWith('cc00')) return true;
-            return false;
-        }
-        
-        function estCouleurObstacle(couleur) {
-            const c = couleur.toLowerCase().replace('#', '');
-            // Noir
-            if (c === '000000' || c.startsWith('000')) return true;
-            // Jaune (stands)
-            if (c === 'ffff00' || c === 'ffcc00' || c.startsWith('ffcc') || c.startsWith('ffff')) return true;
-            // Gris (stands)
-            if (c === 'cccccc' || c === '999999' || c === '808080' || c.startsWith('cc') || c.startsWith('99') || c.startsWith('80')) return true;
-            // Saumon/rose (stands)
-            if (c === 'ffa07a' || c === 'ff6347' || c.startsWith('ffa0') || c.startsWith('ff63')) return true;
-            // Bleu (stands pause café)
-            if (c === '0000ff' || c === '4169e1' || c === '1e90ff' || c.startsWith('0000') || c.startsWith('4169') || c.startsWith('1e90')) return true;
-            return false;
+        function estObstacle(cellule) {
+            if (!cellule) return false;
+            const texte = String(cellule).trim();
+            return texte.length > 0;
         }
         
         // ============================================
-        // TROUVER L'ENTRÉE D'UN STAND (basé sur les couleurs)
+        // TROUVER L'ENTRÉE D'UN STAND
         // ============================================
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
@@ -193,15 +176,14 @@
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
-                    const texte = String(cellule.valeur || '').trim();
-                    const couleur = cellule.couleur.toLowerCase();
+                    const texte = String(cellule || '').trim();
                     
                     // Vérifier si la cellule contient le numéro du stand
                     if (texte.startsWith(numStr + ' ') || texte.startsWith(numStr + '\n') || texte === numStr) {
-                        console.log('[Nav] ✅ Cellule stand trouvée en (' + x + ', ' + y + '): "' + texte + '" couleur: ' + couleur);
+                        console.log('[Nav] ✅ Cellule stand trouvée en (' + x + ', ' + y + '): "' + texte + '"');
                         celluleTrouvee = {x: x, y: y};
                         
-                        // Chercher une case adjacente qui est une allée (blanche ou rouge)
+                        // Chercher une case adjacente qui est une allée (vide)
                         const voisins = [
                             {x: x+1, y: y}, {x: x-1, y: y},
                             {x: x, y: y+1}, {x: x, y: y-1}
@@ -209,10 +191,10 @@
                         
                         for (const v of voisins) {
                             if (v.y >= 0 && v.y < grille.length && v.x >= 0 && v.x < grille[0].length) {
-                                const voisinCouleur = grille[v.y][v.x].couleur.toLowerCase();
-                                // Allée = blanc ou rouge
-                                if (estCouleurAllee(voisinCouleur)) {
-                                    console.log('[Nav] ✅ Entrée trouvée en (' + v.x + ', ' + v.y + ') couleur: ' + voisinCouleur);
+                                const voisin = grille[v.y][v.x];
+                                // Allée = cellule vide
+                                if (!estObstacle(voisin)) {
+                                    console.log('[Nav] ✅ Entrée trouvée en (' + v.x + ', ' + v.y + ')');
                                     return {x: v.x, y: v.y};
                                 }
                             }
@@ -226,12 +208,12 @@
                 return celluleTrouvee;
             }
             
-            console.error('[Nav] ❌ Stand ' + numeroStand + ' NON TROUVÉ dans la grille');
+            console.error('[Nav]  Stand ' + numeroStand + ' NON TROUVÉ dans la grille');
             return null;
         }
         
         // ============================================
-        // ALGORITHME A* (basé sur les couleurs)
+        // ALGORITHME A* (plus court chemin)
         // ============================================
         function aStar(start, end, grid) {
             if (!start || !end) {
@@ -239,7 +221,7 @@
                 return null;
             }
             
-            console.log('[Nav] 🚀 A* démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
+            console.log('[Nav]  A* démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
             
             const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null}];
             const closedSet = new Set();
@@ -282,11 +264,9 @@
                     const vKey = v.x + ',' + v.y;
                     if (closedSet.has(vKey)) continue;
                     
-                    // Vérifier la couleur de la cellule voisine
-                    const couleurVoisin = grid[v.y][v.x].couleur.toLowerCase();
-                    
-                    // Si c'est un obstacle (noir, jaune, gris, etc.), on ne passe pas
-                    if (estCouleurObstacle(couleurVoisin)) continue;
+                    const voisin = grid[v.y][v.x];
+                    // Si c'est un obstacle (contient du texte), on ne passe pas
+                    if (estObstacle(voisin)) continue;
                     
                     const g = current.g + 1;
                     const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
@@ -336,12 +316,12 @@
                 return;
             }
             if (!end) {
-                alert(' Impossible de trouver le stand ' + numArrivee + ' dans le plan.');
+                alert('❌ Impossible de trouver le stand ' + numArrivee + ' dans le plan.');
                 return;
             }
             
-            console.log('[Nav] 📍 Départ: (' + start.x + ', ' + start.y + ')');
-            console.log('[Nav]  Arrivée: (' + end.x + ', ' + end.y + ')');
+            console.log('[Nav]  Départ: (' + start.x + ', ' + start.y + ')');
+            console.log('[Nav] 🏁 Arrivée: (' + end.x + ', ' + end.y + ')');
             
             const chemin = aStar(start, end, grille);
             
@@ -353,7 +333,7 @@
         }
         
         // ============================================
-        // AFFICHER LES INSTRUCTIONS (basé sur les couleurs)
+        // AFFICHER LES INSTRUCTIONS
         // ============================================
         function afficherInstructions(chemin, numDepart, numArrivee) {
             if (!chemin || chemin.length < 2) return;
@@ -361,11 +341,10 @@
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            // Vérifie si une cellule est une allée (blanc ou rouge)
+            // Vérifie si une cellule est une allée (vide)
             const estAllee = function(x, y) {
                 if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
-                const couleur = grille[y][x].couleur.toLowerCase();
-                return estCouleurAllee(couleur);
+                return !estObstacle(grille[y][x]);
             };
             
             // Détecte une VRAIE allée (intersection) : espace vide significatif sur le côté perpendiculaire
