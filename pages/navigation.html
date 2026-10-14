@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.05</title>
+    <title>Navigation entre stands v0.06</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -82,11 +82,11 @@
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
             
-            <h3> Je veux aller au stand :</h3>
+            <h3>🎯 Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
-                🧭 Calculer l'itinéraire
+                 Calculer l'itinéraire
             </button>
         </div>
         
@@ -155,7 +155,7 @@
         }
         
         // ============================================
-        // TROUVER L'ENTRÉE D'UN STAND (case allée adjacente)
+        // TROUVER L'ENTRÉE D'UN STAND
         // ============================================
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
@@ -306,8 +306,8 @@
                 return;
             }
             
-            console.log('[Nav] 📍 Départ: (' + start.x + ', ' + start.y + ')');
-            console.log('[Nav] 🏁 Arrivée: (' + end.x + ', ' + end.y + ')');
+            console.log('[Nav]  Départ: (' + start.x + ', ' + start.y + ')');
+            console.log('[Nav]  Arrivée: (' + end.x + ', ' + end.y + ')');
             
             const chemin = aStar(start, end, grille);
             
@@ -327,20 +327,31 @@
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            // Vérifie si une cellule est une allée
+            // Vérifie si une cellule est une allée (vide ou "PAUSE")
             const estAllee = function(x, y) {
                 if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
                 const val = String(grille[y][x] || '').trim();
                 return val === '' || val === 'PAUSE';
             };
             
-            // Détecte une allée transversale (intersection) selon la direction
-            const estIntersection = function(x, y, direction) {
+            // Détecte une VRAIE allée (intersection) : espace vide significatif sur le côté perpendiculaire
+            // Une vraie allée = au moins 3 cellules de large (1.5m) sur le côté
+            const estVraieAllee = function(x, y, direction) {
+                let count = 0;
                 if (direction === 'droite' || direction === 'gauche') {
-                    return estAllee(x, y - 1) || estAllee(x, y + 1);
+                    let up = 0;
+                    for (let i = y - 1; i >= 0 && estAllee(x, i); i--) up++;
+                    let down = 0;
+                    for (let i = y + 1; i < grille.length && estAllee(x, i); i++) down++;
+                    count = up + down;
                 } else {
-                    return estAllee(x - 1, y) || estAllee(x + 1, y);
+                    let left = 0;
+                    for (let i = x - 1; i >= 0 && estAllee(i, y); i--) left++;
+                    let right = 0;
+                    for (let i = x + 1; i < grille[0].length && estAllee(i, y); i++) right++;
+                    count = left + right;
                 }
+                return count >= 3;
             };
             
             const getOrdinal = function(n) {
@@ -366,7 +377,7 @@
                     currentAllees = 0;
                 } else if (dir === currentDir) {
                     currentDist++;
-                    if (estIntersection(curr.x, curr.y, currentDir)) {
+                    if (estVraieAllee(curr.x, curr.y, currentDir)) {
                         currentAllees++;
                     }
                 } else {
@@ -380,7 +391,7 @@
                 segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
             }
             
-            console.log('[Nav] 📊 Segments:', segments.length);
+            console.log('[Nav] 📊 Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
             
             // Générer les instructions
             let totalDistance = 0;
@@ -394,17 +405,17 @@
                     if (segments.length > 1) {
                         const virage = calculerVirage(seg.direction, segments[1].direction);
                         if (seg.allees > 0) {
-                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.allees) + ' allée, tournez à ' + virage);
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + virage);
                         } else {
-                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' (' + metres + ' m), puis tournez à ' + virage);
+                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m, puis tournez à ' + virage);
                         }
                     } else {
-                        instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' (' + metres + ' m)');
+                        instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m');
                     }
                 } else if (i < segments.length - 1) {
                     const nextVirage = calculerVirage(seg.direction, segments[i+1].direction);
                     if (seg.allees > 0) {
-                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.allees) + ' allée, tournez à ' + nextVirage);
+                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + nextVirage);
                     } else {
                         instructions.push('Avancez de ' + metres + ' m, puis tournez à ' + nextVirage);
                     }
