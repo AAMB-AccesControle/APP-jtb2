@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.02</title>
+    <title>Navigation entre stands v0.03</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -151,53 +151,90 @@
         }
         
         function trouverEntreeStand(numeroStand) {
-            // Cherche le stand dans la grille et trouve une case d'allée adjacente
+            const numStr = String(numeroStand);
+            
+            // Chercher une cellule contenant le numéro du stand
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
-                    const cellule = String(grille[y][x]).toUpperCase();
-                    if (cellule.includes(String(numeroStand))) {
-                        // Trouver une case adjacente vide ou allée (simplifié : on prend la première case non-stand)
-                        const voisins = [{x:x+1, y:y}, {x:x-1, y:y}, {x:x, y:y+1}, {x:x, y:y-1}];
+                    const cellule = String(grille[y][x] || '').trim();
+                    
+                    // Vérifier si la cellule contient le numéro du stand
+                    // Ex: "27 HYDREX INTERNATIONAL" contient "27"
+                    if (cellule.startsWith(numStr + ' ') || cellule.startsWith(numStr + '\n') || cellule === numStr) {
+                        // Trouver une case adjacente qui est une allée (vide ou "PAUSE")
+                        const voisins = [
+                            {x: x+1, y: y}, {x: x-1, y: y},
+                            {x: x, y: y+1}, {x: x, y: y-1}
+                        ];
+                        
                         for (const v of voisins) {
                             if (v.y >= 0 && v.y < grille.length && v.x >= 0 && v.x < grille[0].length) {
-                                const valVoisin = String(grille[v.y][v.x]).trim();
-                                if (valVoisin === '' || valVoisin === '0' || !valVoisin.match(/^\d+$/)) {
+                                const valVoisin = String(grille[v.y][v.x] || '').trim();
+                                // Une allée = cellule vide ou "PAUSE"
+                                if (valVoisin === '' || valVoisin === 'PAUSE') {
+                                    console.log(`[Nav] Entrée stand ${numeroStand} trouvée en (${v.x}, ${v.y})`);
                                     return {x: v.x, y: v.y};
                                 }
                             }
-        }
+                        }
                     }
                 }
             }
-            return {x: 0, y: 0}; // Fallback
+            
+            console.warn(`[Nav] ⚠️ Entrée stand ${numeroStand} NON TROUVÉE`);
+            return null;
         }
 
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
             const numArrivee = parseInt(document.getElementById('standArrivee').value);
             
+            if (!numDepart || !numArrivee) {
+                alert('Veuillez sélectionner les deux stands');
+                return;
+            }
+            
+            console.log(`[Nav] Calcul itinéraire: ${numDepart} → ${numArrivee}`);
+            
             const start = trouverEntreeStand(numDepart);
             const end = trouverEntreeStand(numArrivee);
             
+            if (!start) {
+                alert(`Impossible de trouver l'entrée du stand ${numDepart}. Vérifiez que le stand existe dans la grille.`);
+                return;
+            }
+            if (!end) {
+                alert(`Impossible de trouver l'entrée du stand ${numArrivee}. Vérifiez que le stand existe dans la grille.`);
+                return;
+            }
+            
             const chemin = aStar(start, end, grille);
+            
             if (chemin) {
                 afficherInstructions(chemin, numDepart, numArrivee);
             } else {
-                alert("Impossible de trouver un chemin. Vérifiez que les stands sont bien séparés par des allées.");
+                alert("Impossible de trouver un chemin entre ces deux stands. Vérifiez que les allées sont bien vides dans la grille.");
             }
         }
 
         function aStar(start, end, grid) {
+            if (!start || !end) {
+                console.error('[Nav] Points de départ ou d\'arrivée invalides');
+                return null;
+            }
+            
             const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null}];
             const closedSet = new Set();
             const height = grid.length;
             const width = grid[0].length;
-
+        
+            console.log(`[Nav] A* démarré: (${start.x},${start.y}) → (${end.x},${end.y})`);
+        
             while (openSet.length > 0) {
                 openSet.sort((a, b) => a.f - b.f);
                 const current = openSet.shift();
                 const key = `${current.x},${current.y}`;
-
+        
                 if (current.x === end.x && current.y === end.y) {
                     const chemin = [];
                     let node = current;
@@ -205,33 +242,47 @@
                         chemin.unshift({x: node.x, y: node.y});
                         node = node.parent;
                     }
+                    console.log(`[Nav] ✅ Chemin trouvé: ${chemin.length} cellules`);
                     return chemin;
                 }
-
+        
                 closedSet.add(key);
-                const voisins = [{x: current.x+1, y: current.y}, {x: current.x-1, y: current.y}, {x: current.x, y: current.y+1}, {x: current.x, y: current.y-1}];
-
+                const voisins = [
+                    {x: current.x+1, y: current.y},
+                    {x: current.x-1, y: current.y},
+                    {x: current.x, y: current.y+1},
+                    {x: current.x, y: current.y-1}
+                ];
+        
                 for (const v of voisins) {
                     if (v.x < 0 || v.x >= width || v.y < 0 || v.y >= height) continue;
                     const vKey = `${v.x},${v.y}`;
                     if (closedSet.has(vKey)) continue;
                     
-                    // Considérer comme obstacle si la cellule contient du texte (nom de stand)
-                    const val = String(grid[v.y][v.x]).trim();
-                    if (val !== '' && val !== '0' && val !== 'PAUSE') continue; 
-
+                    // Considérer comme allée si la cellule est vide ou contient "PAUSE"
+                    const val = String(grid[v.y][v.x] || '').trim();
+                    const estAllee = val === '' || val === 'PAUSE';
+                    
+                    if (!estAllee) continue;
+        
                     const g = current.g + 1;
                     const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
                     const f = g + h;
-
+        
                     const existing = openSet.find(n => n.x === v.x && n.y === v.y);
                     if (existing) {
-                        if (g < existing.g) { existing.g = g; existing.f = f; existing.parent = current; }
+                        if (g < existing.g) {
+                            existing.g = g;
+                            existing.f = f;
+                            existing.parent = current;
+                        }
                     } else {
                         openSet.push({x: v.x, y: v.y, g, h, f, parent: current});
                     }
                 }
             }
+            
+            console.error('[Nav] ❌ Aucun chemin trouvé');
             return null;
         }
 
