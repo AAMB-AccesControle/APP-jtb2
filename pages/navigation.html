@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.12</title>
+    <title>Navigation entre stands v0.13</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -155,12 +155,52 @@
         }
         
         // ============================================
-        // RÈGLE SIMPLE : cellule vide = allée, cellule avec texte = obstacle
+        // VÉRIFIER SI UNE CELLULE EST UN OBSTACLE
+        // Règles :
+        // - Cellule vide = allée (traversable)
+        // - "X" = mur (obstacle)
+        // - Nom de stand (commence par numéro) = obstacle
+        // - "AAMB" = obstacle
+        // - BLOC de "PAUSE" (stand pause café) = obstacle
+        // - "PAUSE" isolé (marqueur rouge) = traversable
         // ============================================
-        function estObstacle(cellule) {
+        function estObstacle(cellule, x, y, grille) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
-            return texte.length > 0;
+            
+            // Cellule vide = allée (traversable)
+            if (texte.length === 0) return false;
+            
+            // "X" = mur (obstacle)
+            if (texte === 'X') return true;
+            
+            // Nom de stand (commence par 1-2 chiffres suivis d'un espace ou retour à la ligne) = obstacle
+            if (/^\d{1,2}[\s\n]/.test(texte)) return true;
+            
+            // "AAMB" = obstacle
+            if (texte === 'AAMB') return true;
+            
+            // "PAUSE" : vérifier si c'est un bloc (stand de pause café) ou une cellule isolée (marqueur)
+            if (texte === 'PAUSE') {
+                // Compter les cellules "PAUSE" adjacentes
+                let count = 1;
+                const directions = [{dx: 1, dy: 0}, {dx: -1, dy: 0}, {dx: 0, dy: 1}, {dx: 0, dy: -1}];
+                for (const dir of directions) {
+                    const nx = x + dir.dx;
+                    const ny = y + dir.dy;
+                    if (ny >= 0 && ny < grille.length && nx >= 0 && nx < grille[0].length) {
+                        if (String(grille[ny][nx]).trim() === 'PAUSE') {
+                            count++;
+                        }
+                    }
+                }
+                // Si plus de 2 cellules "PAUSE" adjacentes, c'est un stand de pause café (obstacle)
+                // Sinon, c'est un marqueur isolé (traversable)
+                return count > 2;
+            }
+            
+            // Tout autre texte = obstacle (par sécurité)
+            return true;
         }
         
         // ============================================
@@ -189,7 +229,7 @@
                         for (const v of voisins) {
                             if (v.y >= 0 && v.y < grille.length && v.x >= 0 && v.x < grille[0].length) {
                                 const voisin = grille[v.y][v.x];
-                                if (!estObstacle(voisin)) {
+                                if (!estObstacle(voisin, v.x, v.y, grille)) {
                                     console.log('[Nav] ✅ Entrée trouvée en (' + v.x + ', ' + v.y + ')');
                                     return {x: v.x, y: v.y};
                                 }
@@ -217,7 +257,7 @@
                 return null;
             }
             
-            console.log('[Nav]  A* démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
+            console.log('[Nav] 🚀 A* démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
             
             const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null}];
             const closedSet = new Set();
@@ -261,7 +301,7 @@
                     if (closedSet.has(vKey)) continue;
                     
                     const voisin = grid[v.y][v.x];
-                    if (estObstacle(voisin)) continue;
+                    if (estObstacle(voisin, v.x, v.y, grid)) continue;
                     
                     const g = current.g + 1;
                     const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
@@ -280,7 +320,7 @@
                 }
             }
             
-            console.error('[Nav]  Aucun chemin trouvé après ' + iterations + ' itérations');
+            console.error('[Nav] ❌ Aucun chemin trouvé après ' + iterations + ' itérations');
             return null;
         }
         
@@ -315,7 +355,7 @@
                 return;
             }
             
-            console.log('[Nav] 📍 Départ: (' + start.x + ', ' + start.y + ')');
+            console.log('[Nav]  Départ: (' + start.x + ', ' + start.y + ')');
             console.log('[Nav] 🏁 Arrivée: (' + end.x + ', ' + end.y + ')');
             
             const chemin = aStar(start, end, grille);
@@ -336,10 +376,10 @@
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            // Vérifie si une cellule est une allée (vide)
+            // Vérifie si une cellule est une allée (traversable)
             const estAllee = function(x, y) {
                 if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
-                return !estObstacle(grille[y][x]);
+                return !estObstacle(grille[y][x], x, y, grille);
             };
             
             // Détecte une VRAIE allée (intersection) : espace vide significatif sur le côté perpendiculaire
