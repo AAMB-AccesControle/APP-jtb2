@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.27</title>
+    <title>Navigation entre stands v0.28</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -37,8 +37,9 @@
         .instructions.visible { display: block; }
         .instructions h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; font-weight: 700; }
         
-        .instruction-step { padding: 10px; margin-bottom: 8px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 13px; color: var(--text); }
+        .instruction-step { padding: 12px; margin-bottom: 10px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 14px; color: var(--text); line-height: 1.5; }
         .instruction-step .step-number { font-weight: bold; color: var(--primary); margin-right: 8px; }
+        .instruction-step .action { font-weight: 700; color: var(--primary); }
         
         .stats { display: flex; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
         .stat-item { flex: 1; text-align: center; }
@@ -70,7 +71,7 @@
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
             
-            <h3>🎯 Je veux aller au stand :</h3>
+            <h3> Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
             
             <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
@@ -147,31 +148,24 @@
             if (!cellule) return false;
             const texte = String(cellule).trim();
             if (texte.toUpperCase() === 'X') return true;
-            if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ@]*/.test(texte)) return true;
+            if (/^\d{1,2}[\s\n]*[A-Za-zÀ-@]*/.test(texte)) return true;
             if (texte.toUpperCase() === 'PAUSE') return true;
             if (texte.toUpperCase() === 'AAMB') return true;
             return false;
         }
         
-        // ============================================
-        // TROUVER L'ENTRÉE + DIRECTION INITIALE
-        // Retourne {x, y, directionDepart}
-        // directionDepart = direction OPPOSÉE au stand (car on regarde le stand au départ)
-        // ============================================
         function trouverEntreeStandAvecDirection(numeroStand) {
             const numStr = String(numeroStand);
             console.log('[Nav] 🔍 Recherche entrée + direction pour stand ' + numeroStand + '...');
             
             const entrees = [];
             
-            // 1. Trouver toutes les cellules ENTREE (numéro seul)
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
                     const texte = String(cellule || '').trim();
                     
                     if (texte === numStr) {
-                        // 2. Chercher la cellule du stand adjacente (numéro + nom)
                         const directions = [
                             {dx: 0, dy: -1, dir: 'haut'},
                             {dx: 0, dy: 1, dir: 'bas'},
@@ -187,21 +181,18 @@
                                 const celluleStand = grille[sy][sx];
                                 const texteStand = String(celluleStand || '').trim();
                                 
-                                // Vérifier que c'est bien la cellule du stand (numéro + nom)
                                 if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ@]/.test(texteStand) && texteStand.startsWith(numStr)) {
-                                    // La personne regarde VERS le stand (direction d)
-                                    // Pour partir, elle doit aller dans la direction OPPOSÉE
                                     const directionOpposee = getDirectionOpposee(d.dir);
                                     
                                     entrees.push({
                                         x: x, 
                                         y: y,
-                                        directionRegard: d.dir,      // direction vers le stand
-                                        directionDepart: directionOpposee  // direction pour partir
+                                        directionRegard: d.dir,
+                                        directionDepart: directionOpposee
                                     });
                                     
                                     console.log('[Nav] ✅ Entrée en (' + x + ', ' + y + ') - Regarde vers le ' + d.dir + ' - Départ vers le ' + directionOpposee);
-                                    break; // Une seule direction de regard par cellule ENTREE
+                                    break;
                                 }
                             }
                         }
@@ -223,24 +214,21 @@
             return oppos[dir] || null;
         }
         
-        // ============================================
-        // A* MODIFIÉ : avec direction initiale
-        // ============================================
         function aStar(start, end, grid, directionInitiale) {
             if (!start || !end) {
-                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
+                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
             console.log('[Nav] 🚀 A* avec pénalité virage (' + PENALITE_VIRAGE + ' cellules/virage)');
-            console.log('[Nav]  Démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
-            console.log('[Nav] 👁️ Direction initiale (regard) : vers le ' + directionInitiale + ' (opposé = départ)');
+            console.log('[Nav] 🚀 Démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
+            console.log('[Nav] 👁️ Direction initiale : ' + directionInitiale);
             
             const openSet = [{
                 x: start.x, y: start.y, 
                 g: 0, h: 0, f: 0, 
                 parent: null, 
-                direction: directionInitiale,  // ✅ Direction initiale = opposée du stand
+                direction: directionInitiale,
                 nbVirages: 0
             }];
             
@@ -325,7 +313,7 @@
                 }
             }
             
-            console.error('[Nav]  Aucun chemin trouvé après ' + iterations + ' itérations');
+            console.error('[Nav] ❌ Aucun chemin trouvé après ' + iterations + ' itérations');
             return null;
         }
         
@@ -333,7 +321,7 @@
             const numDepart = parseInt(document.getElementById('standDepart').value);
             const numArrivee = parseInt(document.getElementById('standArrivee').value);
             
-            console.log('[Nav] 🧭 Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
+            console.log('[Nav]  Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
             
             if (!numDepart || !numArrivee) {
                 alert('Veuillez sélectionner les deux stands');
@@ -345,13 +333,12 @@
                 return;
             }
             
-            // ✅ Nouvelle fonction qui retourne aussi la direction
             const entreesDepart = trouverEntreeStandAvecDirection(numDepart);
             const entreesArrivee = trouverEntreeStand(numArrivee);
             
             let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT DE L\'ALGORITHME</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + '</div>';
+            debugHtml += '<div class="info"> DÉPART : stand ' + numDepart + '</div>';
             debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
             debugHtml += '<div class="info">👁️ Pénalité virage : ' + PENALITE_VIRAGE + ' cellules (' + (PENALITE_VIRAGE * 0.5).toFixed(1) + ' m) par virage</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
@@ -380,11 +367,10 @@
                 const debugSection = document.getElementById('debugSection');
                 debugSection.innerHTML = debugHtml;
                 debugSection.classList.add('visible');
-                alert(' Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
+                alert('❌ Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
                 return;
             }
             
-            // Trouver la meilleure paire en tenant compte de la direction initiale
             let meilleurCout = Infinity;
             let meilleurStart = null;
             let meilleurEnd = null;
@@ -405,17 +391,16 @@
             debugHtml += '<div class="chemin">📍 Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
             debugHtml += '<div class="chemin">👁️ Direction de regard: vers le ' + meilleurStart.directionRegard + '</div>';
             debugHtml += '<div class="chemin">🚶 Direction de départ: vers le ' + meilleureDirection + '</div>';
-            debugHtml += '<div class="chemin"> Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
+            debugHtml += '<div class="chemin">🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
             debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleurCout + ' cellules (' + (meilleurCout * 0.5).toFixed(1) + ' m)</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
-            // ✅ Passer la direction initiale à A*
             const chemin = aStar(meilleurStart, meilleurEnd, grille, meilleureDirection);
             
             if (chemin) {
                 debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
                 debugHtml += '<div class="chemin">   Distance réelle : ' + (chemin.length * 0.5).toFixed(1) + ' m</div>';
-                debugHtml += '<div class="chemin">   ⏱️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
+                debugHtml += '<div class="chemin">   ️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
                 
                 afficherInstructions(chemin, numDepart, numArrivee);
             } else {
@@ -431,7 +416,6 @@
             }
         }
         
-        // Fonction simple pour trouver les entrées (sans direction) - utilisée pour l'arrivée
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
             const entrees = [];
@@ -450,6 +434,9 @@
             return entrees;
         }
         
+        // ============================================
+        // NOUVELLE VERSION : Instructions en termes humains
+        // ============================================
         function afficherInstructions(chemin, numDepart, numArrivee) {
             if (!chemin || chemin.length < 2) return;
             
@@ -483,6 +470,7 @@
                 return n === 1 ? '1ère' : n + 'ème';
             };
             
+            // Segmenter le chemin
             let segments = [];
             let currentDir = null;
             let currentDist = 0;
@@ -518,43 +506,69 @@
             console.log('[Nav] 📊 Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
             
             let totalDistance = 0;
+            let etape = 1;
             
-            for (let i = 0; i < segments.length; i++) {
+            // ✅ PREMIÈRE INSTRUCTION : Toujours "Faites demi-tour" car on part face au stand
+            if (segments.length > 0) {
+                const premierSegment = segments[0];
+                const metres = (premierSegment.distance * 0.5).toFixed(1);
+                totalDistance += premierSegment.distance;
+                
+                // ✅ La personne est face au stand, elle doit faire demi-tour pour partir
+                instructions.push({
+                    numero: etape++,
+                    texte: '<span class="action">Faites demi-tour</span> et avancez tout droit sur ' + metres + ' m'
+                });
+            }
+            
+            // ✅ INSTRUCTIONS SUIVANTES : virages en gauche/droite
+            for (let i = 1; i < segments.length; i++) {
                 const seg = segments[i];
                 const metres = (seg.distance * 0.5).toFixed(1);
                 totalDistance += seg.distance;
                 
-                if (i === 0) {
-                    if (segments.length > 1) {
-                        const virage = calculerVirage(seg.direction, segments[1].direction);
-                        if (seg.allees > 0) {
-                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + '. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + virage);
-                        } else {
-                            instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m, puis tournez à ' + virage);
-                        }
-                    } else {
-                        instructions.push('Dirigez-vous vers le ' + seg.direction.toUpperCase() + ' sur ' + metres + ' m');
-                    }
-                } else if (i < segments.length - 1) {
-                    const nextVirage = calculerVirage(seg.direction, segments[i+1].direction);
+                const virage = calculerVirage(segments[i-1].direction, seg.direction);
+                
+                if (i < segments.length - 1) {
+                    // Pas le dernier segment
                     if (seg.allees > 0) {
-                        instructions.push('Continuez tout droit. À la ' + getOrdinal(seg.allees) + ' allée (' + metres + ' m), tournez à ' + nextVirage);
+                        instructions.push({
+                            numero: etape++,
+                            texte: '<span class="action">Tournez à ' + virage + '</span> à la ' + getOrdinal(seg.allees) + ' intersection (' + metres + ' m)'
+                        });
                     } else {
-                        instructions.push('Avancez de ' + metres + ' m, puis tournez à ' + nextVirage);
+                        instructions.push({
+                            numero: etape++,
+                            texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
+                        });
                     }
                 } else {
-                    const virage = calculerVirage(segments[i-1].direction, seg.direction);
-                    instructions.push('Tournez à ' + virage + ' et avancez de ' + metres + ' m');
-                    instructions.push('Vous êtes arrivé au stand ' + numArrivee + ' (' + standArrivee.nom + ')');
+                    // Dernier segment = arrivée
+                    instructions.push({
+                        numero: etape++,
+                        texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
+                    });
+                    instructions.push({
+                        numero: etape++,
+                        texte: '✅ Vous êtes arrivé au stand <strong>' + numArrivee + ' - ' + standArrivee.nom + '</strong>'
+                    });
                 }
+            }
+            
+            // ✅ Cas spécial : trajet direct sans virage
+            if (segments.length === 1) {
+                instructions.push({
+                    numero: etape++,
+                    texte: '✅ Vous êtes arrivé au stand <strong>' + numArrivee + ' - ' + standArrivee.nom + '</strong>'
+                });
             }
             
             const distanceMetres = (totalDistance * 0.5).toFixed(1);
             const tempsSecondes = Math.round(totalDistance * 0.5 / 1.2);
             
             let html = '';
-            instructions.forEach(function(inst, idx) {
-                html += '<div class="instruction-step"><span class="step-number">' + (idx + 1) + '.</span>' + inst + '</div>';
+            instructions.forEach(function(inst) {
+                html += '<div class="instruction-step"><span class="step-number">' + inst.numero + '.</span>' + inst.texte + '</div>';
             });
             
             document.getElementById('instructionsList').innerHTML = html;
@@ -569,10 +583,10 @@
             const idxNouveau = ordres.indexOf(nouvelleDirection);
             const diff = (idxNouveau - idxActuel + 4) % 4;
             
-            if (diff === 1) return 'DROITE';
-            if (diff === 3) return 'GAUCHE';
-            if (diff === 2) return 'DEMI-TOUR';
-            return 'TOUT DROIT';
+            if (diff === 1) return 'droite';
+            if (diff === 3) return 'gauche';
+            if (diff === 2) return 'demi-tour';
+            return 'tout droit';
         }
         
         chargerDonnees();
