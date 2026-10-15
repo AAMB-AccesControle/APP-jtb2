@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.29</title>
+    <title>Navigation entre stands v0.30</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -12,50 +12,40 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
-            --page-header-bg: #1a3a6b; --primary: #1a3a6b; --success: #10b981;
+            --page-header-bg: #1a3a6b; --primary: #1a3a6b;
         }
         body.dark {
             --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
             --page-header-bg: #0f1f3d; --primary: #2a5f9f;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-        
         .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
         .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
         .page-header h2 { font-size: 18px; flex: 1; }
         .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
-        
         .nav-section { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .nav-section h3 { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
         .nav-section select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; }
-        .nav-section select:focus { border-color: var(--primary); outline: none; }
-        
         .btn-calculate { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-calculate:disabled { opacity: 0.5; cursor: not-allowed; }
-        
         .instructions { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
         .instructions.visible { display: block; }
         .instructions h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; font-weight: 700; }
-        
         .instruction-step { padding: 12px; margin-bottom: 10px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 14px; color: var(--text); line-height: 1.5; }
         .instruction-step .step-number { font-weight: bold; color: var(--primary); margin-right: 8px; }
         .instruction-step .action { font-weight: 700; color: var(--primary); }
-        
         .stats { display: flex; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
         .stat-item { flex: 1; text-align: center; }
         .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); }
         .stat-label { font-size: 11px; color: var(--text-sub); }
         .loading { text-align: center; padding: 20px; color: var(--text-sub); }
-        
         .debug-section { background: #1e1e1e; color: #00ff00; border-radius: 12px; padding: 15px; margin-bottom: 15px; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.6; max-height: 400px; overflow-y: auto; display: none; white-space: pre-wrap; word-wrap: break-word; }
         .debug-section.visible { display: block; }
         .debug-section .debug-title { color: #ffcc00; font-weight: bold; font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .debug-section .obstacle { color: #ff4444; }
-        .debug-section .libre { color: #00ff00; }
         .debug-section .chemin { color: #00ccff; }
         .debug-section .info { color: #aaaaaa; }
         .debug-section .entree { color: #ff00ff; }
-        
         @media (max-width: 480px) { .page-header { top: 90px; } }
     </style>
 </head>
@@ -66,23 +56,16 @@
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement du plan de la salle...</div>
-        
         <div class="nav-section" id="navForm" style="display:none;">
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
-            
-            <h3> Je veux aller au stand :</h3>
+            <h3>🎯 Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
-            
-            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
-                🧭 Calculer l'itinéraire
-            </button>
+            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>🧭 Calculer l'itinéraire</button>
         </div>
-        
         <div id="debugSection" class="debug-section"></div>
-        
         <div id="instructions" class="instructions">
-            <h3>📋 Itinéraire :</h3>
+            <h3> Itinéraire :</h3>
             <div id="instructionsList"></div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
@@ -97,7 +80,6 @@
         
         let stands = [];
         let grille = [];
-        
         const PENALITE_VIRAGE = 3;
         
         async function chargerDonnees() {
@@ -109,14 +91,12 @@
                     remplirSelects();
                     console.log('[Nav] ' + stands.length + ' stands chargés');
                 }
-                
                 const respGrille = await fetch(SCRIPT_URL + '?action=getGrilleSalle');
                 const dataGrille = await respGrille.json();
                 if (dataGrille.success) {
                     grille = dataGrille.grille;
                     console.log('[Nav] Grille chargée: ' + grille.length + ' x ' + grille[0].length);
                 }
-                
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('navForm').style.display = 'block';
             } catch (e) {
@@ -128,13 +108,11 @@
         function remplirSelects() {
             const selectDepart = document.getElementById('standDepart');
             const selectArrivee = document.getElementById('standArrivee');
-            
             stands.forEach(stand => {
                 const text = stand.numero + ' - ' + stand.nom;
                 selectDepart.add(new Option(text, stand.numero));
                 selectArrivee.add(new Option(text, stand.numero));
             });
-            
             const verifier = () => {
                 const d = selectDepart.value;
                 const a = selectArrivee.value;
@@ -156,15 +134,11 @@
         
         function trouverEntreeStandAvecDirection(numeroStand) {
             const numStr = String(numeroStand);
-            console.log('[Nav] 🔍 Recherche entrée + direction pour stand ' + numeroStand + '...');
-            
             const entrees = [];
-            
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
                     const texte = String(cellule || '').trim();
-                    
                     if (texte === numStr) {
                         const directions = [
                             {dx: 0, dy: -1, dir: 'haut'},
@@ -172,26 +146,16 @@
                             {dx: -1, dy: 0, dir: 'gauche'},
                             {dx: 1, dy: 0, dir: 'droite'}
                         ];
-                        
                         for (const d of directions) {
                             const sx = x + d.dx;
                             const sy = y + d.dy;
-                            
                             if (sy >= 0 && sy < grille.length && sx >= 0 && sx < grille[0].length) {
                                 const celluleStand = grille[sy][sx];
                                 const texteStand = String(celluleStand || '').trim();
-                                
-                                if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ]/.test(texteStand) && texteStand.startsWith(numStr)) {
-                                    const directionOpposee = getDirectionOpposee(d.dir);
-                                    
-                                    entrees.push({
-                                        x: x, 
-                                        y: y,
-                                        directionRegard: d.dir,
-                                        directionDepart: directionOpposee
-                                    });
-                                    
-                                    console.log('[Nav] ✅ Entrée en (' + x + ', ' + y + ') - Regarde vers le ' + d.dir + ' - Départ vers le ' + directionOpposee);
+                                if (/^\d{1,2}[\s\n]+[A-Za-zÀ-]/.test(texteStand) && texteStand.startsWith(numStr)) {
+                                    const directionOpposee = {'haut':'bas','bas':'haut','gauche':'droite','droite':'gauche'}[d.dir];
+                                    entrees.push({x: x, y: y, directionRegard: d.dir, directionDepart: directionOpposee});
+                                    console.log('[Nav] ✅ Entrée en (' + x + ', ' + y + ') - Regard: ' + d.dir + ' - Départ: ' + directionOpposee);
                                     break;
                                 }
                             }
@@ -199,243 +163,146 @@
                     }
                 }
             }
-            
-            console.log('[Nav] 📊 Total entrées trouvées : ' + entrees.length);
             return entrees;
         }
         
-        function getDirectionOpposee(dir) {
-            const oppos = {
-                'haut': 'bas',
-                'bas': 'haut',
-                'gauche': 'droite',
-                'droite': 'gauche'
-            };
-            return oppos[dir] || null;
-        }
-        
         function aStar(start, end, grid, directionInitiale) {
-            if (!start || !end) {
-                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
-                return null;
-            }
-            
-            console.log('[Nav] 🚀 A* avec pénalité virage (' + PENALITE_VIRAGE + ' cellules/virage)');
-            console.log('[Nav] 🚀 Démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
-            console.log('[Nav] 👁️ Direction initiale : ' + directionInitiale);
-            
-            const openSet = [{
-                x: start.x, y: start.y, 
-                g: 0, h: 0, f: 0, 
-                parent: null, 
-                direction: directionInitiale,
-                nbVirages: 0
-            }];
-            
+            if (!start || !end) return null;
+            const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null, direction: directionInitiale, nbVirages: 0}];
             const closedSet = new Set();
             const height = grid.length;
             const width = grid[0].length;
             let iterations = 0;
-            
             while (openSet.length > 0) {
                 iterations++;
-                if (iterations > 50000) {
-                    console.error('[Nav] ❌ Trop d\'itérations (50000), abandon');
-                    return null;
-                }
-                
+                if (iterations > 50000) return null;
                 openSet.sort((a, b) => a.f - b.f);
                 const current = openSet.shift();
                 const key = current.x + ',' + current.y + ',' + (current.direction || 'null');
-                
                 if (current.x === end.x && current.y === end.y) {
                     const chemin = [];
                     let node = current;
-                    while (node) {
-                        chemin.unshift({x: node.x, y: node.y});
-                        node = node.parent;
-                    }
-                    console.log('[Nav] ✅ Chemin trouvé: ' + chemin.length + ' cellules, ' + current.nbVirages + ' virages, en ' + iterations + ' itérations');
+                    while (node) { chemin.unshift({x: node.x, y: node.y}); node = node.parent; }
+                    console.log('[Nav] ✅ Chemin: ' + chemin.length + ' cellules, ' + current.nbVirages + ' virages');
                     return chemin;
                 }
-                
                 if (closedSet.has(key)) continue;
                 closedSet.add(key);
-                
                 const voisins = [
                     {x: current.x+1, y: current.y, dir: 'droite'},
                     {x: current.x-1, y: current.y, dir: 'gauche'},
                     {x: current.x, y: current.y+1, dir: 'bas'},
                     {x: current.x, y: current.y-1, dir: 'haut'}
                 ];
-                
                 for (const v of voisins) {
                     if (v.x < 0 || v.x >= width || v.y < 0 || v.y >= height) continue;
                     const vKey = v.x + ',' + v.y + ',' + v.dir;
                     if (closedSet.has(vKey)) continue;
-                    
                     const voisin = grid[v.y][v.x];
                     const estDestination = (v.x === end.x && v.y === end.y);
-                    
                     if (estObstacle(voisin) && !estDestination) continue;
-                    
                     let coutDeplacement = 1;
                     let estVirage = false;
-                    
                     if (current.direction !== null && current.direction !== v.dir) {
                         coutDeplacement = 1 + PENALITE_VIRAGE;
                         estVirage = true;
                     }
-                    
                     const g = current.g + coutDeplacement;
                     const h = Math.abs(v.x - end.x) + Math.abs(v.y - end.y);
                     const f = g + h;
                     const nbVirages = current.nbVirages + (estVirage ? 1 : 0);
-                    
                     const existing = openSet.find(n => n.x === v.x && n.y === v.y && n.direction === v.dir);
                     if (existing) {
                         if (g < existing.g) {
-                            existing.g = g;
-                            existing.f = f;
-                            existing.parent = current;
-                            existing.direction = v.dir;
-                            existing.nbVirages = nbVirages;
+                            existing.g = g; existing.f = f; existing.parent = current;
+                            existing.direction = v.dir; existing.nbVirages = nbVirages;
                         }
                     } else {
-                        openSet.push({
-                            x: v.x, y: v.y, 
-                            g: g, h: h, f: f, 
-                            parent: current, 
-                            direction: v.dir,
-                            nbVirages: nbVirages
-                        });
+                        openSet.push({x: v.x, y: v.y, g: g, h: h, f: f, parent: current, direction: v.dir, nbVirages: nbVirages});
                     }
                 }
             }
-            
-            console.error('[Nav] ❌ Aucun chemin trouvé après ' + iterations + ' itérations');
             return null;
         }
         
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
             const numArrivee = parseInt(document.getElementById('standArrivee').value);
-            
-            console.log('[Nav]  Calcul itinéraire: stand ' + numDepart + ' → stand ' + numArrivee);
-            
-            if (!numDepart || !numArrivee) {
-                alert('Veuillez sélectionner les deux stands');
-                return;
-            }
-            
-            if (numDepart === numArrivee) {
-                alert('Veuillez sélectionner deux stands différents');
-                return;
-            }
+            if (!numDepart || !numArrivee) { alert('Veuillez sélectionner les deux stands'); return; }
+            if (numDepart === numArrivee) { alert('Veuillez sélectionner deux stands différents'); return; }
             
             const entreesDepart = trouverEntreeStandAvecDirection(numDepart);
             const entreesArrivee = trouverEntreeStand(numArrivee);
             
-            let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT DE L\'ALGORITHME</div>';
+            let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             debugHtml += '<div class="info"> DÉPART : stand ' + numDepart + '</div>';
             debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
-            debugHtml += '<div class="info">👁️ Pénalité virage : ' + PENALITE_VIRAGE + ' cellules (' + (PENALITE_VIRAGE * 0.5).toFixed(1) + ' m) par virage</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             if (entreesDepart.length === 0) {
-                debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numDepart + '" trouvée</div>';
+                debugHtml += '<div class="obstacle">❌ Aucune entrée "' + numDepart + '" trouvée</div>';
             } else {
-                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) trouvée(s) :</div>';
-                entreesDepart.forEach(e => {
-                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ') - Regarde vers le ' + e.directionRegard + ' - Départ vers le ' + e.directionDepart + '</div>';
-                });
+                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) :</div>';
+                entreesDepart.forEach(e => { debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ') - Regard: ' + e.directionRegard + ' - Départ: ' + e.directionDepart + '</div>'; });
             }
-            
             if (entreesArrivee.length === 0) {
-                debugHtml += '<div class="obstacle">❌ Aucune entrée exacte "' + numArrivee + '" trouvée</div>';
+                debugHtml += '<div class="obstacle">❌ Aucune entrée "' + numArrivee + '" trouvée</div>';
             } else {
-                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) trouvée(s) :</div>';
-                entreesArrivee.forEach(e => {
-                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
-                });
+                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) :</div>';
+                entreesArrivee.forEach(e => { debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>'; });
             }
-            
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             if (entreesDepart.length === 0 || entreesArrivee.length === 0) {
-                const debugSection = document.getElementById('debugSection');
-                debugSection.innerHTML = debugHtml;
-                debugSection.classList.add('visible');
-                alert('❌ Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
+                document.getElementById('debugSection').innerHTML = debugHtml;
+                document.getElementById('debugSection').classList.add('visible');
+                alert('❌ Entrée(s) manquante(s).');
                 return;
             }
             
-            let meilleurCout = Infinity;
-            let meilleurStart = null;
-            let meilleurEnd = null;
-            let meilleureDirection = null;
-            
+            let meilleurCout = Infinity, meilleurStart = null, meilleurEnd = null, meilleureDirection = null;
             for (const entreeD of entreesDepart) {
                 for (const entreeA of entreesArrivee) {
                     const dist = Math.abs(entreeD.x - entreeA.x) + Math.abs(entreeD.y - entreeA.y);
                     if (dist < meilleurCout) {
-                        meilleurCout = dist;
-                        meilleurStart = entreeD;
-                        meilleurEnd = entreeA;
+                        meilleurCout = dist; meilleurStart = entreeD; meilleurEnd = entreeA;
                         meilleureDirection = entreeD.directionDepart;
                     }
                 }
             }
             
-            debugHtml += '<div class="chemin">📍 Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
-            debugHtml += '<div class="chemin">👁️ Direction de regard: vers le ' + meilleurStart.directionRegard + '</div>';
-            debugHtml += '<div class="chemin">🚶 Direction de départ: vers le ' + meilleureDirection + '</div>';
-            debugHtml += '<div class="chemin">🏁 Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
-            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleurCout + ' cellules (' + (meilleurCout * 0.5).toFixed(1) + ' m)</div>';
+            debugHtml += '<div class="chemin">📍 Départ: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
+            debugHtml += '<div class="chemin">👁️ Regard: ' + meilleurStart.directionRegard + ' | Départ: ' + meilleureDirection + '</div>';
+            debugHtml += '<div class="chemin">🏁 Arrivée: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             const chemin = aStar(meilleurStart, meilleurEnd, grille, meilleureDirection);
             
             if (chemin) {
-                debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
-                debugHtml += '<div class="chemin">   Distance réelle : ' + (chemin.length * 0.5).toFixed(1) + ' m</div>';
-                debugHtml += '<div class="chemin">   ️ Temps estimé : ' + Math.round(chemin.length * 0.5 / 1.2) + ' sec</div>';
-                
+                debugHtml += '<div class="chemin">✅ CHEMIN: ' + chemin.length + ' cellules (' + (chemin.length * 0.5).toFixed(1) + ' m)</div>';
                 afficherInstructions(chemin, numDepart, numArrivee);
             } else {
                 debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
             }
             
-            const debugSection = document.getElementById('debugSection');
-            debugSection.innerHTML = debugHtml;
-            debugSection.classList.add('visible');
-            
-            if (!chemin) {
-                alert('❌ Impossible de trouver un chemin entre ces deux stands.');
-            }
+            document.getElementById('debugSection').innerHTML = debugHtml;
+            document.getElementById('debugSection').classList.add('visible');
         }
         
         function trouverEntreeStand(numeroStand) {
             const numStr = String(numeroStand);
             const entrees = [];
-            
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
-                    const cellule = grille[y][x];
-                    const texte = String(cellule || '').trim();
-                    
-                    if (texte === numStr) {
-                        entrees.push({x: x, y: y});
-                    }
+                    if (String(grille[y][x] || '').trim() === numStr) entrees.push({x: x, y: y});
                 }
             }
-            
             return entrees;
         }
         
         // ============================================
-        // NOUVELLE VERSION : Instructions en termes humains
+        // INSTRUCTIONS SIMPLIFIÉES
         // ============================================
         function afficherInstructions(chemin, numDepart, numArrivee) {
             if (!chemin || chemin.length < 2) return;
@@ -443,38 +310,10 @@
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            const estAllee = function(x, y) {
-                if (y < 0 || y >= grille.length || x < 0 || x >= grille[0].length) return false;
-                return !estObstacle(grille[y][x]);
-            };
-            
-            const estVraieAllee = function(x, y, direction) {
-                let count = 0;
-                if (direction === 'droite' || direction === 'gauche') {
-                    let up = 0;
-                    for (let i = y - 1; i >= 0 && estAllee(x, i); i--) up++;
-                    let down = 0;
-                    for (let i = y + 1; i < grille.length && estAllee(x, i); i++) down++;
-                    count = up + down;
-                } else {
-                    let left = 0;
-                    for (let i = x - 1; i >= 0 && estAllee(i, y); i--) left++;
-                    let right = 0;
-                    for (let i = x + 1; i < grille[0].length && estAllee(i, y); i++) right++;
-                    count = left + right;
-                }
-                return count >= 3;
-            };
-            
-            const getOrdinal = function(n) {
-                return n === 1 ? '1ère' : n + 'ème';
-            };
-            
             // Segmenter le chemin
             let segments = [];
             let currentDir = null;
             let currentDist = 0;
-            let currentAllees = 0;
             
             for (let i = 1; i < chemin.length; i++) {
                 const prev = chemin[i-1];
@@ -486,42 +325,36 @@
                 if (currentDir === null) {
                     currentDir = dir;
                     currentDist = 1;
-                    currentAllees = 0;
                 } else if (dir === currentDir) {
                     currentDist++;
-                    if (estVraieAllee(curr.x, curr.y, currentDir)) {
-                        currentAllees++;
-                    }
                 } else {
-                    segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+                    segments.push({direction: currentDir, distance: currentDist});
                     currentDir = dir;
                     currentDist = 1;
-                    currentAllees = 0;
                 }
             }
             if (currentDir !== null) {
-                segments.push({ direction: currentDir, distance: currentDist, allees: currentAllees });
+                segments.push({direction: currentDir, distance: currentDist});
             }
             
-            console.log('[Nav] 📊 Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm (' + s.allees + ' allées)'));
+            console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm'));
             
             let totalDistance = 0;
             let etape = 1;
             
-            // ✅ PREMIÈRE INSTRUCTION : Toujours "Faites demi-tour" car on part face au stand
+            // ✅ PREMIÈRE INSTRUCTION : Toujours "Faites demi-tour"
             if (segments.length > 0) {
                 const premierSegment = segments[0];
                 const metres = (premierSegment.distance * 0.5).toFixed(1);
                 totalDistance += premierSegment.distance;
                 
-                // ✅ La personne est face au stand, elle doit faire demi-tour pour partir
                 instructions.push({
                     numero: etape++,
                     texte: '<span class="action">Faites demi-tour</span> et avancez tout droit sur ' + metres + ' m'
                 });
             }
             
-            // ✅ INSTRUCTIONS SUIVANTES : virages en gauche/droite
+            // ✅ INSTRUCTIONS SUIVANTES : juste "Tournez à gauche/droite"
             for (let i = 1; i < segments.length; i++) {
                 const seg = segments[i];
                 const metres = (seg.distance * 0.5).toFixed(1);
@@ -531,17 +364,10 @@
                 
                 if (i < segments.length - 1) {
                     // Pas le dernier segment
-                    if (seg.allees > 0) {
-                        instructions.push({
-                            numero: etape++,
-                            texte: '<span class="action">Tournez à ' + virage + '</span> à la ' + getOrdinal(seg.allees) + ' intersection (' + metres + ' m)'
-                        });
-                    } else {
-                        instructions.push({
-                            numero: etape++,
-                            texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
-                        });
-                    }
+                    instructions.push({
+                        numero: etape++,
+                        texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
+                    });
                 } else {
                     // Dernier segment = arrivée
                     instructions.push({
@@ -582,7 +408,6 @@
             const idxActuel = ordres.indexOf(directionActuelle);
             const idxNouveau = ordres.indexOf(nouvelleDirection);
             const diff = (idxNouveau - idxActuel + 4) % 4;
-            
             if (diff === 1) return 'droite';
             if (diff === 3) return 'gauche';
             if (diff === 2) return 'demi-tour';
