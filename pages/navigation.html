@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.28</title>
+    <title>Navigation entre stands v0.29</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -148,7 +148,7 @@
             if (!cellule) return false;
             const texte = String(cellule).trim();
             if (texte.toUpperCase() === 'X') return true;
-            if (/^\d{1,2}[\s\n]*[A-Za-zÀ-@]*/.test(texte)) return true;
+            if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ]/.test(texte)) return true;
             if (texte.toUpperCase() === 'PAUSE') return true;
             if (texte.toUpperCase() === 'AAMB') return true;
             return false;
@@ -181,7 +181,7 @@
                                 const celluleStand = grille[sy][sx];
                                 const texteStand = String(celluleStand || '').trim();
                                 
-                                if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ@]/.test(texteStand) && texteStand.startsWith(numStr)) {
+                                if (/^\d{1,2}[\s\n]*[A-Za-zÀ-ÿ]/.test(texteStand) && texteStand.startsWith(numStr)) {
                                     const directionOpposee = getDirectionOpposee(d.dir);
                                     
                                     entrees.push({
