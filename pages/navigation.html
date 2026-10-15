@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.25</title>
+    <title>Navigation entre stands v0.26</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -61,7 +61,7 @@
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>️ Navigation entre stands</h2>
+        <h2>🗺️ Navigation entre stands</h2>
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement du plan de la salle...</div>
@@ -97,9 +97,6 @@
         let stands = [];
         let grille = [];
         
-        // ✅ PÉNALITÉ DE VIRAGE : coût ajouté à chaque changement de direction
-        // 3 cellules = 1.5m de pénalité par virage
-        // Cela force l'algorithme à préférer les chemins tout droit
         const PENALITE_VIRAGE = 3;
         
         async function chargerDonnees() {
@@ -156,52 +153,97 @@
             return false;
         }
         
-        function trouverEntreeStand(numeroStand) {
+        // ============================================
+        // TROUVER L'ENTRÉE + DIRECTION INITIALE
+        // Retourne {x, y, directionDepart}
+        // directionDepart = direction OPPOSÉE au stand (car on regarde le stand au départ)
+        // ============================================
+        function trouverEntreeStandAvecDirection(numeroStand) {
             const numStr = String(numeroStand);
-            console.log('[Nav] 🔍 Recherche entrée exacte pour stand ' + numeroStand + '...');
+            console.log('[Nav] 🔍 Recherche entrée + direction pour stand ' + numeroStand + '...');
             
             const entrees = [];
             
+            // 1. Trouver toutes les cellules ENTREE (numéro seul)
             for (let y = 0; y < grille.length; y++) {
                 for (let x = 0; x < grille[0].length; x++) {
                     const cellule = grille[y][x];
                     const texte = String(cellule || '').trim();
                     
                     if (texte === numStr) {
-                        entrees.push({x: x, y: y});
-                        console.log('[Nav] ✅ Entrée exacte trouvée en (' + x + ', ' + y + ')');
+                        // 2. Chercher la cellule du stand adjacente (numéro + nom)
+                        const directions = [
+                            {dx: 0, dy: -1, dir: 'haut'},
+                            {dx: 0, dy: 1, dir: 'bas'},
+                            {dx: -1, dy: 0, dir: 'gauche'},
+                            {dx: 1, dy: 0, dir: 'droite'}
+                        ];
+                        
+                        for (const d of directions) {
+                            const sx = x + d.dx;
+                            const sy = y + d.dy;
+                            
+                            if (sy >= 0 && sy < grille.length && sx >= 0 && sx < grille[0].length) {
+                                const celluleStand = grille[sy][sx];
+                                const texteStand = String(celluleStand || '').trim();
+                                
+                                // Vérifier que c'est bien la cellule du stand (numéro + nom)
+                                if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ@]/.test(texteStand) && texteStand.startsWith(numStr)) {
+                                    // La personne regarde VERS le stand (direction d)
+                                    // Pour partir, elle doit aller dans la direction OPPOSÉE
+                                    const directionOpposee = getDirectionOpposee(d.dir);
+                                    
+                                    entrees.push({
+                                        x: x, 
+                                        y: y,
+                                        directionRegard: d.dir,      // direction vers le stand
+                                        directionDepart: directionOpposee  // direction pour partir
+                                    });
+                                    
+                                    console.log('[Nav] ✅ Entrée en (' + x + ', ' + y + ') - Regarde vers le ' + d.dir + ' - Départ vers le ' + directionOpposee);
+                                    break; // Une seule direction de regard par cellule ENTREE
+                                }
+                            }
+                        }
                     }
                 }
             }
             
-            console.log('[Nav] 📊 Total entrées exactes trouvées : ' + entrees.length);
+            console.log('[Nav] 📊 Total entrées trouvées : ' + entrees.length);
             return entrees;
         }
         
+        function getDirectionOpposee(dir) {
+            const oppos = {
+                'haut': 'bas',
+                'bas': 'haut',
+                'gauche': 'droite',
+                'droite': 'gauche'
+            };
+            return oppos[dir] || null;
+        }
+        
         // ============================================
-        // A* MODIFIÉ : avec pénalité de virage
-        // L'état inclut maintenant la direction pour détecter les virages
+        // A* MODIFIÉ : avec direction initiale
         // ============================================
-        function aStar(start, end, grid) {
+        function aStar(start, end, grid, directionInitiale) {
             if (!start || !end) {
-                console.error('[Nav] ❌ Points de départ ou d\'arrivée invalides');
+                console.error('[Nav]  Points de départ ou d\'arrivée invalides');
                 return null;
             }
             
             console.log('[Nav] 🚀 A* avec pénalité virage (' + PENALITE_VIRAGE + ' cellules/virage)');
-            console.log('[Nav] 🚀 Démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
+            console.log('[Nav]  Démarré: (' + start.x + ',' + start.y + ') → (' + end.x + ',' + end.y + ')');
+            console.log('[Nav] 👁️ Direction initiale (regard) : vers le ' + directionInitiale + ' (opposé = départ)');
             
-            // État : {x, y, g, h, f, parent, direction}
-            // direction = null au départ, puis 'haut', 'bas', 'gauche', 'droite'
             const openSet = [{
                 x: start.x, y: start.y, 
                 g: 0, h: 0, f: 0, 
                 parent: null, 
-                direction: null,
+                direction: directionInitiale,  // ✅ Direction initiale = opposée du stand
                 nbVirages: 0
             }];
             
-            // Closed set : clé = "x,y,direction" pour permettre de revisiter une cellule avec une direction différente
             const closedSet = new Set();
             const height = grid.length;
             const width = grid[0].length;
@@ -249,12 +291,10 @@
                     
                     if (estObstacle(voisin) && !estDestination) continue;
                     
-                    // ✅ Calcul du coût avec pénalité de virage
                     let coutDeplacement = 1;
                     let estVirage = false;
                     
                     if (current.direction !== null && current.direction !== v.dir) {
-                        // Changement de direction = virage
                         coutDeplacement = 1 + PENALITE_VIRAGE;
                         estVirage = true;
                     }
@@ -285,7 +325,7 @@
                 }
             }
             
-            console.error('[Nav] ❌ Aucun chemin trouvé après ' + iterations + ' itérations');
+            console.error('[Nav]  Aucun chemin trouvé après ' + iterations + ' itérations');
             return null;
         }
         
@@ -305,14 +345,15 @@
                 return;
             }
             
-            const entreesDepart = trouverEntreeStand(numDepart);
+            // ✅ Nouvelle fonction qui retourne aussi la direction
+            const entreesDepart = trouverEntreeStandAvecDirection(numDepart);
             const entreesArrivee = trouverEntreeStand(numArrivee);
             
             let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT DE L\'ALGORITHME</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             debugHtml += '<div class="info">📍 DÉPART : stand ' + numDepart + '</div>';
             debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
-            debugHtml += '<div class="info">️ Pénalité virage : ' + PENALITE_VIRAGE + ' cellules (' + (PENALITE_VIRAGE * 0.5).toFixed(1) + ' m) par virage</div>';
+            debugHtml += '<div class="info">👁️ Pénalité virage : ' + PENALITE_VIRAGE + ' cellules (' + (PENALITE_VIRAGE * 0.5).toFixed(1) + ' m) par virage</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             if (entreesDepart.length === 0) {
@@ -320,7 +361,7 @@
             } else {
                 debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) trouvée(s) :</div>';
                 entreesDepart.forEach(e => {
-                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>';
+                    debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ') - Regarde vers le ' + e.directionRegard + ' - Départ vers le ' + e.directionDepart + '</div>';
                 });
             }
             
@@ -339,31 +380,37 @@
                 const debugSection = document.getElementById('debugSection');
                 debugSection.innerHTML = debugHtml;
                 debugSection.classList.add('visible');
-                alert('❌ Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
+                alert(' Entrée(s) manquante(s). Consultez la zone de débogage ci-dessous.');
                 return;
             }
             
-            let meilleureDistance = Infinity;
+            // Trouver la meilleure paire en tenant compte de la direction initiale
+            let meilleurCout = Infinity;
             let meilleurStart = null;
             let meilleurEnd = null;
+            let meilleureDirection = null;
             
             for (const entreeD of entreesDepart) {
                 for (const entreeA of entreesArrivee) {
                     const dist = Math.abs(entreeD.x - entreeA.x) + Math.abs(entreeD.y - entreeA.y);
-                    if (dist < meilleureDistance) {
-                        meilleureDistance = dist;
+                    if (dist < meilleurCout) {
+                        meilleurCout = dist;
                         meilleurStart = entreeD;
                         meilleurEnd = entreeA;
+                        meilleureDirection = entreeD.directionDepart;
                     }
                 }
             }
             
-            debugHtml += '<div class="chemin"> Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
+            debugHtml += '<div class="chemin">📍 Départ choisi: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
+            debugHtml += '<div class="chemin">👁️ Direction de regard: vers le ' + meilleurStart.directionRegard + '</div>';
+            debugHtml += '<div class="chemin">🚶 Direction de départ: vers le ' + meilleureDirection + '</div>';
             debugHtml += '<div class="chemin"> Arrivée choisie: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
-            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleureDistance + ' cellules (' + (meilleureDistance * 0.5).toFixed(1) + ' m)</div>';
+            debugHtml += '<div class="chemin">📏 Distance directe: ' + meilleurCout + ' cellules (' + (meilleurCout * 0.5).toFixed(1) + ' m)</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
-            const chemin = aStar(meilleurStart, meilleurEnd, grille);
+            // ✅ Passer la direction initiale à A*
+            const chemin = aStar(meilleurStart, meilleurEnd, grille, meilleureDirection);
             
             if (chemin) {
                 debugHtml += '<div class="chemin">✅ CHEMIN TROUVÉ : ' + chemin.length + ' cellules</div>';
@@ -380,8 +427,27 @@
             debugSection.classList.add('visible');
             
             if (!chemin) {
-                alert(' Impossible de trouver un chemin entre ces deux stands.');
+                alert('❌ Impossible de trouver un chemin entre ces deux stands.');
             }
+        }
+        
+        // Fonction simple pour trouver les entrées (sans direction) - utilisée pour l'arrivée
+        function trouverEntreeStand(numeroStand) {
+            const numStr = String(numeroStand);
+            const entrees = [];
+            
+            for (let y = 0; y < grille.length; y++) {
+                for (let x = 0; x < grille[0].length; x++) {
+                    const cellule = grille[y][x];
+                    const texte = String(cellule || '').trim();
+                    
+                    if (texte === numStr) {
+                        entrees.push({x: x, y: y});
+                    }
+                }
+            }
+            
+            return entrees;
         }
         
         function afficherInstructions(chemin, numDepart, numArrivee) {
