@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.30</title>
+    <title>Navigation entre stands v0.31</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -59,13 +59,13 @@
         <div class="nav-section" id="navForm" style="display:none;">
             <h3>📍 Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
-            <h3>🎯 Je veux aller au stand :</h3>
+            <h3> Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
-            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>🧭 Calculer l'itinéraire</button>
+            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled> Calculer l'itinéraire</button>
         </div>
         <div id="debugSection" class="debug-section"></div>
         <div id="instructions" class="instructions">
-            <h3> Itinéraire :</h3>
+            <h3>📋 Itinéraire :</h3>
             <div id="instructionsList"></div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
@@ -152,7 +152,7 @@
                             if (sy >= 0 && sy < grille.length && sx >= 0 && sx < grille[0].length) {
                                 const celluleStand = grille[sy][sx];
                                 const texteStand = String(celluleStand || '').trim();
-                                if (/^\d{1,2}[\s\n]+[A-Za-zÀ-]/.test(texteStand) && texteStand.startsWith(numStr)) {
+                                if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ]/.test(texteStand) && texteStand.startsWith(numStr)) {
                                     const directionOpposee = {'haut':'bas','bas':'haut','gauche':'droite','droite':'gauche'}[d.dir];
                                     entrees.push({x: x, y: y, directionRegard: d.dir, directionDepart: directionOpposee});
                                     console.log('[Nav] ✅ Entrée en (' + x + ', ' + y + ') - Regard: ' + d.dir + ' - Départ: ' + directionOpposee);
@@ -274,14 +274,14 @@
             
             debugHtml += '<div class="chemin">📍 Départ: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
             debugHtml += '<div class="chemin">👁️ Regard: ' + meilleurStart.directionRegard + ' | Départ: ' + meilleureDirection + '</div>';
-            debugHtml += '<div class="chemin">🏁 Arrivée: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
+            debugHtml += '<div class="chemin"> Arrivée: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             const chemin = aStar(meilleurStart, meilleurEnd, grille, meilleureDirection);
             
             if (chemin) {
                 debugHtml += '<div class="chemin">✅ CHEMIN: ' + chemin.length + ' cellules (' + (chemin.length * 0.5).toFixed(1) + ' m)</div>';
-                afficherInstructions(chemin, numDepart, numArrivee);
+                afficherInstructions(chemin, numDepart, numArrivee, meilleureDirection);
             } else {
                 debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
             }
@@ -302,9 +302,9 @@
         }
         
         // ============================================
-        // INSTRUCTIONS SIMPLIFIÉES
+        // INSTRUCTIONS AVEC DIRECTION DE DÉPART INTELLIGENTE
         // ============================================
-        function afficherInstructions(chemin, numDepart, numArrivee) {
+        function afficherInstructions(chemin, numDepart, numArrivee, directionDepart) {
             if (!chemin || chemin.length < 2) return;
             
             const instructions = [];
@@ -338,23 +338,42 @@
             }
             
             console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm'));
+            console.log('[Nav] 👁️ Direction de départ:', directionDepart);
             
             let totalDistance = 0;
             let etape = 1;
             
-            // ✅ PREMIÈRE INSTRUCTION : Toujours "Faites demi-tour"
+            // ✅ PREMIÈRE INSTRUCTION : comparer directionDepart avec premier segment
             if (segments.length > 0) {
                 const premierSegment = segments[0];
                 const metres = (premierSegment.distance * 0.5).toFixed(1);
                 totalDistance += premierSegment.distance;
                 
-                instructions.push({
-                    numero: etape++,
-                    texte: '<span class="action">Faites demi-tour</span> et avancez tout droit sur ' + metres + ' m'
-                });
+                // Calculer le virage entre directionDepart et premier segment
+                const premierVirage = calculerVirage(directionDepart, premierSegment.direction);
+                
+                if (premierVirage === 'tout droit') {
+                    // La personne regarde déjà dans la bonne direction
+                    instructions.push({
+                        numero: etape++,
+                        texte: '<span class="action">Avancez tout droit</span> sur ' + metres + ' m'
+                    });
+                } else if (premierVirage === 'demi-tour') {
+                    // La personne doit faire demi-tour
+                    instructions.push({
+                        numero: etape++,
+                        texte: '<span class="action">Faites demi-tour</span> et avancez sur ' + metres + ' m'
+                    });
+                } else {
+                    // La personne doit tourner à gauche ou à droite
+                    instructions.push({
+                        numero: etape++,
+                        texte: '<span class="action">Tournez à ' + premierVirage + '</span> et avancez sur ' + metres + ' m'
+                    });
+                }
             }
             
-            // ✅ INSTRUCTIONS SUIVANTES : juste "Tournez à gauche/droite"
+            // ✅ INSTRUCTIONS SUIVANTES
             for (let i = 1; i < segments.length; i++) {
                 const seg = segments[i];
                 const metres = (seg.distance * 0.5).toFixed(1);
@@ -363,13 +382,11 @@
                 const virage = calculerVirage(segments[i-1].direction, seg.direction);
                 
                 if (i < segments.length - 1) {
-                    // Pas le dernier segment
                     instructions.push({
                         numero: etape++,
                         texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
                     });
                 } else {
-                    // Dernier segment = arrivée
                     instructions.push({
                         numero: etape++,
                         texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
