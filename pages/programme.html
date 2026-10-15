@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.57</title>
+<title>Programme JTB 2026 v0.58</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -216,20 +216,40 @@ async function chargerProgramme() {
 
 function determinerJourAOuvrir() {
     const aujourdHui = new Date();
-    const dateAujStr = aujourdHui.toISOString().split('T')[0];
     
-    console.log('[Programme] Date du jour:', dateAujStr);
+    // ✅ Utiliser la date locale (pas UTC)
+    const annee = aujourdHui.getFullYear();
+    const mois = String(aujourdHui.getMonth() + 1).padStart(2, '0');
+    const jourNum = String(aujourdHui.getDate()).padStart(2, '0');
+    const dateAujStr = `${annee}-${mois}-${jourNum}`;
     
+    console.log('[Programme] Date du jour (locale):', dateAujStr);
+    console.log('[Programme] Dates disponibles:', datesParJour);
+    
+    // Chercher une correspondance exacte
     for (const [jour, date] of Object.entries(datesParJour)) {
         if (date === dateAujStr) {
-            console.log('[Programme] Jour correspondant trouvé:', jour);
+            console.log('[Programme] ✅ Jour correspondant trouvé:', jour);
             return jour;
         }
     }
     
+    // ✅ Fallback : chercher par nom de jour
+    const nomsJours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const nomJourAuj = nomsJours[aujourdHui.getDay()];
+    console.log('[Programme] Nom du jour aujourd\'hui:', nomJourAuj);
+    
+    for (const [jour, date] of Object.entries(datesParJour)) {
+        if (jour === nomJourAuj) {
+            console.log('[Programme] ✅ Correspondance par nom de jour:', jour);
+            return jour;
+        }
+    }
+    
+    // Dernier fallback : premier jour avec des données
     for (const jour of jours) {
         if (programmeData[jour] && programmeData[jour].length > 0) {
-            console.log('[Programme] Pas de correspondance, ouverture du premier jour:', jour);
+            console.log('[Programme] ⚠️ Fallback, ouverture du premier jour:', jour);
             return jour;
         }
     }
