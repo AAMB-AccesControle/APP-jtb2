@@ -318,16 +318,26 @@
         async function creerTheme() {
             const texte = document.getElementById('newThemeText').value.trim();
             if (!texte) { alert('Veuillez saisir un thème'); return; }
+            
             try {
+                // 1. Créer le thème (il sera en BROUILLON)
                 const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeTexte=' + encodeURIComponent(texte));
                 const data = await resp.json();
+                
                 if (data.success) {
                     document.getElementById('newThemeText').value = '';
+                    
+                    // 2. ✅ Activer automatiquement le thème créé
+                    const themeId = data.themeId;
+                    await fetch(SCRIPT_URL + '?action=validerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
+                    
+                    // 3. Recharger les données
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
                 }
             } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion');
             }
         }
