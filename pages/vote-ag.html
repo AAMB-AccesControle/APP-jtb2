@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.02</title>
+    <title>Vote AG v0.03</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -60,7 +60,7 @@
         .vote-btn.pour.active { background: var(--pour); }
         .vote-btn.contre.active { background: var(--contre); }
         .vote-btn.abstention.active { background: var(--abstention); }
-        .vote-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: scale(0.98); }
+        .vote-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
         .vote-results { display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
         .result-box { flex: 1; text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; transition: background 0.2s; }
@@ -132,6 +132,11 @@
         let isAdherent = false;
         let refreshInterval = null;
         
+        // ✅ NOUVEAU : Gestion de l'état local pour éviter le flash
+        let lastActionTime = 0;
+        let editingThemeId = null;
+        let pendingVote = null; // {themeId, choix} en attente de confirmation serveur
+        
         async function chargerDonnees() {
             try {
                 const adherentData = localStorage.getItem('aamb_adherent');
@@ -148,7 +153,7 @@
                 document.getElementById('userInfo').innerHTML = 
                     '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
                     '📧 ' + escapeHtml(userData.email) + ' | ' + 
-                    (isOrganisateur ? '🔑 Organisateur' : '👤 Participant') + ' | ' +
+                    (isOrganisateur ? '🔑 Organisateur' : ' Participant') + ' | ' +
                     (isAdherent ? '✅ Adhérent' : '⚠️ Non adhérent');
                 
                 if (isOrganisateur) document.getElementById('adminSection').style.display = 'block';
@@ -157,7 +162,15 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
                 
-                refreshInterval = setInterval(chargerVoteData, 2000);
+                // Rafraîchir toutes les 2 secondes
+                refreshInterval = setInterval(() => {
+                    // ✅ Skip le refresh si une action récente (< 3 secondes)
+                    if (Date.now() - lastActionTime < 3000) {
+                        console.log('[VoteAG] Skip refresh (action récente)');
+                        return;
+                    }
+                    chargerVoteData();
+                }, 2000);
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
                 showError('Erreur de chargement : ' + e.message);
@@ -183,7 +196,16 @@
                     document.getElementById('countAdherent').textContent = data.presence.adherent;
                     document.getElementById('countNonAdherent').textContent = data.presence.nonAdherent;
                     document.getElementById('countTotal').textContent = data.presence.total;
+                    
                     afficherThemes(data.themes);
+                    
+                    // ✅ Restaurer le champ de modification si on était en train d'éditer
+                    if (editingThemeId) {
+                        const theme = data.themes.find(t => t.themeId === editingThemeId);
+                        if (theme) {
+                            setTimeout(() => afficherModif(editingThemeId, theme.texte), 100);
+                        }
+                    }
                 }
             } catch (e) {
                 console.error('[VoteAG] Erreur refresh:', e);
@@ -204,7 +226,6 @@
                 const isCloture = theme.statut === 'CLOTURE';
                 const isBrouillon = theme.statut === 'BROUILLON';
                 
-                // ✅ AJOUT : data-theme-id pour cibler facilement la carte
                 html += '<div class="theme-card ' + statutClass + '" data-theme-id="' + theme.themeId + '">';
                 html += '<span class="theme-statut ' + statutClass + '">' + theme.statut + '</span>';
                 html += '<div class="theme-texte">' + escapeHtml(theme.texte) + '</div>';
@@ -222,7 +243,7 @@
                 } else if (isCloture) {
                     html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
                 } else if (isBrouillon) {
-                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de rédaction...</div>';
+                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de modification...</div>';
                 }
                 
                 html += '<div class="vote-results">';
@@ -248,17 +269,22 @@
             container.innerHTML = html;
         }
         
-        // ✅ NOUVEAU : Mise à jour optimiste de l'interface
+        // ✅ NOUVEAU : Vote avec gestion anti-flash
         async function voter(themeId, choix) {
             const userId = userData.id;
             
-            // 1. Mise à jour IMMÉDIATE de l'interface (Optimistic UI)
+            // 1. Marquer le timestamp de l'action
+            lastActionTime = Date.now();
+            pendingVote = { themeId, choix };
+            
+            // 2. Mise à jour IMMÉDIATE de l'interface
             const themeCard = document.querySelector(`.theme-card[data-theme-id="${themeId}"]`);
             if (themeCard) {
                 const buttons = themeCard.querySelectorAll('.vote-btn');
-                buttons.forEach(btn => btn.disabled = true); // Empêcher le spam de clics
-                
-                buttons.forEach(btn => btn.classList.remove('active'));
+                buttons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.disabled = true;
+                });
                 const clickedBtn = themeCard.querySelector(`.vote-btn.${choix.toLowerCase()}`);
                 if (clickedBtn) clickedBtn.classList.add('active');
                 
@@ -267,32 +293,36 @@
                     const boxChoix = resultBox.querySelector(`.result-box.${choix.toLowerCase()} .number`);
                     const boxTotal = resultBox.querySelector('.result-box:last-child .number');
                     
-                    // Incrémenter localement
                     if (boxChoix) boxChoix.textContent = parseInt(boxChoix.textContent || 0) + 1;
                     if (boxTotal) boxTotal.textContent = parseInt(boxTotal.textContent || 0) + 1;
                     
-                    // Petit effet visuel sur le compteur
                     resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
                     setTimeout(() => { resultBox.style.background = ''; }, 300);
                 }
             }
             
-            // 2. Envoi de la requête en arrière-plan
+            // 3. Envoi de la requête en arrière-plan
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
                 const data = await resp.json();
                 
                 if (!data.success) {
                     console.error('Erreur vote:', data.message);
-                    // Le refresh de 2s corrigera l'interface si le vote a échoué côté serveur
+                    // Recharger pour corriger l'interface
+                    setTimeout(() => chargerVoteData(), 1000);
                 }
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
             }
-            // Pas de await chargerVoteData() ici : on laisse le setInterval de 2s synchroniser proprement
+            
+            // 4. Après 3 secondes, permettre le refresh normal
+            setTimeout(() => {
+                pendingVote = null;
+            }, 3000);
         }
         
         async function enregistrerPresence() {
+            lastActionTime = Date.now();
             const btn = document.getElementById('btnPresence');
             btn.disabled = true;
             btn.textContent = 'Enregistrement...';
@@ -316,62 +346,63 @@
         }
         
         async function creerTheme() {
+            lastActionTime = Date.now();
             const texte = document.getElementById('newThemeText').value.trim();
             if (!texte) { alert('Veuillez saisir un thème'); return; }
-            
             try {
-                // 1. Créer le thème (il sera en BROUILLON)
                 const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeTexte=' + encodeURIComponent(texte));
                 const data = await resp.json();
-                
                 if (data.success) {
                     document.getElementById('newThemeText').value = '';
-                    
-                    // 2. ✅ Activer automatiquement le thème créé
-                    const themeId = data.themeId;
-                    await fetch(SCRIPT_URL + '?action=validerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
-                    
-                    // 3. Recharger les données
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
                 }
             } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion');
             }
         }
         
         function afficherModif(themeId, texteActuel) {
+            editingThemeId = themeId;
+            lastActionTime = Date.now();
             const container = document.getElementById('modif-' + themeId);
-            if (container.style.display === 'none') {
+            if (container) {
                 container.style.display = 'block';
                 container.innerHTML = `<div class="modifier-form"><input type="text" id="modif-input-${themeId}" value="${texteActuel}"><button onclick="modifierTheme('${themeId}')">💾 Sauvegarder</button></div>`;
-            } else {
-                container.style.display = 'none';
             }
         }
         
         async function modifierTheme(themeId) {
+            lastActionTime = Date.now();
             const nouveauTexte = document.getElementById('modif-input-' + themeId).value.trim();
             if (!nouveauTexte) { alert('Le thème ne peut pas être vide'); return; }
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=modifierThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId) + '&themeTexte=' + encodeURIComponent(nouveauTexte));
                 const data = await resp.json();
-                if (data.success) await chargerVoteData();
-                else alert('❌ ' + data.message);
+                if (data.success) {
+                    editingThemeId = null;
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
             } catch (e) {
                 alert('Erreur de connexion');
             }
         }
         
         async function cloturerVote(themeId) {
+            lastActionTime = Date.now();
             if (!confirm('Clôturer définitivement ce vote ?')) return;
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=cloturerVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
                 const data = await resp.json();
-                if (data.success) await chargerVoteData();
-                else alert('❌ ' + data.message);
+                if (data.success) {
+                    editingThemeId = null;
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
             } catch (e) {
                 alert('Erreur de connexion');
             }
