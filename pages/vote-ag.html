@@ -141,6 +141,7 @@
         
         .loading { text-align: center; padding: 20px; color: var(--text-sub); }
         .empty-state { text-align: center; padding: 30px; color: var(--text-sub); font-style: italic; }
+        .error-msg { background: #fee; color: #c00; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #c00; }
         
         @media (max-width: 480px) { .page-header { top: 90px; } }
     </style>
@@ -152,11 +153,13 @@
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement...</div>
+        <div id="errorContainer"></div>
         
         <div id="voteContent" style="display:none;">
             <!-- Section présence -->
             <div class="card">
                 <h3>📋 Validation de présence</h3>
+                <div id="userInfo" style="margin-bottom:10px;font-size:13px;color:var(--text-sub);"></div>
                 <button id="btnPresence" class="presence-btn" onclick="enregistrerPresence()">
                     ✅ Je suis présent à l'AG
                 </button>
@@ -201,18 +204,50 @@
         
         async function chargerDonnees() {
             try {
-                // Récupérer les infos utilisateur
+                // Récupérer les infos utilisateur - ESSAI MULTIPLE SOURCES
                 const userId = localStorage.getItem('userId') || '';
-                const respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
+                const userEmail = localStorage.getItem('userEmail') || '';
+                const userName = localStorage.getItem('userName') || '';
+                
+                console.log('[VoteAG] userId:', userId);
+                console.log('[VoteAG] userEmail:', userEmail);
+                console.log('[VoteAG] userName:', userName);
+                
+                // Essayer de trouver l'utilisateur par ID d'abord, puis par email
+                let respUser;
+                if (userId) {
+                    respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
+                } else if (userEmail) {
+                    // Fallback : chercher par email (nécessite une modification de l'Apps Script)
+                    // Pour l'instant, on utilise un ID par défaut pour test
+                    showError('⚠️ Identifiant non trouvé. Veuillez vous reconnecter.');
+                    document.getElementById('loading').style.display = 'none';
+                    return;
+                } else {
+                    showError('⚠️ Veuillez vous connecter d\'abord.');
+                    document.getElementById('loading').style.display = 'none';
+                    return;
+                }
+                
                 const dataUser = await respUser.json();
                 
                 if (dataUser.success) {
                     userData = dataUser.adherent;
                     isOrganisateur = userData.statut === 'Organisateur';
                     
+                    // Afficher les infos utilisateur
+                    document.getElementById('userInfo').innerHTML = 
+                        '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
+                        '📧 ' + escapeHtml(userData.email) + ' | ' + 
+                        (isOrganisateur ? '🔑 Organisateur' : '👤 Participant');
+                    
                     if (isOrganisateur) {
                         document.getElementById('adminSection').style.display = 'block';
                     }
+                } else {
+                    showError('❌ Utilisateur non trouvé : "' + userId + '"<br>Veuillez vous reconnecter.');
+                    document.getElementById('loading').style.display = 'none';
+                    return;
                 }
                 
                 // Charger les données de vote
@@ -221,12 +256,23 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
                 
-                // Rafraîchir toutes les secondes
-                refreshInterval = setInterval(chargerVoteData, 1000);
+                // Rafraîchir toutes les 2 secondes (au lieu de 1 pour éviter la surcharge)
+                refreshInterval = setInterval(chargerVoteData, 2000);
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
-                document.getElementById('loading').textContent = 'Erreur de chargement.';
+                showError('Erreur de chargement : ' + e.message);
+                document.getElementById('loading').style.display = 'none';
             }
+        }
+        
+        function showError(msg) {
+            document.getElementById('errorContainer').innerHTML = '<div class="error-msg">' + msg + '</div>';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
         
         async function chargerVoteData() {
@@ -273,7 +319,7 @@
                     html += '<div class="vote-buttons">';
                     html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')" ' + (theme.monVote ? '' : '') + '>👍 Pour</button>';
                     html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
-                    html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
+                    html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')"> Abstention</button>';
                     html += '</div>';
                 } else if (isCloture) {
                     html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
@@ -308,21 +354,19 @@
             container.innerHTML = html;
         }
         
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
         async function enregistrerPresence() {
             const userId = localStorage.getItem('userId') || '';
             const btn = document.getElementById('btnPresence');
             btn.disabled = true;
             btn.textContent = 'Enregistrement...';
             
+            console.log('[VoteAG] Enregistrement présence pour userId:', userId);
+            
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userId));
                 const data = await resp.json();
+                
+                console.log('[VoteAG] Réponse:', data);
                 
                 if (data.success) {
                     if (data.dejaPresent) {
@@ -335,13 +379,13 @@
                     dejaPresent = true;
                     await chargerVoteData();
                 } else {
-                    alert('❌ ' + data.message);
+                    alert('❌ ' + data.message + '\n\nuserId utilisé: ' + userId);
                     btn.disabled = false;
                     btn.textContent = '✅ Je suis présent à l\'AG';
                 }
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
-                alert('Erreur de connexion');
+                alert('Erreur de connexion: ' + e.message);
                 btn.disabled = false;
                 btn.textContent = '✅ Je suis présent à l\'AG';
             }
@@ -399,7 +443,7 @@
                 container.innerHTML = `
                     <div class="modifier-form">
                         <input type="text" id="modif-input-${themeId}" value="${texteActuel}">
-                        <button onclick="modifierTheme('${themeId}')"> Sauvegarder</button>
+                        <button onclick="modifierTheme('${themeId}')">💾 Sauvegarder</button>
                     </div>
                 `;
             } else {
