@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.01</title>
+    <title>Vote AG v0.02</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -56,14 +56,14 @@
         .theme-statut.cloture { background: var(--contre); }
         
         .vote-buttons { display: flex; gap: 8px; margin: 12px 0; }
-        .vote-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; background: var(--btn-gris); color: white; transition: all 0.2s; }
+        .vote-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; background: var(--btn-gris); color: white; transition: all 0.15s; }
         .vote-btn.pour.active { background: var(--pour); }
         .vote-btn.contre.active { background: var(--contre); }
         .vote-btn.abstention.active { background: var(--abstention); }
-        .vote-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .vote-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: scale(0.98); }
         
         .vote-results { display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
-        .result-box { flex: 1; text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; }
+        .result-box { flex: 1; text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; transition: background 0.2s; }
         .result-box .number { font-size: 20px; font-weight: bold; }
         .result-box .label { font-size: 11px; color: var(--text-sub); }
         .result-box.pour .number { color: var(--pour); }
@@ -72,9 +72,8 @@
         
         .admin-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .admin-btn { padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; color: white; }
-        .admin-btn.valider { background: var(--pour); }
-        .admin-btn.modifier { background: var(--abstention); }
         .admin-btn.cloturer { background: var(--contre); }
+        .admin-btn.modifier { background: var(--abstention); }
         .admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .modifier-form { display: flex; gap: 8px; margin-top: 10px; }
@@ -106,18 +105,9 @@
                     ✅ Je suis présent à l'AG
                 </button>
                 <div class="stats-presence">
-                    <div class="stat-box">
-                        <div class="number" id="countAdherent">0</div>
-                        <div class="label">Adhérents</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countNonAdherent">0</div>
-                        <div class="label">Non adhérents</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countTotal">0</div>
-                        <div class="label">Total présents</div>
-                    </div>
+                    <div class="stat-box"><div class="number" id="countAdherent">0</div><div class="label">Adhérents</div></div>
+                    <div class="stat-box"><div class="number" id="countNonAdherent">0</div><div class="label">Non adhérents</div></div>
+                    <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total présents</div></div>
                 </div>
             </div>
             
@@ -125,7 +115,7 @@
                 <h3>➕ Créer un thème de vote</h3>
                 <div class="theme-creation">
                     <input type="text" id="newThemeText" placeholder="Saisissez le thème du vote...">
-                    <button onclick="creerTheme()">Créer</button>
+                    <button onclick="creerTheme()">Créer et ouvrir</button>
                 </div>
             </div>
             
@@ -139,13 +129,12 @@
         
         let userData = null;
         let isOrganisateur = false;
-        let isAdherent = false; // ✅ NOUVEAU
+        let isAdherent = false;
         let refreshInterval = null;
         
         async function chargerDonnees() {
             try {
                 const adherentData = localStorage.getItem('aamb_adherent');
-                
                 if (!adherentData) {
                     showError('⚠️ Veuillez vous connecter d\'abord via la page d\'accueil.');
                     document.getElementById('loading').style.display = 'none';
@@ -154,7 +143,7 @@
                 
                 userData = JSON.parse(adherentData);
                 isOrganisateur = userData.statut === 'Organisateur';
-                isAdherent = userData.typeAdhesion === 'Adhérent'; // ✅ NOUVEAU
+                isAdherent = userData.typeAdhesion === 'Adhérent';
                 
                 document.getElementById('userInfo').innerHTML = 
                     '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
@@ -162,12 +151,9 @@
                     (isOrganisateur ? '🔑 Organisateur' : '👤 Participant') + ' | ' +
                     (isAdherent ? '✅ Adhérent' : '⚠️ Non adhérent');
                 
-                if (isOrganisateur) {
-                    document.getElementById('adminSection').style.display = 'block';
-                }
+                if (isOrganisateur) document.getElementById('adminSection').style.display = 'block';
                 
                 await chargerVoteData();
-                
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
                 
@@ -191,10 +177,8 @@
         
         async function chargerVoteData() {
             try {
-                const userId = userData.id;
-                const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userId));
+                const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userData.id));
                 const data = await resp.json();
-                
                 if (data.success) {
                     document.getElementById('countAdherent').textContent = data.presence.adherent;
                     document.getElementById('countNonAdherent').textContent = data.presence.nonAdherent;
@@ -208,7 +192,6 @@
         
         function afficherThemes(themes) {
             const container = document.getElementById('themesContainer');
-            
             if (themes.length === 0) {
                 container.innerHTML = '<div class="empty-state">Aucun thème de vote pour le moment.</div>';
                 return;
@@ -221,11 +204,11 @@
                 const isCloture = theme.statut === 'CLOTURE';
                 const isBrouillon = theme.statut === 'BROUILLON';
                 
-                html += '<div class="theme-card ' + statutClass + '">';
+                // ✅ AJOUT : data-theme-id pour cibler facilement la carte
+                html += '<div class="theme-card ' + statutClass + '" data-theme-id="' + theme.themeId + '">';
                 html += '<span class="theme-statut ' + statutClass + '">' + theme.statut + '</span>';
                 html += '<div class="theme-texte">' + escapeHtml(theme.texte) + '</div>';
                 
-                // ✅ MODIFICATION : Vérifier si l'utilisateur est adhérent avant d'afficher les boutons
                 if (isActif) {
                     if (isAdherent) {
                         html += '<div class="vote-buttons">';
@@ -239,10 +222,9 @@
                 } else if (isCloture) {
                     html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
                 } else if (isBrouillon) {
-                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de rédaction par un organisateur...</div>';
+                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de rédaction...</div>';
                 }
                 
-                // Résultats (toujours visibles pour tout le monde)
                 html += '<div class="vote-results">';
                 html += '<div class="result-box pour"><div class="number">' + theme.pour + '</div><div class="label">Pour</div></div>';
                 html += '<div class="result-box contre"><div class="number">' + theme.contre + '</div><div class="label">Contre</div></div>';
@@ -250,43 +232,76 @@
                 html += '<div class="result-box"><div class="number">' + theme.total + '</div><div class="label">Total</div></div>';
                 html += '</div>';
                 
-                // Actions admin
                 if (isOrganisateur) {
                     html += '<div class="admin-actions">';
-                    if (isBrouillon) {
-                        html += '<button class="admin-btn valider" onclick="validerTheme(\'' + theme.themeId + '\')">✅ Valider</button>';
-                        html += '<button class="admin-btn modifier" onclick="afficherModif(\'' + theme.themeId + '\', \'' + escapeHtml(theme.texte).replace(/'/g, "\\'") + '\')">✏️ Modifier</button>';
-                    } else if (isActif) {
+                    if (isActif) {
                         html += '<button class="admin-btn cloturer" onclick="cloturerVote(\'' + theme.themeId + '\')">🔒 Clôturer</button>';
+                    }
+                    if (isBrouillon || isActif) {
+                        html += '<button class="admin-btn modifier" onclick="afficherModif(\'' + theme.themeId + '\', \'' + escapeHtml(theme.texte).replace(/'/g, "\\'") + '\')">✏️ Modifier</button>';
                     }
                     html += '</div>';
                     html += '<div id="modif-' + theme.themeId + '" style="display:none;"></div>';
                 }
-                
                 html += '</div>';
             });
-            
             container.innerHTML = html;
         }
         
-        async function enregistrerPresence() {
+        // ✅ NOUVEAU : Mise à jour optimiste de l'interface
+        async function voter(themeId, choix) {
             const userId = userData.id;
+            
+            // 1. Mise à jour IMMÉDIATE de l'interface (Optimistic UI)
+            const themeCard = document.querySelector(`.theme-card[data-theme-id="${themeId}"]`);
+            if (themeCard) {
+                const buttons = themeCard.querySelectorAll('.vote-btn');
+                buttons.forEach(btn => btn.disabled = true); // Empêcher le spam de clics
+                
+                buttons.forEach(btn => btn.classList.remove('active'));
+                const clickedBtn = themeCard.querySelector(`.vote-btn.${choix.toLowerCase()}`);
+                if (clickedBtn) clickedBtn.classList.add('active');
+                
+                const resultBox = themeCard.querySelector('.vote-results');
+                if (resultBox) {
+                    const boxChoix = resultBox.querySelector(`.result-box.${choix.toLowerCase()} .number`);
+                    const boxTotal = resultBox.querySelector('.result-box:last-child .number');
+                    
+                    // Incrémenter localement
+                    if (boxChoix) boxChoix.textContent = parseInt(boxChoix.textContent || 0) + 1;
+                    if (boxTotal) boxTotal.textContent = parseInt(boxTotal.textContent || 0) + 1;
+                    
+                    // Petit effet visuel sur le compteur
+                    resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
+                    setTimeout(() => { resultBox.style.background = ''; }, 300);
+                }
+            }
+            
+            // 2. Envoi de la requête en arrière-plan
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
+                const data = await resp.json();
+                
+                if (!data.success) {
+                    console.error('Erreur vote:', data.message);
+                    // Le refresh de 2s corrigera l'interface si le vote a échoué côté serveur
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+            }
+            // Pas de await chargerVoteData() ici : on laisse le setInterval de 2s synchroniser proprement
+        }
+        
+        async function enregistrerPresence() {
             const btn = document.getElementById('btnPresence');
             btn.disabled = true;
             btn.textContent = 'Enregistrement...';
-            
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userId));
+                const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userData.id));
                 const data = await resp.json();
-                
                 if (data.success) {
-                    if (data.dejaPresent) {
-                        btn.textContent = '✅ Présence déjà enregistrée';
-                        btn.classList.add('present');
-                    } else {
-                        btn.textContent = '✅ Présence enregistrée !';
-                        btn.classList.add('present');
-                    }
+                    btn.textContent = data.dejaPresent ? '✅ Présence déjà enregistrée' : '✅ Présence enregistrée !';
+                    btn.classList.add('present');
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
@@ -294,7 +309,6 @@
                     btn.textContent = '✅ Je suis présent à l\'AG';
                 }
             } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion: ' + e.message);
                 btn.disabled = false;
                 btn.textContent = '✅ Je suis présent à l\'AG';
@@ -302,12 +316,10 @@
         }
         
         async function creerTheme() {
-            const userId = userData.id;
             const texte = document.getElementById('newThemeText').value.trim();
             if (!texte) { alert('Veuillez saisir un thème'); return; }
-            
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userId) + '&themeTexte=' + encodeURIComponent(texte));
+                const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeTexte=' + encodeURIComponent(texte));
                 const data = await resp.json();
                 if (data.success) {
                     document.getElementById('newThemeText').value = '';
@@ -316,21 +328,6 @@
                     alert('❌ ' + data.message);
                 }
             } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
-                alert('Erreur de connexion');
-            }
-        }
-        
-        async function validerTheme(themeId) {
-            const userId = userData.id;
-            if (!confirm('Valider ce thème et ouvrir le vote ?')) return;
-            try {
-                const resp = await fetch(SCRIPT_URL + '?action=validerThemeVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId));
-                const data = await resp.json();
-                if (data.success) await chargerVoteData();
-                else alert('❌ ' + data.message);
-            } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion');
             }
         }
@@ -346,43 +343,26 @@
         }
         
         async function modifierTheme(themeId) {
-            const userId = userData.id;
             const nouveauTexte = document.getElementById('modif-input-' + themeId).value.trim();
             if (!nouveauTexte) { alert('Le thème ne peut pas être vide'); return; }
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=modifierThemeVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&themeTexte=' + encodeURIComponent(nouveauTexte));
+                const resp = await fetch(SCRIPT_URL + '?action=modifierThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId) + '&themeTexte=' + encodeURIComponent(nouveauTexte));
                 const data = await resp.json();
                 if (data.success) await chargerVoteData();
                 else alert('❌ ' + data.message);
             } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
-                alert('Erreur de connexion');
-            }
-        }
-        
-        async function voter(themeId, choix) {
-            const userId = userData.id;
-            try {
-                const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
-                const data = await resp.json();
-                if (data.success) await chargerVoteData();
-                else alert('❌ ' + data.message);
-            } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion');
             }
         }
         
         async function cloturerVote(themeId) {
-            const userId = userData.id;
             if (!confirm('Clôturer définitivement ce vote ?')) return;
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=cloturerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId));
+                const resp = await fetch(SCRIPT_URL + '?action=cloturerVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
                 const data = await resp.json();
                 if (data.success) await chargerVoteData();
                 else alert('❌ ' + data.message);
             } catch (e) {
-                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion');
             }
         }
