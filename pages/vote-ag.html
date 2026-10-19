@@ -149,7 +149,7 @@
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>🗳️ Vote AG</h2>
+        <h2>️ Vote AG</h2>
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement...</div>
@@ -204,50 +204,28 @@
         
         async function chargerDonnees() {
             try {
-                // Récupérer les infos utilisateur - ESSAI MULTIPLE SOURCES
-                const userId = localStorage.getItem('userId') || '';
-                const userEmail = localStorage.getItem('userEmail') || '';
-                const userName = localStorage.getItem('userName') || '';
+                // ✅ CORRECTION : Lire depuis aamb_adherent au lieu de userId
+                const adherentData = localStorage.getItem('aamb_adherent');
                 
-                console.log('[VoteAG] userId:', userId);
-                console.log('[VoteAG] userEmail:', userEmail);
-                console.log('[VoteAG] userName:', userName);
+                console.log('[VoteAG] aamb_adherent:', adherentData);
                 
-                // Essayer de trouver l'utilisateur par ID d'abord, puis par email
-                let respUser;
-                if (userId) {
-                    respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
-                } else if (userEmail) {
-                    // Fallback : chercher par email (nécessite une modification de l'Apps Script)
-                    // Pour l'instant, on utilise un ID par défaut pour test
-                    showError('⚠️ Identifiant non trouvé. Veuillez vous reconnecter.');
-                    document.getElementById('loading').style.display = 'none';
-                    return;
-                } else {
-                    showError('⚠️ Veuillez vous connecter d\'abord.');
+                if (!adherentData) {
+                    showError('⚠️ Veuillez vous connecter d\'abord via la page d\'accueil.');
                     document.getElementById('loading').style.display = 'none';
                     return;
                 }
                 
-                const dataUser = await respUser.json();
+                userData = JSON.parse(adherentData);
+                isOrganisateur = userData.statut === 'Organisateur';
                 
-                if (dataUser.success) {
-                    userData = dataUser.adherent;
-                    isOrganisateur = userData.statut === 'Organisateur';
-                    
-                    // Afficher les infos utilisateur
-                    document.getElementById('userInfo').innerHTML = 
-                        '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
-                        '📧 ' + escapeHtml(userData.email) + ' | ' + 
-                        (isOrganisateur ? '🔑 Organisateur' : '👤 Participant');
-                    
-                    if (isOrganisateur) {
-                        document.getElementById('adminSection').style.display = 'block';
-                    }
-                } else {
-                    showError('❌ Utilisateur non trouvé : "' + userId + '"<br>Veuillez vous reconnecter.');
-                    document.getElementById('loading').style.display = 'none';
-                    return;
+                // Afficher les infos utilisateur
+                document.getElementById('userInfo').innerHTML = 
+                    '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
+                    ' ' + escapeHtml(userData.email) + ' | ' + 
+                    (isOrganisateur ? '🔑 Organisateur' : '👤 Participant');
+                
+                if (isOrganisateur) {
+                    document.getElementById('adminSection').style.display = 'block';
                 }
                 
                 // Charger les données de vote
@@ -256,7 +234,7 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
                 
-                // Rafraîchir toutes les 2 secondes (au lieu de 1 pour éviter la surcharge)
+                // Rafraîchir toutes les 2 secondes
                 refreshInterval = setInterval(chargerVoteData, 2000);
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
@@ -277,7 +255,7 @@
         
         async function chargerVoteData() {
             try {
-                const userId = localStorage.getItem('userId') || '';
+                const userId = userData.id;
                 const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userId));
                 const data = await resp.json();
                 
@@ -317,14 +295,14 @@
                 // Boutons de vote (uniquement si ACTIF)
                 if (isActif) {
                     html += '<div class="vote-buttons">';
-                    html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')" ' + (theme.monVote ? '' : '') + '>👍 Pour</button>';
+                    html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')" ' + (theme.monVote ? '' : '') + '> Pour</button>';
                     html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
-                    html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')"> Abstention</button>';
+                    html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
                     html += '</div>';
                 } else if (isCloture) {
                     html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
                 } else if (isBrouillon) {
-                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de rédaction par un organisateur...</div>';
+                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;"> En cours de rédaction par un organisateur...</div>';
                 }
                 
                 // Résultats (toujours visibles)
@@ -355,7 +333,7 @@
         }
         
         async function enregistrerPresence() {
-            const userId = localStorage.getItem('userId') || '';
+            const userId = userData.id;
             const btn = document.getElementById('btnPresence');
             btn.disabled = true;
             btn.textContent = 'Enregistrement...';
@@ -379,7 +357,7 @@
                     dejaPresent = true;
                     await chargerVoteData();
                 } else {
-                    alert('❌ ' + data.message + '\n\nuserId utilisé: ' + userId);
+                    alert('❌ ' + data.message);
                     btn.disabled = false;
                     btn.textContent = '✅ Je suis présent à l\'AG';
                 }
@@ -392,7 +370,7 @@
         }
         
         async function creerTheme() {
-            const userId = localStorage.getItem('userId') || '';
+            const userId = userData.id;
             const texte = document.getElementById('newThemeText').value.trim();
             
             if (!texte) {
@@ -417,7 +395,7 @@
         }
         
         async function validerTheme(themeId) {
-            const userId = localStorage.getItem('userId') || '';
+            const userId = userData.id;
             
             if (!confirm('Valider ce thème et ouvrir le vote ?')) return;
             
@@ -452,7 +430,7 @@
         }
         
         async function modifierTheme(themeId) {
-            const userId = localStorage.getItem('userId') || '';
+            const userId = userData.id;
             const nouveauTexte = document.getElementById('modif-input-' + themeId).value.trim();
             
             if (!nouveauTexte) {
@@ -476,7 +454,7 @@
         }
         
         async function voter(themeId, choix) {
-            const userId = localStorage.getItem('userId') || '';
+            const userId = userData.id;
             
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
@@ -494,7 +472,7 @@
         }
         
         async function cloturerVote(themeId) {
-            const userId = localStorage.getItem('userId') || '';
+            const userId = userData.id;
             
             if (!confirm('Clôturer définitivement ce vote ?')) return;
             
