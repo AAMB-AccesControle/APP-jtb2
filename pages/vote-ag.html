@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote AG</title>
+    <link rel="manifest" href="../manifest.json">
+    <script>
+    if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
+            --page-header-bg: #1a3a6b; --primary: #1a3a6b;
+            --pour: #10b981; --contre: #ef4444; --abstention: #f59e0b;
+            --btn-gris: #9ca3af;
+        }
+        body.dark {
+            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
+            --page-header-bg: #0f1f3d; --primary: #2a5f9f;
+            --btn-gris: #4b5563;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+        
+        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+        .page-header h2 { font-size: 18px; flex: 1; }
+        .page-content { padding: 16px; max-width: 700px; margin: 0 auto; }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card h3 { font-size: 14px; color: var(--text); margin-bottom: 10px; font-weight: 700; }
+        
+        .presence-btn {
+            width: 100%; padding: 14px; background: var(--primary); color: white;
+            border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .presence-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .presence-btn.present { background: var(--pour); }
+        
+        .stats-presence {
+            display: flex; gap: 10px; margin-top: 12px;
+        }
+        .stat-box {
+            flex: 1; text-align: center; padding: 10px;
+            background: var(--bg); border-radius: 8px;
+        }
+        .stat-box .number { font-size: 22px; font-weight: bold; color: var(--primary); }
+        .stat-box .label { font-size: 11px; color: var(--text-sub); }
+        
+        .theme-creation {
+            display: flex; gap: 8px; margin-bottom: 10px;
+        }
+        .theme-creation input {
+            flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px;
+            font-size: 14px; background: var(--bg); color: var(--text);
+        }
+        .theme-creation button {
+            padding: 10px 16px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+        }
+        
+        .theme-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--btn-gris);
+        }
+        .theme-card.actif { border-left-color: var(--pour); }
+        .theme-card.cloture { border-left-color: var(--contre); opacity: 0.85; }
+        .theme-card.brouillon { border-left-color: var(--abstention); }
+        
+        .theme-texte { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+        .theme-statut {
+            display: inline-block; padding: 3px 10px; border-radius: 12px;
+            font-size: 11px; font-weight: bold; color: white; margin-bottom: 10px;
+        }
+        .theme-statut.actif { background: var(--pour); }
+        .theme-statut.brouillon { background: var(--abstention); }
+        .theme-statut.cloture { background: var(--contre); }
+        
+        .vote-buttons {
+            display: flex; gap: 8px; margin: 12px 0;
+        }
+        .vote-btn {
+            flex: 1; padding: 12px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: bold; cursor: pointer;
+            background: var(--btn-gris); color: white;
+            transition: all 0.2s;
+        }
+        .vote-btn.pour.active { background: var(--pour); }
+        .vote-btn.contre.active { background: var(--contre); }
+        .vote-btn.abstention.active { background: var(--abstention); }
+        .vote-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .vote-results {
+            display: flex; gap: 10px; margin-top: 12px;
+            padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2);
+        }
+        .result-box {
+            flex: 1; text-align: center; padding: 8px;
+            background: var(--bg); border-radius: 8px;
+        }
+        .result-box .number { font-size: 20px; font-weight: bold; }
+        .result-box .label { font-size: 11px; color: var(--text-sub); }
+        .result-box.pour .number { color: var(--pour); }
+        .result-box.contre .number { color: var(--contre); }
+        .result-box.abstention .number { color: var(--abstention); }
+        
+        .admin-actions {
+            display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+        }
+        .admin-btn {
+            padding: 8px 14px; border: none; border-radius: 6px;
+            font-size: 12px; font-weight: bold; cursor: pointer; color: white;
+        }
+        .admin-btn.valider { background: var(--pour); }
+        .admin-btn.modifier { background: var(--abstention); }
+        .admin-btn.cloturer { background: var(--contre); }
+        .admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .modifier-form {
+            display: flex; gap: 8px; margin-top: 10px;
+        }
+        .modifier-form input {
+            flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 6px;
+            font-size: 13px; background: var(--bg); color: var(--text);
+        }
+        .modifier-form button {
+            padding: 8px 14px; background: var(--abstention); color: white;
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+        
+        .loading { text-align: center; padding: 20px; color: var(--text-sub); }
+        .empty-state { text-align: center; padding: 30px; color: var(--text-sub); font-style: italic; }
+        
+        @media (max-width: 480px) { .page-header { top: 90px; } }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <button class="back-btn" onclick="retourAccueil()">←</button>
+        <h2>🗳️ Vote AG</h2>
+    </div>
+    <div class="page-content">
+        <div id="loading" class="loading">Chargement...</div>
+        
+        <div id="voteContent" style="display:none;">
+            <!-- Section présence -->
+            <div class="card">
+                <h3>📋 Validation de présence</h3>
+                <button id="btnPresence" class="presence-btn" onclick="enregistrerPresence()">
+                    ✅ Je suis présent à l'AG
+                </button>
+                <div class="stats-presence">
+                    <div class="stat-box">
+                        <div class="number" id="countAdherent">0</div>
+                        <div class="label">Adhérents</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countNonAdherent">0</div>
+                        <div class="label">Non adhérents</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countTotal">0</div>
+                        <div class="label">Total présents</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section création thème (organisateurs uniquement) -->
+            <div id="adminSection" class="card" style="display:none;">
+                <h3>➕ Créer un thème de vote</h3>
+                <div class="theme-creation">
+                    <input type="text" id="newThemeText" placeholder="Saisissez le thème du vote...">
+                    <button onclick="creerTheme()">Créer</button>
+                </div>
+            </div>
+            
+            <!-- Liste des thèmes -->
+            <div id="themesContainer"></div>
+        </div>
+    </div>
+
+    <script src="../js/commun.js"></script>
+    <script>
+        verifierConnexionOuRediriger();
+        
+        let userData = null;
+        let isOrganisateur = false;
+        let dejaPresent = false;
+        let refreshInterval = null;
+        
+        async function chargerDonnees() {
+            try {
+                // Récupérer les infos utilisateur
+                const userId = localStorage.getItem('userId') || '';
+                const respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
+                const dataUser = await respUser.json();
+                
+                if (dataUser.success) {
+                    userData = dataUser.adherent;
+                    isOrganisateur = userData.statut === 'Organisateur';
+                    
+                    if (isOrganisateur) {
+                        document.getElementById('adminSection').style.display = 'block';
+                    }
+                }
+                
+                // Charger les données de vote
+                await chargerVoteData();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('voteContent').style.display = 'block';
+                
+                // Rafraîchir toutes les secondes
+                refreshInterval = setInterval(chargerVoteData, 1000);
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                document.getElementById('loading').textContent = 'Erreur de chargement.';
+            }
+        }
+        
+        async function chargerVoteData() {
+            try {
+                const userId = localStorage.getItem('userId') || '';
+                const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userId));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    // Mettre à jour les compteurs de présence
+                    document.getElementById('countAdherent').textContent = data.presence.adherent;
+                    document.getElementById('countNonAdherent').textContent = data.presence.nonAdherent;
+                    document.getElementById('countTotal').textContent = data.presence.total;
+                    
+                    // Mettre à jour les thèmes
+                    afficherThemes(data.themes);
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur refresh:', e);
+            }
+        }
+        
+        function afficherThemes(themes) {
+            const container = document.getElementById('themesContainer');
+            
+            if (themes.length === 0) {
+                container.innerHTML = '<div class="empty-state">Aucun thème de vote pour le moment.</div>';
+                return;
+            }
+            
+            let html = '';
+            themes.forEach(theme => {
+                const statutClass = theme.statut.toLowerCase();
+                const isActif = theme.statut === 'ACTIF';
+                const isCloture = theme.statut === 'CLOTURE';
+                const isBrouillon = theme.statut === 'BROUILLON';
+                
+                html += '<div class="theme-card ' + statutClass + '">';
+                html += '<span class="theme-statut ' + statutClass + '">' + theme.statut + '</span>';
+                html += '<div class="theme-texte">' + escapeHtml(theme.texte) + '</div>';
+                
+                // Boutons de vote (uniquement si ACTIF)
+                if (isActif) {
+                    html += '<div class="vote-buttons">';
+                    html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')" ' + (theme.monVote ? '' : '') + '>👍 Pour</button>';
+                    html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
+                    html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
+                    html += '</div>';
+                } else if (isCloture) {
+                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
+                } else if (isBrouillon) {
+                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de rédaction par un organisateur...</div>';
+                }
+                
+                // Résultats (toujours visibles)
+                html += '<div class="vote-results">';
+                html += '<div class="result-box pour"><div class="number">' + theme.pour + '</div><div class="label">Pour</div></div>';
+                html += '<div class="result-box contre"><div class="number">' + theme.contre + '</div><div class="label">Contre</div></div>';
+                html += '<div class="result-box abstention"><div class="number">' + theme.abstention + '</div><div class="label">Abstention</div></div>';
+                html += '<div class="result-box"><div class="number">' + theme.total + '</div><div class="label">Total</div></div>';
+                html += '</div>';
+                
+                // Actions admin
+                if (isOrganisateur) {
+                    html += '<div class="admin-actions">';
+                    if (isBrouillon) {
+                        html += '<button class="admin-btn valider" onclick="validerTheme(\'' + theme.themeId + '\')">✅ Valider</button>';
+                        html += '<button class="admin-btn modifier" onclick="afficherModif(\'' + theme.themeId + '\', \'' + escapeHtml(theme.texte).replace(/'/g, "\\'") + '\')">✏️ Modifier</button>';
+                    } else if (isActif) {
+                        html += '<button class="admin-btn cloturer" onclick="cloturerVote(\'' + theme.themeId + '\')">🔒 Clôturer</button>';
+                    }
+                    html += '</div>';
+                    html += '<div id="modif-' + theme.themeId + '" style="display:none;"></div>';
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function enregistrerPresence() {
+            const userId = localStorage.getItem('userId') || '';
+            const btn = document.getElementById('btnPresence');
+            btn.disabled = true;
+            btn.textContent = 'Enregistrement...';
+            
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userId));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    if (data.dejaPresent) {
+                        btn.textContent = '✅ Présence déjà enregistrée';
+                        btn.classList.add('present');
+                    } else {
+                        btn.textContent = '✅ Présence enregistrée !';
+                        btn.classList.add('present');
+                    }
+                    dejaPresent = true;
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                    btn.disabled = false;
+                    btn.textContent = '✅ Je suis présent à l\'AG';
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                alert('Erreur de connexion');
+                btn.disabled = false;
+                btn.textContent = '✅ Je suis présent à l\'AG';
+            }
+        }
+        
+        async function creerTheme() {
+            const userId = localStorage.getItem('userId') || '';
+            const texte = document.getElementById('newThemeText').value.trim();
+            
+            if (!texte) {
+                alert('Veuillez saisir un thème');
+                return;
+            }
+            
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userId) + '&themeTexte=' + encodeURIComponent(texte));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    document.getElementById('newThemeText').value = '';
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                alert('Erreur de connexion');
+            }
+        }
+        
+        async function validerTheme(themeId) {
+            const userId = localStorage.getItem('userId') || '';
+            
+            if (!confirm('Valider ce thème et ouvrir le vote ?')) return;
+            
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=validerThemeVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                alert('Erreur de connexion');
+            }
+        }
+        
+        function afficherModif(themeId, texteActuel) {
+            const container = document.getElementById('modif-' + themeId);
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                container.innerHTML = `
+                    <div class="modifier-form">
+                        <input type="text" id="modif-input-${themeId}" value="${texteActuel}">
+                        <button onclick="modifierTheme('${themeId}')"> Sauvegarder</button>
+                    </div>
+                `;
+            } else {
+                container.style.display = 'none';
+            }
+        }
+        
+        async function modifierTheme(themeId) {
+            const userId = localStorage.getItem('userId') || '';
+            const nouveauTexte = document.getElementById('modif-input-' + themeId).value.trim();
+            
+            if (!nouveauTexte) {
+                alert('Le thème ne peut pas être vide');
+                return;
+            }
+            
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=modifierThemeVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&themeTexte=' + encodeURIComponent(nouveauTexte));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                alert('Erreur de connexion');
+            }
+        }
+        
+        async function voter(themeId, choix) {
+            const userId = localStorage.getItem('userId') || '';
+            
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                alert('Erreur de connexion');
+            }
+        }
+        
+        async function cloturerVote(themeId) {
+            const userId = localStorage.getItem('userId') || '';
+            
+            if (!confirm('Clôturer définitivement ce vote ?')) return;
+            
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=cloturerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId));
+                const data = await resp.json();
+                
+                if (data.success) {
+                    await chargerVoteData();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
+                alert('Erreur de connexion');
+            }
+        }
+        
+        // Nettoyage à la fermeture
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
+        });
+        
+        chargerDonnees();
+    </script>
+</body>
+</html>
