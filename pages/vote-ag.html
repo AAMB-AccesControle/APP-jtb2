@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.05</title>
+    <title>Vote AG v0.06</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -311,7 +311,7 @@
             // 4. Sauvegarder les compteurs locaux (valables 10 secondes)
             localVotes[themeId] = choix;
             localCounters[themeId] = { pour, contre, abstention, total };
-            localCountersExpiry[themeId] = Date.now() + 10000; // 10 secondes
+            localCountersExpiry[themeId] = Date.now() + 5000; // 10 secondes
             
             // 5. Mise à jour IMMÉDIATE de l'interface
             const buttons = themeCard.querySelectorAll('.vote-btn');
