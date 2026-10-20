@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG + Chat v0.17</title>
+    <title>Vote AG + Chat v0.18</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -833,17 +833,19 @@
         function afficherMessages(messages) {
             const container = document.getElementById('chatMessages');
             
-            if (!chatOuvert) {
-                container.innerHTML = '<div class="chat-closed-message">Le chat est fermé</div>';
-                return;
-            }
-            
+            // ✅ On affiche toujours les messages, même si le chat est fermé
             if (messages.length === 0) {
                 container.innerHTML = '<div class="chat-closed-message">Aucun message pour le moment</div>';
                 return;
             }
             
             let html = '';
+            
+            // ✅ Si le chat est fermé, on ajoute un bandeau indicateur en haut
+            if (!chatOuvert) {
+                html += '<div class="chat-closed-message" style="margin-bottom:10px;">🔒 Le chat est fermé - Les messages précédents restent visibles</div>';
+            }
+            
             messages.forEach(msg => {
                 const isOrganisateur = msg.statut === 'Organisateur';
                 const msgClass = isOrganisateur ? 'chat-message organisateur' : 'chat-message';
@@ -854,7 +856,7 @@
                 html += '<span class="chat-message-time">' + escapeHtml(msg.horodatage) + '</span>';
                 html += '</div>';
                 if (isOrganisateur) {
-                    html += '<div class="chat-message-statut">🔑 Organisateur</div>';
+                    html += '<div class="chat-message-statut"> Organisateur</div>';
                 }
                 html += '<div class="chat-message-text">' + escapeHtml(msg.message) + '</div>';
                 html += '</div>';
@@ -862,6 +864,7 @@
             
             container.innerHTML = html;
             
+            // Scroll vers le bas si nouveaux messages
             if (messages.length > lastChatMessageCount) {
                 container.scrollTop = container.scrollHeight;
             }
