@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.09</title>
+    <title>Vote AG v0.10</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -18,6 +18,8 @@
             --physique: #2563eb;
             --distance: #10b981;
             --total: #ef4444;
+            --physique-fonce: #1d4ed8;
+            --distance-fonce: #059669;
         }
         body.dark {
             --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
@@ -34,106 +36,49 @@
         .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .card h3 { font-size: 14px; color: var(--text); margin-bottom: 10px; font-weight: 700; }
         
-        /* ✅ NOUVEAU : Layout en 2 colonnes */
-        .presence-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .presence-col {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .presence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .presence-col { display: flex; flex-direction: column; gap: 8px; }
         
         .presence-btn {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
+            width: 100%; padding: 10px; border: none; border-radius: 10px;
+            font-size: 13px; font-weight: bold; cursor: pointer; color: white;
             transition: all 0.2s;
         }
-        
-        /* ✅ Boutons gris par défaut avec teinte subtile */
         .presence-btn.physique { background: #7a8fa8; }
         .presence-btn.distance { background: #7aa88f; }
-        
         .presence-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        /* ✅ Couleurs plus foncées quand actifs */
+        .presence-btn.physique.active { background: var(--physique-fonce); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.4); }
+        .presence-btn.distance.active { background: var(--distance-fonce); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.4); }
         
-        /* ✅ Boutons colorés quand actifs */
-        .presence-btn.physique.active { background: var(--physique); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); }
-        .presence-btn.distance.active { background: var(--distance); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3); }
-        
-        /* ✅ Stats compactes */
-        .stats-compact {
-            display: flex;
-            gap: 6px;
-            padding: 6px;
-            border-radius: 8px;
-        }
-        
-        .stats-compact .stat-box {
-            flex: 1;
-            text-align: center;
-            padding: 4px 2px;
-        }
-        
-        .stats-compact .stat-box .number {
-            font-size: 16px;
-            font-weight: bold;
-            line-height: 1.2;
-        }
-        
-        .stats-compact .stat-box .label {
-            font-size: 9px;
-            color: var(--text-sub);
-            line-height: 1.2;
-        }
-        
-        /* ✅ Fonds colorés très légers */
+        .stats-compact { display: flex; gap: 6px; padding: 6px; border-radius: 8px; }
+        .stats-compact .stat-box { flex: 1; text-align: center; padding: 4px 2px; }
+        .stats-compact .stat-box .number { font-size: 16px; font-weight: bold; line-height: 1.2; }
+        .stats-compact .stat-box .label { font-size: 9px; color: var(--text-sub); line-height: 1.2; }
         .stats-compact.physique { background: rgba(37, 99, 235, 0.08); }
         .stats-compact.physique .number { color: var(--physique); }
-        
         .stats-compact.distance { background: rgba(16, 185, 129, 0.08); }
         .stats-compact.distance .number { color: var(--distance); }
         
-        /* ✅ Ligne totale : pleine largeur, 6 cases */
-        .stats-total {
-            display: flex;
-            gap: 8px;
-            padding: 8px;
-            background: rgba(239, 68, 68, 0.08);
-            border-radius: 8px;
-        }
+        /* ✅ Fond jaune pour les 3 dernières cases */
+        .stats-total { display: flex; gap: 8px; padding: 8px; background: rgba(245, 158, 11, 0.10); border-radius: 8px; }
+        .stats-total .stat-box { flex: 1; text-align: center; padding: 4px 2px; }
+        .stats-total .stat-box .number { font-size: 18px; font-weight: bold; color: var(--total); line-height: 1.2; }
+        .stats-total .stat-box .label { font-size: 9px; color: var(--text-sub); line-height: 1.2; }
         
-        .stats-total .stat-box {
-            flex: 1;
-            text-align: center;
-            padding: 4px 2px;
-        }
+        .theme-creation { margin-bottom: 10px; }
+        .theme-creation input[type="text"] { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; }
+        .theme-creation .btn-creer { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
         
-        .stats-total .stat-box .number {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--total);
-            line-height: 1.2;
-        }
+        .options-config { margin-top: 10px; padding: 10px; background: var(--bg); border-radius: 8px; }
+        .options-config label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; margin-bottom: 10px; }
+        .options-config input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
         
-        .stats-total .stat-box .label {
-            font-size: 9px;
-            color: var(--text-sub);
-            line-height: 1.2;
-        }
-        
-        .theme-creation { display: flex; gap: 8px; margin-bottom: 10px; }
-        .theme-creation input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); }
-        .theme-creation button { padding: 10px 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .custom-options { margin-top: 10px; }
+        .custom-option-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+        .custom-option-row input { flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 6px; font-size: 13px; background: var(--card-bg); color: var(--text); }
+        .custom-option-row .btn-remove { background: #ef4444; color: white; border: none; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn-add-option { width: 100%; padding: 8px; background: var(--pour); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 6px; }
         
         .theme-card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid var(--btn-gris); }
         .theme-card.actif { border-left-color: var(--pour); }
@@ -146,20 +91,28 @@
         .theme-statut.brouillon { background: var(--abstention); }
         .theme-statut.cloture { background: var(--contre); }
         
-        .vote-buttons { display: flex; gap: 8px; margin: 12px 0; }
-        .vote-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; background: var(--btn-gris); color: white; transition: all 0.15s; }
-        .vote-btn.pour.active { background: var(--pour); }
-        .vote-btn.contre.active { background: var(--contre); }
-        .vote-btn.abstention.active { background: var(--abstention); }
+        .vote-buttons { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .vote-btn { flex: 1; min-width: 80px; padding: 12px 8px; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; color: white; transition: all 0.15s; background: var(--btn-gris); }
+        
+        /* Couleurs standard Pour/Contre/Abstention */
+        .vote-btn.standard-pour.active { background: var(--pour); }
+        .vote-btn.standard-contre.active { background: var(--contre); }
+        .vote-btn.standard-abstention.active { background: var(--abstention); }
+        
+        /* Couleurs personnalisées : gris par défaut, jaune quand actif */
+        .vote-btn.custom.active { background: #eab308; color: #1a1a1a; }
+        
         .vote-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        .vote-results { display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
-        .result-box { flex: 1; text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; }
-        .result-box .number { font-size: 20px; font-weight: bold; }
-        .result-box .label { font-size: 11px; color: var(--text-sub); }
+        .vote-results { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); flex-wrap: wrap; }
+        .result-box { flex: 1; min-width: 70px; text-align: center; padding: 8px 4px; background: var(--bg); border-radius: 8px; }
+        .result-box .number { font-size: 18px; font-weight: bold; }
+        .result-box .label { font-size: 10px; color: var(--text-sub); word-break: break-word; }
         .result-box.pour .number { color: var(--pour); }
         .result-box.contre .number { color: var(--contre); }
         .result-box.abstention .number { color: var(--abstention); }
+        .result-box.custom .number { color: #eab308; }
+        .result-box.total-box .number { color: var(--text); font-size: 20px; }
         
         .admin-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .admin-btn { padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; color: white; }
@@ -181,7 +134,7 @@
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>🗳️ Vote AG</h2>
+        <h2>️ Vote AG</h2>
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement...</div>
@@ -192,77 +145,36 @@
                 <h3>📋 Validation de présence</h3>
                 <div id="userInfo" style="margin-bottom:10px;font-size:13px;color:var(--text-sub);"></div>
                 
-                <!-- ✅ NOUVEAU LAYOUT : 2 colonnes -->
                 <div class="presence-grid">
-                    <!-- Colonne Physique -->
                     <div class="presence-col">
                         <button id="btnPhysique" class="presence-btn physique" onclick="enregistrerPresence('Physique')">
                             🏢 Présent physiquement
                         </button>
                         <div class="stats-compact physique">
-                            <div class="stat-box">
-                                <div class="number" id="countPhysiqueAdh">0</div>
-                                <div class="label">Adhérents</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="number" id="countPhysiqueNonAdh">0</div>
-                                <div class="label">Non adh.</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="number" id="countPhysique">0</div>
-                                <div class="label">Total</div>
-                            </div>
+                            <div class="stat-box"><div class="number" id="countPhysiqueAdh">0</div><div class="label">Adhérents</div></div>
+                            <div class="stat-box"><div class="number" id="countPhysiqueNonAdh">0</div><div class="label">Non adh.</div></div>
+                            <div class="stat-box"><div class="number" id="countPhysique">0</div><div class="label">Total</div></div>
                         </div>
                     </div>
-                    
-                    <!-- Colonne Distance -->
                     <div class="presence-col">
                         <button id="btnDistance" class="presence-btn distance" onclick="enregistrerPresence('Distance')">
                             💻 À distance
                         </button>
                         <div class="stats-compact distance">
-                            <div class="stat-box">
-                                <div class="number" id="countDistanceAdh">0</div>
-                                <div class="label">Adhérents</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="number" id="countDistanceNonAdh">0</div>
-                                <div class="label">Non adh.</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="number" id="countDistance">0</div>
-                                <div class="label">Total</div>
-                            </div>
+                            <div class="stat-box"><div class="number" id="countDistanceAdh">0</div><div class="label">Adhérents</div></div>
+                            <div class="stat-box"><div class="number" id="countDistanceNonAdh">0</div><div class="label">Non adh.</div></div>
+                            <div class="stat-box"><div class="number" id="countDistance">0</div><div class="label">Total</div></div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Ligne Total : pleine largeur, 6 cases -->
                 <div class="stats-total">
-                    <div class="stat-box">
-                        <div class="number" id="countTotalAdh">0</div>
-                        <div class="label">Adhérents</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countTotalNonAdh">0</div>
-                        <div class="label">Non adh.</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countTotal">0</div>
-                        <div class="label">Total</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countPhysiqueTotal">0</div>
-                        <div class="label">🏢 Sur place</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countDistanceTotal">0</div>
-                        <div class="label">💻 À distance</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countTotalGeneral">0</div>
-                        <div class="label">Total général</div>
-                    </div>
+                    <div class="stat-box"><div class="number" id="countTotalAdh">0</div><div class="label">Adhérents</div></div>
+                    <div class="stat-box"><div class="number" id="countTotalNonAdh">0</div><div class="label">Non adh.</div></div>
+                    <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total</div></div>
+                    <div class="stat-box"><div class="number" id="countPhysiqueTotal">0</div><div class="label"> Sur place</div></div>
+                    <div class="stat-box"><div class="number" id="countDistanceTotal">0</div><div class="label">💻 À distance</div></div>
+                    <div class="stat-box"><div class="number" id="countTotalGeneral">0</div><div class="label">Total général</div></div>
                 </div>
             </div>
             
@@ -270,7 +182,21 @@
                 <h3>➕ Créer un thème de vote</h3>
                 <div class="theme-creation">
                     <input type="text" id="newThemeText" placeholder="Saisissez le thème du vote...">
-                    <button onclick="creerTheme()">Créer et ouvrir</button>
+                    
+                    <div class="options-config">
+                        <label>
+                            <input type="checkbox" id="useStandardOptions" checked onchange="toggleOptionsMode()">
+                            Utiliser les options standard (Pour / Contre / Abstention)
+                        </label>
+                        
+                        <div id="customOptionsSection" style="display:none;">
+                            <div style="font-size:12px;color:var(--text-sub);margin-bottom:8px;">Options personnalisées :</div>
+                            <div id="customOptionsList"></div>
+                            <button class="btn-add-option" onclick="addCustomOption()">+ Ajouter une option</button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-creer" onclick="creerTheme()" style="margin-top:10px;">Créer et ouvrir</button>
                 </div>
             </div>
             
@@ -292,6 +218,7 @@
         let localCountersExpiry = {};
         let lastActionTime = 0;
         let modeParticipation = null;
+        let customOptionsCounter = 0;
         
         async function chargerDonnees() {
             try {
@@ -339,6 +266,47 @@
             return div.innerHTML;
         }
         
+        function toggleOptionsMode() {
+            const useStandard = document.getElementById('useStandardOptions').checked;
+            document.getElementById('customOptionsSection').style.display = useStandard ? 'none' : 'block';
+            if (!useStandard && document.getElementById('customOptionsList').children.length === 0) {
+                addCustomOption();
+                addCustomOption();
+                addCustomOption();
+            }
+        }
+        
+        function addCustomOption() {
+            customOptionsCounter++;
+            const list = document.getElementById('customOptionsList');
+            const row = document.createElement('div');
+            row.className = 'custom-option-row';
+            row.id = 'option-row-' + customOptionsCounter;
+            row.innerHTML = `
+                <input type="text" placeholder="Libellé de l'option" class="custom-option-input">
+                <button class="btn-remove" onclick="removeCustomOption(${customOptionsCounter})">×</button>
+            `;
+            list.appendChild(row);
+        }
+        
+        function removeCustomOption(id) {
+            const row = document.getElementById('option-row-' + id);
+            if (row) row.remove();
+        }
+        
+        function getSelectedOptions() {
+            const useStandard = document.getElementById('useStandardOptions').checked;
+            if (useStandard) return 'Pour,Contre,Abstention';
+            
+            const inputs = document.querySelectorAll('.custom-option-input');
+            const options = [];
+            inputs.forEach(input => {
+                const val = input.value.trim();
+                if (val) options.push(val);
+            });
+            return options.length >= 2 ? options.join(',') : 'Pour,Contre,Abstention';
+        }
+        
         async function chargerVoteData() {
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userData.id));
@@ -346,17 +314,14 @@
                 if (data.success) {
                     const p = data.presence;
                     
-                    // Ligne Physique
                     document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
                     document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
                     document.getElementById('countPhysique').textContent = p.physique || 0;
                     
-                    // Ligne Distance
                     document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
                     document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
                     document.getElementById('countDistance').textContent = p.distance || 0;
                     
-                    // Ligne Total (6 cases)
                     document.getElementById('countTotalAdh').textContent = p.adherent || 0;
                     document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
                     document.getElementById('countTotal').textContent = p.total || 0;
@@ -369,10 +334,8 @@
                             theme.monVote = localVotes[theme.themeId];
                         }
                         if (localCounters[theme.themeId] && localCountersExpiry[theme.themeId] > Date.now()) {
-                            theme.pour = localCounters[theme.themeId].pour;
-                            theme.contre = localCounters[theme.themeId].contre;
-                            theme.abstention = localCounters[theme.themeId].abstention;
-                            theme.total = localCounters[theme.themeId].total;
+                            theme.compteurs = localCounters[theme.themeId];
+                            theme.total = Object.values(localCounters[theme.themeId]).reduce((a, b) => a + b, 0);
                         } else {
                             delete localCounters[theme.themeId];
                             delete localCountersExpiry[theme.themeId];
@@ -384,6 +347,13 @@
             } catch (e) {
                 console.error('[VoteAG] Erreur refresh:', e);
             }
+        }
+        
+        function isStandardOptions(options) {
+            return options.length === 3 && 
+                   options.includes('Pour') && 
+                   options.includes('Contre') && 
+                   options.includes('Abstention');
         }
         
         function afficherThemes(themes) {
@@ -399,6 +369,7 @@
                 const isActif = theme.statut === 'ACTIF';
                 const isCloture = theme.statut === 'CLOTURE';
                 const isBrouillon = theme.statut === 'BROUILLON';
+                const standard = isStandardOptions(theme.options);
                 
                 html += '<div class="theme-card ' + statutClass + '" data-theme-id="' + theme.themeId + '">';
                 html += '<span class="theme-statut ' + statutClass + '">' + theme.statut + '</span>';
@@ -407,12 +378,20 @@
                 if (isActif) {
                     if (isAdherent) {
                         html += '<div class="vote-buttons">';
-                        html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')">👍 Pour</button>';
-                        html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
-                        html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
+                        theme.options.forEach(opt => {
+                            const isActive = theme.monVote === opt;
+                            let btnClass = 'vote-btn';
+                            if (standard) {
+                                btnClass += ' standard-' + opt.toLowerCase();
+                            } else {
+                                btnClass += ' custom';
+                            }
+                            if (isActive) btnClass += ' active';
+                            html += '<button class="' + btnClass + '" onclick="voter(\'' + theme.themeId + '\', \'' + escapeHtml(opt).replace(/'/g, "\\'") + '\')">' + escapeHtml(opt) + '</button>';
+                        });
                         html += '</div>';
                     } else {
-                        html += '<div class="non-adherent-msg">ℹ️ Le vote est réservé aux adhérents. Vous pouvez consulter les résultats ci-dessous.</div>';
+                        html += '<div class="non-adherent-msg">️ Le vote est réservé aux adhérents. Vous pouvez consulter les résultats ci-dessous.</div>';
                     }
                 } else if (isCloture) {
                     html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
@@ -421,16 +400,23 @@
                 }
                 
                 html += '<div class="vote-results">';
-                html += '<div class="result-box pour"><div class="number">' + theme.pour + '</div><div class="label">Pour</div></div>';
-                html += '<div class="result-box contre"><div class="number">' + theme.contre + '</div><div class="label">Contre</div></div>';
-                html += '<div class="result-box abstention"><div class="number">' + theme.abstention + '</div><div class="label">Abstention</div></div>';
-                html += '<div class="result-box"><div class="number">' + theme.total + '</div><div class="label">Total</div></div>';
+                theme.options.forEach(opt => {
+                    const count = theme.compteurs[opt] || 0;
+                    let boxClass = 'result-box';
+                    if (standard) {
+                        boxClass += ' ' + opt.toLowerCase();
+                    } else {
+                        boxClass += ' custom';
+                    }
+                    html += '<div class="' + boxClass + '"><div class="number">' + count + '</div><div class="label">' + escapeHtml(opt) + '</div></div>';
+                });
+                html += '<div class="result-box total-box"><div class="number">' + theme.total + '</div><div class="label">Total</div></div>';
                 html += '</div>';
                 
                 if (isOrganisateur) {
                     html += '<div class="admin-actions">';
                     if (isActif) {
-                        html += '<button class="admin-btn cloturer" onclick="cloturerVote(\'' + theme.themeId + '\')">🔒 Clôturer</button>';
+                        html += '<button class="admin-btn cloturer" onclick="cloturerVote(\'' + theme.themeId + '\')"> Clôturer</button>';
                     }
                     html += '<button class="admin-btn supprimer" onclick="supprimerTheme(\'' + theme.themeId + '\')">🗑️ Supprimer le vote</button>';
                     html += '</div>';
@@ -447,43 +433,42 @@
             const themeCard = document.querySelector(`.theme-card[data-theme-id="${themeId}"]`);
             if (!themeCard) return;
             
-            const boxes = themeCard.querySelectorAll('.result-box .number');
-            let pour = parseInt(boxes[0].textContent || 0);
-            let contre = parseInt(boxes[1].textContent || 0);
-            let abstention = parseInt(boxes[2].textContent || 0);
-            let total = parseInt(boxes[3].textContent || 0);
+            // Récupérer les compteurs actuels
+            const resultBoxes = themeCard.querySelectorAll('.result-box:not(.total-box)');
+            const newCounters = {};
+            resultBoxes.forEach(box => {
+                const label = box.querySelector('.label').textContent.trim();
+                const count = parseInt(box.querySelector('.number').textContent || 0);
+                newCounters[label] = count;
+            });
             
             const ancienChoix = localVotes[themeId];
             if (ancienChoix && ancienChoix !== choix) {
-                if (ancienChoix === 'Pour') pour = Math.max(0, pour - 1);
-                else if (ancienChoix === 'Contre') contre = Math.max(0, contre - 1);
-                else if (ancienChoix === 'Abstention') abstention = Math.max(0, abstention - 1);
+                newCounters[ancienChoix] = Math.max(0, (newCounters[ancienChoix] || 0) - 1);
             } else if (!ancienChoix) {
-                total = total + 1;
+                // Nouveau vote
             }
-            
-            if (choix === 'Pour') pour = pour + 1;
-            else if (choix === 'Contre') contre = contre + 1;
-            else if (choix === 'Abstention') abstention = abstention + 1;
+            newCounters[choix] = (newCounters[choix] || 0) + 1;
             
             localVotes[themeId] = choix;
-            localCounters[themeId] = { pour, contre, abstention, total };
+            localCounters[themeId] = newCounters;
             localCountersExpiry[themeId] = Date.now() + 5000;
             
+            // Mise à jour visuelle immédiate
             const buttons = themeCard.querySelectorAll('.vote-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
-            const clickedBtn = themeCard.querySelector(`.vote-btn.${choix.toLowerCase()}`);
+            const clickedBtn = Array.from(buttons).find(btn => btn.textContent.trim() === choix);
             if (clickedBtn) clickedBtn.classList.add('active');
             
-            boxes[0].textContent = pour;
-            boxes[1].textContent = contre;
-            boxes[2].textContent = abstention;
-            boxes[3].textContent = total;
-            
-            const resultBox = themeCard.querySelector('.vote-results');
-            if (resultBox) {
-                resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
-                setTimeout(() => { resultBox.style.background = ''; }, 300);
+            resultBoxes.forEach(box => {
+                const label = box.querySelector('.label').textContent.trim();
+                if (newCounters[label] !== undefined) {
+                    box.querySelector('.number').textContent = newCounters[label];
+                }
+            });
+            const totalBox = themeCard.querySelector('.result-box.total-box .number');
+            if (totalBox) {
+                totalBox.textContent = Object.values(newCounters).reduce((a, b) => a + b, 0);
             }
             
             try {
@@ -504,7 +489,6 @@
         async function enregistrerPresence(mode) {
             lastActionTime = Date.now();
             const userId = userData.id;
-            
             const btnPhysique = document.getElementById('btnPhysique');
             const btnDistance = document.getElementById('btnDistance');
             
@@ -519,7 +503,6 @@
                 
                 if (data.success) {
                     modeParticipation = mode;
-                    
                     if (mode === 'Physique') {
                         btnPhysique.classList.add('active');
                         btnDistance.classList.remove('active');
@@ -533,7 +516,6 @@
                         btnPhysique.textContent = '🏢 Présent physiquement';
                         btnPhysique.disabled = false;
                     }
-                    
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
@@ -555,14 +537,20 @@
             lastActionTime = Date.now();
             const texte = document.getElementById('newThemeText').value.trim();
             if (!texte) { alert('Veuillez saisir un thème'); return; }
+            
+            const options = getSelectedOptions();
+            
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeTexte=' + encodeURIComponent(texte));
+                const resp = await fetch(SCRIPT_URL + '?action=creerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeTexte=' + encodeURIComponent(texte) + '&options=' + encodeURIComponent(options));
                 const data = await resp.json();
                 if (data.success) {
                     document.getElementById('newThemeText').value = '';
+                    document.getElementById('useStandardOptions').checked = true;
+                    document.getElementById('customOptionsList').innerHTML = '';
+                    toggleOptionsMode();
                     await chargerVoteData();
                 } else {
-                    alert('❌ ' + data.message);
+                    alert(' ' + data.message);
                 }
             } catch (e) {
                 alert('Erreur de connexion');
