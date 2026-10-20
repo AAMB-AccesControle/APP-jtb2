@@ -135,9 +135,11 @@
         .chat-container {
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 80px); /* Ajusté pour tenir dans l'écran */
+            max-height: calc(100vh - 80px);
         }
         
+        /* ✅ Header du chat : hauteur fixe, ne se réduit pas */
         .chat-header {
             display: flex;
             justify-content: space-between;
@@ -145,6 +147,7 @@
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--primary);
+            flex-shrink: 0; /* ✅ Ne se réduit jamais */
         }
         
         .chat-header h3 {
@@ -178,6 +181,7 @@
         .btn-toggle-chat.ouvert { background: var(--contre); }
         .btn-toggle-chat.ferme { background: var(--pour); }
         
+        /* ✅ Seule la zone des messages est scrollable */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -188,7 +192,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-        }
+            min-height: 0; /* ✅ CRUCIAL : permet au flex de réduire en dessous du contenu */
         
         .chat-message {
             padding: 8px 12px;
@@ -233,9 +237,11 @@
             word-break: break-word;
         }
         
+        /* ✅ Zone d'input : hauteur fixe, ne se réduit pas */
         .chat-input-container {
             display: flex;
             gap: 8px;
+            flex-shrink: 0; /* ✅ Ne se réduit jamais */
         }
         
         .chat-input {
@@ -246,6 +252,7 @@
             font-size: 14px;
             background: var(--bg);
             color: var(--text);
+            min-width: 0; /* ✅ Permet de réduire l'input si nécessaire */
         }
         
         .chat-input:disabled {
@@ -261,6 +268,7 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            flex-shrink: 0; /* ✅ Le bouton ne se réduit pas */
         }
         
         .btn-send-chat:disabled {
@@ -294,8 +302,10 @@
                 border-bottom: 1px solid #e5e7eb;
                 height: auto;
             }
+            /* ✅ Sur mobile : hauteur adaptative */
             .chat-container {
-                height: 500px;
+                height: calc(100vh - 200px);
+                max-height: 500px;
             }
         }
     </style>
