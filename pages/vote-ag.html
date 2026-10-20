@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG + Chat v0.14</title>
+    <title>Vote AG + Chat v0.16</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -26,26 +26,39 @@
             --page-header-bg: #0f1f3d; --primary: #2a5f9f;
             --btn-gris: #4b5563;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+        /* ✅ Layout flex pour éviter le scroll global */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            height: 100vh;
+            overflow: hidden; /* ✅ Empêche le scroll global */
+            display: flex;
+            flex-direction: column;
+        }
         
-        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        .page-header { 
+            background: var(--page-header-bg); 
+            color: white; 
+            padding: 14px 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            flex-shrink: 0; /* ✅ Ne se réduit jamais */
+        }
         .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
         .page-header h2 { font-size: 18px; flex: 1; }
         
-        /* ✅ NOUVEAU : Layout split screen */
+        /* ✅ Prend tout l'espace restant */
         .split-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            height: calc(100vh - 60px);
+            flex: 1; /* ✅ Prend tout l'espace disponible */
+            min-height: 0; /* ✅ Permet de réduire en dessous du contenu */
+            overflow: hidden; /* ✅ Empêche le débordement */
             gap: 0;
         }
         
-        .split-panel {
-            overflow-y: auto;
-            padding: 16px;
-            border-right: 1px solid #e5e7eb;
-        }
-        
+       
         .split-panel:last-child {
             border-right: none;
         }
@@ -193,6 +206,7 @@
             flex-direction: column;
             gap: 8px;
             min-height: 0; /* ✅ CRUCIAL : permet au flex de réduire en dessous du contenu */
+        }
         
         .chat-message {
             padding: 8px 12px;
@@ -246,13 +260,13 @@
         
         .chat-input {
             flex: 1;
-            padding: 10px;
+            padding: 12px 14px; /* ✅ Taille normale restaurée */
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
             background: var(--bg);
             color: var(--text);
-            min-width: 0; /* ✅ Permet de réduire l'input si nécessaire */
+            min-width: 0;
         }
         
         .chat-input:disabled {
