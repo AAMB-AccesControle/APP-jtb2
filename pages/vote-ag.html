@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.06</title>
+    <title>Vote AG v0.07</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -15,6 +15,7 @@
             --page-header-bg: #1a3a6b; --primary: #1a3a6b;
             --pour: #10b981; --contre: #ef4444; --abstention: #f59e0b;
             --btn-gris: #9ca3af;
+            --physique: #2563eb; --distance: #8b5cf6;
         }
         body.dark {
             --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
@@ -31,14 +32,21 @@
         .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .card h3 { font-size: 14px; color: var(--text); margin-bottom: 10px; font-weight: 700; }
         
-        .presence-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .presence-buttons { display: flex; gap: 10px; margin-bottom: 12px; }
+        .presence-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: bold; cursor: pointer; color: white; transition: all 0.2s; }
+        .presence-btn.physique { background: var(--physique); }
+        .presence-btn.distance { background: var(--distance); }
         .presence-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .presence-btn.present { background: var(--pour); }
+        .presence-btn.active { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); transform: scale(1.02); }
         
-        .stats-presence { display: flex; gap: 10px; margin-top: 12px; }
+        .stats-section { margin-top: 12px; }
+        .stats-section h4 { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stats-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .stat-box { flex: 1; text-align: center; padding: 10px; background: var(--bg); border-radius: 8px; }
         .stat-box .number { font-size: 22px; font-weight: bold; color: var(--primary); }
         .stat-box .label { font-size: 11px; color: var(--text-sub); }
+        .stat-box.physique .number { color: var(--physique); }
+        .stat-box.distance .number { color: var(--distance); }
         
         .theme-creation { display: flex; gap: 8px; margin-bottom: 10px; }
         .theme-creation input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); }
@@ -81,7 +89,10 @@
         .error-msg { background: #fee; color: #c00; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #c00; }
         .non-adherent-msg { text-align: center; color: var(--text-sub); font-style: italic; padding: 12px; background: var(--bg); border-radius: 8px; margin: 12px 0; border: 1px dashed var(--btn-gris); }
         
-        @media (max-width: 480px) { .page-header { top: 90px; } }
+        @media (max-width: 480px) { 
+            .page-header { top: 90px; }
+            .presence-buttons { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -97,13 +108,35 @@
             <div class="card">
                 <h3>📋 Validation de présence</h3>
                 <div id="userInfo" style="margin-bottom:10px;font-size:13px;color:var(--text-sub);"></div>
-                <button id="btnPresence" class="presence-btn" onclick="enregistrerPresence()">
-                    ✅ Je suis présent à l'AG
-                </button>
-                <div class="stats-presence">
-                    <div class="stat-box"><div class="number" id="countAdherent">0</div><div class="label">Adhérents</div></div>
-                    <div class="stat-box"><div class="number" id="countNonAdherent">0</div><div class="label">Non adhérents</div></div>
-                    <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total présents</div></div>
+                
+                <!-- ✅ DEUX BOUTONS DE PRÉSENCE -->
+                <div class="presence-buttons">
+                    <button id="btnPhysique" class="presence-btn physique" onclick="enregistrerPresence('Physique')">
+                        🏢 Présent physiquement
+                    </button>
+                    <button id="btnDistance" class="presence-btn distance" onclick="enregistrerPresence('Distance')">
+                         Participation à distance
+                    </button>
+                </div>
+                
+                <!-- Stats par type d'adhésion -->
+                <div class="stats-section">
+                    <h4>Par type d'adhésion</h4>
+                    <div class="stats-row">
+                        <div class="stat-box"><div class="number" id="countAdherent">0</div><div class="label">Adhérents</div></div>
+                        <div class="stat-box"><div class="number" id="countNonAdherent">0</div><div class="label">Non adhérents</div></div>
+                        <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total</div></div>
+                    </div>
+                </div>
+                
+                <!-- ✅ Stats par mode de participation -->
+                <div class="stats-section">
+                    <h4>Par mode de participation</h4>
+                    <div class="stats-row">
+                        <div class="stat-box physique"><div class="number" id="countPhysique">0</div><div class="label">🏢 Sur place</div></div>
+                        <div class="stat-box distance"><div class="number" id="countDistance">0</div><div class="label"> À distance</div></div>
+                        <div class="stat-box"><div class="number" id="countTotalMode">0</div><div class="label">Total</div></div>
+                    </div>
                 </div>
             </div>
             
@@ -128,17 +161,17 @@
         let isAdherent = false;
         let refreshInterval = null;
         
-        // ✅ État local pour éviter le flash sur les compteurs
-        let localVotes = {};           // { themeId: 'Pour' | 'Contre' | 'Abstention' }
-        let localCounters = {};        // { themeId: { pour, contre, abstention, total } }
-        let localCountersExpiry = {};  // { themeId: timestamp d'expiration }
+        let localVotes = {};
+        let localCounters = {};
+        let localCountersExpiry = {};
         let lastActionTime = 0;
+        let modeParticipation = null; // 'Physique' ou 'Distance'
         
         async function chargerDonnees() {
             try {
                 const adherentData = localStorage.getItem('aamb_adherent');
                 if (!adherentData) {
-                    showError('️ Veuillez vous connecter d\'abord via la page d\'accueil.');
+                    showError('⚠️ Veuillez vous connecter d\'abord via la page d\'accueil.');
                     document.getElementById('loading').style.display = 'none';
                     return;
                 }
@@ -151,7 +184,7 @@
                     '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
                     '📧 ' + escapeHtml(userData.email) + ' | ' + 
                     (isOrganisateur ? '🔑 Organisateur' : '👤 Participant') + ' | ' +
-                    (isAdherent ? '✅ Adhérent' : '️ Non adhérent');
+                    (isAdherent ? '✅ Adhérent' : '⚠️ Non adhérent');
                 
                 if (isOrganisateur) document.getElementById('adminSection').style.display = 'block';
                 
@@ -161,7 +194,6 @@
                 
                 refreshInterval = setInterval(() => {
                     if (Date.now() - lastActionTime < 5000) {
-                        console.log('[VoteAG] Refresh bloqué (action récente)');
                         return;
                     }
                     chargerVoteData();
@@ -188,26 +220,27 @@
                 const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userData.id));
                 const data = await resp.json();
                 if (data.success) {
+                    // Stats par adhésion
                     document.getElementById('countAdherent').textContent = data.presence.adherent;
                     document.getElementById('countNonAdherent').textContent = data.presence.nonAdherent;
                     document.getElementById('countTotal').textContent = data.presence.total;
                     
-                    // ✅ Appliquer les votes locaux ET les compteurs locaux
+                    // ✅ Stats par mode de participation
+                    document.getElementById('countPhysique').textContent = data.presence.physique || 0;
+                    document.getElementById('countDistance').textContent = data.presence.distance || 0;
+                    document.getElementById('countTotalMode').textContent = (data.presence.physique || 0) + (data.presence.distance || 0);
+                    
                     data.themes.forEach(theme => {
-                        // Vote local
                         if (localVotes[theme.themeId]) {
                             theme.monVote = localVotes[theme.themeId];
                         }
                         
-                        // Compteurs locaux (si encore valides = moins de 10 secondes)
                         if (localCounters[theme.themeId] && localCountersExpiry[theme.themeId] > Date.now()) {
                             theme.pour = localCounters[theme.themeId].pour;
                             theme.contre = localCounters[theme.themeId].contre;
                             theme.abstention = localCounters[theme.themeId].abstention;
                             theme.total = localCounters[theme.themeId].total;
-                            console.log('[VoteAG] Utilisation compteurs locaux pour', theme.themeId);
                         } else {
-                            // Expiré, on efface
                             delete localCounters[theme.themeId];
                             delete localCountersExpiry[theme.themeId];
                         }
@@ -242,8 +275,8 @@
                     if (isAdherent) {
                         html += '<div class="vote-buttons">';
                         html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')">👍 Pour</button>';
-                        html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')"> Contre</button>';
-                        html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
+                        html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
+                        html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')"> Abstention</button>';
                         html += '</div>';
                     } else {
                         html += '<div class="non-adherent-msg">ℹ️ Le vote est réservé aux adhérents. Vous pouvez consulter les résultats ci-dessous.</div>';
@@ -274,14 +307,10 @@
             container.innerHTML = html;
         }
         
-        // ✅ Vote avec compteurs locaux stables
         async function voter(themeId, choix) {
             const userId = userData.id;
-            
-            // 1. Marquer le timestamp
             lastActionTime = Date.now();
             
-            // 2. Récupérer les compteurs actuels affichés
             const themeCard = document.querySelector(`.theme-card[data-theme-id="${themeId}"]`);
             if (!themeCard) return;
             
@@ -291,29 +320,23 @@
             let abstention = parseInt(boxes[2].textContent || 0);
             let total = parseInt(boxes[3].textContent || 0);
             
-            // 3. Gérer le changement de vote
             const ancienChoix = localVotes[themeId];
             if (ancienChoix && ancienChoix !== choix) {
-                // Décrémenter l'ancien choix
                 if (ancienChoix === 'Pour') pour = Math.max(0, pour - 1);
                 else if (ancienChoix === 'Contre') contre = Math.max(0, contre - 1);
                 else if (ancienChoix === 'Abstention') abstention = Math.max(0, abstention - 1);
             } else if (!ancienChoix) {
-                // Nouveau vote, incrémenter le total
                 total = total + 1;
             }
             
-            // Incrémenter le nouveau choix
             if (choix === 'Pour') pour = pour + 1;
             else if (choix === 'Contre') contre = contre + 1;
             else if (choix === 'Abstention') abstention = abstention + 1;
             
-            // 4. Sauvegarder les compteurs locaux (valables 10 secondes)
             localVotes[themeId] = choix;
             localCounters[themeId] = { pour, contre, abstention, total };
-            localCountersExpiry[themeId] = Date.now() + 5000; // 10 secondes
+            localCountersExpiry[themeId] = Date.now() + 5000;
             
-            // 5. Mise à jour IMMÉDIATE de l'interface
             const buttons = themeCard.querySelectorAll('.vote-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             const clickedBtn = themeCard.querySelector(`.vote-btn.${choix.toLowerCase()}`);
@@ -324,56 +347,80 @@
             boxes[2].textContent = abstention;
             boxes[3].textContent = total;
             
-            // Petit effet visuel
             const resultBox = themeCard.querySelector('.vote-results');
             if (resultBox) {
                 resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
                 setTimeout(() => { resultBox.style.background = ''; }, 300);
             }
             
-            console.log('[VoteAG] Vote local enregistré:', choix, 'Compteurs:', { pour, contre, abstention, total });
-            
-            // 6. Envoi de la requête en arrière-plan
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
                 const data = await resp.json();
                 
                 if (!data.success) {
                     console.error('Erreur vote:', data.message);
-                    // Annuler le vote local en cas d'erreur
                     delete localVotes[themeId];
                     delete localCounters[themeId];
                     delete localCountersExpiry[themeId];
                     setTimeout(() => chargerVoteData(), 1000);
-                } else {
-                    console.log('[VoteAG] Vote confirmé par le serveur');
                 }
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
             }
         }
         
-        async function enregistrerPresence() {
+        // ✅ NOUVEAU : Gestion des deux modes de présence
+        async function enregistrerPresence(mode) {
             lastActionTime = Date.now();
-            const btn = document.getElementById('btnPresence');
-            btn.disabled = true;
-            btn.textContent = 'Enregistrement...';
+            const userId = userData.id;
+            
+            const btnPhysique = document.getElementById('btnPhysique');
+            const btnDistance = document.getElementById('btnDistance');
+            
+            // Désactiver les deux boutons pendant l'enregistrement
+            btnPhysique.disabled = true;
+            btnDistance.disabled = true;
+            btnPhysique.textContent = '⏳ Enregistrement...';
+            btnDistance.textContent = '⏳ Enregistrement...';
+            
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userData.id));
+                const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userId) + '&mode=' + encodeURIComponent(mode));
                 const data = await resp.json();
+                
                 if (data.success) {
-                    btn.textContent = data.dejaPresent ? '✅ Présence déjà enregistrée' : '✅ Présence enregistrée !';
-                    btn.classList.add('present');
+                    modeParticipation = mode;
+                    
+                    // Mettre en surbrillance le bouton actif
+                    if (mode === 'Physique') {
+                        btnPhysique.classList.add('active');
+                        btnDistance.classList.remove('active');
+                        btnPhysique.textContent = '✅ Présent physiquement';
+                        btnDistance.textContent = '💻 Participation à distance';
+                    } else {
+                        btnDistance.classList.add('active');
+                        btnPhysique.classList.remove('active');
+                        btnDistance.textContent = '✅ Participant à distance';
+                        btnPhysique.textContent = '🏢 Présent physiquement';
+                    }
+                    
+                    // Réactiver l'autre bouton pour permettre le changement
+                    if (mode === 'Physique') btnDistance.disabled = false;
+                    else btnPhysique.disabled = false;
+                    
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
-                    btn.disabled = false;
-                    btn.textContent = '✅ Je suis présent à l\'AG';
+                    btnPhysique.disabled = false;
+                    btnDistance.disabled = false;
+                    btnPhysique.textContent = '🏢 Présent physiquement';
+                    btnDistance.textContent = '💻 Participation à distance';
                 }
             } catch (e) {
                 alert('Erreur de connexion: ' + e.message);
-                btn.disabled = false;
-                btn.textContent = '✅ Je suis présent à l\'AG';
+                btnPhysique.disabled = false;
+                btnDistance.disabled = false;
+                btnPhysique.textContent = '🏢 Présent physiquement';
+                btnDistance.textContent = '💻 Participation à distance';
             }
         }
         
@@ -397,13 +444,10 @@
         
         async function supprimerTheme(themeId) {
             if (!confirm('⚠️ Supprimer ce vote et tous les votes associés ?\n\nCette action est irréversible.')) return;
-            
             lastActionTime = Date.now();
-            
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=supprimerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
                 const data = await resp.json();
-                
                 if (data.success) {
                     delete localVotes[themeId];
                     delete localCounters[themeId];
@@ -430,7 +474,7 @@
                     delete localCountersExpiry[themeId];
                     await chargerVoteData();
                 } else {
-                    alert('❌ ' + data.message);
+                    alert(' ' + data.message);
                 }
             } catch (e) {
                 alert('Erreur de connexion');
