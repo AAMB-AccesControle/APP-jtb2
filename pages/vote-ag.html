@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.11</title>
+    <title>Vote AG v0.12</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -52,25 +52,35 @@
         .presence-btn.physique.active { background: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5); }
         .presence-btn.distance.active { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5); }
         
-        .stats-compact { display: flex; gap: 6px; padding: 6px; border-radius: 8px; }
+        /* ✅ Blocs de stats avec cadre englobant */
+        .stats-compact { display: flex; gap: 6px; padding: 8px; border-radius: 8px; }
         .stats-compact .stat-box { flex: 1; text-align: center; padding: 4px 2px; }
         .stats-compact .stat-box .number { font-size: 16px; font-weight: bold; line-height: 1.2; }
         .stats-compact .stat-box .label { font-size: 9px; color: var(--text-sub); line-height: 1.2; }
-        .stats-compact.physique { background: rgba(37, 99, 235, 0.08); }
+        
+        /* ✅ Physique : fond bleu clair, chiffres bleus */
+        .stats-compact.physique { background: rgba(37, 99, 235, 0.10); }
         .stats-compact.physique .number { color: var(--physique); }
-        .stats-compact.distance { background: rgba(16, 185, 129, 0.08); }
+        
+        /* ✅ Distance : fond vert clair, chiffres verts */
+        .stats-compact.distance { background: rgba(16, 185, 129, 0.10); }
         .stats-compact.distance .number { color: var(--distance); }
+        
+        /* ✅ Total général : fond rouge clair, chiffres rouges */
+        .stats-compact.total { background: rgba(239, 68, 68, 0.10); }
+        .stats-compact.total .number { color: var(--total); }
+        
+        /* ✅ Mode (sur place/distance) : fond jaune clair, chiffres orange */
+        .stats-compact.mode { background: rgba(245, 158, 11, 0.12); }
+        .stats-compact.mode .number { color: #d97706; }
         
         /* ✅ Fond jaune pour les 3 dernières cases */
         /* ✅ Container sans fond */
-        .stats-total { display: flex; gap: 8px; padding: 8px; background: var(--bg); border-radius: 8px; }
+
         
         /* ✅ Fond jaune uniquement pour les 3 cases de droite */
         .stats-total .stat-box.droite { background: rgba(245, 158, 11, 0.15); border-radius: 6px; }
         .stats-total .stat-box.droite .number { color: #d97706; }
-        .stats-total .stat-box { flex: 1; text-align: center; padding: 4px 2px; }
-        .stats-total .stat-box .number { font-size: 18px; font-weight: bold; color: var(--total); line-height: 1.2; }
-        .stats-total .stat-box .label { font-size: 9px; color: var(--text-sub); line-height: 1.2; }
         
         .theme-creation { margin-bottom: 10px; }
         .theme-creation input[type="text"] { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; }
@@ -174,14 +184,26 @@
                     </div>
                 </div>
                 
-                <div class="stats-total">
-                    <div class="stat-box"><div class="number" id="countTotalAdh">0</div><div class="label">Adhérents</div></div>
-                    <div class="stat-box"><div class="number" id="countTotalNonAdh">0</div><div class="label">Non adh.</div></div>
-                    <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total</div></div>
-                    <div class="stat-box droite"><div class="number" id="countPhysiqueTotal">0</div><div class="label">🏢 Sur place</div></div>
-                    <div class="stat-box droite"><div class="number" id="countDistanceTotal">0</div><div class="label">💻 À distance</div></div>
-                    <div class="stat-box droite"><div class="number" id="countTotalGeneral">0</div><div class="label">Total général</div></div>
+            <!-- ✅ Deuxième ligne : même structure que la première (2 colonnes) -->
+            <div class="presence-grid">
+                <!-- Colonne Total général (rouge) -->
+                <div class="presence-col">
+                    <div class="stats-compact total">
+                        <div class="stat-box"><div class="number" id="countTotalAdh">0</div><div class="label">Adhérents</div></div>
+                        <div class="stat-box"><div class="number" id="countTotalNonAdh">0</div><div class="label">Non adh.</div></div>
+                        <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total</div></div>
+                    </div>
                 </div>
+                
+                <!-- Colonne Mode de participation (jaune) -->
+                <div class="presence-col">
+                    <div class="stats-compact mode">
+                        <div class="stat-box"><div class="number" id="countPhysiqueTotal">0</div><div class="label">🏢 Sur place</div></div>
+                        <div class="stat-box"><div class="number" id="countDistanceTotal">0</div><div class="label">💻 À distance</div></div>
+                        <div class="stat-box"><div class="number" id="countTotalGeneral">0</div><div class="label">Total général</div></div>
+                    </div>
+                </div>
+            </div>
             </div>
             
             <div id="adminSection" class="card" style="display:none;">
