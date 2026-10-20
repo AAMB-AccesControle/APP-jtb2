@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG + Chat v0.18</title>
+    <title>Vote AG + Chat v0.19</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -410,6 +410,7 @@
         let chatOuvert = false;
         let lastChatMessageCount = 0;
         
+        // ✅ FONCTION MODIFIÉE : Utilise le cache préchargé si disponible
         async function chargerDonnees() {
             try {
                 const adherentData = localStorage.getItem('aamb_adherent');
@@ -434,8 +435,37 @@
                     document.getElementById('btnToggleChat').style.display = 'inline-block';
                 }
                 
-                await chargerVoteData();
-                await chargerChatData();
+                // ✅ UTILISER LE CACHE PRÉCHARGÉ SI DISPONIBLE
+                const cacheVote = localStorage.getItem('aamb_voteag_cache');
+                const cacheChat = localStorage.getItem('aamb_chatag_cache');
+                
+                let donneesInitiales = false;
+                
+                if (cacheVote && cacheChat) {
+                    try {
+                        const dataVote = JSON.parse(cacheVote);
+                        const dataChat = JSON.parse(cacheChat);
+                        
+                        // Vérifier que le cache a moins de 60 secondes
+                        const ageCache = Date.now() - dataVote.timestamp;
+                        if (ageCache < 60000) {
+                            console.log('[VoteAG] Utilisation du cache préchargé (âge:', Math.round(ageCache/1000), 's)');
+                            
+                            // Afficher immédiatement les données en cache
+                            afficherDonneesVote(dataVote.data);
+                            afficherDonneesChat(dataChat.data);
+                            donneesInitiales = true;
+                        }
+                    } catch (e) {
+                        console.error('[VoteAG] Erreur lecture cache:', e);
+                    }
+                }
+                
+                if (!donneesInitiales) {
+                    console.log('[VoteAG] Pas de cache valide, chargement depuis le serveur...');
+                    await chargerVoteData();
+                    await chargerChatData();
+                }
                 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
@@ -451,6 +481,61 @@
                 showError('Erreur de chargement : ' + e.message);
                 document.getElementById('loading').style.display = 'none';
             }
+        }
+
+        // ✅ NOUVELLE FONCTION : Afficher les données de vote depuis le cache
+        function afficherDonneesVote(data) {
+            const p = data.presence;
+            
+            document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
+            document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
+            document.getElementById('countPhysique').textContent = p.physique || 0;
+            
+            document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
+            document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
+            document.getElementById('countDistance').textContent = p.distance || 0;
+            
+            document.getElementById('countTotalAdh').textContent = p.adherent || 0;
+            document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
+            document.getElementById('countTotal').textContent = p.total || 0;
+            document.getElementById('countPhysiqueTotal').textContent = p.physique || 0;
+            document.getElementById('countDistanceTotal').textContent = p.distance || 0;
+            document.getElementById('countTotalGeneral').textContent = (p.physique || 0) + (p.distance || 0);
+            
+            afficherThemes(data.themes);
+        }
+
+        // ✅ NOUVELLE FONCTION : Afficher les données du chat depuis le cache
+        function afficherDonneesChat(data) {
+            chatOuvert = data.chatOuvert;
+            const isOrganisateur = data.isOrganisateur;
+            
+            const statusBadge = document.getElementById('chatStatus');
+            const toggleBtn = document.getElementById('btnToggleChat');
+            
+            if (chatOuvert) {
+                statusBadge.textContent = 'Ouvert';
+                statusBadge.className = 'chat-status ouvert';
+                if (isOrganisateur) {
+                    toggleBtn.textContent = 'Fermer le chat';
+                    toggleBtn.className = 'btn-toggle-chat ouvert';
+                }
+            } else {
+                statusBadge.textContent = 'Fermé';
+                statusBadge.className = 'chat-status ferme';
+                if (isOrganisateur) {
+                    toggleBtn.textContent = 'Ouvrir le chat';
+                    toggleBtn.className = 'btn-toggle-chat ferme';
+                }
+            }
+            
+            const chatInput = document.getElementById('chatInput');
+            const btnSend = document.getElementById('btnSendChat');
+            chatInput.disabled = !chatOuvert;
+            btnSend.disabled = !chatOuvert;
+            
+            afficherMessages(data.messages);
+            lastChatMessageCount = data.messages.length;
         }
         
         function showError(msg) {
@@ -856,7 +941,7 @@
                 html += '<span class="chat-message-time">' + escapeHtml(msg.horodatage) + '</span>';
                 html += '</div>';
                 if (isOrganisateur) {
-                    html += '<div class="chat-message-statut"> Organisateur</div>';
+                    html += '<div class="chat-message-statut">🔑 Organisateur</div>';
                 }
                 html += '<div class="chat-message-text">' + escapeHtml(msg.message) + '</div>';
                 html += '</div>';
