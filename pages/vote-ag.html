@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.08</title>
+    <title>Vote AG v0.09</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -15,7 +15,9 @@
             --page-header-bg: #1a3a6b; --primary: #1a3a6b;
             --pour: #10b981; --contre: #ef4444; --abstention: #f59e0b;
             --btn-gris: #9ca3af;
-            --physique: #2563eb; --distance: #10b981; --total: #ef4444;
+            --physique: #2563eb;
+            --distance: #10b981;
+            --total: #ef4444;
         }
         body.dark {
             --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
@@ -32,33 +34,102 @@
         .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .card h3 { font-size: 14px; color: var(--text); margin-bottom: 10px; font-weight: 700; }
         
-        .presence-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-        .presence-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: bold; cursor: pointer; color: white; transition: all 0.2s; }
-        .presence-btn.physique { background: var(--physique); }
-        .presence-btn.distance { background: var(--distance); }
-        .presence-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .presence-btn.active { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); transform: scale(1.02); }
-        
-        /* ✅ NOUVEAU : 3 lignes de stats */
-        .stats-ligne {
-            display: flex; gap: 10px; margin-bottom: 10px; padding: 10px;
-            background: var(--bg); border-radius: 10px;
+        /* ✅ NOUVEAU : Layout en 2 colonnes */
+        .presence-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        .stats-ligne .stat-box {
-            flex: 1; text-align: center; padding: 8px;
+        
+        .presence-col {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .stats-ligne .stat-box .number { font-size: 24px; font-weight: bold; }
-        .stats-ligne .stat-box .label { font-size: 11px; color: var(--text-sub); }
         
-        /* Couleurs par ligne */
-        .stats-ligne.physique { border-left: 4px solid var(--physique); }
-        .stats-ligne.physique .number { color: var(--physique); }
+        .presence-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+        }
         
-        .stats-ligne.distance { border-left: 4px solid var(--distance); }
-        .stats-ligne.distance .number { color: var(--distance); }
+        /* ✅ Boutons gris par défaut avec teinte subtile */
+        .presence-btn.physique { background: #7a8fa8; }
+        .presence-btn.distance { background: #7aa88f; }
         
-        .stats-ligne.total { border-left: 4px solid var(--total); }
-        .stats-ligne.total .number { color: var(--total); }
+        .presence-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        /* ✅ Boutons colorés quand actifs */
+        .presence-btn.physique.active { background: var(--physique); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); }
+        .presence-btn.distance.active { background: var(--distance); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3); }
+        
+        /* ✅ Stats compactes */
+        .stats-compact {
+            display: flex;
+            gap: 6px;
+            padding: 6px;
+            border-radius: 8px;
+        }
+        
+        .stats-compact .stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 4px 2px;
+        }
+        
+        .stats-compact .stat-box .number {
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        
+        .stats-compact .stat-box .label {
+            font-size: 9px;
+            color: var(--text-sub);
+            line-height: 1.2;
+        }
+        
+        /* ✅ Fonds colorés très légers */
+        .stats-compact.physique { background: rgba(37, 99, 235, 0.08); }
+        .stats-compact.physique .number { color: var(--physique); }
+        
+        .stats-compact.distance { background: rgba(16, 185, 129, 0.08); }
+        .stats-compact.distance .number { color: var(--distance); }
+        
+        /* ✅ Ligne totale : pleine largeur, 6 cases */
+        .stats-total {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(239, 68, 68, 0.08);
+            border-radius: 8px;
+        }
+        
+        .stats-total .stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 4px 2px;
+        }
+        
+        .stats-total .stat-box .number {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--total);
+            line-height: 1.2;
+        }
+        
+        .stats-total .stat-box .label {
+            font-size: 9px;
+            color: var(--text-sub);
+            line-height: 1.2;
+        }
         
         .theme-creation { display: flex; gap: 8px; margin-bottom: 10px; }
         .theme-creation input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); }
@@ -103,7 +174,7 @@
         
         @media (max-width: 480px) { 
             .page-header { top: 90px; }
-            .presence-buttons { flex-direction: column; }
+            .presence-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -121,62 +192,75 @@
                 <h3>📋 Validation de présence</h3>
                 <div id="userInfo" style="margin-bottom:10px;font-size:13px;color:var(--text-sub);"></div>
                 
-                <!-- DEUX BOUTONS DE PRÉSENCE -->
-                <div class="presence-buttons">
-                    <button id="btnPhysique" class="presence-btn physique" onclick="enregistrerPresence('Physique')">
-                         Présent physiquement
-                    </button>
-                    <button id="btnDistance" class="presence-btn distance" onclick="enregistrerPresence('Distance')">
-                        💻 Participation à distance
-                    </button>
+                <!-- ✅ NOUVEAU LAYOUT : 2 colonnes -->
+                <div class="presence-grid">
+                    <!-- Colonne Physique -->
+                    <div class="presence-col">
+                        <button id="btnPhysique" class="presence-btn physique" onclick="enregistrerPresence('Physique')">
+                            🏢 Présent physiquement
+                        </button>
+                        <div class="stats-compact physique">
+                            <div class="stat-box">
+                                <div class="number" id="countPhysiqueAdh">0</div>
+                                <div class="label">Adhérents</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="number" id="countPhysiqueNonAdh">0</div>
+                                <div class="label">Non adh.</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="number" id="countPhysique">0</div>
+                                <div class="label">Total</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Colonne Distance -->
+                    <div class="presence-col">
+                        <button id="btnDistance" class="presence-btn distance" onclick="enregistrerPresence('Distance')">
+                            💻 À distance
+                        </button>
+                        <div class="stats-compact distance">
+                            <div class="stat-box">
+                                <div class="number" id="countDistanceAdh">0</div>
+                                <div class="label">Adhérents</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="number" id="countDistanceNonAdh">0</div>
+                                <div class="label">Non adh.</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="number" id="countDistance">0</div>
+                                <div class="label">Total</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- ✅ NOUVELLE PRÉSENTATION : 3 lignes -->
-                
-                <!-- Ligne 1 : Présents physiquement (BLEU) -->
-                <div class="stats-ligne physique">
-                    <div class="stat-box">
-                        <div class="number" id="countPhysiqueAdh">0</div>
-                        <div class="label">Adhérents sur place</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countPhysiqueNonAdh">0</div>
-                        <div class="label">Non adhérents sur place</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countPhysique">0</div>
-                        <div class="label">Total sur place</div>
-                    </div>
-                </div>
-                
-                <!-- Ligne 2 : À distance (VERT) -->
-                <div class="stats-ligne distance">
-                    <div class="stat-box">
-                        <div class="number" id="countDistanceAdh">0</div>
-                        <div class="label">Adhérents à distance</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countDistanceNonAdh">0</div>
-                        <div class="label">Non adhérents à distance</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="countDistance">0</div>
-                        <div class="label">Total à distance</div>
-                    </div>
-                </div>
-                
-                <!-- Ligne 3 : Total (ROUGE) -->
-                <div class="stats-ligne total">
+                <!-- Ligne Total : pleine largeur, 6 cases -->
+                <div class="stats-total">
                     <div class="stat-box">
                         <div class="number" id="countTotalAdh">0</div>
-                        <div class="label">Total adhérents</div>
+                        <div class="label">Adhérents</div>
                     </div>
                     <div class="stat-box">
                         <div class="number" id="countTotalNonAdh">0</div>
-                        <div class="label">Total non adhérents</div>
+                        <div class="label">Non adh.</div>
                     </div>
                     <div class="stat-box">
                         <div class="number" id="countTotal">0</div>
+                        <div class="label">Total</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countPhysiqueTotal">0</div>
+                        <div class="label">🏢 Sur place</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countDistanceTotal">0</div>
+                        <div class="label">💻 À distance</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countTotalGeneral">0</div>
                         <div class="label">Total général</div>
                     </div>
                 </div>
@@ -223,10 +307,10 @@
                 isAdherent = userData.typeAdhesion === 'Adhérent';
                 
                 document.getElementById('userInfo').innerHTML = 
-                    ' <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
+                    '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
                     '📧 ' + escapeHtml(userData.email) + ' | ' + 
                     (isOrganisateur ? '🔑 Organisateur' : '👤 Participant') + ' | ' +
-                    (isAdherent ? '✅ Adhérent (droit de vote)' : '⚠️ Non adhérent');
+                    (isAdherent ? '✅ Adhérent (droit de vote)' : '️ Non adhérent');
                 
                 if (isOrganisateur) document.getElementById('adminSection').style.display = 'block';
                 
@@ -262,20 +346,23 @@
                 if (data.success) {
                     const p = data.presence;
                     
-                    // ✅ Ligne 1 : Physique (BLEU)
+                    // Ligne Physique
                     document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
                     document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
                     document.getElementById('countPhysique').textContent = p.physique || 0;
                     
-                    // ✅ Ligne 2 : Distance (VERT)
+                    // Ligne Distance
                     document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
                     document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
                     document.getElementById('countDistance').textContent = p.distance || 0;
                     
-                    // ✅ Ligne 3 : Total (ROUGE)
+                    // Ligne Total (6 cases)
                     document.getElementById('countTotalAdh').textContent = p.adherent || 0;
                     document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
                     document.getElementById('countTotal').textContent = p.total || 0;
+                    document.getElementById('countPhysiqueTotal').textContent = p.physique || 0;
+                    document.getElementById('countDistanceTotal').textContent = p.distance || 0;
+                    document.getElementById('countTotalGeneral').textContent = (p.physique || 0) + (p.distance || 0);
                     
                     data.themes.forEach(theme => {
                         if (localVotes[theme.themeId]) {
@@ -320,7 +407,7 @@
                 if (isActif) {
                     if (isAdherent) {
                         html += '<div class="vote-buttons">';
-                        html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')"> Pour</button>';
+                        html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')">👍 Pour</button>';
                         html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
                         html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
                         html += '</div>';
@@ -437,7 +524,7 @@
                         btnPhysique.classList.add('active');
                         btnDistance.classList.remove('active');
                         btnPhysique.textContent = '✅ Présent physiquement';
-                        btnDistance.textContent = '💻 Participation à distance';
+                        btnDistance.textContent = '💻 À distance';
                         btnDistance.disabled = false;
                     } else {
                         btnDistance.classList.add('active');
@@ -452,15 +539,15 @@
                     alert('❌ ' + data.message);
                     btnPhysique.disabled = false;
                     btnDistance.disabled = false;
-                    btnPhysique.textContent = '🏢 Présent physiquement';
-                    btnDistance.textContent = '💻 Participation à distance';
+                    btnPhysique.textContent = ' Présent physiquement';
+                    btnDistance.textContent = '💻 À distance';
                 }
             } catch (e) {
                 alert('Erreur de connexion: ' + e.message);
                 btnPhysique.disabled = false;
                 btnDistance.disabled = false;
                 btnPhysique.textContent = '🏢 Présent physiquement';
-                btnDistance.textContent = '💻 Participation à distance';
+                btnDistance.textContent = '💻 À distance';
             }
         }
         
