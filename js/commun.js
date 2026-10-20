@@ -1,7 +1,7 @@
 // ============================================
 // AAMB - Code commun partagé entre toutes les pages
 // ============================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2VFkL2khmoLGyN0jumX6jildgb4svU2HV1soVF8Igr1HnhfVxxTvl07-dgghc7XLxKw/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjMQhxuOkEnRcqqhgxblxqG1JtMikK8zkXStaweqoHr4FbZNifopRv_9L3qomZ41eYlw/exec';
 const MESSAGERIE_CACHE_KEY = 'aamb_messagerie_cache';
 const MESSAGERIE_SYNC_INTERVAL = 30000; // 30 secondes
 const ADHERENTS_CACHE_KEY = 'aamb_adherents_cache';
