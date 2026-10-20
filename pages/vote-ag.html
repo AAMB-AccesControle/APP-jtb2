@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.03</title>
+    <title>Vote AG v0.04</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -63,7 +63,7 @@
         .vote-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
         .vote-results { display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
-        .result-box { flex: 1; text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; transition: background 0.2s; }
+        .result-box { flex: 1; text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; }
         .result-box .number { font-size: 20px; font-weight: bold; }
         .result-box .label { font-size: 11px; color: var(--text-sub); }
         .result-box.pour .number { color: var(--pour); }
@@ -73,12 +73,8 @@
         .admin-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .admin-btn { padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; color: white; }
         .admin-btn.cloturer { background: var(--contre); }
-        .admin-btn.modifier { background: var(--abstention); }
+        .admin-btn.supprimer { background: #6b7280; }
         .admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .modifier-form { display: flex; gap: 8px; margin-top: 10px; }
-        .modifier-form input { flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 6px; font-size: 13px; background: var(--bg); color: var(--text); }
-        .modifier-form button { padding: 8px 14px; background: var(--abstention); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
         .loading { text-align: center; padding: 20px; color: var(--text-sub); }
         .empty-state { text-align: center; padding: 30px; color: var(--text-sub); font-style: italic; }
@@ -132,10 +128,9 @@
         let isAdherent = false;
         let refreshInterval = null;
         
-        // ✅ NOUVEAU : Gestion de l'état local pour éviter le flash
+        // ✅ État local des votes de l'utilisateur (pour éviter le flash)
+        let localVotes = {}; // { themeId: 'Pour' | 'Contre' | 'Abstention' }
         let lastActionTime = 0;
-        let editingThemeId = null;
-        let pendingVote = null; // {themeId, choix} en attente de confirmation serveur
         
         async function chargerDonnees() {
             try {
@@ -153,7 +148,7 @@
                 document.getElementById('userInfo').innerHTML = 
                     '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
                     '📧 ' + escapeHtml(userData.email) + ' | ' + 
-                    (isOrganisateur ? '🔑 Organisateur' : ' Participant') + ' | ' +
+                    (isOrganisateur ? '🔑 Organisateur' : '👤 Participant') + ' | ' +
                     (isAdherent ? '✅ Adhérent' : '⚠️ Non adhérent');
                 
                 if (isOrganisateur) document.getElementById('adminSection').style.display = 'block';
@@ -162,11 +157,10 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
                 
-                // Rafraîchir toutes les 2 secondes
+                // Rafraîchir toutes les 2 secondes, mais bloqué pendant 5s après une action
                 refreshInterval = setInterval(() => {
-                    // ✅ Skip le refresh si une action récente (< 3 secondes)
-                    if (Date.now() - lastActionTime < 3000) {
-                        console.log('[VoteAG] Skip refresh (action récente)');
+                    if (Date.now() - lastActionTime < 5000) {
+                        console.log('[VoteAG] Refresh bloqué (action récente)');
                         return;
                     }
                     chargerVoteData();
@@ -197,15 +191,14 @@
                     document.getElementById('countNonAdherent').textContent = data.presence.nonAdherent;
                     document.getElementById('countTotal').textContent = data.presence.total;
                     
-                    afficherThemes(data.themes);
-                    
-                    // ✅ Restaurer le champ de modification si on était en train d'éditer
-                    if (editingThemeId) {
-                        const theme = data.themes.find(t => t.themeId === editingThemeId);
-                        if (theme) {
-                            setTimeout(() => afficherModif(editingThemeId, theme.texte), 100);
+                    // ✅ Appliquer les votes locaux avant d'afficher (pour éviter le flash)
+                    data.themes.forEach(theme => {
+                        if (localVotes[theme.themeId]) {
+                            theme.monVote = localVotes[theme.themeId];
                         }
-                    }
+                    });
+                    
+                    afficherThemes(data.themes);
                 }
             } catch (e) {
                 console.error('[VoteAG] Erreur refresh:', e);
@@ -243,7 +236,7 @@
                 } else if (isCloture) {
                     html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">🔒 Vote clôturé</div>';
                 } else if (isBrouillon) {
-                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;">⏳ En cours de modification...</div>';
+                    html += '<div style="text-align:center;color:var(--text-sub);font-style:italic;padding:10px;"> En cours de modification...</div>';
                 }
                 
                 html += '<div class="vote-results">';
@@ -258,48 +251,61 @@
                     if (isActif) {
                         html += '<button class="admin-btn cloturer" onclick="cloturerVote(\'' + theme.themeId + '\')">🔒 Clôturer</button>';
                     }
-                    if (isBrouillon || isActif) {
-                        html += '<button class="admin-btn modifier" onclick="afficherModif(\'' + theme.themeId + '\', \'' + escapeHtml(theme.texte).replace(/'/g, "\\'") + '\')">✏️ Modifier</button>';
-                    }
+                    // ✅ Bouton Supprimer au lieu de Modifier
+                    html += '<button class="admin-btn supprimer" onclick="supprimerTheme(\'' + theme.themeId + '\')">🗑️ Supprimer le vote</button>';
                     html += '</div>';
-                    html += '<div id="modif-' + theme.themeId + '" style="display:none;"></div>';
                 }
                 html += '</div>';
             });
             container.innerHTML = html;
         }
         
-        // ✅ NOUVEAU : Vote avec gestion anti-flash
+        // ✅ Vote avec état local persistant
         async function voter(themeId, choix) {
             const userId = userData.id;
             
-            // 1. Marquer le timestamp de l'action
+            // 1. Sauvegarder localement IMMÉDIATEMENT
+            localVotes[themeId] = choix;
             lastActionTime = Date.now();
-            pendingVote = { themeId, choix };
             
             // 2. Mise à jour IMMÉDIATE de l'interface
             const themeCard = document.querySelector(`.theme-card[data-theme-id="${themeId}"]`);
             if (themeCard) {
                 const buttons = themeCard.querySelectorAll('.vote-btn');
-                buttons.forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.disabled = true;
-                });
+                buttons.forEach(btn => btn.classList.remove('active'));
                 const clickedBtn = themeCard.querySelector(`.vote-btn.${choix.toLowerCase()}`);
                 if (clickedBtn) clickedBtn.classList.add('active');
                 
                 const resultBox = themeCard.querySelector('.vote-results');
                 if (resultBox) {
-                    const boxChoix = resultBox.querySelector(`.result-box.${choix.toLowerCase()} .number`);
-                    const boxTotal = resultBox.querySelector('.result-box:last-child .number');
+                    // Recalculer les compteurs localement
+                    const boxes = resultBox.querySelectorAll('.number');
+                    const pour = parseInt(boxes[0].textContent || 0);
+                    const contre = parseInt(boxes[1].textContent || 0);
+                    const abstention = parseInt(boxes[2].textContent || 0);
+                    const total = parseInt(boxes[3].textContent || 0);
                     
-                    if (boxChoix) boxChoix.textContent = parseInt(boxChoix.textContent || 0) + 1;
-                    if (boxTotal) boxTotal.textContent = parseInt(boxTotal.textContent || 0) + 1;
+                    // Si on change de vote, décrémenter l'ancien et incrémenter le nouveau
+                    const ancienVote = localVotes[themeId + '_old'] || null;
+                    if (ancienVote && ancienVote !== choix) {
+                        if (ancienVote === 'Pour') boxes[0].textContent = Math.max(0, pour - 1);
+                        else if (ancienVote === 'Contre') boxes[1].textContent = Math.max(0, contre - 1);
+                        else if (ancienVote === 'Abstention') boxes[2].textContent = Math.max(0, abstention - 1);
+                    } else if (!ancienVote) {
+                        // Nouveau vote
+                        if (choix === 'Pour') boxes[0].textContent = pour + 1;
+                        else if (choix === 'Contre') boxes[1].textContent = contre + 1;
+                        else if (choix === 'Abstention') boxes[2].textContent = abstention + 1;
+                        boxes[3].textContent = total + 1;
+                    }
                     
                     resultBox.style.background = 'rgba(16, 185, 129, 0.1)';
                     setTimeout(() => { resultBox.style.background = ''; }, 300);
                 }
             }
+            
+            // Sauvegarder l'ancien vote pour le prochain calcul
+            localVotes[themeId + '_old'] = choix;
             
             // 3. Envoi de la requête en arrière-plan
             try {
@@ -308,17 +314,13 @@
                 
                 if (!data.success) {
                     console.error('Erreur vote:', data.message);
-                    // Recharger pour corriger l'interface
+                    delete localVotes[themeId];
+                    delete localVotes[themeId + '_old'];
                     setTimeout(() => chargerVoteData(), 1000);
                 }
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
             }
-            
-            // 4. Après 3 secondes, permettre le refresh normal
-            setTimeout(() => {
-                pendingVote = null;
-            }, 3000);
         }
         
         async function enregistrerPresence() {
@@ -356,37 +358,33 @@
                     document.getElementById('newThemeText').value = '';
                     await chargerVoteData();
                 } else {
-                    alert('❌ ' + data.message);
+                    alert(' ' + data.message);
                 }
             } catch (e) {
                 alert('Erreur de connexion');
             }
         }
         
-        function afficherModif(themeId, texteActuel) {
-            editingThemeId = themeId;
+        // ✅ NOUVEAU : Supprimer un thème et ses votes
+        async function supprimerTheme(themeId) {
+            if (!confirm('⚠️ Supprimer ce vote et tous les votes associés ?\n\nCette action est irréversible.')) return;
+            
             lastActionTime = Date.now();
-            const container = document.getElementById('modif-' + themeId);
-            if (container) {
-                container.style.display = 'block';
-                container.innerHTML = `<div class="modifier-form"><input type="text" id="modif-input-${themeId}" value="${texteActuel}"><button onclick="modifierTheme('${themeId}')">💾 Sauvegarder</button></div>`;
-            }
-        }
-        
-        async function modifierTheme(themeId) {
-            lastActionTime = Date.now();
-            const nouveauTexte = document.getElementById('modif-input-' + themeId).value.trim();
-            if (!nouveauTexte) { alert('Le thème ne peut pas être vide'); return; }
+            
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=modifierThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId) + '&themeTexte=' + encodeURIComponent(nouveauTexte));
+                const resp = await fetch(SCRIPT_URL + '?action=supprimerThemeVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
                 const data = await resp.json();
+                
                 if (data.success) {
-                    editingThemeId = null;
+                    // Nettoyer l'état local
+                    delete localVotes[themeId];
+                    delete localVotes[themeId + '_old'];
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
                 }
             } catch (e) {
+                console.error('[VoteAG] Erreur:', e);
                 alert('Erreur de connexion');
             }
         }
@@ -398,7 +396,8 @@
                 const resp = await fetch(SCRIPT_URL + '?action=cloturerVote&userId=' + encodeURIComponent(userData.id) + '&themeId=' + encodeURIComponent(themeId));
                 const data = await resp.json();
                 if (data.success) {
-                    editingThemeId = null;
+                    delete localVotes[themeId];
+                    delete localVotes[themeId + '_old'];
                     await chargerVoteData();
                 } else {
                     alert('❌ ' + data.message);
