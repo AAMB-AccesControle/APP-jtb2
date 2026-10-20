@@ -374,5 +374,44 @@ function toggleJTBMenu(e) { e.stopPropagation(); document.getElementById('jtbMen
 function openJTB(url) { window.open(url, '_blank'); document.getElementById('jtbMenu').classList.remove('open'); }
 document.addEventListener('click', () => { document.getElementById('jtbMenu').classList.remove('open'); });
 </script>
+<script>
+// ============================================
+// === PRÉCHARGEMENT DES DONNÉES AG ===
+// ============================================
+(async function prechargerDonneesAG() {
+    try {
+        const userId = localStorage.getItem('userId') || '';
+        if (!userId) return;
+        
+        console.log('[Prechargement] Démarrage...');
+        
+        // Précharger les données de vote
+        const respVote = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userId));
+        const dataVote = await respVote.json();
+        if (dataVote.success) {
+            localStorage.setItem('aamb_voteag_cache', JSON.stringify({
+                timestamp: Date.now(),
+                data: dataVote
+            }));
+            console.log('[Prechargement] Vote AG:', dataVote.themes.length, 'thèmes,', dataVote.presence.total, 'présents');
+        }
+        
+        // Précharger les messages du chat
+        const respChat = await fetch(SCRIPT_URL + '?action=getChatAG&userId=' + encodeURIComponent(userId));
+        const dataChat = await respChat.json();
+        if (dataChat.success) {
+            localStorage.setItem('aamb_chatag_cache', JSON.stringify({
+                timestamp: Date.now(),
+                data: dataChat
+            }));
+            console.log('[Prechargement] Chat AG:', dataChat.messages.length, 'messages');
+        }
+        
+        console.log('[Prechargement] Terminé');
+    } catch (e) {
+        console.error('[Prechargement] Erreur:', e);
+    }
+})();
+</script>
 </body>
 </html>
