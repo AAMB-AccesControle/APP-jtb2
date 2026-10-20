@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.07</title>
+    <title>Vote AG v0.08</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -15,7 +15,7 @@
             --page-header-bg: #1a3a6b; --primary: #1a3a6b;
             --pour: #10b981; --contre: #ef4444; --abstention: #f59e0b;
             --btn-gris: #9ca3af;
-            --physique: #2563eb; --distance: #8b5cf6;
+            --physique: #2563eb; --distance: #10b981; --total: #ef4444;
         }
         body.dark {
             --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
@@ -32,21 +32,33 @@
         .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .card h3 { font-size: 14px; color: var(--text); margin-bottom: 10px; font-weight: 700; }
         
-        .presence-buttons { display: flex; gap: 10px; margin-bottom: 12px; }
+        .presence-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
         .presence-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: bold; cursor: pointer; color: white; transition: all 0.2s; }
         .presence-btn.physique { background: var(--physique); }
         .presence-btn.distance { background: var(--distance); }
         .presence-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .presence-btn.active { box-shadow: 0 0 0 3px rgba(255,255,255,0.5); transform: scale(1.02); }
         
-        .stats-section { margin-top: 12px; }
-        .stats-section h4 { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stats-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .stat-box { flex: 1; text-align: center; padding: 10px; background: var(--bg); border-radius: 8px; }
-        .stat-box .number { font-size: 22px; font-weight: bold; color: var(--primary); }
-        .stat-box .label { font-size: 11px; color: var(--text-sub); }
-        .stat-box.physique .number { color: var(--physique); }
-        .stat-box.distance .number { color: var(--distance); }
+        /* ✅ NOUVEAU : 3 lignes de stats */
+        .stats-ligne {
+            display: flex; gap: 10px; margin-bottom: 10px; padding: 10px;
+            background: var(--bg); border-radius: 10px;
+        }
+        .stats-ligne .stat-box {
+            flex: 1; text-align: center; padding: 8px;
+        }
+        .stats-ligne .stat-box .number { font-size: 24px; font-weight: bold; }
+        .stats-ligne .stat-box .label { font-size: 11px; color: var(--text-sub); }
+        
+        /* Couleurs par ligne */
+        .stats-ligne.physique { border-left: 4px solid var(--physique); }
+        .stats-ligne.physique .number { color: var(--physique); }
+        
+        .stats-ligne.distance { border-left: 4px solid var(--distance); }
+        .stats-ligne.distance .number { color: var(--distance); }
+        
+        .stats-ligne.total { border-left: 4px solid var(--total); }
+        .stats-ligne.total .number { color: var(--total); }
         
         .theme-creation { display: flex; gap: 8px; margin-bottom: 10px; }
         .theme-creation input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); }
@@ -109,33 +121,63 @@
                 <h3>📋 Validation de présence</h3>
                 <div id="userInfo" style="margin-bottom:10px;font-size:13px;color:var(--text-sub);"></div>
                 
-                <!-- ✅ DEUX BOUTONS DE PRÉSENCE -->
+                <!-- DEUX BOUTONS DE PRÉSENCE -->
                 <div class="presence-buttons">
                     <button id="btnPhysique" class="presence-btn physique" onclick="enregistrerPresence('Physique')">
-                        🏢 Présent physiquement
+                         Présent physiquement
                     </button>
                     <button id="btnDistance" class="presence-btn distance" onclick="enregistrerPresence('Distance')">
-                         Participation à distance
+                        💻 Participation à distance
                     </button>
                 </div>
                 
-                <!-- Stats par type d'adhésion -->
-                <div class="stats-section">
-                    <h4>Par type d'adhésion</h4>
-                    <div class="stats-row">
-                        <div class="stat-box"><div class="number" id="countAdherent">0</div><div class="label">Adhérents</div></div>
-                        <div class="stat-box"><div class="number" id="countNonAdherent">0</div><div class="label">Non adhérents</div></div>
-                        <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total</div></div>
+                <!-- ✅ NOUVELLE PRÉSENTATION : 3 lignes -->
+                
+                <!-- Ligne 1 : Présents physiquement (BLEU) -->
+                <div class="stats-ligne physique">
+                    <div class="stat-box">
+                        <div class="number" id="countPhysiqueAdh">0</div>
+                        <div class="label">Adhérents sur place</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countPhysiqueNonAdh">0</div>
+                        <div class="label">Non adhérents sur place</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countPhysique">0</div>
+                        <div class="label">Total sur place</div>
                     </div>
                 </div>
                 
-                <!-- ✅ Stats par mode de participation -->
-                <div class="stats-section">
-                    <h4>Par mode de participation</h4>
-                    <div class="stats-row">
-                        <div class="stat-box physique"><div class="number" id="countPhysique">0</div><div class="label">🏢 Sur place</div></div>
-                        <div class="stat-box distance"><div class="number" id="countDistance">0</div><div class="label"> À distance</div></div>
-                        <div class="stat-box"><div class="number" id="countTotalMode">0</div><div class="label">Total</div></div>
+                <!-- Ligne 2 : À distance (VERT) -->
+                <div class="stats-ligne distance">
+                    <div class="stat-box">
+                        <div class="number" id="countDistanceAdh">0</div>
+                        <div class="label">Adhérents à distance</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countDistanceNonAdh">0</div>
+                        <div class="label">Non adhérents à distance</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countDistance">0</div>
+                        <div class="label">Total à distance</div>
+                    </div>
+                </div>
+                
+                <!-- Ligne 3 : Total (ROUGE) -->
+                <div class="stats-ligne total">
+                    <div class="stat-box">
+                        <div class="number" id="countTotalAdh">0</div>
+                        <div class="label">Total adhérents</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countTotalNonAdh">0</div>
+                        <div class="label">Total non adhérents</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="countTotal">0</div>
+                        <div class="label">Total général</div>
                     </div>
                 </div>
             </div>
@@ -165,7 +207,7 @@
         let localCounters = {};
         let localCountersExpiry = {};
         let lastActionTime = 0;
-        let modeParticipation = null; // 'Physique' ou 'Distance'
+        let modeParticipation = null;
         
         async function chargerDonnees() {
             try {
@@ -181,10 +223,10 @@
                 isAdherent = userData.typeAdhesion === 'Adhérent';
                 
                 document.getElementById('userInfo').innerHTML = 
-                    '👤 <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
+                    ' <strong>' + escapeHtml(userData.prenom) + ' ' + escapeHtml(userData.nom) + '</strong><br>' +
                     '📧 ' + escapeHtml(userData.email) + ' | ' + 
                     (isOrganisateur ? '🔑 Organisateur' : '👤 Participant') + ' | ' +
-                    (isAdherent ? '✅ Adhérent' : '⚠️ Non adhérent');
+                    (isAdherent ? '✅ Adhérent (droit de vote)' : '⚠️ Non adhérent');
                 
                 if (isOrganisateur) document.getElementById('adminSection').style.display = 'block';
                 
@@ -193,9 +235,7 @@
                 document.getElementById('voteContent').style.display = 'block';
                 
                 refreshInterval = setInterval(() => {
-                    if (Date.now() - lastActionTime < 5000) {
-                        return;
-                    }
+                    if (Date.now() - lastActionTime < 5000) return;
                     chargerVoteData();
                 }, 2000);
             } catch (e) {
@@ -220,21 +260,27 @@
                 const resp = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userData.id));
                 const data = await resp.json();
                 if (data.success) {
-                    // Stats par adhésion
-                    document.getElementById('countAdherent').textContent = data.presence.adherent;
-                    document.getElementById('countNonAdherent').textContent = data.presence.nonAdherent;
-                    document.getElementById('countTotal').textContent = data.presence.total;
+                    const p = data.presence;
                     
-                    // ✅ Stats par mode de participation
-                    document.getElementById('countPhysique').textContent = data.presence.physique || 0;
-                    document.getElementById('countDistance').textContent = data.presence.distance || 0;
-                    document.getElementById('countTotalMode').textContent = (data.presence.physique || 0) + (data.presence.distance || 0);
+                    // ✅ Ligne 1 : Physique (BLEU)
+                    document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
+                    document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
+                    document.getElementById('countPhysique').textContent = p.physique || 0;
+                    
+                    // ✅ Ligne 2 : Distance (VERT)
+                    document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
+                    document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
+                    document.getElementById('countDistance').textContent = p.distance || 0;
+                    
+                    // ✅ Ligne 3 : Total (ROUGE)
+                    document.getElementById('countTotalAdh').textContent = p.adherent || 0;
+                    document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
+                    document.getElementById('countTotal').textContent = p.total || 0;
                     
                     data.themes.forEach(theme => {
                         if (localVotes[theme.themeId]) {
                             theme.monVote = localVotes[theme.themeId];
                         }
-                        
                         if (localCounters[theme.themeId] && localCountersExpiry[theme.themeId] > Date.now()) {
                             theme.pour = localCounters[theme.themeId].pour;
                             theme.contre = localCounters[theme.themeId].contre;
@@ -274,9 +320,9 @@
                 if (isActif) {
                     if (isAdherent) {
                         html += '<div class="vote-buttons">';
-                        html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')">👍 Pour</button>';
+                        html += '<button class="vote-btn pour' + (theme.monVote === 'Pour' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Pour\')"> Pour</button>';
                         html += '<button class="vote-btn contre' + (theme.monVote === 'Contre' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Contre\')">👎 Contre</button>';
-                        html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')"> Abstention</button>';
+                        html += '<button class="vote-btn abstention' + (theme.monVote === 'Abstention' ? ' active' : '') + '" onclick="voter(\'' + theme.themeId + '\', \'Abstention\')">🤷 Abstention</button>';
                         html += '</div>';
                     } else {
                         html += '<div class="non-adherent-msg">ℹ️ Le vote est réservé aux adhérents. Vous pouvez consulter les résultats ci-dessous.</div>';
@@ -356,7 +402,6 @@
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=enregistrerVote&userId=' + encodeURIComponent(userId) + '&themeId=' + encodeURIComponent(themeId) + '&choix=' + encodeURIComponent(choix));
                 const data = await resp.json();
-                
                 if (!data.success) {
                     console.error('Erreur vote:', data.message);
                     delete localVotes[themeId];
@@ -369,7 +414,6 @@
             }
         }
         
-        // ✅ NOUVEAU : Gestion des deux modes de présence
         async function enregistrerPresence(mode) {
             lastActionTime = Date.now();
             const userId = userData.id;
@@ -377,7 +421,6 @@
             const btnPhysique = document.getElementById('btnPhysique');
             const btnDistance = document.getElementById('btnDistance');
             
-            // Désactiver les deux boutons pendant l'enregistrement
             btnPhysique.disabled = true;
             btnDistance.disabled = true;
             btnPhysique.textContent = '⏳ Enregistrement...';
@@ -390,22 +433,19 @@
                 if (data.success) {
                     modeParticipation = mode;
                     
-                    // Mettre en surbrillance le bouton actif
                     if (mode === 'Physique') {
                         btnPhysique.classList.add('active');
                         btnDistance.classList.remove('active');
                         btnPhysique.textContent = '✅ Présent physiquement';
                         btnDistance.textContent = '💻 Participation à distance';
+                        btnDistance.disabled = false;
                     } else {
                         btnDistance.classList.add('active');
                         btnPhysique.classList.remove('active');
                         btnDistance.textContent = '✅ Participant à distance';
                         btnPhysique.textContent = '🏢 Présent physiquement';
+                        btnPhysique.disabled = false;
                     }
-                    
-                    // Réactiver l'autre bouton pour permettre le changement
-                    if (mode === 'Physique') btnDistance.disabled = false;
-                    else btnPhysique.disabled = false;
                     
                     await chargerVoteData();
                 } else {
@@ -474,7 +514,7 @@
                     delete localCountersExpiry[themeId];
                     await chargerVoteData();
                 } else {
-                    alert(' ' + data.message);
+                    alert('❌ ' + data.message);
                 }
             } catch (e) {
                 alert('Erreur de connexion');
