@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote AG v0.10</title>
+    <title>Vote AG v0.11</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -44,12 +44,13 @@
             font-size: 13px; font-weight: bold; cursor: pointer; color: white;
             transition: all 0.2s;
         }
-        .presence-btn.physique { background: #7a8fa8; }
-        .presence-btn.distance { background: #7aa88f; }
-        .presence-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-        /* ✅ Couleurs plus foncées quand actifs */
-        .presence-btn.physique.active { background: var(--physique-fonce); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.4); }
-        .presence-btn.distance.active { background: var(--distance-fonce); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.4); }
+        /* ✅ Boutons non sélectionnés : gris neutre */
+        .presence-btn.physique { background: #9ca3af; }
+        .presence-btn.distance { background: #9ca3af; }
+        
+        /* ✅ Boutons sélectionnés : couleurs vives et prononcées */
+        .presence-btn.physique.active { background: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5); }
+        .presence-btn.distance.active { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5); }
         
         .stats-compact { display: flex; gap: 6px; padding: 6px; border-radius: 8px; }
         .stats-compact .stat-box { flex: 1; text-align: center; padding: 4px 2px; }
@@ -61,7 +62,12 @@
         .stats-compact.distance .number { color: var(--distance); }
         
         /* ✅ Fond jaune pour les 3 dernières cases */
-        .stats-total { display: flex; gap: 8px; padding: 8px; background: rgba(245, 158, 11, 0.10); border-radius: 8px; }
+        /* ✅ Container sans fond */
+        .stats-total { display: flex; gap: 8px; padding: 8px; background: var(--bg); border-radius: 8px; }
+        
+        /* ✅ Fond jaune uniquement pour les 3 cases de droite */
+        .stats-total .stat-box.droite { background: rgba(245, 158, 11, 0.15); border-radius: 6px; }
+        .stats-total .stat-box.droite .number { color: #d97706; }
         .stats-total .stat-box { flex: 1; text-align: center; padding: 4px 2px; }
         .stats-total .stat-box .number { font-size: 18px; font-weight: bold; color: var(--total); line-height: 1.2; }
         .stats-total .stat-box .label { font-size: 9px; color: var(--text-sub); line-height: 1.2; }
@@ -172,9 +178,9 @@
                     <div class="stat-box"><div class="number" id="countTotalAdh">0</div><div class="label">Adhérents</div></div>
                     <div class="stat-box"><div class="number" id="countTotalNonAdh">0</div><div class="label">Non adh.</div></div>
                     <div class="stat-box"><div class="number" id="countTotal">0</div><div class="label">Total</div></div>
-                    <div class="stat-box"><div class="number" id="countPhysiqueTotal">0</div><div class="label"> Sur place</div></div>
-                    <div class="stat-box"><div class="number" id="countDistanceTotal">0</div><div class="label">💻 À distance</div></div>
-                    <div class="stat-box"><div class="number" id="countTotalGeneral">0</div><div class="label">Total général</div></div>
+                    <div class="stat-box droite"><div class="number" id="countPhysiqueTotal">0</div><div class="label">🏢 Sur place</div></div>
+                    <div class="stat-box droite"><div class="number" id="countDistanceTotal">0</div><div class="label">💻 À distance</div></div>
+                    <div class="stat-box droite"><div class="number" id="countTotalGeneral">0</div><div class="label">Total général</div></div>
                 </div>
             </div>
             
