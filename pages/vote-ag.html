@@ -410,7 +410,7 @@
         let chatOuvert = false;
         let lastChatMessageCount = 0;
         
-        // ✅ FONCTION MODIFIÉE : Utilise le cache préchargé si disponible
+        // ✅ FONCTION PRINCIPALE MODIFIÉE : Utilise le cache préchargé si disponible
         async function chargerDonnees() {
             try {
                 const adherentData = localStorage.getItem('aamb_adherent');
@@ -435,32 +435,27 @@
                     document.getElementById('btnToggleChat').style.display = 'inline-block';
                 }
                 
-                // ✅ UTILISER LE CACHE PRÉCHARGÉ SI DISPONIBLE
+                // ✅ 1. UTILISER LE CACHE PRÉCHARGÉ SI DISPONIBLE ET RÉCENT (< 30s)
                 const cacheVote = localStorage.getItem('aamb_voteag_cache');
                 const cacheChat = localStorage.getItem('aamb_chatag_cache');
-                
                 let donneesInitiales = false;
                 
                 if (cacheVote && cacheChat) {
                     try {
                         const dataVote = JSON.parse(cacheVote);
                         const dataChat = JSON.parse(cacheChat);
-                        
-                        // Vérifier que le cache a moins de 60 secondes
                         const ageCache = Date.now() - dataVote.timestamp;
-                        if (ageCache < 60000) {
-                            console.log('[VoteAG] Utilisation du cache préchargé (âge:', Math.round(ageCache/1000), 's)');
-                            
-                            // Afficher immédiatement les données en cache
+                        
+                        if (ageCache < 30000) {
+                            console.log('[VoteAG] Affichage instantané depuis le cache (âge:', Math.round(ageCache/1000), 's)');
                             afficherDonneesVote(dataVote.data);
                             afficherDonneesChat(dataChat.data);
                             donneesInitiales = true;
                         }
-                    } catch (e) {
-                        console.error('[VoteAG] Erreur lecture cache:', e);
-                    }
+                    } catch (e) { console.error('[VoteAG] Erreur lecture cache:', e); }
                 }
                 
+                // ✅ 2. FALLBACK : Si pas de cache valide, chargement depuis le serveur
                 if (!donneesInitiales) {
                     console.log('[VoteAG] Pas de cache valide, chargement depuis le serveur...');
                     await chargerVoteData();
@@ -470,70 +465,54 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('voteContent').style.display = 'block';
                 
+                // Refresh en arrière-plan toutes les 2s
                 refreshInterval = setInterval(() => {
                     if (Date.now() - lastActionTime < 5000) return;
                     chargerVoteData();
                 }, 2000);
-                
                 chatRefreshInterval = setInterval(chargerChatData, 2000);
+                
             } catch (e) {
                 console.error('[VoteAG] Erreur:', e);
                 showError('Erreur de chargement : ' + e.message);
                 document.getElementById('loading').style.display = 'none';
             }
         }
-
+        
         // ✅ NOUVELLE FONCTION : Afficher les données de vote depuis le cache
         function afficherDonneesVote(data) {
             const p = data.presence;
-            
             document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
             document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
             document.getElementById('countPhysique').textContent = p.physique || 0;
-            
             document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
             document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
             document.getElementById('countDistance').textContent = p.distance || 0;
-            
             document.getElementById('countTotalAdh').textContent = p.adherent || 0;
             document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
             document.getElementById('countTotal').textContent = p.total || 0;
             document.getElementById('countPhysiqueTotal').textContent = p.physique || 0;
             document.getElementById('countDistanceTotal').textContent = p.distance || 0;
             document.getElementById('countTotalGeneral').textContent = (p.physique || 0) + (p.distance || 0);
-            
             afficherThemes(data.themes);
         }
-
-        // ✅ NOUVELLE FONCTION : Afficher les données du chat depuis le cache
+        
+        // ✅ NOUVELLE FONCTION : Afficher les données du chat AG depuis le cache
         function afficherDonneesChat(data) {
             chatOuvert = data.chatOuvert;
-            const isOrganisateur = data.isOrganisateur;
-            
+            const isOrg = data.isOrganisateur;
             const statusBadge = document.getElementById('chatStatus');
             const toggleBtn = document.getElementById('btnToggleChat');
             
             if (chatOuvert) {
-                statusBadge.textContent = 'Ouvert';
-                statusBadge.className = 'chat-status ouvert';
-                if (isOrganisateur) {
-                    toggleBtn.textContent = 'Fermer le chat';
-                    toggleBtn.className = 'btn-toggle-chat ouvert';
-                }
+                statusBadge.textContent = 'Ouvert'; statusBadge.className = 'chat-status ouvert';
+                if (isOrg) { toggleBtn.textContent = 'Fermer le chat'; toggleBtn.className = 'btn-toggle-chat ouvert'; }
             } else {
-                statusBadge.textContent = 'Fermé';
-                statusBadge.className = 'chat-status ferme';
-                if (isOrganisateur) {
-                    toggleBtn.textContent = 'Ouvrir le chat';
-                    toggleBtn.className = 'btn-toggle-chat ferme';
-                }
+                statusBadge.textContent = 'Fermé'; statusBadge.className = 'chat-status ferme';
+                if (isOrg) { toggleBtn.textContent = 'Ouvrir le chat'; toggleBtn.className = 'btn-toggle-chat ferme'; }
             }
-            
-            const chatInput = document.getElementById('chatInput');
-            const btnSend = document.getElementById('btnSendChat');
-            chatInput.disabled = !chatOuvert;
-            btnSend.disabled = !chatOuvert;
-            
+            document.getElementById('chatInput').disabled = !chatOuvert;
+            document.getElementById('btnSendChat').disabled = !chatOuvert;
             afficherMessages(data.messages);
             lastChatMessageCount = data.messages.length;
         }
