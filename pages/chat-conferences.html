@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG v0.05</title>
+    <title>Chat Conférences/AG v0.06</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -294,42 +294,77 @@
         const adherent = chargerAdherent();
         const isOrganisateur = adherent && adherent.statut === 'Organisateur';
 
+        // ✅ FONCTION MODIFIÉE : Utilise le cache en arrière-plan pour un affichage instantané
         async function chargerConferences() {
             try {
-                const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
-                const data = await resp.json();
-                
-                console.log('[Chat] Réponse API:', data);
-                
-                if (data.success) {
-                    conferences = data.conferences;
-                    console.log('[Chat] Nombre de conférences chargées:', conferences.length);
-                    
-                    // ✅ Afficher le bon sélecteur selon le rôle
-                    if (isOrganisateur) {
-                        document.getElementById('organisateurSelector').style.display = 'block';
-                        document.getElementById('participantBadge').style.display = 'none';
-                        afficherListeConferences();
-                    } else {
-                        document.getElementById('organisateurSelector').style.display = 'none';
-                        document.getElementById('participantBadge').style.display = 'block';
+                // 1. TENTATIVE DE CHARGEMENT INSTANTANÉ DEPUIS LE CACHE
+                const cacheChatConf = localStorage.getItem('aamb_chatconf_cache');
+                let affichageInstantane = false;
+
+                if (cacheChatConf) {
+                    try {
+                        const dataCache = JSON.parse(cacheChatConf);
+                        const ageCache = Date.now() - dataCache.timestamp;
+                        
+                        if (ageCache < 30000) { // Cache valide si moins de 30 secondes
+                            console.log('[ChatConf] Affichage instantané depuis le cache (âge:', Math.round(ageCache/1000), 's)');
+                            conferences = dataCache.data.conferences;
+                            
+                            // Afficher le bon sélecteur selon le rôle
+                            if (isOrganisateur) {
+                                document.getElementById('organisateurSelector').style.display = 'block';
+                                document.getElementById('participantBadge').style.display = 'none';
+                                afficherListeConferences();
+                            } else {
+                                document.getElementById('organisateurSelector').style.display = 'none';
+                                document.getElementById('participantBadge').style.display = 'block';
+                            }
+                            
+                            const conferenceEnCours = determinerConferenceEnCours();
+                            if (conferenceEnCours) {
+                                console.log('[ChatConf] ✅ Conférence en cours détectée (cache):', conferenceEnCours.nom);
+                                selectionnerConference(conferenceEnCours.id);
+                            } else if (conferences.length > 0) {
+                                selectionnerConference(conferences[0].id);
+                            }
+                            
+                            affichageInstantane = true;
+                        }
+                    } catch (e) {
+                        console.error('[ChatConf] Erreur lecture cache:', e);
                     }
+                }
+
+                // 2. FALLBACK : Si pas de cache valide, chargement depuis le serveur
+                if (!affichageInstantane) {
+                    console.log('[ChatConf] Pas de cache valide, chargement depuis le serveur...');
+                    const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
+                    const data = await resp.json();
                     
-                    const conferenceEnCours = determinerConferenceEnCours();
-                    if (conferenceEnCours) {
-                        console.log('[Chat] ✅ Conférence en cours détectée:', conferenceEnCours.nom);
-                        selectionnerConference(conferenceEnCours.id);
-                    } else {
-                        console.log('[Chat] ️ Aucune conférence en cours trouvée');
-                        if (conferences.length > 0) {
+                    if (data.success) {
+                        conferences = data.conferences;
+                        
+                        if (isOrganisateur) {
+                            document.getElementById('organisateurSelector').style.display = 'block';
+                            document.getElementById('participantBadge').style.display = 'none';
+                            afficherListeConferences();
+                        } else {
+                            document.getElementById('organisateurSelector').style.display = 'none';
+                            document.getElementById('participantBadge').style.display = 'block';
+                        }
+                        
+                        const conferenceEnCours = determinerConferenceEnCours();
+                        if (conferenceEnCours) {
+                            selectionnerConference(conferenceEnCours.id);
+                        } else if (conferences.length > 0) {
                             selectionnerConference(conferences[0].id);
                         }
+                    } else {
+                        console.error('[ChatConf] Erreur API:', data.message);
                     }
-                } else {
-                    console.error('[Chat] Erreur API:', data.message);
                 }
             } catch (e) {
-                console.error('[Chat] Erreur chargement conférences:', e);
+                console.error('[ChatConf] Erreur chargement conférences:', e);
             }
         }
 
@@ -340,15 +375,11 @@
             const aujDate = maintenant.getDate();
             const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
             
-            console.log('[Chat] Date locale:', aujYear + '-' + (aujMonth+1) + '-' + aujDate, 'Heure:', hNow, 'min');
-            
             for (const conf of conferences) {
                 const confDateObj = new Date(conf.date);
                 const confYear = confDateObj.getFullYear();
                 const confMonth = confDateObj.getMonth();
                 const confDay = confDateObj.getDate();
-                
-                console.log('[Chat] Vérification:', conf.nom, '- Date locale:', confYear + '-' + (confMonth+1) + '-' + confDay, '- Début:', conf.heureDebut, '- Fin:', conf.heureFin);
                 
                 if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
                     const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
@@ -356,16 +387,11 @@
                     const debutMin = dh * 60 + dm;
                     const finMin = fh * 60 + fm;
                     
-                    console.log('[Chat] -> Début:', debutMin, 'min, Fin:', finMin, 'min');
-                    
                     if (hNow >= debutMin && hNow < finMin) {
-                        console.log('[Chat] ✅ Conférence en cours trouvée:', conf.nom);
                         return conf;
                     }
                 }
             }
-            
-            console.log('[Chat] Aucune conférence en cours trouvée');
             return null;
         }
 
@@ -419,9 +445,6 @@
             const conf = conferences.find(c => c.id === conferenceId);
             
             if (conf) {
-                console.log('[Chat] Conférence sélectionnée:', conf.nom);
-                
-                // ✅ Mettre à jour le badge participant
                 if (!isOrganisateur) {
                     document.getElementById('participantConfName').innerHTML = conf.nom + ' <span class="conf-badge ' + (conf.type === 'AG' ? 'badge-ag' : 'badge-conf') + '">' + (conf.type === 'AG' ? 'AG' : 'Conférence') + '</span>';
                     document.getElementById('participantConfTime').textContent = extraireHeure(conf.heureDebut) + ' - ' + extraireHeure(conf.heureFin) + ' • ' + conf.jour;
