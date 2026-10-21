@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.22</title>
+<title>Messagerie v0.23</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -240,7 +240,7 @@ async function chargerListeAdherents() {
     } catch (e) { console.warn('Erreur chargement adhérents:', e); }
 }
 
-// ✅ FONCTION CORRIGÉE : Affiche TOUJOURS l'interface immédiatement avec le cache, puis met à jour en fond
+// ✅ FONCTION CORRIGÉE : Plus de 'await' bloquant. L'interface s'affiche immédiatement.
 async function init() {
     if (!adherent) return;
 
@@ -253,17 +253,17 @@ async function init() {
         updateSyncUI('syncing', 'Premier chargement...');
     }
 
-    // Rendu immédiat (ne bloque jamais)
+    // ✅ Rendu IMMÉDIAT de l'interface, sans attendre la liste des adhérents
     if (adherent.statut === 'Organisateur') {
         document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
-        await chargerListeAdherents();
-        renderOrganisateur();
+        renderOrganisateur(); // On affiche d'abord
+        chargerListeAdherents(); // On charge la liste en arrière-plan pour les futurs envois
     } else {
         document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
         renderParticipant();
     }
 
-    // Synchronisation en arrière-plan (sans await bloquant)
+    // Synchronisation en arrière-plan
     synchroniserSilencieuse().catch(e => console.error('[Messagerie] Erreur synchro:', e));
 
     if (refreshTimer) clearInterval(refreshTimer);
