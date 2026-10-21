@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messagerie v0.23</title>
+<title>Messagerie v0.24</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -120,7 +120,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 <div class="sync-status">
 <span class="dot" id="syncDot"></span>
-<span id="syncText">Chargement...</span>
+<span id="syncText">Initialisation...</span>
 </div>
 <div class="page-content" id="messagerieContent"></div>
 
@@ -153,12 +153,6 @@ function trierAdherentsParStatutPuisNom(liste) {
     });
 }
 
-function chargerDepuisCache() {
-    const cache = getMessagerieCache();
-    if (cache && cache.data && cache.data.conversations) { conversations = cache.data.conversations; return true; }
-    return false;
-}
-
 function formatTimeAgo(ts) {
     if (!ts) return 'jamais';
     const diff = Math.floor((Date.now() - ts) / 1000);
@@ -166,6 +160,16 @@ function formatTimeAgo(ts) {
     if (diff < 60) return `il y a ${diff}s`;
     if (diff < 3600) return `il y a ${Math.floor(diff/60)}min`;
     return `il y a ${Math.floor(diff/3600)}h`;
+}
+
+function updateSyncUI(state, text) {
+    const dot = document.getElementById('syncDot');
+    const txt = document.getElementById('syncText');
+    if (!dot || !txt) return;
+    dot.className = 'dot';
+    if (state === 'syncing') dot.classList.add('syncing');
+    else if (state === 'error') dot.classList.add('error');
+    txt.textContent = text;
 }
 
 async function synchroniserSilencieuse() {
@@ -182,10 +186,14 @@ async function synchroniserSilencieuse() {
                 else renderParticipant();
             }
             updateSyncUI('ok', `Mis à jour ${formatTimeAgo(Date.now())}`);
+        } else {
+            updateSyncUI('error', 'Erreur serveur');
         }
     } catch (e) {
+        console.error('[Messagerie] Erreur synchro:', e);
         const cache = getMessagerieCache();
         if (cache) updateSyncUI('error', `Hors ligne — ${formatTimeAgo(cache.timestamp)}`);
+        else updateSyncUI('error', 'Erreur de connexion');
     }
 }
 
@@ -193,30 +201,6 @@ function forcerRafraichissement() {
     const btn = document.getElementById('refreshBtn');
     btn.classList.add('spinning');
     synchroniserSilencieuse().finally(() => { setTimeout(() => btn.classList.remove('spinning'), 500); });
-}
-
-function updateSyncUI(state, text) {
-    const dot = document.getElementById('syncDot');
-    const txt = document.getElementById('syncText');
-    dot.className = 'dot';
-    if (state === 'syncing') dot.classList.add('syncing');
-    else if (state === 'error') dot.classList.add('error');
-    txt.textContent = text;
-}
-
-window.addEventListener('messagerie-updated', (e) => {
-    conversations = e.detail.conversations;
-    if (!messagerieFormulaireOuvert) {
-        if (adherent.statut === 'Organisateur') renderOrganisateur();
-        else renderParticipant();
-    }
-    updateSyncUI('ok', `Mis à jour ${formatTimeAgo(Date.now())}`);
-});
-
-function texteEnCours() {
-    const t = document.querySelectorAll('#messagerieContent textarea');
-    for (const ta of t) { if (ta.value.trim().length > 0) return true; }
-    return false;
 }
 
 function getCategorieInfo(catId) {
@@ -240,38 +224,50 @@ async function chargerListeAdherents() {
     } catch (e) { console.warn('Erreur chargement adhérents:', e); }
 }
 
-// ✅ FONCTION CORRIGÉE : Plus de 'await' bloquant. L'interface s'affiche immédiatement.
+// ✅ FONCTION BLINDÉE : Ne bloque JAMAIS l'affichage
 async function init() {
-    if (!adherent) return;
+    try {
+        if (!adherent) return;
+        console.log('[Messagerie] Démarrage de init()');
 
-    const cacheMsg = getMessagerieCache();
-    if (cacheMsg && cacheMsg.data && cacheMsg.data.conversations) {
-        console.log('[Messagerie] Affichage instantané depuis le cache');
-        conversations = cacheMsg.data.conversations;
-        updateSyncUI('ok', `Cache — ${formatTimeAgo(cacheMsg.timestamp)}`);
-    } else {
-        updateSyncUI('syncing', 'Premier chargement...');
-    }
-
-    // ✅ Rendu IMMÉDIAT de l'interface, sans attendre la liste des adhérents
-    if (adherent.statut === 'Organisateur') {
-        document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
-        renderOrganisateur(); // On affiche d'abord
-        chargerListeAdherents(); // On charge la liste en arrière-plan pour les futurs envois
-    } else {
-        document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
-        renderParticipant();
-    }
-
-    // Synchronisation en arrière-plan
-    synchroniserSilencieuse().catch(e => console.error('[Messagerie] Erreur synchro:', e));
-
-    if (refreshTimer) clearInterval(refreshTimer);
-    refreshTimer = setInterval(() => {
-        if (!texteEnCours() && !document.hidden && !messagerieFormulaireOuvert) {
-            synchroniserSilencieuse();
+        const cacheMsg = getMessagerieCache();
+        if (cacheMsg && cacheMsg.data && cacheMsg.data.conversations) {
+            console.log('[Messagerie] Utilisation du cache');
+            conversations = cacheMsg.data.conversations;
+            updateSyncUI('ok', `Données en cache (${formatTimeAgo(cacheMsg.timestamp)})`);
+        } else {
+            console.log('[Messagerie] Pas de cache, chargement...');
+            updateSyncUI('syncing', 'Chargement des données...');
         }
-    }, 30000);
+
+        // Affichage IMMÉDIAT (même si vide, pour ne jamais bloquer)
+        if (adherent.statut === 'Organisateur') {
+            document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
+            renderOrganisateur();
+            chargerListeAdherents(); // Tâche de fond
+        } else {
+            document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
+            renderParticipant();
+        }
+
+        // Synchro réseau en arrière-plan
+        synchroniserSilencieuse().catch(e => {
+            console.error('[Messagerie] Erreur synchro:', e);
+            updateSyncUI('error', 'Erreur de connexion');
+        });
+
+        // Rafraîchissement périodique
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshTimer = setInterval(() => {
+            if (!texteEnCours() && !document.hidden && !messagerieFormulaireOuvert) {
+                synchroniserSilencieuse();
+            }
+        }, 30000);
+
+    } catch (error) {
+        console.error('[Messagerie] Erreur fatale dans init():', error);
+        updateSyncUI('error', 'Erreur de chargement');
+    }
 }
 
 function renderParticipant() {
@@ -287,11 +283,9 @@ function renderParticipant() {
         if (!msgs || msgs.length === 0) return;
         const last = msgs[msgs.length - 1];
         const cat = last.categorie || 'defaut';
-        
         if (last.traite === 'NON') { nbNonTraites++; catCounts['toutes_nt']++; if (catCounts[cat+'_nt'] !== undefined) catCounts[cat+'_nt']++; }
         else if (last.traite === 'OUI') { nbTraites++; catCounts['toutes_t']++; if (catCounts[cat+'_t'] !== undefined) catCounts[cat+'_t']++; }
         else if (last.traite === 'CLOS') { nbClotures++; catCounts['toutes_c']++; if (catCounts[cat+'_c'] !== undefined) catCounts[cat+'_c']++; }
-        
         catCounts['toutes']++;
         if (catCounts[cat] !== undefined) catCounts[cat]++;
     });
@@ -327,11 +321,7 @@ function renderParticipant() {
     
     const convKeys = Object.keys(convsFiltrees);
     if (convKeys.length === 0) {
-        let emptyText = 'Aucun message';
-        if (filtreStatut === 'nonTraites') emptyText = 'Aucun message non traité';
-        else if (filtreStatut === 'traites') emptyText = 'Aucun message traité';
-        else if (filtreStatut === 'clotures') emptyText = 'Aucun sujet clôturé';
-        html += `<div class="empty-state"><div class="empty-icon">📭</div>${emptyText}</div>`;
+        html += `<div class="empty-state"><div class="empty-icon">📭</div>Aucun message</div>`;
     } else {
         convKeys.forEach(convBase => { html += renderConvCardParticipant(convBase, convsFiltrees[convBase]); });
     }
@@ -606,7 +596,7 @@ function renderFormulaireEnvoiHTML() {
             <button class="btn-add" onclick="ajouterSelectionnes()">➕ Ajouter à la liste</button>
             <button class="btn-remove" onclick="retirerSelectionnes()">➖ Retirer de la liste</button>
         </div>
-        <div class="dest-count">📨 <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
+        <div class="dest-count">📨 <strong>${selectedDestinataires.size}</strong> destinataire(s)</div>
         <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;border:2px solid #ddd;">
             <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:var(--primary);">
             <label for="reponseAutorisee" style="font-size:14px;color:var(--text);cursor:pointer;flex:1;"><strong>✉️ Autoriser les réponses</strong><div style="font-size:11px;color:var(--text-sub);margin-top:2px;">Si décoché, le message sera marqué comme "informatif".</div></label>
@@ -695,6 +685,12 @@ async function envoyerMessageGroupe() {
             document.getElementById('messagerieContent').innerHTML = `<div class="confirm-box">✅ Envoi groupé terminé !<br><strong>${data.nbMessages}</strong> message(s) envoyé(s)</div><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>`;
         } else { alert('Erreur : ' + data.message); init(); }
     } catch(e) { alert('Erreur de connexion'); init(); }
+}
+
+function texteEnCours() {
+    const t = document.querySelectorAll('#messagerieContent textarea');
+    for (const ta of t) { if (ta.value.trim().length > 0) return true; }
+    return false;
 }
 
 document.addEventListener('visibilitychange', () => {
