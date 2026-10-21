@@ -105,7 +105,7 @@ function injecterHeaderPrincipal() {
             </div>
             <div class="header-right">
                 <div class="dark-toggle" onclick="toggleDark()" role="button" aria-label="Mode sombre">
-                    <span class="toggle-label">️</span>
+                    <span class="toggle-label">☀️</span>
                     <div class="toggle-switch"><div class="toggle-knob"></div></div>
                 </div>
                 <div class="deconnexion" onclick="deconnecter()" role="button" aria-label="Se déconnecter">
@@ -118,7 +118,6 @@ function injecterHeaderPrincipal() {
             <div class="header-version">v42.0</div>
         </div>
     `;
-
     document.body.insertBefore(header, document.body.firstChild);
 }
 
@@ -172,36 +171,19 @@ function saveMessagerieCache(data) {
 async function syncMessagerieBackground() {
     if (messagerieSyncEnCours) return;
     const adherent = chargerAdherent();
-    if (!adherent) {
-        console.log('[Messagerie] Pas d\'adhérent connecté, synchro annulée');
-        return;
-    }
+    if (!adherent) return;
     
     messagerieSyncEnCours = true;
-    console.log('[Messagerie] Début synchro pour', adherent.id, '-', adherent.statut);
-    
     try {
         const action = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
-        const url = SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id);
-        console.log('[Messagerie] Fetch:', url);
-        
-        const resp = await fetch(url, { cache: 'no-store' });
+        const resp = await fetch(SCRIPT_URL + '?action=' + action + '&userId=' + encodeURIComponent(adherent.id), { cache: 'no-store' });
         const data = await resp.json();
-        console.log('[Messagerie] Réponse reçue:', data.success ? 'OK' : 'Erreur');
         
         if (data.success) {
             saveMessagerieCache(data);
-            console.log('[Messagerie] Cache sauvegardé avec', Object.keys(data.conversations || {}).length, 'conversations');
-            
-            if (typeof window.onMessagerieSynced === 'function') {
-                window.onMessagerieSynced(data);
-            }
-            
             if (!messagerieFormulaireOuvert) {
                 window.dispatchEvent(new CustomEvent('messagerie-updated', { detail: data }));
             }
-        } else {
-            console.warn('[Messagerie] Erreur API:', data.message);
         }
     } catch (e) {
         console.error('[Messagerie] Erreur synchro:', e);
@@ -224,7 +206,7 @@ function stopMessagerieBackgroundSync() {
 }
 
 // ============================================
-// CHARGEMENT LISTE ADHÉRENTS (pour organisateurs)
+// CHARGEMENT LISTE ADHÉRENTS
 // ============================================
 function getAdherentsFromCache() {
     try {
@@ -248,15 +230,12 @@ function saveAdherentsToCache(data) {
 async function chargerListeAdherentsSilencieux() {
     const adherent = chargerAdherent();
     if (!adherent || adherent.statut !== 'Organisateur') return;
-    
     if (getAdherentsFromCache()) return;
     
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getAdherents&userId=' + encodeURIComponent(adherent.id));
         const data = await resp.json();
-        if (data.success) {
-            saveAdherentsToCache({ adherents: data.adherents, statuts: data.statuts });
-        }
+        if (data.success) saveAdherentsToCache({ adherents: data.adherents, statuts: data.statuts });
     } catch (e) { console.warn('Chargement adhérents échoué:', e); }
 }
 
@@ -288,7 +267,6 @@ async function chargerProgrammeBackground() {
         const data = await resp.json();
         if (data.success) {
             saveProgrammeToCache(data.programme);
-            console.log('[Programme] Cache mis à jour -', data.programme.length, 'entrées');
         }
     } catch (e) { console.warn('[Programme] Erreur chargement:', e); }
 }
@@ -328,96 +306,73 @@ window.addEventListener('beforeunload', () => {
 });
 
 // ==========================================
-// MOTEUR DE PRÉCHARGEMENT EN ARRIÈRE-PLAN
+// MOTEUR DE PRÉCHARGEMENT UNIFIÉ EN ARRIÈRE-PLAN
 // ==========================================
 (function() {
     let backgroundInterval = null;
 
     async function updateAllCaches() {
-        const userId = localStorage.getItem('userId');
-        if (!userId || typeof SCRIPT_URL === 'undefined') return;
+        // ✅ CORRECTION : Utiliser chargerAdherent() au lieu de localStorage.getItem('userId')
+        const adherent = chargerAdherent();
+        if (!adherent || typeof SCRIPT_URL === 'undefined') return;
+        const userId = adherent.id;
 
-        console.log('[Background] Mise à jour silencieuse des données...');
+        console.log('[Background] Mise à jour silencieuse des données pour', userId);
 
-        // 1. Mise à jour des infos utilisateur et Messages
+        // 1. Mise à jour des Messages
         try {
-            const respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
-            const dataUser = await respUser.json();
-            
-            if (dataUser.success) {
-                // On garde les infos user à jour
-                localStorage.setItem('aamb_adherent', JSON.stringify(dataUser.adherent));
-                const isOrg = dataUser.adherent.statut === 'Organisateur';
-
-                // On récupère les messages selon le rôle
-                const actionMsg = isOrg ? 'getAllMessages' : 'getMyMessages';
-                const respMsg = await fetch(SCRIPT_URL + '?action=' + actionMsg + '&userId=' + encodeURIComponent(userId));
-                const dataMsg = await respMsg.json();
-                
-                if (dataMsg.success) {
-                    localStorage.setItem('aamb_messages_cache', JSON.stringify({
-                        timestamp: Date.now(),
-                        data: dataMsg
-                    }));
-                }
+            const actionMsg = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
+            const respMsg = await fetch(SCRIPT_URL + '?action=' + actionMsg + '&userId=' + encodeURIComponent(userId));
+            const dataMsg = await respMsg.json();
+            if (dataMsg.success) {
+                saveMessagerieCache(dataMsg);
             }
-        } catch (e) {
-            console.warn('[Background] Échec mise à jour user/messages:', e);
-        }
+        } catch (e) { console.warn('[Background] Échec mise à jour messages:', e); }
 
         // 2. Mise à jour Vote AG & Chat AG
         try {
             const respVote = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userId));
             const dataVote = await respVote.json();
             if (dataVote.success) {
-                localStorage.setItem('aamb_voteag_cache', JSON.stringify({
-                    timestamp: Date.now(),
-                    data: dataVote
-                }));
+                localStorage.setItem('aamb_voteag_cache', JSON.stringify({ timestamp: Date.now(), data: dataVote }));
             }
-        } catch (e) {
-            console.warn('[Background] Échec mise à jour Vote AG:', e);
-        }
+        } catch (e) { console.warn('[Background] Échec mise à jour Vote AG:', e); }
 
         try {
             const respChat = await fetch(SCRIPT_URL + '?action=getChatAG&userId=' + encodeURIComponent(userId));
             const dataChat = await respChat.json();
             if (dataChat.success) {
-                localStorage.setItem('aamb_chatag_cache', JSON.stringify({
-                    timestamp: Date.now(),
-                    data: dataChat
-                }));
+                localStorage.setItem('aamb_chatag_cache', JSON.stringify({ timestamp: Date.now(), data: dataChat }));
             }
-        } catch (e) {
-            console.warn('[Background] Échec mise à jour Chat AG:', e);
-        }
+        } catch (e) { console.warn('[Background] Échec mise à jour Chat AG:', e); }
+
+        // 3. Mise à jour Chat Conférences
+        try {
+            const respChatConf = await fetch(SCRIPT_URL + '?action=getChatConferences');
+            const dataChatConf = await respChatConf.json();
+            if (dataChatConf.success) {
+                localStorage.setItem('aamb_chatconf_cache', JSON.stringify({ timestamp: Date.now(), data: dataChatConf }));
+            }
+        } catch (e) { console.warn('[Background] Échec mise à jour Chat Conférences:', e); }
     }
 
     function startBackgroundSync() {
-        if (backgroundInterval) return; // Déjà lancé
-        
-        // 1ère mise à jour immédiate
+        if (backgroundInterval) return;
         updateAllCaches();
-        
-        // Puis mise à jour silencieuse toutes les 15 secondes
-        // (15s est un bon compromis pour ne pas saturer les quotas Google Apps Script)
         backgroundInterval = setInterval(updateAllCaches, 15000);
         console.log('[Background] Synchronisation automatique activée (toutes les 15s)');
     }
 
-    // Lancer le processus si l'utilisateur est déjà connecté
-    if (localStorage.getItem('userId')) {
-        setTimeout(startBackgroundSync, 2000); // Délai de 2s pour ne pas gêner le chargement initial
+    // ✅ CORRECTION : Vérifier chargerAdherent() au lieu de 'userId'
+    const adherent = chargerAdherent();
+    if (adherent) {
+        setTimeout(startBackgroundSync, 2000);
     }
 
-    // Si l'utilisateur se connecte ou se déconnecte dans un autre onglet
     window.addEventListener('storage', (e) => {
-        if (e.key === 'userId') {
-            if (e.newValue) {
-                setTimeout(startBackgroundSync, 2000);
-            } else {
-                if (backgroundInterval) clearInterval(backgroundInterval);
-            }
+        if (e.key === 'aamb_adherent') {
+            if (e.newValue) setTimeout(startBackgroundSync, 2000);
+            else if (backgroundInterval) clearInterval(backgroundInterval);
         }
     });
 })();
