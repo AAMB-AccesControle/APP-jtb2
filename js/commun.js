@@ -312,22 +312,39 @@ window.addEventListener('beforeunload', () => {
     let backgroundInterval = null;
 
     async function updateAllCaches() {
-        // ✅ CORRECTION : Utiliser chargerAdherent() au lieu de localStorage.getItem('userId')
         const adherent = chargerAdherent();
         if (!adherent || typeof SCRIPT_URL === 'undefined') return;
         const userId = adherent.id;
 
         console.log('[Background] Mise à jour silencieuse des données pour', userId);
 
-        // 1. Mise à jour des Messages
+        // 1. Mise à jour des infos utilisateur, Adhérents et Messages
         try {
-            const actionMsg = adherent.statut === 'Organisateur' ? 'getAllMessages' : 'getMyMessages';
-            const respMsg = await fetch(SCRIPT_URL + '?action=' + actionMsg + '&userId=' + encodeURIComponent(userId));
-            const dataMsg = await respMsg.json();
-            if (dataMsg.success) {
-                saveMessagerieCache(dataMsg);
+            const respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
+            const dataUser = await respUser.json();
+            
+            if (dataUser.success) {
+                localStorage.setItem('aamb_adherent', JSON.stringify(dataUser.adherent));
+                const isOrg = dataUser.adherent.statut === 'Organisateur';
+
+                // ✅ NOUVEAU : Mise à jour du cache des adhérents si organisateur
+                if (isOrg) {
+                    const respAdh = await fetch(SCRIPT_URL + '?action=getAdherents&userId=' + encodeURIComponent(userId));
+                    const dataAdh = await respAdh.json();
+                    if (dataAdh.success) {
+                        saveAdherentsToCache({ adherents: dataAdh.adherents, statuts: dataAdh.statuts });
+                    }
+                }
+
+                // On récupère les messages selon le rôle
+                const actionMsg = isOrg ? 'getAllMessages' : 'getMyMessages';
+                const respMsg = await fetch(SCRIPT_URL + '?action=' + actionMsg + '&userId=' + encodeURIComponent(userId));
+                const dataMsg = await respMsg.json();
+                if (dataMsg.success) {
+                    saveMessagerieCache(dataMsg);
+                }
             }
-        } catch (e) { console.warn('[Background] Échec mise à jour messages:', e); }
+        } catch (e) { console.warn('[Background] Échec mise à jour user/messages/adhérents:', e); }
 
         // 2. Mise à jour Vote AG & Chat AG
         try {
@@ -363,7 +380,6 @@ window.addEventListener('beforeunload', () => {
         console.log('[Background] Synchronisation automatique activée (toutes les 15s)');
     }
 
-    // ✅ CORRECTION : Vérifier chargerAdherent() au lieu de 'userId'
     const adherent = chargerAdherent();
     if (adherent) {
         setTimeout(startBackgroundSync, 2000);
