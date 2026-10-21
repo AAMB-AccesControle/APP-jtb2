@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG v0.06</title>
+    <title>Chat Conférences/AG v0.07</title>
     <link rel="manifest" href="../manifest.json">
     <script>
     if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -29,216 +29,46 @@
         .page-header h2 { font-size: 18px; flex: 1; }
         .page-content { padding: 16px; max-width: 800px; margin: 0 auto; }
         
-        /* Sélecteur organisateur */
-        .conference-selector {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .conference-selector h3 {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .conference-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .conference-item {
-            padding: 10px;
-            border-radius: 8px;
-            background: var(--bg);
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
+        .conference-selector { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .conference-selector h3 { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
+        .conference-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+        .conference-item { padding: 10px; border-radius: 8px; background: var(--bg); cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .conference-item:hover { background: rgba(26,58,107,0.1); }
-        .conference-item.active {
-            border-color: var(--primary);
-            background: rgba(26,58,107,0.15);
-        }
-        .conference-item .conf-name {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 13px;
-            margin-bottom: 3px;
-        }
-        .conference-item .conf-time {
-            font-size: 11px;
-            color: var(--text-sub);
-        }
-        .conference-item .conf-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            margin-left: 6px;
-        }
+        .conference-item.active { border-color: var(--primary); background: rgba(26,58,107,0.15); }
+        .conference-item .conf-name { font-weight: 600; color: var(--text); font-size: 13px; margin-bottom: 3px; }
+        .conference-item .conf-time { font-size: 11px; color: var(--text-sub); }
+        .conference-item .conf-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 6px; }
         .badge-conf { background: var(--conf-bg); color: var(--conf-border); }
         .badge-ag { background: var(--ag-bg); color: var(--ag-border); }
-        .conf-en-cours {
-            background: rgba(45,125,50,0.15) !important;
-            border-color: #2e7d32 !important;
-        }
-        .conf-en-cours .conf-name::before {
-            content: '🔴 ';
-        }
+        .conf-en-cours { background: rgba(45,125,50,0.15) !important; border-color: #2e7d32 !important; }
+        .conf-en-cours .conf-name::before { content: '🔴 '; }
         
-        /* ✅ Badge conférence en cours pour participants */
-        .current-conference-badge {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-left: 4px solid #2e7d32;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .current-conference-badge .conf-icon {
-            font-size: 24px;
-        }
-        .current-conference-badge .conf-info {
-            flex: 1;
-        }
-        .current-conference-badge .conf-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-        .current-conference-badge .conf-time {
-            font-size: 11px;
-            color: var(--text-sub);
-        }
-        .current-conference-badge .conf-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            margin-left: 6px;
-        }
+        .current-conference-badge { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #2e7d32; display: flex; align-items: center; gap: 12px; }
+        .current-conference-badge .conf-icon { font-size: 24px; }
+        .current-conference-badge .conf-info { flex: 1; }
+        .current-conference-badge .conf-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
+        .current-conference-badge .conf-time { font-size: 11px; color: var(--text-sub); }
+        .current-conference-badge .conf-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 6px; }
         
-        .chat-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            max-height: 500px;
-            margin-bottom: 15px;
-            padding-right: 5px;
-        }
-        .chat-message {
-            margin-bottom: 12px;
-            padding: 10px;
-            border-radius: 10px;
-            background: var(--bg);
-        }
-        .chat-message.mine {
-            background: rgba(26,58,107,0.1);
-            border-left: 3px solid var(--primary);
-        }
-        .chat-message .msg-author {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-        .chat-message .msg-time {
-            font-size: 10px;
-            color: var(--text-sub);
-            float: right;
-        }
-        .chat-message .msg-text {
-            font-size: 13px;
-            color: var(--text);
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-sub);
-        }
-        .empty-state .icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
+        .chat-container { background: var(--card-bg); border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-height: 400px; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; overflow-y: auto; max-height: 500px; margin-bottom: 15px; padding-right: 5px; }
+        .chat-message { margin-bottom: 12px; padding: 10px; border-radius: 10px; background: var(--bg); }
+        .chat-message.mine { background: rgba(26,58,107,0.1); border-left: 3px solid var(--primary); }
+        .chat-message .msg-author { font-size: 11px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+        .chat-message .msg-time { font-size: 10px; color: var(--text-sub); float: right; }
+        .chat-message .msg-text { font-size: 13px; color: var(--text); line-height: 1.4; word-wrap: break-word; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-sub); }
+        .empty-state .icon { font-size: 40px; margin-bottom: 10px; }
         
-        .chat-form {
-            border-top: 1px solid rgba(128,128,128,0.2);
-            padding-top: 15px;
-        }
-        .chat-form textarea {
-            width: 100%;
-            height: 80px;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 14px;
-            resize: vertical;
-            outline: none;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            margin-bottom: 10px;
-        }
+        .chat-form { border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px; }
+        .chat-form textarea { width: 100%; height: 80px; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; resize: vertical; outline: none; background: var(--bg); color: var(--text); font-family: inherit; margin-bottom: 10px; }
         .chat-form textarea:focus { border-color: var(--primary); }
-        .chat-form button {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .chat-form button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .chat-form button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .chat-form button:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-sub);
-        }
-        .sync-status {
-            font-size: 11px;
-            color: var(--text-sub);
-            text-align: center;
-            padding: 6px;
-        }
-        .sync-status .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--success);
-            display: inline-block;
-            margin-right: 5px;
-        }
+        .loading { text-align: center; padding: 40px; color: var(--text-sub); }
         
-        @media (max-width: 480px) {
-            .page-header { top: 90px; }
-        }
+        @media (max-width: 480px) { .page-header { top: 90px; } }
     </style>
 </head>
 <body>
@@ -246,20 +76,12 @@
         <button class="back-btn" onclick="retourAccueil()">←</button>
         <h2>Chat Conférences/AG</h2>
     </div>
-    <div class="sync-status">
-        <span class="dot"></span>
-        <span id="syncText">Connecté</span>
-    </div>
     <div class="page-content">
-        <!-- ✅ Sélecteur pour organisateurs uniquement -->
         <div id="organisateurSelector" class="conference-selector" style="display:none;">
             <h3>📅 Sélectionner une conférence/AG :</h3>
-            <div id="conferenceList" class="conference-list">
-                <div class="loading">Chargement des conférences...</div>
-            </div>
+            <div id="conferenceList" class="conference-list"><div class="loading">Chargement...</div></div>
         </div>
         
-        <!-- ✅ Badge conférence en cours pour participants -->
         <div id="participantBadge" class="current-conference-badge" style="display:none;">
             <div class="conf-icon">📍</div>
             <div class="conf-info">
@@ -270,15 +92,11 @@
 
         <div id="chatContainer" class="chat-container" style="display:none;">
             <div id="chatMessages" class="chat-messages">
-                <div class="empty-state">
-                    <div class="icon">💬</div>
-                    <div>Aucun message pour le moment</div>
-                    <div style="font-size:12px;margin-top:8px;">Soyez le premier à poster !</div>
-                </div>
+                <div class="empty-state"><div class="icon">💬</div><div>Aucun message pour le moment</div></div>
             </div>
             <div class="chat-form">
                 <textarea id="msgTexte" placeholder="Votre message..."></textarea>
-                <button id="btnSend" onclick="envoyerMessage()" disabled> Envoyer</button>
+                <button id="btnSend" onclick="envoyerMessage()" disabled>📤 Envoyer</button>
             </div>
         </div>
     </div>
@@ -294,55 +112,19 @@
         const adherent = chargerAdherent();
         const isOrganisateur = adherent && adherent.statut === 'Organisateur';
 
-        // ✅ FONCTION MODIFIÉE : Utilise le cache en arrière-plan pour un affichage instantané
+        // ✅ FONCTION CORRIGÉE : Affichage instantané depuis le cache, puis synchro en fond
         async function chargerConferences() {
-            try {
-                // 1. TENTATIVE DE CHARGEMENT INSTANTANÉ DEPUIS LE CACHE
-                const cacheChatConf = localStorage.getItem('aamb_chatconf_cache');
-                let affichageInstantane = false;
+            const cacheChatConf = localStorage.getItem('aamb_chatconf_cache');
+            let affichageInstantane = false;
 
-                if (cacheChatConf) {
-                    try {
-                        const dataCache = JSON.parse(cacheChatConf);
-                        const ageCache = Date.now() - dataCache.timestamp;
-                        
-                        if (ageCache < 30000) { // Cache valide si moins de 30 secondes
-                            console.log('[ChatConf] Affichage instantané depuis le cache (âge:', Math.round(ageCache/1000), 's)');
-                            conferences = dataCache.data.conferences;
-                            
-                            // Afficher le bon sélecteur selon le rôle
-                            if (isOrganisateur) {
-                                document.getElementById('organisateurSelector').style.display = 'block';
-                                document.getElementById('participantBadge').style.display = 'none';
-                                afficherListeConferences();
-                            } else {
-                                document.getElementById('organisateurSelector').style.display = 'none';
-                                document.getElementById('participantBadge').style.display = 'block';
-                            }
-                            
-                            const conferenceEnCours = determinerConferenceEnCours();
-                            if (conferenceEnCours) {
-                                console.log('[ChatConf] ✅ Conférence en cours détectée (cache):', conferenceEnCours.nom);
-                                selectionnerConference(conferenceEnCours.id);
-                            } else if (conferences.length > 0) {
-                                selectionnerConference(conferences[0].id);
-                            }
-                            
-                            affichageInstantane = true;
-                        }
-                    } catch (e) {
-                        console.error('[ChatConf] Erreur lecture cache:', e);
-                    }
-                }
-
-                // 2. FALLBACK : Si pas de cache valide, chargement depuis le serveur
-                if (!affichageInstantane) {
-                    console.log('[ChatConf] Pas de cache valide, chargement depuis le serveur...');
-                    const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
-                    const data = await resp.json();
+            if (cacheChatConf) {
+                try {
+                    const dataCache = JSON.parse(cacheChatConf);
+                    const ageCache = Date.now() - dataCache.timestamp;
                     
-                    if (data.success) {
-                        conferences = data.conferences;
+                    if (ageCache < 30000) {
+                        console.log('[ChatConf] Affichage instantané depuis le cache');
+                        conferences = dataCache.data.conferences;
                         
                         if (isOrganisateur) {
                             document.getElementById('organisateurSelector').style.display = 'block';
@@ -354,42 +136,64 @@
                         }
                         
                         const conferenceEnCours = determinerConferenceEnCours();
-                        if (conferenceEnCours) {
-                            selectionnerConference(conferenceEnCours.id);
-                        } else if (conferences.length > 0) {
-                            selectionnerConference(conferences[0].id);
-                        }
-                    } else {
-                        console.error('[ChatConf] Erreur API:', data.message);
+                        if (conferenceEnCours) selectionnerConference(conferenceEnCours.id);
+                        else if (conferences.length > 0) selectionnerConference(conferences[0].id);
+                        
+                        affichageInstantane = true;
                     }
-                }
-            } catch (e) {
-                console.error('[ChatConf] Erreur chargement conférences:', e);
+                } catch (e) { console.error('[ChatConf] Erreur lecture cache:', e); }
             }
+
+            if (!affichageInstantane) {
+                console.log('[ChatConf] Chargement depuis le serveur...');
+                try {
+                    const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
+                    const data = await resp.json();
+                    if (data.success) {
+                        conferences = data.conferences;
+                        if (isOrganisateur) {
+                            document.getElementById('organisateurSelector').style.display = 'block';
+                            document.getElementById('participantBadge').style.display = 'none';
+                            afficherListeConferences();
+                        } else {
+                            document.getElementById('organisateurSelector').style.display = 'none';
+                            document.getElementById('participantBadge').style.display = 'block';
+                        }
+                        const conferenceEnCours = determinerConferenceEnCours();
+                        if (conferenceEnCours) selectionnerConference(conferenceEnCours.id);
+                        else if (conferences.length > 0) selectionnerConference(conferences[0].id);
+                    }
+                } catch (e) { console.error('[ChatConf] Erreur:', e); }
+            }
+            
+            // Lancer la synchro en arrière-plan pour garder à jour
+            setInterval(async () => {
+                try {
+                    const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
+                    const data = await resp.json();
+                    if (data.success) {
+                        conferences = data.conferences;
+                        if (isOrganisateur) afficherListeConferences();
+                        const conferenceEnCours = determinerConferenceEnCours();
+                        if (conferenceEnCours && conferenceActuelle !== conferenceEnCours.id) {
+                            selectionnerConference(conferenceEnCours.id);
+                        }
+                    }
+                } catch (e) {}
+            }, 15000);
         }
 
         function determinerConferenceEnCours() {
             const maintenant = new Date();
-            const aujYear = maintenant.getFullYear();
-            const aujMonth = maintenant.getMonth();
-            const aujDate = maintenant.getDate();
             const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-            
             for (const conf of conferences) {
                 const confDateObj = new Date(conf.date);
-                const confYear = confDateObj.getFullYear();
-                const confMonth = confDateObj.getMonth();
-                const confDay = confDateObj.getDate();
-                
-                if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
+                if (confDateObj.getFullYear() === maintenant.getFullYear() && 
+                    confDateObj.getMonth() === maintenant.getMonth() && 
+                    confDateObj.getDate() === maintenant.getDate()) {
                     const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
                     const [fh, fm] = String(conf.heureFin).split(':').map(Number);
-                    const debutMin = dh * 60 + dm;
-                    const finMin = fh * 60 + fm;
-                    
-                    if (hNow >= debutMin && hNow < finMin) {
-                        return conf;
-                    }
+                    if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) return conf;
                 }
             }
             return null;
@@ -397,68 +201,43 @@
 
         function afficherListeConferences() {
             const container = document.getElementById('conferenceList');
-            
             if (conferences.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence disponible</div>';
+                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence</div>';
                 return;
             }
-            
             const maintenant = new Date();
-            const aujYear = maintenant.getFullYear();
-            const aujMonth = maintenant.getMonth();
-            const aujDate = maintenant.getDate();
             const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-            
             let html = '';
             conferences.forEach(conf => {
-                const heureDebut = extraireHeure(conf.heureDebut);
-                const heureFin = extraireHeure(conf.heureFin);
                 const badgeClass = conf.type === 'AG' ? 'badge-ag' : 'badge-conf';
-                const badgeText = conf.type === 'AG' ? 'AG' : 'Conférence';
                 const isActive = conferenceActuelle === conf.id ? 'active' : '';
-                
                 const confDateObj = new Date(conf.date);
-                const confYear = confDateObj.getFullYear();
-                const confMonth = confDateObj.getMonth();
-                const confDay = confDateObj.getDate();
-                
                 let enCoursClass = '';
-                if (confYear === aujYear && confMonth === aujMonth && confDay === aujDate) {
+                if (confDateObj.getFullYear() === maintenant.getFullYear() && confDateObj.getMonth() === maintenant.getMonth() && confDateObj.getDate() === maintenant.getDate()) {
                     const [dh, dm] = String(conf.heureDebut).split(':').map(Number);
                     const [fh, fm] = String(conf.heureFin).split(':').map(Number);
-                    if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) {
-                        enCoursClass = 'conf-en-cours';
-                    }
+                    if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) enCoursClass = 'conf-en-cours';
                 }
-                
                 html += `<div class="conference-item ${isActive} ${enCoursClass}" onclick="selectionnerConference('${conf.id}')">
-                    <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${badgeText}</span></div>
-                    <div class="conf-time">${heureDebut} - ${heureFin} • ${conf.jour}</div>
+                    <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${conf.type === 'AG' ? 'AG' : 'Conférence'}</span></div>
+                    <div class="conf-time">${extraireHeure(conf.heureDebut)} - ${extraireHeure(conf.heureFin)} • ${conf.jour}</div>
                 </div>`;
             });
-            
             container.innerHTML = html;
         }
 
         function selectionnerConference(conferenceId) {
             conferenceActuelle = conferenceId;
             const conf = conferences.find(c => c.id === conferenceId);
-            
             if (conf) {
                 if (!isOrganisateur) {
                     document.getElementById('participantConfName').innerHTML = conf.nom + ' <span class="conf-badge ' + (conf.type === 'AG' ? 'badge-ag' : 'badge-conf') + '">' + (conf.type === 'AG' ? 'AG' : 'Conférence') + '</span>';
                     document.getElementById('participantConfTime').textContent = extraireHeure(conf.heureDebut) + ' - ' + extraireHeure(conf.heureFin) + ' • ' + conf.jour;
                 }
-                
                 document.getElementById('chatContainer').style.display = 'flex';
                 document.getElementById('btnSend').disabled = false;
-                
-                if (isOrganisateur) {
-                    afficherListeConferences();
-                }
-                
+                if (isOrganisateur) afficherListeConferences();
                 chargerMessages();
-                
                 if (refreshTimer) clearInterval(refreshTimer);
                 refreshTimer = setInterval(chargerMessages, 15000);
             }
@@ -466,104 +245,57 @@
 
         async function chargerMessages() {
             if (!conferenceActuelle) return;
-            
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=getChatMessages&conferenceId=' + encodeURIComponent(conferenceActuelle));
                 const data = await resp.json();
-                
                 if (data.success) {
                     messages = data.messages;
                     afficherMessages();
                 }
-            } catch (e) {
-                console.error('Erreur chargement messages:', e);
-            }
+            } catch (e) { console.error('Erreur chargement messages:', e); }
         }
 
         function afficherMessages() {
             const container = document.getElementById('chatMessages');
-            
             if (messages.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">💬</div>
-                        <div>Aucun message pour le moment</div>
-                        <div style="font-size:12px;margin-top:8px;">Soyez le premier à poster !</div>
-                    </div>
-                `;
+                container.innerHTML = '<div class="empty-state"><div class="icon">💬</div><div>Aucun message pour le moment</div></div>';
                 return;
             }
-            
             let html = '';
             messages.forEach(msg => {
                 const isMine = String(msg.userId) === String(adherent.id);
-                html += `
-                    <div class="chat-message ${isMine ? 'mine' : ''}">
-                        <div class="msg-author">
-                            ${isMine ? '👤 Vous' : ' ' + msg.prenom + ' ' + msg.nom}
-                            <span class="msg-time">${msg.dateHeure}</span>
-                        </div>
-                        <div class="msg-text">${msg.message}</div>
-                    </div>
-                `;
+                html += `<div class="chat-message ${isMine ? 'mine' : ''}">
+                    <div class="msg-author">${isMine ? '👤 Vous' : ' ' + msg.prenom + ' ' + msg.nom}<span class="msg-time">${msg.dateHeure}</span></div>
+                    <div class="msg-text">${msg.message}</div></div>`;
             });
-            
             container.innerHTML = html;
             container.scrollTop = container.scrollHeight;
         }
 
         async function envoyerMessage() {
             const texte = document.getElementById('msgTexte').value.trim();
-            if (!texte) { alert('Veuillez écrire un message'); return; }
-            if (!conferenceActuelle) { alert('Veuillez sélectionner une conférence'); return; }
-            
+            if (!texte || !conferenceActuelle) return;
             const btn = document.getElementById('btnSend');
-            btn.disabled = true;
-            btn.textContent = ' Envoi...';
-            
+            btn.disabled = true; btn.textContent = '⏳ Envoi...';
             try {
-                const params = new URLSearchParams({
-                    action: 'sendChatMessage',
-                    userId: adherent.id,
-                    nom: adherent.nom,
-                    prenom: adherent.prenom,
-                    message: texte,
-                    conferenceId: conferenceActuelle
-                });
-                
+                const params = new URLSearchParams({ action: 'sendChatMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, conferenceId: conferenceActuelle });
                 const resp = await fetch(SCRIPT_URL + '?' + params);
                 const data = await resp.json();
-                
                 if (data.success) {
                     document.getElementById('msgTexte').value = '';
                     await chargerMessages();
-                } else {
-                    alert('Erreur d\'envoi: ' + data.message);
-                }
-            } catch (e) {
-                alert('Erreur de connexion');
-                console.error(e);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '📤 Envoyer';
-            }
+                } else { alert('Erreur: ' + data.message); }
+            } catch (e) { alert('Erreur de connexion'); }
+            finally { btn.disabled = false; btn.textContent = '📤 Envoyer'; }
         }
 
         function extraireHeure(str) {
             if (!str) return '';
             const match = String(str).match(/(\d{1,2}):(\d{2})/);
-            if (match) {
-                const h = String(parseInt(match[1])).padStart(2, '0');
-                const m = match[2];
-                return `${h}h${m}`;
-            }
-            return str;
+            return match ? `${String(parseInt(match[1])).padStart(2, '0')}h${match[2]}` : str;
         }
 
-        window.addEventListener('beforeunload', () => {
-            if (refreshTimer) clearInterval(refreshTimer);
-        });
-
+        window.addEventListener('beforeunload', () => { if (refreshTimer) clearInterval(refreshTimer); });
         chargerConferences();
     </script>
 </body>
