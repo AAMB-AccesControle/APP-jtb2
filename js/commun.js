@@ -326,3 +326,98 @@ window.addEventListener('beforeunload', () => {
     stopMessagerieBackgroundSync();
     stopProgrammeBackgroundSync();
 });
+
+// ==========================================
+// MOTEUR DE PRÉCHARGEMENT EN ARRIÈRE-PLAN
+// ==========================================
+(function() {
+    let backgroundInterval = null;
+
+    async function updateAllCaches() {
+        const userId = localStorage.getItem('userId');
+        if (!userId || typeof SCRIPT_URL === 'undefined') return;
+
+        console.log('[Background] Mise à jour silencieuse des données...');
+
+        // 1. Mise à jour des infos utilisateur et Messages
+        try {
+            const respUser = await fetch(SCRIPT_URL + '?action=getAdherent&id=' + encodeURIComponent(userId));
+            const dataUser = await respUser.json();
+            
+            if (dataUser.success) {
+                // On garde les infos user à jour
+                localStorage.setItem('aamb_adherent', JSON.stringify(dataUser.adherent));
+                const isOrg = dataUser.adherent.statut === 'Organisateur';
+
+                // On récupère les messages selon le rôle
+                const actionMsg = isOrg ? 'getAllMessages' : 'getMyMessages';
+                const respMsg = await fetch(SCRIPT_URL + '?action=' + actionMsg + '&userId=' + encodeURIComponent(userId));
+                const dataMsg = await respMsg.json();
+                
+                if (dataMsg.success) {
+                    localStorage.setItem('aamb_messages_cache', JSON.stringify({
+                        timestamp: Date.now(),
+                        data: dataMsg
+                    }));
+                }
+            }
+        } catch (e) {
+            console.warn('[Background] Échec mise à jour user/messages:', e);
+        }
+
+        // 2. Mise à jour Vote AG & Chat AG
+        try {
+            const respVote = await fetch(SCRIPT_URL + '?action=getVoteAGData&userId=' + encodeURIComponent(userId));
+            const dataVote = await respVote.json();
+            if (dataVote.success) {
+                localStorage.setItem('aamb_voteag_cache', JSON.stringify({
+                    timestamp: Date.now(),
+                    data: dataVote
+                }));
+            }
+        } catch (e) {
+            console.warn('[Background] Échec mise à jour Vote AG:', e);
+        }
+
+        try {
+            const respChat = await fetch(SCRIPT_URL + '?action=getChatAG&userId=' + encodeURIComponent(userId));
+            const dataChat = await respChat.json();
+            if (dataChat.success) {
+                localStorage.setItem('aamb_chatag_cache', JSON.stringify({
+                    timestamp: Date.now(),
+                    data: dataChat
+                }));
+            }
+        } catch (e) {
+            console.warn('[Background] Échec mise à jour Chat AG:', e);
+        }
+    }
+
+    function startBackgroundSync() {
+        if (backgroundInterval) return; // Déjà lancé
+        
+        // 1ère mise à jour immédiate
+        updateAllCaches();
+        
+        // Puis mise à jour silencieuse toutes les 15 secondes
+        // (15s est un bon compromis pour ne pas saturer les quotas Google Apps Script)
+        backgroundInterval = setInterval(updateAllCaches, 15000);
+        console.log('[Background] Synchronisation automatique activée (toutes les 15s)');
+    }
+
+    // Lancer le processus si l'utilisateur est déjà connecté
+    if (localStorage.getItem('userId')) {
+        setTimeout(startBackgroundSync, 2000); // Délai de 2s pour ne pas gêner le chargement initial
+    }
+
+    // Si l'utilisateur se connecte ou se déconnecte dans un autre onglet
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'userId') {
+            if (e.newValue) {
+                setTimeout(startBackgroundSync, 2000);
+            } else {
+                if (backgroundInterval) clearInterval(backgroundInterval);
+            }
+        }
+    });
+})();
