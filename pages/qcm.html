@@ -3,36 +3,333 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QCM v0.056</title>
+<title>QCM des stands v0.01</title>
 <link rel="manifest" href="../manifest.json">
-<script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-</script>
+<script>if (localStorage.getItem('darkMode') === '1') document.documentElement.classList.add('dark');</script>
 <style>
-/* ===== STYLES SPÉCIFIQUES À CETTE PAGE UNIQUEMENT ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
-body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-
-/* Header de page (titre + bouton retour) - styles de base */
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 20px; }
+:root { --bg:#f5f7fa; --text:#222; --text-sub:#666; --card-bg:white; --page-header-bg:#1a3a6b; --primary:#1a3a6b; --success:#10b981; --warning:#f59e0b; --danger:#dc3545; }
+body.dark { --bg:#181c2a; --text:#eee; --text-sub:#999; --card-bg:#242840; --page-header-bg:#0f1f3d; --primary:#2a5f9f; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+.page-header { background:var(--page-header-bg); color:white; padding:14px 20px; display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:10; }
+.back-btn { background:none; border:none; color:white; font-size:22px; cursor:pointer; }
+.page-header h2 { font-size:18px; flex:1; }
+.page-content { padding:16px; max-width:800px; margin:0 auto; }
+.loading { text-align:center; padding:40px; color:var(--text-sub); }
+.error-msg { background:#fee; color:#c00; padding:10px; border-radius:8px; margin:10px 0; }
+.user-info { font-size:13px; color:var(--text-sub); margin-bottom:12px; }
+.pause-card { background:var(--card-bg); border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:5px solid #9ca3af; }
+.pause-card.ouvert { border-left-color:var(--success); }
+.pause-card.avant { border-left-color:var(--warning); }
+.pause-card.clos { border-left-color:var(--danger); }
+.pause-card.envoye { border-left-color:#6b7280; }
+.pause-head { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+.pause-title { font-weight:700; font-size:15px; }
+.badge { padding:3px 10px; border-radius:12px; font-size:11px; font-weight:bold; color:white; }
+.badge.ouvert { background:var(--success); } .badge.avant { background:var(--warning); }
+.badge.clos { background:var(--danger); } .badge.envoye { background:#6b7280; } .badge.nonconfigure { background:#9ca3af; }
+.couleur-chip { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:bold; color:white; margin-right:6px; }
+.couleur-ROUGE { background:#dc2626; } .couleur-VERT { background:#16a34a; }
+.couleur-BLEU { background:#2563eb; } .couleur-JAUNE { background:#ca8a04; }
+.pause-info { font-size:12px; color:var(--text-sub); margin-bottom:8px; }
+.btn-open { width:100%; padding:12px; border:none; border-radius:10px; background:var(--primary); color:white; font-size:14px; font-weight:bold; cursor:pointer; }
+.btn-open.late { background:var(--danger); }
+.countdown { text-align:center; padding:10px; background:var(--bg); border-radius:8px; font-size:13px; color:var(--text-sub); font-weight:600; }
+.countdown .big { font-size:18px; color:var(--text); display:block; margin-top:2px; }
+.quiz-topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+.btn-back { padding:8px 12px; border:none; border-radius:8px; background:var(--card-bg); color:var(--text); font-weight:600; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.quiz-timer { font-size:13px; font-weight:bold; padding:8px 12px; border-radius:8px; background:var(--card-bg); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.quiz-timer.late { background:var(--danger); color:white; }
+.quiz-meta { font-size:13px; color:var(--text-sub); margin-bottom:12px; }
+.q-card { background:var(--card-bg); border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+.q-head { display:flex; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:6px; }
+.q-societe { font-weight:700; color:var(--primary); }
+body.dark .q-societe { color:#8ab4f8; }
+.q-num { color:var(--text-sub); }
+.q-texte { font-size:14px; font-weight:600; margin-bottom:10px; line-height:1.4; }
+.q-props { display:flex; flex-direction:column; gap:6px; }
+.q-prop { display:flex; gap:8px; align-items:flex-start; padding:8px 10px; background:var(--bg); border-radius:8px; font-size:13px; cursor:pointer; border:2px solid transparent; }
+.q-prop:has(input:checked) { border-color:var(--primary); }
+.q-prop input { margin-top:2px; width:16px; height:16px; accent-color:var(--primary); flex-shrink:0; }
+.q-lettre { font-weight:700; color:var(--text-sub); }
+.quiz-footer { position:sticky; bottom:0; background:var(--bg); padding:10px 0; }
+.quiz-progress { font-size:12px; color:var(--text-sub); margin-bottom:6px; text-align:center; }
+.btn-submit { width:100%; padding:14px; border:none; border-radius:10px; background:var(--success); color:white; font-size:15px; font-weight:bold; cursor:pointer; }
+.btn-submit:disabled { opacity:.5; cursor:not-allowed; }
+.success-card { background:var(--card-bg); border-radius:12px; padding:30px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+.success-card .big { font-size:40px; margin-bottom:10px; }
+@media (max-width:480px){ .page-header{ top:90px; } }
 </style>
 </head>
 <body>
 <div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2>QCM</h2>
+  <button class="back-btn" onclick="retourAccueil()">←</button>
+  <h2>🎯 QCM des stands</h2>
 </div>
 <div class="page-content">
-<p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+  <div id="loading" class="loading">Chargement...</div>
+  <div id="errorBox"></div>
+  <div id="listView" style="display:none;">
+    <div id="userInfo" class="user-info"></div>
+    <div id="pausesContainer"></div>
+  </div>
+  <div id="quizView" style="display:none;">
+    <div class="quiz-topbar">
+      <button class="btn-back" onclick="quitterQuestionnaire()">← Mes pauses</button>
+      <div id="quizTimer" class="quiz-timer"></div>
+    </div>
+    <div id="quizMeta" class="quiz-meta"></div>
+    <div id="quizQuestions"></div>
+    <div class="quiz-footer">
+      <div id="quizProgress" class="quiz-progress"></div>
+      <button id="btnSubmit" class="btn-submit" onclick="envoyerQuestionnaire()">📤 Envoyer mes réponses</button>
+    </div>
+  </div>
 </div>
+
 <script src="../js/commun.js"></script>
 <script>
 verifierConnexionOuRediriger();
+const adherent = chargerAdherent();
+
+let state = null;
+let offsetMs = 0;          // écart heure serveur (Paris) - heure appareil
+let tickTimer = null;
+let quiz = null;           // questionnaire ouvert
+let envoiEnCours = false;
+let reloadFlag = false;
+
+function clientNow() { return Date.now() + offsetMs; }
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function draftKey(token) { return 'aamb_qcm_draft_' + token; }
+function penalitePoints(retardSec) { return 0.25 * Math.ceil(retardSec / 10); }
+function fmtDuree(ms) {
+  if (ms < 0) ms = 0;
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return (h > 0 ? h + 'h ' : '') + String(m).padStart(2, '0') + 'min ' + String(sec).padStart(2, '0') + 's';
+}
+
+// ---------------------------------------------
+// État général (pauses, statuts, heure serveur)
+// ---------------------------------------------
+async function chargerEtat(silent) {
+  try {
+    const resp = await fetch(SCRIPT_URL + '?action=getQCMState&userId=' + encodeURIComponent(adherent.id));
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.message || 'Erreur inconnue');
+    offsetMs = data.nowMs - Date.now();
+    state = data.pauses;
+    if (!quiz) renderListe();
+  } catch (e) {
+    if (!silent) document.getElementById('errorBox').innerHTML = '<div class="error-msg">Erreur : ' + escapeHtml(e.message) + '</div>';
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+function statutLive(p) {
+  if (p.statut === 'envoye') return 'envoye';
+  if (!p.debutMs || !p.finMs) return 'nonconfigure';
+  const now = clientNow();
+  if (now < p.debutMs) return 'avant';
+  if (now <= p.finMs) return 'ouvert';
+  return 'clos';
+}
+
+// ---------------------------------------------
+// Liste des 4 pauses
+// ---------------------------------------------
+function renderListe() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('listView').style.display = 'block';
+  document.getElementById('quizView').style.display = 'none';
+  quiz = null;
+
+  const g = state.length ? state[0].groupe : '?';
+  document.getElementById('userInfo').innerHTML =
+    '👤 ' + escapeHtml(adherent.prenom) + ' ' + escapeHtml(adherent.nom) + ' — Groupe <strong>' + escapeHtml(g) + '</strong>';
+
+  const labels = { avant: 'À venir', ouvert: 'EN COURS', clos: 'Terminée', envoye: 'Envoyée', nonconfigure: 'Horaires non définis' };
+  let html = '';
+  state.forEach(p => {
+    const st = statutLive(p);
+    html += '<div class="pause-card ' + st + '">';
+    html += '<div class="pause-head"><span class="pause-title">Pause ' + p.pause + '</span><span><span class="couleur-chip couleur-' + p.couleur + '">' + p.couleur + '</span><span class="badge ' + st + '">' + labels[st] + '</span></span></div>';
+    let info = '📅 ' + (p.jour || '—') + ' • ⏰ ' + (p.debut || '--:--') + ' → ' + (p.fin || '--:--');
+    if (st === 'envoye' && p.soumission) {
+      info += ' • ✅ Envoyé le ' + p.soumission.horodatage + (Number(p.soumission.retard) > 0 ? ' (retard ' + p.soumission.retard + ' s)' : ' (à l\'heure)');
+    }
+    html += '<div class="pause-info">' + info + '</div>';
+    if (st === 'avant') {
+      html += '<div class="countdown" id="cd-' + p.pause + '" data-mode="avant" data-target="' + p.debutMs + '">Ouverture dans<span class="big">--</span></div>';
+    } else if (st === 'ouvert') {
+      html += '<button class="btn-open" onclick="ouvrirQuestionnaire(' + p.pause + ')">📝 Ouvrir mon questionnaire</button>';
+    } else if (st === 'clos') {
+      html += '<div class="countdown" id="cd-' + p.pause + '" data-mode="clos" data-target="' + p.finMs + '"></div>';
+      html += '<button class="btn-open late" style="margin-top:8px;" onclick="ouvrirQuestionnaire(' + p.pause + ')">⚠️ Ouvrir (retard pénalisé)</button>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('pausesContainer').innerHTML = html;
+  majCountdowns();
+}
+
+function majCountdowns() {
+  document.querySelectorAll('.countdown').forEach(el => {
+    const mode = el.dataset.mode;
+    const target = Number(el.dataset.target);
+    const now = clientNow();
+    if (mode === 'avant') {
+      const reste = target - now;
+      el.innerHTML = 'Ouverture dans<span class="big">' + fmtDuree(reste) + '</span>';
+      if (reste <= 0 && !reloadFlag) { reloadFlag = true; chargerEtat(true).then(() => { reloadFlag = false; }); }
+    } else if (mode === 'clos') {
+      const ret = Math.max(0, Math.floor((now - target) / 1000));
+      el.innerHTML = '⚠️ Retard actuel : ' + ret + ' s<span class="big">Pénalité : -' + penalitePoints(ret).toFixed(2) + ' pts</span>';
+    }
+  });
+}
+
+// ---------------------------------------------
+// Ouverture du questionnaire personnel
+// ---------------------------------------------
+async function ouvrirQuestionnaire(pauseNum) {
+  const p = state.find(x => x.pause === pauseNum);
+  if (!p) return;
+  try {
+    const resp = await fetch(SCRIPT_URL + '?action=getQuestionnaire&token=' + encodeURIComponent(p.token));
+    const data = await resp.json();
+    if (!data.success) { alert(data.message); return; }
+    quiz = { pause: p.pause, token: p.token, couleur: p.couleur, finMs: p.finMs, questions: data.questions, answers: {} };
+    const draft = localStorage.getItem(draftKey(p.token));
+    if (draft) { try { quiz.answers = JSON.parse(draft).answers || {}; } catch (e) { quiz.answers = {}; } }
+    renderQuiz();
+  } catch (e) {
+    alert('Erreur de connexion');
+  }
+}
+
+function renderQuiz() {
+  document.getElementById('listView').style.display = 'none';
+  document.getElementById('quizView').style.display = 'block';
+  document.getElementById('quizMeta').innerHTML =
+    'Pause ' + quiz.pause + ' • Stands <strong>' + quiz.couleur + '</strong> • ' + quiz.questions.length + ' questions • Plusieurs réponses possibles par question';
+
+  let html = '';
+  quiz.questions.forEach((q, i) => {
+    html += '<div class="q-card">';
+    html += '<div class="q-head"><span class="q-societe">🏢 ' + escapeHtml(q.societe) + '</span><span class="q-num">Question ' + (i + 1) + '/' + quiz.questions.length + '</span></div>';
+    html += '<div class="q-texte">' + escapeHtml(q.texte) + '</div>';
+    html += '<div class="q-props">';
+    q.props.forEach(pr => {
+      const checked = (quiz.answers[q.questionId] || '').indexOf(pr.lettre) !== -1 ? ' checked' : '';
+      html += '<label class="q-prop"><input type="checkbox" data-q="' + q.questionId + '" value="' + pr.lettre + '"' + checked + ' onchange="majReponse(this)"><span class="q-lettre">' + pr.lettre + '.</span><span>' + escapeHtml(pr.texte) + '</span></label>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('quizQuestions').innerHTML = html;
+  majProgress();
+  majQuizTimer();
+}
+
+function majReponse(cb) {
+  const qid = cb.dataset.q;
+  let lettres = '';
+  document.querySelectorAll('input[data-q="' + qid + '"]').forEach(b => { if (b.checked) lettres += b.value; });
+  lettres = lettres.split('').sort().join('');
+  if (lettres) quiz.answers[qid] = lettres; else delete quiz.answers[qid];
+  // ✅ Brouillon local automatique
+  localStorage.setItem(draftKey(quiz.token), JSON.stringify({ answers: quiz.answers, savedAt: Date.now() }));
+  majProgress();
+}
+
+function majProgress() {
+  const done = Object.keys(quiz.answers).length;
+  document.getElementById('quizProgress').textContent =
+    done + '/' + quiz.questions.length + ' questions complétées • 💾 brouillon enregistré sur cet appareil';
+}
+
+function majQuizTimer() {
+  const el = document.getElementById('quizTimer');
+  if (!quiz || !el) return;
+  const now = clientNow();
+  if (!quiz.finMs) { el.textContent = ''; return; }
+  if (now <= quiz.finMs) {
+    el.className = 'quiz-timer';
+    el.textContent = '⏳ Temps restant : ' + fmtDuree(quiz.finMs - now);
+  } else {
+    const ret = Math.floor((now - quiz.finMs) / 1000);
+    el.className = 'quiz-timer late';
+    el.textContent = '⚠️ Retard ' + ret + ' s → -' + penalitePoints(ret).toFixed(2) + ' pts';
+  }
+}
+
+function quitterQuestionnaire() {
+  quiz = null;
+  chargerEtat(true);
+  renderListe();
+}
+
+// ---------------------------------------------
+// Envoi définitif
+// ---------------------------------------------
+async function envoyerQuestionnaire() {
+  if (envoiEnCours || !quiz) return;
+  const total = quiz.questions.length;
+  const done = Object.keys(quiz.answers).length;
+  const ret = quiz.finMs ? Math.max(0, Math.floor((clientNow() - quiz.finMs) / 1000)) : 0;
+
+  let msg = 'Envoyer DÉFINITIVEMENT ce questionnaire ?\n\n' + done + '/' + total + ' questions complétées.';
+  if (done < total) msg += '\n⚠️ ' + (total - done) + ' question(s) sans réponse (0 point).';
+  if (ret > 0) msg += '\n⚠️ Retard : ' + ret + ' s → pénalité -' + penalitePoints(ret).toFixed(2) + ' pts.';
+  if (!confirm(msg)) return;
+
+  envoiEnCours = true;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi en cours...';
+  try {
+    const params = new URLSearchParams({
+      action: 'submitQCM',
+      userId: adherent.id,
+      token: quiz.token,
+      answers: JSON.stringify(quiz.answers)
+    });
+    const resp = await fetch(SCRIPT_URL + '?' + params);
+    const data = await resp.json();
+    if (data.success) {
+      localStorage.removeItem(draftKey(quiz.token));
+      const retardTxt = data.retardSec > 0 ? 'Retard enregistré : ' + data.retardSec + ' s (pénalité -' + penalitePoints(data.retardSec).toFixed(2) + ' pts)' : 'Envoyé à l\'heure, aucune pénalité.';
+      document.getElementById('quizView').innerHTML =
+        '<div class="success-card"><div class="big">✅</div><h3>Questionnaire envoyé !</h3>' +
+        '<p style="margin:10px 0;font-size:13px;color:var(--text-sub);">Horodatage serveur : <strong>' + escapeHtml(data.horodatage) + '</strong><br>' + retardTxt + '</p>' +
+        '<button class="btn-open" onclick="window.location.reload()">Retour à mes pauses</button></div>';
+      quiz = null;
+    } else {
+      alert('Erreur : ' + data.message);
+      btn.disabled = false;
+      btn.textContent = '📤 Envoyer mes réponses';
+    }
+  } catch (e) {
+    alert('Erreur de connexion');
+    btn.disabled = false;
+    btn.textContent = '📤 Envoyer mes réponses';
+  }
+  envoiEnCours = false;
+}
+
+// ---------------------------------------------
+// Horloge : tick 1 s + refresh état 60 s
+// ---------------------------------------------
+function tick() {
+  if (quiz) majQuizTimer();
+  else majCountdowns();
+}
+tickTimer = setInterval(tick, 1000);
+setInterval(() => { if (!quiz) chargerEtat(true); }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !quiz) chargerEtat(true); });
+
+chargerEtat();
 </script>
 </body>
 </html>
