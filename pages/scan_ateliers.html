@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Ateliers - AAMB JTB 2026</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-header {
+            background: #0a4c6a;
+            color: white;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .topline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        
+        .page-header h2 {
+            font-size: 17px;
+            flex: 1;
+        }
+        
+        .counters {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        
+        .counter-box {
+            background: rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        
+        .counter-box .val {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        
+        .counter-box .lbl {
+            font-size: 10px;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+        
+        .session-line {
+            margin-top: 8px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .page-content {
+            flex: 1;
+            padding: 14px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        #reader {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .scan-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .scan-controls button {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .btn-start {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-stop {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .manual-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .manual-row input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        
+        .manual-row button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: #0a4c6a;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .result-card {
+            display: none;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+        }
+        
+        .result-card.visible {
+            display: block;
+        }
+        
+        .result-card .dest {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        
+        .result-card .detail {
+            font-size: 13px;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+        
+        .result-card .who {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        
+        .result-card .who small {
+            display: block;
+            font-weight: 500;
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        .r-atelier { background: linear-gradient(135deg, #155724, #28a745); }
+        .r-conference { background: linear-gradient(135deg, #0a4c6a, #2e7da8); }
+        .r-pause { background: linear-gradient(135deg, #856404, #d39e00); }
+        .r-hors { background: linear-gradient(135deg, #495057, #6c757d); }
+        .r-inconnu { background: linear-gradient(135deg, #721c24, #dc3545); }
+        
+        .status-msg {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 600;
+        }
+        
+        .status-msg.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .status-msg.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .queue-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .scan-count {
+            background: #0a4c6a;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .queue-item {
+            padding: 7px 8px;
+            border-radius: 6px;
+            background: #f5f7fa;
+            margin-bottom: 5px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="topline">
+            <button class="back-btn" onclick="closePage()">←</button>
+            <h2>🎯 Scan Ateliers JTB 2026</h2>
+            <button class="refresh-btn" onclick="refreshEtat()">⟳</button>
+        </div>
+        <div class="counters">
+            <div class="counter-box"><div class="val" id="cntLocal">0</div><div class="lbl">📱 Ce téléphone<br>session en cours</div></div>
+            <div class="counter-box"><div class="val" id="cntGlobal">0</div><div class="lbl">🌐 Tous scanners<br>session en cours</div></div>
+            <div class="counter-box"><div class="val" id="cntTotal">0/0</div><div class="lbl">✅ Global<br>scannés / attendus</div></div>
+        </div>
+        <div class="session-line" id="sessionLine">Chargement…</div>
+    </div>
+
+    <div class="page-content">
+        <div class="result-card" id="resultCard">
+            <div class="dest" id="rDest">-</div>
+            <div class="detail" id="rDetail">-</div>
+            <div class="who" id="rWho">-</div>
+        </div>
+
+        <div class="card">
+            <h3>📷 Scanner le QR code du participant</h3>
+            <div id="reader"></div>
+            <div class="scan-controls">
+                <button class="btn-start" id="btnStart" onclick="demarrerScan()">▶️ Démarrer le scan</button>
+                <button class="btn-stop" id="btnStop" onclick="arreterScan()" style="display:none;">⏹️ Arrêter</button>
+            </div>
+            <div class="manual-row">
+                <input type="text" id="manualCode" placeholder="Saisie manuelle du code…">
+                <button onclick="traiterCode(document.getElementById('manualCode').value); document.getElementById('manualCode').value='';">OK</button>
+            </div>
+            <div id="scanStatus" class="status-msg"></div>
+        </div>
+
+        <div class="card">
+            <div class="queue-head"><h3>⏳ Envois en attente</h3><span class="scan-count" id="queueCount">0</span></div>
+            <div id="queueList"><div style="text-align:center;color:#666;padding:12px;font-size:12px;">Rien en attente</div></div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKKrPECHa4LveMmYJ4FsQoDkuXtuN7m7MThpieCXsFezufRKj1ATgGQZTdCdpUZLVp/exec';
+        let state = null, offsetMs = 0, html5QrCode = null, scanEnCours = false, relanceAuto = null;
+
+        function nowParis() { return Date.now() + offsetMs; }
+        function queue() { try { return JSON.parse(localStorage.getItem('scanQueue') || '[]'); } catch (e) { return []; } }
+        function setQueue(q) { localStorage.setItem('scanQueue', JSON.stringify(q)); majQueueUI(); }
+
+        async function refreshEtat() {
+            try {
+                const resp = await fetch(SCRIPT_URL + '?action=getScanState');
+                const data = await resp.json();
+                if (data.success) {
+                    state = data;
+                    if (data.nowMs) offsetMs = data.nowMs - Date.now();
+                    majCompteurs();
+                }
+            } catch (e) { console.error('[Scan] erreur état:', e); }
+        }
+
+        function slotEnCours() {
+            if (!state) return null;
+            const now = nowParis();
+            const cov = state.periods.filter(p => now >= p.startMs && now < p.endMs);
+            if (!cov.length) return null;
+            const pause = cov.find(p => p.cat === 'pause');
+            const ateliers = cov.filter(p => p.cat === 'atelier');
+            const conf = cov.find(p => p.cat === 'conference');
+            const ref = conf || ateliers[0] || cov[0];
+            return { cov: cov, pause: pause, ateliers: ateliers, conf: conf, slot: ref.slot, label: ref.date + ' ' + ref.deb + '-' + ref.fin };
+        }
+
+        function destinationPour(id) {
+            const cur = slotEnCours();
+            if (!cur) return { type: 'hors', titre: 'HORS SESSION', detail: 'Aucune session en cours actuellement.', dest: null, slot: null };
+            if (cur.pause) return { type: 'pause', titre: 'PAUSE', detail: cur.pause.label, dest: null, slot: null };
+            const now = nowParis();
+            const reg = (state.registrations[id] || []).find(s => now >= s.startMs && now < s.endMs);
+            if (reg) return { type: 'atelier', titre: 'ATELIER ' + (reg.letter || '?'), detail: reg.libelle, dest: 'Atelier ' + (reg.letter || '?'), slot: cur.slot };
+            if (cur.conf) return { type: 'conference', titre: 'CONFÉRENCE', detail: cur.conf.label, dest: 'Conférence', slot: cur.slot };
+            if (cur.ateliers.length) return { type: 'conference', titre: 'CONFÉRENCE', detail: 'Pas d\'inscription atelier sur ce créneau.', dest: 'Conférence', slot: cur.slot };
+            return { type: 'pause', titre: cur.cov[0].label, detail: cur.cov[0].type, dest: null, slot: null };
+        }
+
+        function traiterCode(raw) {
+            if (!state) { afficherStatus('⏳ Liste non chargée, patientez…', 'error'); return; }
+            const id = String(raw || '').trim().toUpperCase();
+            if (!id) return;
+            const p = state.participants.find(x => x.id === id);
+            if (!p) {
+                afficherResultat({ type: 'inconnu', titre: 'CODE INCONNU', detail: 'ID scanné : ' + id + ' — absent du listing' }, null);
+                afficherStatus('❌ Code non reconnu : ' + id, 'error');
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                return;
+            }
+            const d = destinationPour(id);
+            afficherResultat(d, p);
+            if (navigator.vibrate) navigator.vibrate(120);
+            if (d.slot && d.dest) {
+                const key = 'scanLocalUnique_' + d.slot;
+                let arr = JSON.parse(localStorage.getItem(key) || '[]');
+                const deja = arr.indexOf(id) !== -1;
+                if (!deja) { arr.push(id); localStorage.setItem(key, JSON.stringify(arr)); }
+                const q = queue();
+                const adherent = chargerAdherent();
+                q.push({ token: id, slot: d.slot, dest: d.dest, ts: new Date().toISOString(), scanner: adherent ? adherent.id : '' });
+                setQueue(q);
+                flushQueue();
+                majCompteurs();
+                afficherStatus(deja ? '⚠️ ' + p.prenom + ' ' + p.nom + ' déjà scanné(e) cette session (destination affichée)' : '✅ ' + p.prenom + ' ' + p.nom + ' enregistré(e)', deja ? 'error' : 'success');
+            } else {
+                afficherStatus('ℹ️ ' + p.prenom + ' ' + p.nom + ' — ' + d.titre, 'success');
+            }
+        }
+
+        function afficherResultat(d, p) {
+            const card = document.getElementById('resultCard');
+            card.className = 'result-card visible r-' + d.type;
+            document.getElementById('rDest').textContent = d.titre;
+            document.getElementById('rDetail').textContent = d.detail || '';
+            document.getElementById('rWho').innerHTML = p
+                ? p.prenom + ' ' + p.nom + '<small>' + (p.etablissement || '') + ' · ' + (p.statut || '') + '</small>'
+                : '<small>Participant non identifié</small>';
+        }
+
+        function majCompteurs() {
+            if (!state) return;
+            const cur = slotEnCours();
+            const slot = cur ? cur.slot : null;
+            const local = slot ? JSON.parse(localStorage.getItem('scanLocalUnique_' + slot) || '[]').length : 0;
+            document.getElementById('cntLocal').textContent = local;
+            document.getElementById('cntGlobal').textContent = slot ? (state.counters.perSlot[slot] || 0) : '—';
+            document.getElementById('cntTotal').textContent = state.counters.totalScannes + '/' + state.participants.length;
+            document.getElementById('sessionLine').textContent = cur
+                ? (cur.pause ? '☕ ' + cur.pause.label : '🕐 Session en cours : ' + cur.label)
+                : '⌛ Hors session congrès';
+        }
+
+        async function flushQueue() {
+            const q = queue();
+            if (!q.length) return;
+            const restants = [];
+            for (let i = 0; i < q.length; i++) {
+                const rec = q[i];
+                try {
+                    const params = new URLSearchParams({ action: 'saveScanSlot', token: rec.token, slot: rec.slot, dest: rec.dest, ts: rec.ts, scanner: rec.scanner });
+                    const resp = await fetch(SCRIPT_URL + '?' + params);
+                    const data = await resp.json();
+                    if (!data.success) restants.push(rec);
+                } catch (e) { restants.push(rec); }
+            }
+            setQueue(restants);
+            if (restants.length < q.length) refreshEtat();
+        }
+
+        function majQueueUI() {
+            const q = queue();
+            document.getElementById('queueCount').textContent = q.length;
+            const el = document.getElementById('queueList');
+            if (!q.length) { el.innerHTML = '<div style="text-align:center;color:#666;padding:12px;font-size:12px;">Rien en attente</div>'; return; }
+            el.innerHTML = q.slice().reverse().map(function (s) {
+                return '<div class="queue-item"><span>' + s.token + ' → ' + s.dest + '</span><span>' + (s.ts.split('T')[1] || '').substring(0, 8) + '</span></div>';
+            }).join('');
+        }
+
+        function demarrerScan() {
+            if (scanEnCours) return;
+            html5QrCode = new Html5Qrcode("reader");
+            const taille = Math.min(window.innerWidth * 0.9, 380);
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: taille, height: taille } },
+                function (txt) {
+                    arreterScan(true);
+                    traiterCode(txt);
+                    relanceAuto = setTimeout(function () { demarrerScan(); }, 4000);
+                },
+                function () {}
+            ).then(function () {
+                scanEnCours = true;
+                document.getElementById('btnStart').style.display = 'none';
+                document.getElementById('btnStop').style.display = 'block';
+            }).catch(function (err) { afficherStatus('❌ Erreur caméra : ' + err, 'error'); });
+        }
+
+        function arreterScan(silencieux) {
+            if (relanceAuto) { clearTimeout(relanceAuto); relanceAuto = null; }
+            if (!scanEnCours || !html5QrCode) return;
+            html5QrCode.stop().then(function () {
+                html5QrCode.clear();
+                scanEnCours = false;
+                document.getElementById('btnStart').style.display = 'block';
+                document.getElementById('btnStop').style.display = 'none';
+                if (!silencieux) afficherStatus('📷 Caméra arrêtée', 'success');
+            }).catch(function () {});
+        }
+
+        function afficherStatus(msg, type) {
+            const el = document.getElementById('scanStatus');
+            el.textContent = msg;
+            el.className = 'status-msg ' + type;
+            setTimeout(function () { el.style.display = 'none'; el.className = 'status-msg'; }, 4000);
+        }
+
+        function closePage() {
+            if (scanEnCours && html5QrCode) html5QrCode.stop().catch(function () {});
+            window.location.href = 'app.html';
+        }
+
+        window.addEventListener('beforeunload', function () { if (scanEnCours && html5QrCode) html5QrCode.stop().catch(function () {}); });
+
+        // Initialisation
+        refreshEtat().then(function () {
+            majQueueUI();
+            flushQueue();
+            setInterval(flushQueue, 30000);
+            setInterval(refreshEtat, 60000);
+        });
+    </script>
+</body>
+</html>
