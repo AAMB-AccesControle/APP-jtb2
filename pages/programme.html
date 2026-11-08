@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.61 — 44èmes JTB Besançon</title>
+<title>Programme JTB 2026 v0.62 — 44èmes JTB Besançon</title>
 <link rel="manifest" href="../manifest.json">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,32 +72,37 @@ body {
 ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
 
-/* ---- 5 COULEURS DE CATÉGORIES (fond gradient + bordure latérale) ---- */
+/* ---- 6 COULEURS DE CATÉGORIES (plus prononcées/claires) ---- */
 .session-card { transition: all 0.3s; }
 
-/* Conférences = ROSE */
-.cat-conf   { border-left: 4px solid #ff007f; }
-.cat-conf .main-block { background: linear-gradient(90deg, rgba(255, 0, 127, 0.12) 0%, rgba(255, 0, 127, 0.02) 60%, transparent 100%); }
-.cat-conf .badge-type { background: rgba(255, 0, 127, 0.2); border-color: rgba(255, 0, 127, 0.5); color: #ff8ec7; }
+/* Conférences = ROSE VIF CLAIR */
+.cat-conf   { border-left: 4px solid #ff4da6; }
+.cat-conf .main-block { background: linear-gradient(90deg, rgba(255, 77, 166, 0.18) 0%, rgba(255, 77, 166, 0.04) 60%, transparent 100%); }
+.cat-conf .badge-type { background: rgba(255, 77, 166, 0.25); border-color: rgba(255, 77, 166, 0.6); color: #ff99c8; }
 
-/* Pauses = JAUNE / AMBER */
-.cat-pause  { border-left: 4px solid #ffb703; }
-.cat-pause .main-block { background: linear-gradient(90deg, rgba(255, 183, 3, 0.12) 0%, rgba(255, 183, 3, 0.02) 60%, transparent 100%); }
-.cat-pause .badge-type { background: rgba(255, 183, 3, 0.2); border-color: rgba(255, 183, 3, 0.5); color: #ffd866; }
+/* Pauses / Visites = JAUNE VIF CLAIR */
+.cat-pause  { border-left: 4px solid #ffc933; }
+.cat-pause .main-block { background: linear-gradient(90deg, rgba(255, 201, 51, 0.18) 0%, rgba(255, 201, 51, 0.04) 60%, transparent 100%); }
+.cat-pause .badge-type { background: rgba(255, 201, 51, 0.25); border-color: rgba(255, 201, 51, 0.6); color: #ffe082; }
 
-/* Soirées / AG = JAUNE DORÉ */
-.cat-soiree { border-left: 4px solid #fbbf24; }
-.cat-soiree .main-block { background: linear-gradient(90deg, rgba(251, 191, 36, 0.14) 0%, rgba(251, 191, 36, 0.03) 60%, transparent 100%); }
-.cat-soiree .badge-type { background: rgba(251, 191, 36, 0.25); border-color: rgba(251, 191, 36, 0.6); color: #fde68a; }
+/* Déjeuner = VERT VIF CLAIR */
+.cat-dejeuner { border-left: 4px solid #4ade80; }
+.cat-dejeuner .main-block { background: linear-gradient(90deg, rgba(74, 222, 128, 0.18) 0%, rgba(74, 222, 128, 0.04) 60%, transparent 100%); }
+.cat-dejeuner .badge-type { background: rgba(74, 222, 128, 0.25); border-color: rgba(74, 222, 128, 0.6); color: #86efac; }
 
-/* Autres (Accueil, Ouverture, Clôture, Visite) = GRIS */
-.cat-autre  { border-left: 4px solid #64748b; }
-.cat-autre .main-block { background: linear-gradient(90deg, rgba(100, 116, 139, 0.12) 0%, rgba(100, 116, 139, 0.02) 60%, transparent 100%); }
-.cat-autre .badge-type { background: rgba(100, 116, 139, 0.2); border-color: rgba(100, 116, 139, 0.5); color: #cbd5e1; }
+/* Soirées / AG = VIOLET VIF */
+.cat-soiree { border-left: 4px solid #a855f7; }
+.cat-soiree .main-block { background: linear-gradient(90deg, rgba(168, 85, 247, 0.18) 0%, rgba(168, 85, 247, 0.04) 60%, transparent 100%); }
+.cat-soiree .badge-type { background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.6); color: #c084fc; }
 
-/* Ateliers = BLEU (pour les cartes ateliers uniquement) */
-.atelier-block { border-left: 3px solid #00f2fe; background: linear-gradient(90deg, rgba(0, 242, 254, 0.06) 0%, transparent 70%); }
-.atelier-block:hover { background: linear-gradient(90deg, rgba(0, 242, 254, 0.12) 0%, rgba(0, 242, 254, 0.03) 70%, transparent 100%); }
+/* Autres (Accueil, Inscription, Présentation, Ouverture, Clôture) = GRIS CLAIR */
+.cat-autre  { border-left: 4px solid #94a3b8; }
+.cat-autre .main-block { background: linear-gradient(90deg, rgba(148, 163, 184, 0.18) 0%, rgba(148, 163, 184, 0.04) 60%, transparent 100%); }
+.cat-autre .badge-type { background: rgba(148, 163, 184, 0.25); border-color: rgba(148, 163, 184, 0.6); color: #cbd5e1; }
+
+/* Ateliers = CYAN VIF CLAIR */
+.atelier-block { border-left: 3px solid #33f5ff; background: linear-gradient(90deg, rgba(51, 245, 255, 0.08) 0%, transparent 70%); }
+.atelier-block:hover { background: linear-gradient(90deg, rgba(51, 245, 255, 0.15) 0%, rgba(51, 245, 255, 0.04) 70%, transparent 100%); }
 
 /* ---- SURBRILLANCE "EN COURS" ---- */
 .session-card.en-cours {
@@ -231,7 +236,7 @@ body {
             <i class="fa-solid fa-bolt text-cyan-400"></i>
             <span>44èmes Journées Techniques Biomédicales — Besançon 2026</span>
         </div>
-        <div class="text-[11px] font-mono text-slate-500">v0.61 • AAMB</div>
+        <div class="text-[11px] font-mono text-slate-500">v0.62 • AAMB</div>
     </div>
 </footer>
 
@@ -247,23 +252,43 @@ let isAnimating = false;
 let jourActif = null;
 
 // ====================================================================
-// CATÉGORISATION PAR CODE COLONNE A (inchangée depuis v0.60)
+// CATÉGORISATION PAR CODE COLONNE A (6 catégories)
 // ====================================================================
 function categoriserItem(item) {
     const idUp = String(item.id || '').trim().toUpperCase();
     const typeUp = String(item.type || '').trim().toUpperCase();
     const lettreFin = (idUp.match(/([A-Z])$/) || [, ''])[1];
+
+    // Ateliers
     if (idUp.indexOf('ATEL') === 0) return { cat: 'atelier', subType: 'atelier', letter: lettreFin || 'A' };
     if (typeUp === 'ATELIER1') return { cat: 'atelier', subType: 'atelier', letter: 'A' };
     if (typeUp === 'ATELIER2') return { cat: 'atelier', subType: 'atelier', letter: 'B' };
     if (typeUp === 'ATELIER')  return { cat: 'atelier', subType: 'atelier', letter: lettreFin || 'A' };
+
+    // Déjeuner (NOUVEAU - vert)
+    if (idUp.indexOf('DEJ') === 0 || idUp.indexOf('REPAS') === 0 || idUp.indexOf('DEJEUNER') === 0) {
+        return { cat: 'conf', subType: 'déjeuner', badgeLabel: 'Déjeuner', icon: 'fa-utensils' };
+    }
+
+    // Pauses / Visites (jaune)
     if (idUp.indexOf('PAUSE') === 0) return { cat: 'conf', subType: 'pause', badgeLabel: 'Pause', icon: 'fa-mug-hot' };
+    if (idUp.indexOf('VISITE') === 0) return { cat: 'conf', subType: 'pause', badgeLabel: 'Visite des stands', icon: 'fa-store' };
+
+    // Soirées / AG (violet)
     if (idUp.indexOf('AG') === 0 || typeUp === 'AG') return { cat: 'conf', subType: 'soiree', badgeLabel: 'Assemblée Générale', icon: 'fa-users' };
     if (idUp.indexOf('SOIREE') === 0 || typeUp === 'SOIREE' || typeUp === 'SOIRÉE') return { cat: 'conf', subType: 'soiree', badgeLabel: 'Soirée', icon: 'fa-champagne-glasses' };
+
+    // Conférences (rose)
     if (idUp.indexOf('CONF') === 0 || typeUp === 'CONFERENCE' || typeUp === 'CONFÉRENCE') return { cat: 'conf', subType: 'conf', badgeLabel: 'Conférence', icon: 'fa-microphone' };
-    if (idUp.indexOf('ACC') === 0 || idUp === 'OUVERTURE') return { cat: 'conf', subType: 'autre', badgeLabel: 'Accueil / Ouverture', icon: 'fa-door-open' };
-    if (idUp === 'CLOTURE' || idUp.indexOf('CLOTURE') === 0) return { cat: 'conf', subType: 'autre', badgeLabel: 'Clôture', icon: 'fa-flag-checkered' };
-    if (idUp.indexOf('VISITE') === 0) return { cat: 'conf', subType: 'pause', badgeLabel: 'Visite des stands', icon: 'fa-store' };
+
+    // Autres : Accueil, Inscription, Présentation, Ouverture, Clôture (gris)
+    if (idUp.indexOf('ACC') === 0 || idUp.indexOf('INSCRIPTION') === 0 || idUp.indexOf('PRESENTATION') === 0 || idUp.indexOf('PRÉSENTATION') === 0) {
+        return { cat: 'conf', subType: 'autre', badgeLabel: item.nom || 'Accueil', icon: 'fa-door-open' };
+    }
+    if (idUp === 'OUVERTURE' || idUp.indexOf('OUVERTURE') === 0) return { cat: 'conf', subType: 'autre', badgeLabel: 'Ouverture des JTB', icon: 'fa-flag' };
+    if (idUp === 'CLOTURE' || idUp.indexOf('CLOTURE') === 0 || idUp.indexOf('CLÔTURE') === 0) return { cat: 'conf', subType: 'autre', badgeLabel: 'Clôture', icon: 'fa-flag-checkered' };
+
+    // Fallback
     return { cat: 'conf', subType: 'autre', badgeLabel: item.type || 'Session', icon: 'fa-circle-info' };
 }
 
@@ -293,7 +318,6 @@ async function chargerProgramme() {
             for (const jour in programmeData) {
                 programmeData[jour].sort((a, b) => String(a.heureDebut).localeCompare(String(b.heureDebut)));
             }
-            // Remplir les dates sous les onglets
             for (const j of jours) {
                 const d = datesParJour[j];
                 if (d) {
@@ -370,7 +394,7 @@ function escapeHtml(s) {
 }
 
 // ====================================================================
-// GÉNÉRATION AFFICHAGE (style cyberpunk)
+// GÉNÉRATION AFFICHAGE (6 couleurs)
 // ====================================================================
 function genererAffichage() {
     jours.forEach(jour => {
@@ -409,7 +433,7 @@ function genererAffichage() {
             html += '  <span class="live-badge"><span class="dot"></span>EN COURS</span>';
             html += '</div>';
 
-            // SECTION PRINCIPALE (conf / pause / soirée / autre)
+            // SECTION PRINCIPALE
             if (confItem) {
                 const cat = confItem._cat;
                 const desc = confItem.description ? '<p class="text-xs text-slate-300 mt-2 leading-relaxed">' + escapeHtml(confItem.description) + '</p>' : '';
@@ -423,7 +447,7 @@ function genererAffichage() {
                 html += '</div>';
             }
 
-            // GRID ATELIERS (2 colonnes)
+            // GRID ATELIERS
             if (atelier1 || atelier2) {
                 html += '<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800/80 bg-slate-950/40">';
                 if (atelier1) html += buildAtelierBlock(atelier1, 'A');
@@ -452,7 +476,7 @@ function buildAtelierBlock(atelier, letter) {
 }
 
 // ====================================================================
-// NAVIGATION JOURS (avec swipe + animation)
+// NAVIGATION JOURS
 // ====================================================================
 function afficherJour(jour, direction = null) {
     if (isAnimating) return;
@@ -488,7 +512,7 @@ function afficherJour(jour, direction = null) {
 }
 
 // ====================================================================
-// SURBRILLANCE "EN COURS" (conservée de v0.60)
+// SURBRILLANCE "EN COURS"
 // ====================================================================
 function surbrillanceEnCours() {
     const maintenant = new Date();
