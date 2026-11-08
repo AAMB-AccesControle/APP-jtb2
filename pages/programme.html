@@ -1,206 +1,239 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.60</title>
+<title>Programme JTB 2026 v0.61 — 44èmes JTB Besançon</title>
 <link rel="manifest" href="../manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
+tailwind.config = {
+    darkMode: 'class',
+    theme: {
+        extend: {
+            colors: {
+                cyber: {
+                    bg: '#070b14',
+                    card: 'rgba(15, 23, 42, 0.65)',
+                    border: 'rgba(56, 189, 248, 0.2)',
+                    neonBlue: '#00f2fe',
+                    neonPink: '#ff007f',
+                    neonAmber: '#ffb703',
+                    accent: '#38bdf8',
+                }
+            },
+            fontFamily: {
+                orbitron: ['Orbitron', 'sans-serif'],
+                rajdhani: ['Rajdhani', 'sans-serif'],
+                sans: ['Inter', 'sans-serif'],
+            },
+            boxShadow: {
+                glowBlue: '0 0 20px rgba(0, 242, 254, 0.35)',
+                glowPink: '0 0 20px rgba(255, 0, 127, 0.35)',
+                glowAmber: '0 0 15px rgba(255, 183, 3, 0.3)',
+                glowLive: '0 0 25px rgba(255, 20, 147, 0.5), inset 0 0 15px rgba(255, 20, 147, 0.15)',
+            }
+        }
+    }
+}
 </script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
---bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
---page-header-bg: #1a3a6b; --heure-bg: #555;
-
---conf-bg: #ffcdd5; --conf-border: #c0002a;
---atelier-bg: #c8e0f7; --atelier-border: #1565c0; --atelier-text: #1a3a6b;
---pause-bg: #fff3b0; --pause-border: #f9a825; --pause-text: #5a4a00;
---ag-bg: #e1bee7; --ag-border: #7b1fa2; --ag-text: #4a148c;
---soiree-bg: #ce93d8; --soiree-border: #4a148c; --soiree-text: #1a0a2e;
---autre-bg: #e0e0e0; --autre-border: #616161; --autre-text: #333;
-
---badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
---conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
---atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
---pause-en-cours-bg: #c97f00; --pause-en-cours-border: #8a5800;
---ag-en-cours-bg: #5e1380; --ag-en-cours-border: #3c0c52;
---soiree-en-cours-bg: #3c0c52; --soiree-en-cours-border: #240732;
---autre-en-cours-bg: #424242; --autre-en-cours-border: #212121;
-
---jour-btn-bg: #fff9c4;
---jour-btn-active-bg: #d4a017;
---jour-btn-text: #333;
---jour-btn-active-text: white;
+body {
+    background-color: #050811;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+        linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+    background-attachment: fixed;
 }
-body.dark {
---bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
---page-header-bg: #0f1f3d; --heure-bg: #3a3d55;
-
---conf-bg: #3d1525; --conf-border: #c0002a;
---atelier-bg: #1e2d42; --atelier-border: #1565c0; --atelier-text: #90caf9;
---pause-bg: #3d3410; --pause-border: #fbbf24; --pause-text: #fcd34d;
---ag-bg: #2d1a3d; --ag-border: #ce93d8; --ag-text: #e1bee7;
---soiree-bg: #4a148c; --soiree-border: #e1bee7; --soiree-text: #f3e5f5;
---autre-bg: #2a2a35; --autre-border: #9e9e9e; --autre-text: #e0e0e0;
-
---badge-en-cours-bg: #2d2d2d; --badge-en-cours-text: white;
---conf-en-cours-bg: #7a1520; --conf-en-cours-border: #5a0f18;
---atelier-en-cours-bg: #1e6090; --atelier-en-cours-border: #144a70;
---pause-en-cours-bg: #c97f00; --pause-en-cours-border: #8a5800;
---ag-en-cours-bg: #5e1380; --ag-en-cours-border: #3c0c52;
---soiree-en-cours-bg: #3c0c52; --soiree-en-cours-border: #240732;
---autre-en-cours-bg: #424242; --autre-en-cours-border: #212121;
-
---jour-btn-bg: #3d3410;
---jour-btn-active-bg: #fbbf24;
---jour-btn-text: #fcd34d;
---jour-btn-active-text: #1a1a1a;
+.cyber-grid {
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 10px; }
-
-.jour-btns { display: flex; gap: 7px; margin-bottom: 12px; padding-bottom: 4px; }
-.jour-btn { 
-    flex: 1; 
-    background: var(--jour-btn-bg); 
-    color: var(--jour-btn-text); 
-    border: none; 
-    padding: 7px 10px; 
-    border-radius: 18px; 
-    cursor: pointer; 
-    font-size: 12px; 
-    font-weight: 500; 
-    text-align: center;
-    white-space: nowrap;
-    transition: background 0.3s, color 0.3s;
+.glass-panel {
+    background: rgba(13, 22, 41, 0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(56, 189, 248, 0.18);
 }
-.jour-btn.active { 
-    background: var(--jour-btn-active-bg); 
-    color: var(--jour-btn-active-text); 
-    font-weight: bold;
+.glass-panel-active {
+    background: rgba(20, 35, 65, 0.85);
+    border: 1px solid rgba(0, 242, 254, 0.6);
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
 }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #070b14; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
 
-.prog-slot { margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-.prog-heure { background: var(--heure-bg); color: white; padding: 5px 12px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
-.badge-en-cours {
-    background: var(--badge-en-cours-bg);
-    color: var(--badge-en-cours-text);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
+/* ---- 5 COULEURS DE CATÉGORIES (fond gradient + bordure latérale) ---- */
+.session-card { transition: all 0.3s; }
+
+/* Conférences = ROSE */
+.cat-conf   { border-left: 4px solid #ff007f; }
+.cat-conf .main-block { background: linear-gradient(90deg, rgba(255, 0, 127, 0.12) 0%, rgba(255, 0, 127, 0.02) 60%, transparent 100%); }
+.cat-conf .badge-type { background: rgba(255, 0, 127, 0.2); border-color: rgba(255, 0, 127, 0.5); color: #ff8ec7; }
+
+/* Pauses = JAUNE / AMBER */
+.cat-pause  { border-left: 4px solid #ffb703; }
+.cat-pause .main-block { background: linear-gradient(90deg, rgba(255, 183, 3, 0.12) 0%, rgba(255, 183, 3, 0.02) 60%, transparent 100%); }
+.cat-pause .badge-type { background: rgba(255, 183, 3, 0.2); border-color: rgba(255, 183, 3, 0.5); color: #ffd866; }
+
+/* Soirées / AG = JAUNE DORÉ */
+.cat-soiree { border-left: 4px solid #fbbf24; }
+.cat-soiree .main-block { background: linear-gradient(90deg, rgba(251, 191, 36, 0.14) 0%, rgba(251, 191, 36, 0.03) 60%, transparent 100%); }
+.cat-soiree .badge-type { background: rgba(251, 191, 36, 0.25); border-color: rgba(251, 191, 36, 0.6); color: #fde68a; }
+
+/* Autres (Accueil, Ouverture, Clôture, Visite) = GRIS */
+.cat-autre  { border-left: 4px solid #64748b; }
+.cat-autre .main-block { background: linear-gradient(90deg, rgba(100, 116, 139, 0.12) 0%, rgba(100, 116, 139, 0.02) 60%, transparent 100%); }
+.cat-autre .badge-type { background: rgba(100, 116, 139, 0.2); border-color: rgba(100, 116, 139, 0.5); color: #cbd5e1; }
+
+/* Ateliers = BLEU (pour les cartes ateliers uniquement) */
+.atelier-block { border-left: 3px solid #00f2fe; background: linear-gradient(90deg, rgba(0, 242, 254, 0.06) 0%, transparent 70%); }
+.atelier-block:hover { background: linear-gradient(90deg, rgba(0, 242, 254, 0.12) 0%, rgba(0, 242, 254, 0.03) 70%, transparent 100%); }
+
+/* ---- SURBRILLANCE "EN COURS" ---- */
+.session-card.en-cours {
+    border: 1px solid rgba(255, 20, 147, 0.6) !important;
+    box-shadow: 0 0 30px rgba(255, 20, 147, 0.35), inset 0 0 20px rgba(255, 20, 147, 0.1);
+    animation: pulseLive 2.5s infinite ease-in-out;
+}
+.session-card.en-cours .live-badge { display: inline-flex !important; }
+@keyframes pulseLive {
+    0%, 100% { box-shadow: 0 0 25px rgba(255, 20, 147, 0.3), inset 0 0 15px rgba(255, 20, 147, 0.1); }
+    50% { box-shadow: 0 0 40px rgba(255, 20, 147, 0.5), inset 0 0 25px rgba(255, 20, 147, 0.18); }
+}
+.live-badge {
     display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(255, 20, 147, 0.2);
+    border: 1px solid rgba(255, 20, 147, 0.5);
+    color: #ffb3d9;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 1px;
 }
-.prog-slot.en-cours .badge-en-cours { display: inline-block; }
+.live-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #ff1493;
+    box-shadow: 0 0 8px #ff1493;
+    animation: blink 1.2s infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-/* ---- Bandes principales (tout sauf ateliers) : 5 couleurs ---- */
-.prog-conf { padding: 10px 12px; font-size: 13px; border-left: 4px solid; transition: all 0.3s; }
-.prog-conf.type-conf   { background: var(--conf-bg);   border-left-color: var(--conf-border);   color: var(--text); }
-.prog-conf.type-pause  { background: var(--pause-bg);  border-left-color: var(--pause-border);  color: var(--pause-text); }
-.prog-conf.type-ag     { background: var(--ag-bg);     border-left-color: var(--ag-border);     color: var(--ag-text); }
-.prog-conf.type-soiree { background: var(--soiree-bg); border-left-color: var(--soiree-border); color: var(--soiree-text); }
-.prog-conf.type-autre  { background: var(--autre-bg);  border-left-color: var(--autre-border);  color: var(--autre-text); }
-
-.prog-ateliers { display: flex; }
-.atelier { flex: 1; background: var(--atelier-bg); padding: 7px 10px; font-size: 11px; color: var(--atelier-text); border-top: 1px solid rgba(128,128,128,0.2); border-left: 4px solid var(--atelier-border); transition: all 0.3s; }
-.atelier:last-child { border-left: 1px solid rgba(128,128,128,0.2); }
-.atelier strong { font-size: 12px; }
-
-/* ---- Styles "EN COURS" (5 couleurs) ---- */
-.prog-slot.en-cours .prog-heure { background: var(--badge-en-cours-bg) !important; }
-
-.prog-slot.en-cours .prog-conf.type-conf {
-    background: var(--conf-en-cours-bg) !important;
-    border-left: 4px solid var(--conf-en-cours-border) !important;
-    font-weight: bold; color: white !important;
-}
-.prog-slot.en-cours .prog-conf.type-pause {
-    background: var(--pause-en-cours-bg) !important;
-    border-left: 4px solid var(--pause-en-cours-border) !important;
-    font-weight: bold; color: white !important;
-}
-.prog-slot.en-cours .prog-conf.type-ag {
-    background: var(--ag-en-cours-bg) !important;
-    border-left: 4px solid var(--ag-en-cours-border) !important;
-    font-weight: bold; color: white !important;
-}
-.prog-slot.en-cours .prog-conf.type-soiree {
-    background: var(--soiree-en-cours-bg) !important;
-    border-left: 4px solid var(--soiree-en-cours-border) !important;
-    font-weight: bold; color: white !important;
-}
-.prog-slot.en-cours .prog-conf.type-autre {
-    background: var(--autre-en-cours-bg) !important;
-    border-left: 4px solid var(--autre-en-cours-border) !important;
-    font-weight: bold; color: white !important;
-}
-.prog-slot.en-cours .prog-conf small { color: rgba(255,255,255,0.85) !important; }
-
-.prog-slot.en-cours .atelier {
-    background: var(--atelier-en-cours-bg) !important;
-    border-left: 4px solid var(--atelier-en-cours-border) !important;
-    color: white !important;
-    font-weight: bold;
-}
-.prog-slot.en-cours .atelier strong { color: white !important; }
-
+/* Swipe zone */
 #zoneSwipe { overflow: hidden; position: relative; }
 .jour-content { transition: none; }
 .jour-content.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
 .jour-content.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
 .jour-content.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
 .jour-content.slide-in-right { animation: slideInRight 0.3s ease forwards; }
-
 @keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-100%); opacity: 0; } }
 @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 @keyframes slideInLeft { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInRight { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-.loading { text-align: center; padding: 40px; color: var(--text-sub); }
-.spinner { border: 4px solid rgba(128,128,128,0.2); border-top: 4px solid var(--page-header-bg); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-@media (max-width: 480px) {
-    .page-header { top: 90px; }
-}
 </style>
 </head>
-<body>
-<div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2>Programme JTB 2026</h2>
-</div>
-<div class="page-content">
-<p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">44èmes JTB 2026 — Besançon</p>
+<body class="text-slate-200 font-sans min-h-screen cyber-grid flex flex-col">
 
-<div id="loading" class="loading">
-    <div class="spinner"></div>
-    <div>Chargement du programme...</div>
-</div>
+<!-- HEADER -->
+<header class="sticky top-0 z-50 glass-panel border-b border-cyan-500/20 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <button onclick="retourAccueil()" class="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:text-white hover:bg-cyan-500/30 transition-all" title="Retour">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+            </button>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                    <h1 class="font-orbitron font-bold text-lg md:text-xl tracking-wider text-white uppercase flex items-center gap-2">
+                        Programme JTB <span class="text-cyan-400">2026</span>
+                    </h1>
+                </div>
+                <p class="text-xs font-rajdhani tracking-widest text-slate-400 uppercase">
+                    44èmes JTB 2026 — <span class="text-cyan-300">Besançon</span>
+                </p>
+            </div>
+        </div>
+        <div class="text-xs text-slate-500 font-rajdhani hidden sm:block">
+            <i class="fa-regular fa-calendar-days text-cyan-400 mr-1"></i>
+            <span id="currentDateLabel">—</span>
+        </div>
+    </div>
+</header>
 
-<div id="programmeContent" style="display:none;">
-    <div class="jour-btns">
-        <button class="jour-btn" id="btn-mardi" onclick="afficherJour('mardi')">Mardi</button>
-        <button class="jour-btn" id="btn-mercredi" onclick="afficherJour('mercredi')">Mercredi</button>
-        <button class="jour-btn" id="btn-jeudi" onclick="afficherJour('jeudi')">Jeudi</button>
-        <button class="jour-btn" id="btn-vendredi" onclick="afficherJour('vendredi')">Vendredi</button>
+<!-- MAIN -->
+<main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex-grow w-full">
+
+    <!-- LOADING -->
+    <div id="loading" class="text-center py-20">
+        <div class="inline-block w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-400 font-rajdhani tracking-wider uppercase text-sm">Chargement du programme…</p>
     </div>
-    <div style="text-align:center;color:var(--text-sub);font-size:11px;margin-bottom:8px;">← Balayez pour changer de journée →</div>
-    <div id="zoneSwipe">
-        <div id="jour-mardi" class="jour-content" style="display:none;"></div>
-        <div id="jour-mercredi" class="jour-content" style="display:none;"></div>
-        <div id="jour-jeudi" class="jour-content" style="display:none;"></div>
-        <div id="jour-vendredi" class="jour-content" style="display:none;"></div>
+
+    <!-- CONTENT (hidden until loaded) -->
+    <div id="programmeContent" style="display:none;">
+
+        <!-- NAV JOURS -->
+        <section class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-rajdhani font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-days text-cyan-400"></i> Calendrier des Journées
+                </span>
+                <span class="text-[11px] text-slate-500 hidden sm:inline-block">← Balayez ou cliquez →</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="afficherJour('mardi')"   id="tab-mardi"    class="day-tab glass-panel py-3 px-4 rounded-lg flex flex-col items-center justify-center border hover:border-cyan-400/40 transition-all duration-300 text-slate-400">
+                    <span class="font-orbitron text-xs tracking-wider uppercase">Mardi</span>
+                    <span class="text-[11px] font-rajdhani text-slate-500" id="date-mardi">—</span>
+                </button>
+                <button onclick="afficherJour('mercredi')" id="tab-mercredi" class="day-tab glass-panel py-3 px-4 rounded-lg flex flex-col items-center justify-center border hover:border-cyan-400/40 transition-all duration-300 text-slate-400">
+                    <span class="font-orbitron text-xs tracking-wider uppercase">Mercredi</span>
+                    <span class="text-[11px] font-rajdhani text-slate-500" id="date-mercredi">—</span>
+                </button>
+                <button onclick="afficherJour('jeudi')"    id="tab-jeudi"    class="day-tab glass-panel py-3 px-4 rounded-lg flex flex-col items-center justify-center border hover:border-cyan-400/40 transition-all duration-300 text-slate-400">
+                    <span class="font-orbitron text-xs tracking-wider uppercase">Jeudi</span>
+                    <span class="text-[11px] font-rajdhani text-slate-500" id="date-jeudi">—</span>
+                </button>
+                <button onclick="afficherJour('vendredi')" id="tab-vendredi" class="day-tab glass-panel py-3 px-4 rounded-lg flex flex-col items-center justify-center border hover:border-cyan-400/40 transition-all duration-300 text-slate-400">
+                    <span class="font-orbitron text-xs tracking-wider uppercase">Vendredi</span>
+                    <span class="text-[11px] font-rajdhani text-slate-500" id="date-vendredi">—</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ZONE SWIPE JOURNÉES -->
+        <div id="zoneSwipe">
+            <div id="jour-mardi"    class="jour-content" style="display:none;"></div>
+            <div id="jour-mercredi" class="jour-content" style="display:none;"></div>
+            <div id="jour-jeudi"    class="jour-content" style="display:none;"></div>
+            <div id="jour-vendredi" class="jour-content" style="display:none;"></div>
+        </div>
+
     </div>
-</div>
-</div>
+</main>
+
+<!-- FOOTER -->
+<footer class="glass-panel border-t border-cyan-500/20 mt-8 py-4 px-4 text-center">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 font-rajdhani">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bolt text-cyan-400"></i>
+            <span>44èmes Journées Techniques Biomédicales — Besançon 2026</span>
+        </div>
+        <div class="text-[11px] font-mono text-slate-500">v0.61 • AAMB</div>
+    </div>
+</footer>
 
 <script src="../js/commun.js"></script>
 <script>
@@ -209,221 +242,238 @@ verifierConnexionOuRediriger();
 let programmeData = {};
 let datesParJour = {};
 const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
+const nomsJoursFR = { mardi:'Mardi', mercredi:'Mercredi', jeudi:'Jeudi', vendredi:'Vendredi' };
 let isAnimating = false;
 let jourActif = null;
 
 // ====================================================================
-// ✅ CATÉGORISATION PAR LE CODE DE LA LIGNE (colonne A)
-//    Retourne :
-//      - cat     : 'atelier' | 'conf'
-//      - subType : 'conf' | 'pause' | 'ag' | 'soiree' | 'autre'
-//      - letter  : 'A' | 'B' (pour ateliers parallèles)
+// CATÉGORISATION PAR CODE COLONNE A (inchangée depuis v0.60)
 // ====================================================================
 function categoriserItem(item) {
     const idUp = String(item.id || '').trim().toUpperCase();
     const typeUp = String(item.type || '').trim().toUpperCase();
     const lettreFin = (idUp.match(/([A-Z])$/) || [, ''])[1];
-
-    // Ateliers
     if (idUp.indexOf('ATEL') === 0) return { cat: 'atelier', subType: 'atelier', letter: lettreFin || 'A' };
     if (typeUp === 'ATELIER1') return { cat: 'atelier', subType: 'atelier', letter: 'A' };
     if (typeUp === 'ATELIER2') return { cat: 'atelier', subType: 'atelier', letter: 'B' };
-    if (typeUp === 'ATELIER') return { cat: 'atelier', subType: 'atelier', letter: lettreFin || 'A' };
-
-    // Pauses
-    if (idUp.indexOf('PAUSE') === 0) return { cat: 'conf', subType: 'pause' };
-
-    // AG
-    if (idUp.indexOf('AG') === 0 || typeUp === 'AG') return { cat: 'conf', subType: 'ag' };
-
-    // Soirées (terroir, gala)
-    if (idUp.indexOf('SOIREE') === 0 || typeUp === 'SOIREE' || typeUp === 'SOIRÉE') return { cat: 'conf', subType: 'soiree' };
-
-    // Conférences
-    if (idUp.indexOf('CONF') === 0 || typeUp === 'CONFERENCE' || typeUp === 'CONFÉRENCE') return { cat: 'conf', subType: 'conf' };
-
-    // Le reste : Accueil, Ouverture, Clôture, Visite, etc.
-    return { cat: 'conf', subType: 'autre' };
+    if (typeUp === 'ATELIER')  return { cat: 'atelier', subType: 'atelier', letter: lettreFin || 'A' };
+    if (idUp.indexOf('PAUSE') === 0) return { cat: 'conf', subType: 'pause', badgeLabel: 'Pause', icon: 'fa-mug-hot' };
+    if (idUp.indexOf('AG') === 0 || typeUp === 'AG') return { cat: 'conf', subType: 'soiree', badgeLabel: 'Assemblée Générale', icon: 'fa-users' };
+    if (idUp.indexOf('SOIREE') === 0 || typeUp === 'SOIREE' || typeUp === 'SOIRÉE') return { cat: 'conf', subType: 'soiree', badgeLabel: 'Soirée', icon: 'fa-champagne-glasses' };
+    if (idUp.indexOf('CONF') === 0 || typeUp === 'CONFERENCE' || typeUp === 'CONFÉRENCE') return { cat: 'conf', subType: 'conf', badgeLabel: 'Conférence', icon: 'fa-microphone' };
+    if (idUp.indexOf('ACC') === 0 || idUp === 'OUVERTURE') return { cat: 'conf', subType: 'autre', badgeLabel: 'Accueil / Ouverture', icon: 'fa-door-open' };
+    if (idUp === 'CLOTURE' || idUp.indexOf('CLOTURE') === 0) return { cat: 'conf', subType: 'autre', badgeLabel: 'Clôture', icon: 'fa-flag-checkered' };
+    if (idUp.indexOf('VISITE') === 0) return { cat: 'conf', subType: 'pause', badgeLabel: 'Visite des stands', icon: 'fa-store' };
+    return { cat: 'conf', subType: 'autre', badgeLabel: item.type || 'Session', icon: 'fa-circle-info' };
 }
 
+// ====================================================================
+// CHARGEMENT PROGRAMME
+// ====================================================================
 async function chargerProgramme() {
     try {
         const cache = getProgrammeFromCache();
         let data;
-        
         if (cache) {
             console.log('[Programme] Chargement depuis le cache');
             data = { success: true, programme: cache };
         } else {
-            console.log('[Programme] Cache vide - Chargement depuis le serveur');
             const resp = await fetch(SCRIPT_URL + '?action=getProgramme');
             data = await resp.json();
         }
-        
         if (data.success) {
             programmeData = {};
             datesParJour = {};
-            
             data.programme.forEach(item => {
                 const jour = String(item.jour || '').toLowerCase();
                 if (!programmeData[jour]) programmeData[jour] = [];
                 programmeData[jour].push(item);
-                
-                if (item.date && !datesParJour[jour]) {
-                    datesParJour[jour] = String(item.date).split('T')[0];
-                }
+                if (item.date && !datesParJour[jour]) datesParJour[jour] = String(item.date).split('T')[0];
             });
-            
             for (const jour in programmeData) {
                 programmeData[jour].sort((a, b) => String(a.heureDebut).localeCompare(String(b.heureDebut)));
             }
-            
-            console.log('[Programme] Dates par jour:', datesParJour);
-            
+            // Remplir les dates sous les onglets
+            for (const j of jours) {
+                const d = datesParJour[j];
+                if (d) {
+                    const parts = d.split('-');
+                    document.getElementById('date-' + j).textContent = parts[2] + '/' + parts[1];
+                }
+            }
             genererAffichage();
-            
             document.getElementById('loading').style.display = 'none';
             document.getElementById('programmeContent').style.display = 'block';
-            
             const jourAOuvrir = determinerJourAOuvrir();
             afficherJourInitial(jourAOuvrir);
-            
             surbrillanceEnCours();
             setInterval(surbrillanceEnCours, 30000);
         } else {
-            document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur : ' + data.message + '</p>';
+            document.getElementById('loading').innerHTML = '<p class="text-rose-400">❌ Erreur : ' + data.message + '</p>';
         }
     } catch (e) {
-        document.getElementById('loading').innerHTML = '<p style="color:red;">Erreur de connexion</p>';
+        document.getElementById('loading').innerHTML = '<p class="text-rose-400">❌ Erreur de connexion</p>';
         console.error(e);
     }
 }
 
 function determinerJourAOuvrir() {
     const aujourdHui = new Date();
-    
     const annee = aujourdHui.getFullYear();
     const mois = String(aujourdHui.getMonth() + 1).padStart(2, '0');
     const jourNum = String(aujourdHui.getDate()).padStart(2, '0');
     const dateAujStr = `${annee}-${mois}-${jourNum}`;
-    
-    for (const [jour, date] of Object.entries(datesParJour)) {
-        if (date === dateAujStr) return jour;
-    }
-    
+    for (const [jour, date] of Object.entries(datesParJour)) if (date === dateAujStr) return jour;
     const nomsJours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
     const nomJourAuj = nomsJours[aujourdHui.getDay()];
-    for (const [jour, date] of Object.entries(datesParJour)) {
-        if (jour === nomJourAuj) return jour;
-    }
-    
-    for (const jour of jours) {
-        if (programmeData[jour] && programmeData[jour].length > 0) return jour;
-    }
+    for (const [jour] of Object.entries(datesParJour)) if (jour === nomJourAuj) return jour;
+    for (const jour of jours) if (programmeData[jour] && programmeData[jour].length > 0) return jour;
     return 'mardi';
 }
 
 function afficherJourInitial(jour) {
     jours.forEach(j => {
         document.getElementById('jour-' + j).style.display = 'none';
-        document.getElementById('btn-' + j).classList.remove('active');
+        resetTabStyle(j);
     });
     document.getElementById('jour-' + jour).style.display = 'block';
-    document.getElementById('btn-' + jour).classList.add('active');
+    setTabActive(jour);
     jourActif = jour;
+    updateDateLabel();
+}
+
+function resetTabStyle(j) {
+    document.getElementById('tab-' + j).className = 'day-tab glass-panel py-3 px-4 rounded-lg flex flex-col items-center justify-center border hover:border-cyan-400/40 transition-all duration-300 text-slate-400';
+}
+function setTabActive(j) {
+    document.getElementById('tab-' + j).className = 'day-tab glass-panel-active py-3 px-4 rounded-lg flex flex-col items-center justify-center transition-all duration-300 text-cyan-300';
+}
+
+function updateDateLabel() {
+    const d = datesParJour[jourActif];
+    const el = document.getElementById('currentDateLabel');
+    if (d && el) {
+        const parts = d.split('-');
+        el.textContent = nomsJoursFR[jourActif] + ' ' + parts[2] + '/' + parts[1] + '/' + parts[0];
+    }
 }
 
 function extraireHeure(str) {
     if (!str) return '';
     const match = String(str).match(/(\d{1,2}):(\d{2})/);
-    if (match) {
-        const h = String(parseInt(match[1])).padStart(2, '0');
-        const m = match[2];
-        return `${h}h${m}`;
-    }
+    if (match) return String(parseInt(match[1])).padStart(2, '0') + 'h' + match[2];
     return str;
 }
 
+function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ====================================================================
+// GÉNÉRATION AFFICHAGE (style cyberpunk)
+// ====================================================================
 function genererAffichage() {
     jours.forEach(jour => {
         const container = document.getElementById('jour-' + jour);
         const items = programmeData[jour] || [];
-        
         items.forEach(it => { it._cat = categoriserItem(it); });
-        
+
         const groupes = {};
         items.forEach(item => {
             const key = item.heureDebut + '-' + item.heureFin;
             if (!groupes[key]) groupes[key] = { horaire: key, items: [] };
             groupes[key].items.push(item);
         });
-        
-        let html = '';
+
+        let html = '<div class="space-y-4">';
         for (const key in groupes) {
             const groupe = groupes[key];
             const [debut, fin] = groupe.horaire.split('-');
-            const heureFormatted = extraireHeure(debut) + ' - ' + extraireHeure(fin);
-            
+            const heureF = extraireHeure(debut) + ' — ' + extraireHeure(fin);
+
             const confItem = groupe.items.find(i => i._cat.cat === 'conf');
             const atelier1 = groupe.items.find(i => i._cat.cat === 'atelier' && i._cat.letter !== 'B');
             const atelier2 = groupe.items.find(i => i._cat.cat === 'atelier' && i._cat.letter === 'B');
-            
             const slotId = confItem ? confItem.id : (atelier1 ? atelier1.id : (atelier2 ? atelier2.id : ''));
-            
-            html += '<div class="prog-slot" data-id="' + slotId + '" data-debut="' + debut + '" data-fin="' + fin + '">';
-            html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours">🔴 EN COURS</span></div>';
-            
+            const subType = confItem ? confItem._cat.subType : (atelier1 || atelier2 ? 'atelier' : 'autre');
+
+            html += '<div class="session-card glass-panel rounded-xl overflow-hidden cat-' + subType + '" data-id="' + slotId + '" data-debut="' + debut + '" data-fin="' + fin + '">';
+
+            // HEADER HORAIRE
+            html += '<div class="bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 px-4 py-2.5 border-b border-cyan-500/20 flex items-center justify-between">';
+            html += '  <div class="flex items-center gap-3">';
+            html += '    <span class="inline-flex items-center justify-center px-3 py-1 rounded-md bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 font-orbitron font-bold text-xs tracking-widest">';
+            html += '      <i class="fa-regular fa-clock mr-1.5 text-cyan-400 text-[11px]"></i>' + heureF;
+            html += '    </span>';
+            html += '  </div>';
+            html += '  <span class="live-badge"><span class="dot"></span>EN COURS</span>';
+            html += '</div>';
+
+            // SECTION PRINCIPALE (conf / pause / soirée / autre)
             if (confItem) {
-                const desc = confItem.description ? '<br><small>' + confItem.description + '</small>' : '';
-                html += '<div class="prog-conf type-' + confItem._cat.subType + '"><strong>' + confItem.nom + '</strong>' + desc + '</div>';
-            }
-            
-            if (atelier1 || atelier2) {
-                html += '<div class="prog-ateliers">';
-                if (atelier1) {
-                    const desc = atelier1.description ? '<br><strong>' + atelier1.description + '</strong>' : '';
-                    html += '<div class="atelier">' + atelier1.nom + desc + '</div>';
-                }
-                if (atelier2) {
-                    const desc = atelier2.description ? '<br><strong>' + atelier2.description + '</strong>' : '';
-                    html += '<div class="atelier">' + atelier2.nom + desc + '</div>';
-                }
+                const cat = confItem._cat;
+                const desc = confItem.description ? '<p class="text-xs text-slate-300 mt-2 leading-relaxed">' + escapeHtml(confItem.description) + '</p>' : '';
+                html += '<div class="main-block p-4">';
+                html += '  <div class="flex items-center gap-2 mb-2">';
+                html += '    <span class="badge-type px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase border">' + escapeHtml(cat.badgeLabel) + '</span>';
+                html += '    <i class="fa-solid ' + cat.icon + ' text-xs opacity-60"></i>';
+                html += '  </div>';
+                html += '  <h3 class="font-rajdhani font-bold text-base md:text-lg text-white tracking-wide">' + escapeHtml(confItem.nom) + '</h3>';
+                html += desc;
                 html += '</div>';
             }
-            
+
+            // GRID ATELIERS (2 colonnes)
+            if (atelier1 || atelier2) {
+                html += '<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800/80 bg-slate-950/40">';
+                if (atelier1) html += buildAtelierBlock(atelier1, 'A');
+                if (atelier2) html += buildAtelierBlock(atelier2, 'B');
+                html += '</div>';
+            }
+
             html += '</div>';
         }
-        
+        html += '</div>';
         container.innerHTML = html;
     });
 }
 
+function buildAtelierBlock(atelier, letter) {
+    const desc = atelier.description ? '<p class="text-xs font-semibold text-slate-200 leading-snug mt-1">' + escapeHtml(atelier.description) + '</p>' : '';
+    return '<div class="atelier-block p-4 transition-all flex flex-col justify-between space-y-2">' +
+        '  <div>' +
+        '    <span class="text-[10px] text-cyan-400 font-mono uppercase tracking-wider block mb-1">' +
+        '      <i class="fa-solid fa-laptop-medical mr-1"></i> Atelier ' + letter +
+        '    </span>' +
+        '    <p class="text-xs font-bold text-white leading-snug">' + escapeHtml(atelier.nom) + '</p>' +
+        desc +
+        '  </div>' +
+        '</div>';
+}
+
+// ====================================================================
+// NAVIGATION JOURS (avec swipe + animation)
+// ====================================================================
 function afficherJour(jour, direction = null) {
     if (isAnimating) return;
     const ancienJour = jourActif;
     if (ancienJour === jour) return;
-    
     if (!direction) {
         const ia = jours.indexOf(ancienJour);
         const in2 = jours.indexOf(jour);
         direction = in2 > ia ? 'left' : 'right';
     }
-    
     const ancienEl = document.getElementById('jour-' + ancienJour);
     const nouveauEl = document.getElementById('jour-' + jour);
-    
     isAnimating = true;
-    document.querySelectorAll('.jour-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + jour).classList.add('active');
-    
+    jours.forEach(resetTabStyle);
+    setTabActive(jour);
     nouveauEl.style.display = 'block';
     nouveauEl.style.position = 'absolute';
     nouveauEl.style.width = '100%';
     nouveauEl.style.top = '0';
-    
     ancienEl.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
     nouveauEl.classList.add(direction === 'left' ? 'slide-in-left' : 'slide-in-right');
-    
     setTimeout(() => {
         ancienEl.classList.remove('slide-out-left', 'slide-out-right');
         nouveauEl.classList.remove('slide-in-left', 'slide-in-right');
@@ -433,19 +483,19 @@ function afficherJour(jour, direction = null) {
         nouveauEl.style.top = '';
         isAnimating = false;
     }, 300);
-    
     jourActif = jour;
+    updateDateLabel();
 }
 
+// ====================================================================
+// SURBRILLANCE "EN COURS" (conservée de v0.60)
+// ====================================================================
 function surbrillanceEnCours() {
     const maintenant = new Date();
     const hNow = maintenant.getHours() * 60 + maintenant.getMinutes();
-    
-    document.querySelectorAll('.prog-slot').forEach(s => s.classList.remove('en-cours'));
-    
+    document.querySelectorAll('.session-card').forEach(s => s.classList.remove('en-cours'));
     if (!jourActif) return;
-    
-    const slots = document.getElementById('jour-' + jourActif).querySelectorAll('.prog-slot');
+    const slots = document.getElementById('jour-' + jourActif).querySelectorAll('.session-card');
     slots.forEach(slot => {
         const debut = slot.dataset.debut;
         const fin = slot.dataset.fin;
@@ -454,7 +504,6 @@ function surbrillanceEnCours() {
             const [fh, fm] = fin.split(':').map(Number);
             const debutMin = dh * 60 + dm;
             const finMin = fh * 60 + fm;
-            
             if (hNow >= debutMin && hNow < finMin) {
                 slot.classList.add('en-cours');
                 setTimeout(() => slot.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
@@ -463,6 +512,9 @@ function surbrillanceEnCours() {
     });
 }
 
+// ====================================================================
+// SWIPE TACTILE
+// ====================================================================
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('DOMContentLoaded', () => {
     const zoneSwipe = document.getElementById('zoneSwipe');
@@ -471,7 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
         }, { passive: true });
-        
         zoneSwipe.addEventListener('touchend', e => {
             const dx = e.changedTouches[0].clientX - touchStartX;
             const dy = e.changedTouches[0].clientY - touchStartY;
@@ -485,6 +536,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ====================================================================
+// INIT
+// ====================================================================
 chargerProgramme();
 </script>
 </body>
