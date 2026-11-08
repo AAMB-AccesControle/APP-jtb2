@@ -3,73 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigation entre stands v0.31</title>
+    <title>Navigation entre stands — AAMB JTB 2026</title>
     <link rel="manifest" href="../manifest.json">
-    <script>
-    if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
-            --page-header-bg: #1a3a6b; --primary: #1a3a6b;
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #050811;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+            background-attachment: fixed;
+            color: #e2e8f0;
         }
-        body.dark {
-            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
-            --page-header-bg: #0f1f3d; --primary: #2a5f9f;
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 0;
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-        .page-header h2 { font-size: 18px; flex: 1; }
-        .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
-        .nav-section { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .nav-section h3 { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
-        .nav-section select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 10px; }
-        .btn-calculate { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-calculate:disabled { opacity: 0.5; cursor: not-allowed; }
-        .instructions { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070b14; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+        .glass-panel {
+            background: rgba(13, 22, 41, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+        }
+
+        /* ==== HEADER ==== */
+        .page-header {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(13, 22, 41, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .back-btn {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: #00f2fe;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+        .page-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            flex: 1;
+        }
+        .page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+
+        .page-content { position: relative; z-index: 1; padding: 16px; max-width: 700px; margin: 0 auto; }
+
+        /* ==== NAV SECTION ==== */
+        .nav-section {
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            background: rgba(13, 22, 41, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .nav-section h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            color: #00f2fe;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-section select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid rgba(0, 242, 254, 0.25);
+            border-radius: 10px;
+            font-size: 14px;
+            background: rgba(5, 8, 17, 0.7);
+            color: #e2e8f0;
+            margin-bottom: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .nav-section select:focus {
+            outline: none;
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+        .nav-section select option {
+            background: #0a0f1f;
+            color: #e2e8f0;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: #0a0f1f;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 18px rgba(0, 242, 254, 0.35);
+            transition: all 0.25s;
+        }
+        .btn-calculate:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 25px rgba(0, 242, 254, 0.55); }
+        .btn-calculate:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ==== INSTRUCTIONS ==== */
+        .instructions {
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(13, 22, 41, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            border-left: 4px solid #10b981;
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.15), 0 0 20px rgba(16, 185, 129, 0.08);
+        }
         .instructions.visible { display: block; }
-        .instructions h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; font-weight: 700; }
-        .instruction-step { padding: 12px; margin-bottom: 10px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 14px; color: var(--text); line-height: 1.5; }
-        .instruction-step .step-number { font-weight: bold; color: var(--primary); margin-right: 8px; }
-        .instruction-step .action { font-weight: 700; color: var(--primary); }
-        .stats { display: flex; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.2); }
-        .stat-item { flex: 1; text-align: center; }
-        .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 11px; color: var(--text-sub); }
-        .loading { text-align: center; padding: 20px; color: var(--text-sub); }
-        .debug-section { background: #1e1e1e; color: #00ff00; border-radius: 12px; padding: 15px; margin-bottom: 15px; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.6; max-height: 400px; overflow-y: auto; display: none; white-space: pre-wrap; word-wrap: break-word; }
+        .instructions h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: #6ee7b7;
+            margin-bottom: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+        .instruction-step {
+            padding: 14px;
+            margin-bottom: 10px;
+            background: rgba(5, 8, 17, 0.6);
+            border-radius: 10px;
+            border-left: 4px solid #00f2fe;
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.6;
+            border: 1px solid rgba(0, 242, 254, 0.15);
+        }
+        .instruction-step .step-number {
+            font-weight: 700;
+            color: #00f2fe;
+            margin-right: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 6px rgba(0, 242, 254, 0.5);
+        }
+        .instruction-step .action {
+            font-weight: 700;
+            color: #6ee7b7;
+            text-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+        }
+        .instruction-step:last-child {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .instruction-step:last-child .action { color: #fbbf24; text-shadow: 0 0 4px rgba(251, 191, 36, 0.4); }
+
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: rgba(5, 8, 17, 0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            color: #6ee7b7;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .stat-label {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 2px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* ==== DEBUG SECTION (terminal style) ==== */
+        .debug-section {
+            background: rgba(5, 8, 17, 0.95);
+            color: #00ff41;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.7;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.15), inset 0 0 30px rgba(0, 255, 65, 0.05);
+        }
         .debug-section.visible { display: block; }
-        .debug-section .debug-title { color: #ffcc00; font-weight: bold; font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .debug-section .obstacle { color: #ff4444; }
-        .debug-section .chemin { color: #00ccff; }
-        .debug-section .info { color: #aaaaaa; }
-        .debug-section .entree { color: #ff00ff; }
-        @media (max-width: 480px) { .page-header { top: 90px; } }
+        .debug-section::before {
+            content: '> TERMINAL DEBUG';
+            display: block;
+            color: #00ff41;
+            font-weight: 700;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+            letter-spacing: 2px;
+        }
+        .debug-section .debug-title {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            padding-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        .debug-section .obstacle { color: #ff8ec7; text-shadow: 0 0 4px rgba(255, 0, 127, 0.4); }
+        .debug-section .chemin { color: #00f2fe; text-shadow: 0 0 4px rgba(0, 242, 254, 0.4); }
+        .debug-section .info { color: #94a3b8; }
+        .debug-section .entree { color: #c084fc; text-shadow: 0 0 4px rgba(168, 85, 247, 0.4); }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        .loading::before {
+            content: '';
+            display: inline-block;
+            width: 40px; height: 40px;
+            border: 3px solid rgba(0, 242, 254, 0.15);
+            border-top-color: #00f2fe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .page-header h2 { font-size: 14px; }
+        }
     </style>
 </head>
 <body>
     <div class="page-header">
-        <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>🗺️ Navigation entre stands</h2>
+        <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h2>🗺️ Navigation <span class="cyan">entre stands</span></h2>
     </div>
     <div class="page-content">
         <div id="loading" class="loading">Chargement du plan de la salle...</div>
         <div class="nav-section" id="navForm" style="display:none;">
-            <h3>📍 Je suis au stand :</h3>
+            <h3><i class="fa-solid fa-location-dot"></i> Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
-            <h3> Je veux aller au stand :</h3>
+            <h3><i class="fa-solid fa-flag-checkered"></i> Je veux aller au stand :</h3>
             <select id="standArrivee"><option value="">-- Sélectionnez --</option></select>
-            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled> Calculer l'itinéraire</button>
+            <button class="btn-calculate" id="btnCalculate" onclick="calculerItineraire()" disabled>
+                <i class="fa-solid fa-route"></i> Calculer l'itinéraire
+            </button>
         </div>
         <div id="debugSection" class="debug-section"></div>
         <div id="instructions" class="instructions">
-            <h3>📋 Itinéraire :</h3>
+            <h3><i class="fa-solid fa-map-signs"></i> Itinéraire</h3>
             <div id="instructionsList"></div>
             <div class="stats">
-                <div class="stat-item"><div class="stat-value" id="statDistance">-</div><div class="stat-label">Distance (m)</div></div>
-                <div class="stat-item"><div class="stat-value" id="statTime">-</div><div class="stat-label">Temps (sec)</div></div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statDistance">-</div>
+                    <div class="stat-label">Distance (m)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statTime">-</div>
+                    <div class="stat-label">Temps (sec)</div>
+                </div>
             </div>
         </div>
     </div>
@@ -236,7 +498,7 @@
             
             let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            debugHtml += '<div class="info"> DÉPART : stand ' + numDepart + '</div>';
+            debugHtml += '<div class="info">🚩 DÉPART : stand ' + numDepart + '</div>';
             debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
@@ -274,7 +536,7 @@
             
             debugHtml += '<div class="chemin">📍 Départ: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
             debugHtml += '<div class="chemin">👁️ Regard: ' + meilleurStart.directionRegard + ' | Départ: ' + meilleureDirection + '</div>';
-            debugHtml += '<div class="chemin"> Arrivée: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
+            debugHtml += '<div class="chemin">🏁 Arrivée: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
             debugHtml += '<div class="info">═══════════════════════════════════════</div>';
             
             const chemin = aStar(meilleurStart, meilleurEnd, grille, meilleureDirection);
@@ -301,16 +563,12 @@
             return entrees;
         }
         
-        // ============================================
-        // INSTRUCTIONS AVEC DIRECTION DE DÉPART INTELLIGENTE
-        // ============================================
         function afficherInstructions(chemin, numDepart, numArrivee, directionDepart) {
             if (!chemin || chemin.length < 2) return;
             
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
             
-            // Segmenter le chemin
             let segments = [];
             let currentDir = null;
             let currentDist = 0;
@@ -343,29 +601,24 @@
             let totalDistance = 0;
             let etape = 1;
             
-            // ✅ PREMIÈRE INSTRUCTION : comparer directionDepart avec premier segment
             if (segments.length > 0) {
                 const premierSegment = segments[0];
                 const metres = (premierSegment.distance * 0.5).toFixed(1);
                 totalDistance += premierSegment.distance;
                 
-                // Calculer le virage entre directionDepart et premier segment
                 const premierVirage = calculerVirage(directionDepart, premierSegment.direction);
                 
                 if (premierVirage === 'tout droit') {
-                    // La personne regarde déjà dans la bonne direction
                     instructions.push({
                         numero: etape++,
                         texte: '<span class="action">Avancez tout droit</span> sur ' + metres + ' m'
                     });
                 } else if (premierVirage === 'demi-tour') {
-                    // La personne doit faire demi-tour
                     instructions.push({
                         numero: etape++,
                         texte: '<span class="action">Faites demi-tour</span> et avancez sur ' + metres + ' m'
                     });
                 } else {
-                    // La personne doit tourner à gauche ou à droite
                     instructions.push({
                         numero: etape++,
                         texte: '<span class="action">Tournez à ' + premierVirage + '</span> et avancez sur ' + metres + ' m'
@@ -373,7 +626,6 @@
                 }
             }
             
-            // ✅ INSTRUCTIONS SUIVANTES
             for (let i = 1; i < segments.length; i++) {
                 const seg = segments[i];
                 const metres = (seg.distance * 0.5).toFixed(1);
@@ -381,30 +633,16 @@
                 
                 const virage = calculerVirage(segments[i-1].direction, seg.direction);
                 
-                if (i < segments.length - 1) {
-                    instructions.push({
-                        numero: etape++,
-                        texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
-                    });
-                } else {
-                    instructions.push({
-                        numero: etape++,
-                        texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
-                    });
-                    instructions.push({
-                        numero: etape++,
-                        texte: '✅ Vous êtes arrivé au stand <strong>' + numArrivee + ' - ' + standArrivee.nom + '</strong>'
-                    });
-                }
-            }
-            
-            // ✅ Cas spécial : trajet direct sans virage
-            if (segments.length === 1) {
                 instructions.push({
                     numero: etape++,
-                    texte: '✅ Vous êtes arrivé au stand <strong>' + numArrivee + ' - ' + standArrivee.nom + '</strong>'
+                    texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
                 });
             }
+            
+            instructions.push({
+                numero: etape++,
+                texte: '<span class="action">Vous êtes arrivé au stand <strong>' + numArrivee + ' - ' + standArrivee.nom + '</strong></span>'
+            });
             
             const distanceMetres = (totalDistance * 0.5).toFixed(1);
             const tempsSecondes = Math.round(totalDistance * 0.5 / 1.2);
