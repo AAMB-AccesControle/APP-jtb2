@@ -5,117 +5,513 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Messagerie v0.23</title>
 <link rel="manifest" href="../manifest.json">
-<script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
---bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
---page-header-bg: #1a3a6b; --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
---success: #10b981; --warning: #f59e0b; --primary: #1a3a6b; --danger: #dc3545;
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    background-color: #050811;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+        linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+    background-attachment: fixed;
+    color: #e2e8f0;
 }
-body.dark {
---bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
---page-header-bg: #0f1f3d; --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; flex: 1; }
-.page-content { padding: 16px; }
-.sync-status { font-size: 11px; color: var(--text-sub); text-align: center; padding: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); display: inline-block; }
-.sync-status .dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
-.sync-status .dot.error { background: #ef4444; }
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-.refresh-btn { background: none; border: none; color: var(--text-sub); font-size: 16px; cursor: pointer; padding: 4px 8px; }
+
+.glass-panel {
+    background: rgba(13, 22, 41, 0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+}
+
+/* ==== HEADER ==== */
+.page-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13, 22, 41, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+    color: white;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.back-btn {
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: #00f2fe;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center;
+}
+.back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+.page-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 1;
+}
+.page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+.refresh-btn {
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: #00f2fe;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center;
+}
+.refresh-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; }
 .refresh-btn.spinning { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.filter-sticky-wrapper { position: sticky; top: 106px; background: var(--bg); padding: 10px 0; z-index: 80; border-bottom: 1px solid rgba(128,128,128,0.15); }
+
+/* ==== SYNC STATUS ==== */
+.sync-status {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+}
+.sync-status .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    display: inline-block;
+}
+.sync-status .dot.syncing { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; animation: pulse 1s infinite; }
+.sync-status .dot.error { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.page-content { position: relative; z-index: 1; padding: 16px; max-width: 900px; margin: 0 auto; }
+
+/* ==== FILTERS ==== */
+.filter-sticky-wrapper {
+    position: sticky;
+    top: 70px;
+    background: rgba(5, 8, 17, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px 0;
+    z-index: 80;
+    border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+}
 .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
-.filter-btn { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; background: var(--card-bg); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.filter-btn .count { background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-.filter-btn.active-non-traite { border-color: var(--danger); background: var(--danger); color: white; }
-.filter-btn.active-non-traite .count { background: rgba(255,255,255,0.3); }
-.filter-btn.active-traite { border-color: var(--success); background: var(--success); color: white; }
-.filter-btn.active-traite .count { background: rgba(255,255,255,0.3); }
-.filter-btn.active-cloture { border-color: #6b7280; background: #6b7280; color: white; }
-.filter-btn.active-cloture .count { background: rgba(255,255,255,0.3); }
+.filter-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid rgba(56, 189, 248, 0.25);
+    border-radius: 10px;
+    background: rgba(13, 22, 41, 0.65);
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+}
+.filter-btn .count {
+    background: rgba(0, 242, 254, 0.15);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #00f2fe;
+}
+.filter-btn.active-non-traite {
+    border-color: #ff007f;
+    background: rgba(255, 0, 127, 0.25);
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.35);
+}
+.filter-btn.active-non-traite .count { background: rgba(255, 255, 255, 0.25); color: white; }
+.filter-btn.active-traite {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.25);
+    color: white;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+}
+.filter-btn.active-traite .count { background: rgba(255, 255, 255, 0.25); color: white; }
+.filter-btn.active-cloture {
+    border-color: #6b7280;
+    background: rgba(107, 114, 128, 0.25);
+    color: white;
+}
+.filter-btn.active-cloture .count { background: rgba(255, 255, 255, 0.25); color: white; }
+
 .cat-filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0; }
-.cat-btn { padding: 6px 10px; border: 2px solid #ddd; border-radius: 16px; background: var(--card-bg); color: var(--text); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
-.cat-btn .cat-count { background: rgba(0,0,0,0.1); padding: 1px 5px; border-radius: 8px; font-size: 10px; font-weight: 700; }
-.cat-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
-.cat-btn.active .cat-count { background: rgba(255,255,255,0.3); }
-.conv-card { background: var(--card-bg); border-radius: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); overflow: hidden; }
-.conv-header { padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
-.conv-header.non-traite { background: rgba(220,53,69,0.1); }
-.conv-header.traite { background: rgba(40,167,69,0.1); }
-.conv-header.cloture { background: rgba(107,114,128,0.1); }
-.conv-header strong { color: var(--text); font-size: 14px; }
-.conv-header .conv-id { font-size: 11px; color: var(--text-sub); }
-.conv-msg { padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.1); }
-.conv-msg .msg-meta { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
-.conv-msg .msg-text { font-size: 14px; color: var(--text); }
-.conv-actions { padding: 10px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.conv-actions button { padding: 8px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-.btn-repondre { background: var(--primary); color: white; }
-.btn-clore { background: #6b7280; color: white; }
-.btn-declore { background: var(--warning); color: white; }
-.vu-checkbox-wrapper { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg); border-radius: 8px; font-size: 12px; cursor: pointer; }
-.vu-checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; }
-.vu-checkbox-wrapper label { cursor: pointer; font-weight: 600; color: var(--text); }
-.send-section { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
-.send-section h3 { color: var(--text); font-size: 15px; margin-bottom: 12px; }
-.msg-textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; resize: vertical; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; font-family: inherit; }
-.msg-textarea:focus { border-color: var(--primary); }
-.send-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 6px; }
+.cat-btn {
+    padding: 6px 10px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 16px;
+    background: rgba(13, 22, 41, 0.65);
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Rajdhani', sans-serif;
+}
+.cat-btn .cat-count {
+    background: rgba(0, 242, 254, 0.15);
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #00f2fe;
+}
+.cat-btn.active {
+    border-color: #00f2fe;
+    background: rgba(0, 242, 254, 0.25);
+    color: white;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+}
+.cat-btn.active .cat-count { background: rgba(255, 255, 255, 0.25); color: white; }
+
+/* ==== CONVERSATION CARDS ==== */
+.conv-card {
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+}
+.conv-header {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+}
+.conv-header.non-traite { background: rgba(255, 0, 127, 0.08); }
+.conv-header.traite { background: rgba(16, 185, 129, 0.08); }
+.conv-header.cloture { background: rgba(107, 114, 128, 0.08); }
+.conv-header strong { color: #f1f5f9; font-size: 14px; font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: 0.3px; }
+.conv-header .conv-id { font-size: 11px; color: #64748b; font-family: monospace; }
+.conv-msg {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+    background: rgba(5, 8, 17, 0.4);
+}
+.conv-msg:nth-child(even) { background: rgba(13, 22, 41, 0.4); }
+.conv-msg .msg-meta { font-size: 11px; color: #64748b; margin-bottom: 4px; font-family: 'Rajdhani', sans-serif; letter-spacing: 0.3px; }
+.conv-msg .msg-text { font-size: 14px; color: #e2e8f0; line-height: 1.5; }
+.conv-actions {
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    background: rgba(5, 8, 17, 0.6);
+}
+.conv-actions button {
+    padding: 9px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+.btn-repondre {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #0a0f1f;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+.btn-repondre:hover { box-shadow: 0 0 18px rgba(0, 242, 254, 0.5); transform: translateY(-1px); }
+.btn-clore {
+    background: rgba(107, 114, 128, 0.25);
+    color: white;
+    border: 1px solid rgba(107, 114, 128, 0.5);
+}
+.btn-clore:hover { background: rgba(107, 114, 128, 0.4); }
+.btn-declore {
+    background: rgba(245, 158, 11, 0.25);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.5);
+}
+.btn-declore:hover { background: rgba(245, 158, 11, 0.4); }
+.vu-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.vu-checkbox-wrapper input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: #10b981;
+    cursor: pointer;
+}
+.vu-checkbox-wrapper label { cursor: pointer; font-weight: 600; color: #10b981; font-family: 'Rajdhani', sans-serif; }
+
+/* ==== SEND SECTION ==== */
+.send-section {
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+.send-section h3 {
+    color: #00f2fe;
+    font-size: 16px;
+    margin-bottom: 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.msg-textarea {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    border: 2px solid rgba(0, 242, 254, 0.25);
+    border-radius: 10px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    background: rgba(5, 8, 17, 0.6);
+    color: #e2e8f0;
+    margin-bottom: 10px;
+    font-family: inherit;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.msg-textarea:focus { border-color: #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.25); }
+.msg-textarea::placeholder { color: #475569; }
+.send-btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #0a0f1f;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+    transition: all 0.25s;
+}
+.send-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 22px rgba(0, 242, 254, 0.5); }
 .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.confirm-box { background: #d4edda; border-left: 4px solid var(--success); padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; color: #155724; }
-.empty-state { text-align: center; padding: 30px 20px; color: var(--text-sub); font-size: 13px; }
-.empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+.confirm-box {
+    background: rgba(16, 185, 129, 0.15);
+    border-left: 4px solid #10b981;
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #86efac;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+}
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+    font-size: 13px;
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; color: rgba(0, 242, 254, 0.35); }
+
+/* ==== DEST SELECTOR (envoi groupé) ==== */
 .dest-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-.dest-panel { background: var(--bg); border-radius: 10px; padding: 10px; border: 2px solid #ddd; }
-.dest-panel h4 { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.dest-list { max-height: 400px; overflow-y: auto; background: var(--card-bg); border-radius: 8px; padding: 6px; border: 1px solid rgba(128,128,128,0.2); }
-.dest-list .dest-item { display: flex; align-items: center; gap: 6px; padding: 6px 8px; font-size: 13px; cursor: pointer; border-radius: 4px; }
-.dest-list .dest-item:hover { background: rgba(26,58,107,0.08); }
-.dest-list .dest-item input { accent-color: var(--primary); }
-.statut-badge { display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; margin-right: 6px; background: #e5e7eb; color: #374151; }
+.dest-panel {
+    background: rgba(5, 8, 17, 0.5);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+}
+.dest-panel h4 {
+    font-size: 12px;
+    color: #00f2fe;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Rajdhani', sans-serif;
+}
+.dest-list {
+    max-height: 400px;
+    overflow-y: auto;
+    background: rgba(13, 22, 41, 0.65);
+    border-radius: 8px;
+    padding: 6px;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+}
+.dest-list .dest-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.dest-list .dest-item:hover { background: rgba(0, 242, 254, 0.08); }
+.dest-list .dest-item input { accent-color: #00f2fe; width: 18px; height: 18px; }
+.statut-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-right: 6px;
+    background: rgba(0, 242, 254, 0.15);
+    color: #00f2fe;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+}
 .dest-actions { display: flex; gap: 8px; margin-bottom: 12px; }
-.dest-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.btn-add { background: var(--success); color: white; }
-.btn-remove { background: var(--danger); color: white; }
+.dest-actions button {
+    flex: 1;
+    padding: 11px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.btn-add {
+    background: rgba(16, 185, 129, 0.25);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.5);
+}
+.btn-add:hover { background: rgba(16, 185, 129, 0.4); }
+.btn-remove {
+    background: rgba(255, 0, 127, 0.25);
+    color: #ff8ec7;
+    border: 1px solid rgba(255, 0, 127, 0.5);
+}
+.btn-remove:hover { background: rgba(255, 0, 127, 0.4); }
 .statut-presel-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.statut-presel-btn { padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px; background: var(--card-bg); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.statut-presel-btn:hover { border-color: var(--primary); background: rgba(26,58,107,0.05); }
-.statut-presel-btn .count { background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 8px; font-size: 10px; margin-left: 4px; }
-.dest-count { font-size: 12px; color: var(--text-sub); text-align: center; padding: 6px; background: var(--bg); border-radius: 8px; margin-bottom: 10px; }
-.dest-count strong { color: var(--primary); }
+.statut-presel-btn {
+    padding: 8px 12px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    background: rgba(13, 22, 41, 0.65);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Rajdhani', sans-serif;
+}
+.statut-presel-btn:hover { border-color: #00f2fe; background: rgba(0, 242, 254, 0.08); }
+.statut-presel-btn .count {
+    background: rgba(0, 242, 254, 0.15);
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    margin-left: 4px;
+    color: #00f2fe;
+}
+.dest-count {
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: center;
+    padding: 10px;
+    background: rgba(5, 8, 17, 0.5);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.15);
+}
+.dest-count strong { color: #00f2fe; font-size: 16px; }
 .cat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.cat-chip { padding: 8px 12px; border: 2px solid #ddd; border-radius: 16px; background: var(--card-bg); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.cat-chip:hover { border-color: var(--primary); }
-.cat-chip.active { border-color: var(--primary); background: var(--primary); color: white; }
-@media (max-width: 480px) { .dest-selector { grid-template-columns: 1fr; } .dest-list { max-height: 250px; } .filter-sticky-wrapper { top: 90px; } }
+.cat-chip {
+    padding: 9px 14px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    background: rgba(13, 22, 41, 0.65);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Rajdhani', sans-serif;
+}
+.cat-chip:hover { border-color: #00f2fe; background: rgba(0, 242, 254, 0.08); }
+.cat-chip.active {
+    border-color: #00f2fe;
+    background: rgba(0, 242, 254, 0.25);
+    color: white;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+}
+
+@media (max-width: 768px) {
+    .dest-selector { grid-template-columns: 1fr; }
+    .dest-list { max-height: 250px; }
+    .filter-sticky-wrapper { top: 70px; }
+}
 </style>
 </head>
 <body>
 <div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2 id="messagerieTitle">Messagerie</h2>
-<button class="refresh-btn" id="refreshBtn" onclick="forcerRafraichissement()">🔄</button>
+    <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2 id="messagerieTitle">Messagerie</h2>
+    <button class="refresh-btn" id="refreshBtn" onclick="forcerRafraichissement()"><i class="fa-solid fa-arrows-rotate"></i></button>
 </div>
 <div class="sync-status">
-<span class="dot" id="syncDot"></span>
-<span id="syncText">Chargement...</span>
+    <span class="dot" id="syncDot"></span>
+    <span id="syncText">Chargement...</span>
 </div>
 <div class="page-content" id="messagerieContent"></div>
 
 <script src="../js/commun.js"></script>
 <script>
 // ============================================
-// FILETS DE SÉCURITÉ : si commun.js est cassé ou absent,
-// la page fonctionne quand même (copies de secours)
+// FILETS DE SÉCURITÉ : si commun.js est cassé ou absent
 // ============================================
 if (typeof SCRIPT_URL === 'undefined') {
     window.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPaLIE0rlYV9VPLboL1ysI38E1GY6D8I6-eZJnZBr_UNhUt86i3Zv64WuondDbyt2ymw/exec';
@@ -164,12 +560,10 @@ if (typeof saveAdherentsToCache !== 'function') {
         try { localStorage.setItem('aamb_adherents_cache', JSON.stringify({ timestamp: Date.now(), data: d })); } catch (e) {}
     };
 }
-// ✅ PAS de redeclaration de messagerieFormulaireOuvert (elle vient de commun.js)
 if (typeof messagerieFormulaireOuvert === 'undefined') {
     window.messagerieFormulaireOuvert = false;
 }
 
-// Utilitaire : abandonne une requête si elle dépasse le délai (empêche le figage)
 function avecTimeout(promise, ms) {
     return Promise.race([
         promise,
@@ -275,7 +669,7 @@ function getCategorieInfo(catId) {
 }
 function getCategorieBadgeHTML(catId) {
     const cat = getCategorieInfo(catId);
-    return `<span style="display:inline-block;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:600;background:#e5e7eb;color:#374151;margin-left:6px;">${cat.icon} ${cat.label}</span>`;
+    return `<span style="display:inline-block;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(0,242,254,0.15);color:#00f2fe;margin-left:6px;border:1px solid rgba(0,242,254,0.3);">${cat.icon} ${cat.label}</span>`;
 }
 
 async function chargerListeAdherents() {
@@ -289,7 +683,6 @@ async function chargerListeAdherents() {
     }
 }
 
-// ✅ INIT BLINDÉ : affichage IMMÉDIAT, aucune attente réseau bloquante, logs partout
 async function init() {
     console.log('[Messagerie] init() démarrage, statut:', adherent ? adherent.statut : 'aucun');
     try {
@@ -298,14 +691,12 @@ async function init() {
         const hadCache = chargerDepuisCache();
         console.log('[Messagerie] cache utilisé:', hadCache, '- conversations:', Object.keys(conversations).length);
 
-        // ✅ Rendu IMMÉDIAT (cache ou liste vide) : plus jamais de page blanche
         if (adherent.statut === 'Organisateur') {
-            document.getElementById('messagerieTitle').textContent = '📨 Messages des participants';
+            document.getElementById('messagerieTitle').innerHTML = '📨 Messages des <span class="cyan">participants</span>';
             renderOrganisateur();
-            // Liste des adhérents en tâche de fond, avec timeout (ne bloque JAMAIS)
             avecTimeout(chargerListeAdherents(), 10000).catch(e => console.warn('[Messagerie] liste adhérents non chargée:', e.message));
         } else {
-            document.getElementById('messagerieTitle').textContent = '💬 Contacter l\'AAMB';
+            document.getElementById('messagerieTitle').innerHTML = '💬 Contacter l\'<span class="cyan">AAMB</span>';
             renderParticipant();
         }
 
@@ -313,7 +704,6 @@ async function init() {
         if (cache) updateSyncUI('ok', `Cache — ${formatTimeAgo(cache.timestamp)}`);
         else updateSyncUI('syncing', 'Premier chargement...');
 
-        // Synchro réseau en arrière-plan, avec timeout
         avecTimeout(synchroniserSilencieuse(), 20000).catch(e => {
             console.error('[Messagerie] synchro:', e.message);
             updateSyncUI('error', 'Erreur de synchro');
@@ -346,12 +736,12 @@ function renderParticipant() {
         catCounts['toutes']++;
         if (catCounts[cat] !== undefined) catCounts[cat]++;
     });
-    let html = '<div class="filter-sticky-wrapper">';
-    html += '<button onclick="afficherFormulaireParticipant(null)" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
+    let html = '<div class="filter-sticky-wrapper glass-panel" style="padding:12px;border-radius:12px;">';
+    html += '<button onclick="afficherFormulaireParticipant(null)" class="send-btn" style="margin-bottom:12px;"><i class="fa-solid fa-pen-to-square"></i> Nouveau message</button>';
     html += '<div class="filter-bar">';
-    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')">🔴 Non traités <span class="count">${nbNonTraites}</span></button>`;
-    html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')">✅ Traités <span class="count">${nbTraites}</span></button>`;
-    html += `<button class="filter-btn ${filtreStatut==='clotures'?'active-cloture':''}" onclick="changerFiltreStatut('clotures')">🔒 Clôturés <span class="count">${nbClotures}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')"><i class="fa-solid fa-circle-exclamation"></i> Non traités <span class="count">${nbNonTraites}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')"><i class="fa-solid fa-circle-check"></i> Traités <span class="count">${nbTraites}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='clotures'?'active-cloture':''}" onclick="changerFiltreStatut('clotures')"><i class="fa-solid fa-lock"></i> Clôturés <span class="count">${nbClotures}</span></button>`;
     html += '</div>';
     html += '<div class="cat-filter-bar">';
     const countToutes = filtreStatut === 'nonTraites' ? catCounts['toutes_nt'] : (filtreStatut === 'traites' ? catCounts['toutes_t'] : catCounts['toutes_c']);
@@ -381,7 +771,7 @@ function renderParticipant() {
         else if (filtreStatut === 'traites') emptyText = 'Aucun message traité';
         else if (filtreStatut === 'clotures') emptyText = 'Aucun sujet clôturé';
         if (filtreCategorie !== 'toutes') emptyText += ` dans ${getCategorieInfo(filtreCategorie).label}`;
-        html += `<div class="empty-state"><div class="empty-icon">📭</div>${emptyText}</div>`;
+        html += `<div class="empty-state glass-panel" style="border-radius:12px;margin-top:12px;"><div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>${emptyText}</div>`;
     } else {
         convKeys.forEach(convBase => { html += renderConvCardParticipant(convBase, convsFiltrees[convBase]); });
     }
@@ -398,27 +788,29 @@ function renderConvCardParticipant(convBase, msgs) {
     const reponseAutorisee = last.reponseAutorisee !== 'NON';
     let headerClass = last.traite === 'NON' ? 'non-traite' : (last.traite === 'OUI' ? 'traite' : 'cloture');
     let statusText = last.traite === 'NON' ? '🔴 Non traité' : (last.traite === 'OUI' ? '✅ Traité' : '🔒 Clôturé');
+    let borderColor = last.traite === 'NON' ? '#ff007f' : (last.traite === 'OUI' ? '#10b981' : '#6b7280');
     const lastSender = last.userId === adherent.id ? '👤 Vous' : '🏢 Organisation';
-    let html = '<div class="conv-card" style="border-left:4px solid ' + (last.traite === 'NON' ? '#dc3545' : (last.traite === 'OUI' ? '#28a745' : '#6b7280')) + ';">';
+    let html = '<div class="conv-card glass-panel" style="border-left:4px solid ' + borderColor + ';">';
     html += '<div class="conv-header ' + headerClass + '">';
     html += '<div><strong>' + lastSender + '</strong>' + catBadge;
-    html += '<span style="font-size:11px;color:' + (last.traite === 'NON' ? '#dc3545' : (last.traite === 'OUI' ? '#28a745' : '#6b7280')) + ';margin-left:8px;">' + statusText + '</span>';
-    html += '<span style="float:right;font-size:11px;color:var(--text-sub);">' + convBase + '</span></div></div>';
+    html += '<span style="font-size:11px;color:' + borderColor + ';margin-left:8px;font-weight:600;">' + statusText + '</span>';
+    html += '<span style="float:right;font-size:11px;color:#64748b;font-family:monospace;">' + convBase + '</span></div></div>';
     sorted.forEach(m => {
-        html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'var(--card-bg)':'rgba(26,58,107,0.08)') + ';">';
-        html += '<div class="msg-meta">' + (m.userId===adherent.id?'👤 Vous':' Organisation') + ' — ' + m.dateHeure + '</div>';
+        const isMine = m.userId === adherent.id;
+        html += '<div class="conv-msg" style="background:' + (isMine ? 'rgba(0,242,254,0.08)' : 'rgba(13,22,41,0.4)') + ';">';
+        html += '<div class="msg-meta">' + (isMine ? '👤 Vous' : '🏢 Organisation') + ' — ' + m.dateHeure + '</div>';
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     html += '<div class="conv-actions">';
     if (last.traite === 'CLOS') {
-        html += '<div style="padding:6px 10px;background:rgba(107,114,128,0.1);border-radius:8px;font-size:11px;color:#4b5563;font-weight:600;">🔒 Sujet clôturé</div>';
+        html += '<div style="padding:8px 12px;background:rgba(107,114,128,0.15);border-radius:8px;font-size:11px;color:#9ca3af;font-weight:700;border:1px solid rgba(107,114,128,0.3);">🔒 Sujet clôturé</div>';
         html += `<button class="btn-declore" onclick="reouvrirSujet('${convBase}')">🔓 Rouvrir</button>`;
     } else {
         if (reponseAutorisee) {
-            html += `<button class="btn-repondre" onclick="afficherFormulaireParticipant('${convBase}')">↩️ Répondre</button>`;
+            html += `<button class="btn-repondre" onclick="afficherFormulaireParticipant('${convBase}')"><i class="fa-solid fa-reply"></i> Répondre</button>`;
         } else {
             html += `<div class="vu-checkbox-wrapper"><input type="checkbox" id="vu-${convBase}" ${last.vu !== 'OUI' ? '' : 'checked'} onchange="toggleVu('${convBase}', this.checked)"><label for="vu-${convBase}">${last.vu !== 'OUI' ? 'Marquer comme lu' : 'Lu'}</label></div>`;
-            html += '<div style="padding:6px 10px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:11px;color:#92400e;font-weight:600;">📢 Message informatif</div>';
+            html += '<div style="padding:8px 12px;background:rgba(245,158,11,0.15);border-radius:8px;font-size:11px;color:#fbbf24;font-weight:700;border:1px solid rgba(245,158,11,0.3);">📢 Message informatif</div>';
         }
         html += `<button class="btn-clore" onclick="cloturerSujet('${convBase}')">🔒 Clôturer</button>`;
     }
@@ -474,19 +866,19 @@ function afficherFormulaireParticipant(convBase) {
     const content = document.getElementById('messagerieContent');
     let catChipsHTML = '';
     if (!convBase) {
-        catChipsHTML = '<div style="font-size:13px;color:var(--text-sub);margin-bottom:6px;">Catégorie du message :</div>';
+        catChipsHTML = '<div style="font-size:13px;color:#94a3b8;margin-bottom:8px;font-weight:600;">Catégorie du message :</div>';
         catChipsHTML += '<div class="cat-chips" id="catChips">';
         CATEGORIES.forEach((c, idx) => {
             catChipsHTML += `<button class="cat-chip ${idx===0?'active':''}" data-cat="${c.id}" onclick="selectionnerCategorie(this)">${c.icon} ${c.label}</button>`;
         });
         catChipsHTML += '</div>';
     }
-    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
-    html += '<div class="send-section">';
-    html += '<h3>' + (convBase ? '↩️ Répondre — ' + convBase : '✉️ Nouveau message') + '</h3>';
+    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#00f2fe;font-size:16px;cursor:pointer;"><i class="fa-solid fa-arrow-left"></i> Retour</button></div>';
+    html += '<div class="send-section glass-panel">';
+    html += '<h3>' + (convBase ? '<i class="fa-solid fa-reply"></i> Répondre — ' + convBase : '<i class="fa-solid fa-pen-to-square"></i> Nouveau message') + '</h3>';
     html += catChipsHTML;
     html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>';
-    html += '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn">📤 Envoyer</button>';
+    html += '<button onclick="envoyerMessageParticipant(\'' + (convBase||'') + '\')" class="send-btn"><i class="fa-solid fa-paper-plane"></i> Envoyer</button>';
     html += '</div>';
     content.innerHTML = html;
 }
@@ -502,7 +894,7 @@ async function envoyerMessageParticipant(convBase) {
     const catBtn = document.querySelector('.cat-chip.active');
     const categorie = catBtn ? catBtn.dataset.cat : '';
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+    content.innerHTML = '<div class="glass-panel" style="padding:40px;text-align:center;border-radius:12px;"><div style="font-size:48px;margin-bottom:10px;">⏳</div><div style="color:#94a3b8;font-size:14px;">Envoi en cours...</div></div>';
     try {
         const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, categorie:categorie, convId:convBase||'', isOrganisateur:'false' });
         const resp = await fetch(SCRIPT_URL + '?' + params);
@@ -510,8 +902,8 @@ async function envoyerMessageParticipant(convBase) {
         if (data.success) {
             messagerieFormulaireOuvert = false;
             await avecTimeout(synchroniserSilencieuse(), 20000);
-        } else { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
-    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+        } else { content.innerHTML = '<p style="color:#ff8ec7;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
+    } catch(e) { content.innerHTML = '<p style="color:#ff8ec7;text-align:center;padding:20px;">Erreur de connexion</p>'; }
 }
 
 function renderOrganisateur() {
@@ -531,12 +923,12 @@ function renderOrganisateur() {
         catCounts['toutes']++;
         if (catCounts[cat] !== undefined) catCounts[cat]++;
     });
-    let html = '<div class="filter-sticky-wrapper">';
-    html += '<button onclick="afficherSectionEnvoi()" style="width:100%;padding:14px;background:#1a3a6b;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">✉️ Nouveau message</button>';
+    let html = '<div class="filter-sticky-wrapper glass-panel" style="padding:12px;border-radius:12px;">';
+    html += '<button onclick="afficherSectionEnvoi()" class="send-btn" style="margin-bottom:12px;"><i class="fa-solid fa-bullhorn"></i> Nouveau message groupé</button>';
     html += '<div class="filter-bar">';
-    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')">🔴 Non traités <span class="count">${nbNonTraites}</span></button>`;
-    html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')">✅ Traités <span class="count">${nbTraites}</span></button>`;
-    html += `<button class="filter-btn ${filtreStatut==='clotures'?'active-cloture':''}" onclick="changerFiltreStatut('clotures')">🔒 Clôturés <span class="count">${nbClotures}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='nonTraites'?'active-non-traite':''}" onclick="changerFiltreStatut('nonTraites')"><i class="fa-solid fa-circle-exclamation"></i> Non traités <span class="count">${nbNonTraites}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='traites'?'active-traite':''}" onclick="changerFiltreStatut('traites')"><i class="fa-solid fa-circle-check"></i> Traités <span class="count">${nbTraites}</span></button>`;
+    html += `<button class="filter-btn ${filtreStatut==='clotures'?'active-cloture':''}" onclick="changerFiltreStatut('clotures')"><i class="fa-solid fa-lock"></i> Clôturés <span class="count">${nbClotures}</span></button>`;
     html += '</div>';
     html += '<div class="cat-filter-bar">';
     const countToutes = filtreStatut === 'nonTraites' ? catCounts['toutes_nt'] : (filtreStatut === 'traites' ? catCounts['toutes_t'] : catCounts['toutes_c']);
@@ -566,7 +958,7 @@ function renderOrganisateur() {
         else if (filtreStatut === 'traites') emptyText = 'Aucun message traité';
         else if (filtreStatut === 'clotures') emptyText = 'Aucun sujet clôturé';
         if (filtreCategorie !== 'toutes') emptyText += ` dans ${getCategorieInfo(filtreCategorie).label}`;
-        html += `<div class="empty-state"><div class="empty-icon">📭</div>${emptyText}</div>`;
+        html += `<div class="empty-state glass-panel" style="border-radius:12px;margin-top:12px;"><div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>${emptyText}</div>`;
     } else {
         convKeys.forEach(convBase => {
             html += renderConvCardOrga(convBase, convsFiltrees[convBase], convsFiltrees[convBase][convsFiltrees[convBase].length-1].traite === 'NON');
@@ -582,22 +974,24 @@ function renderConvCardOrga(convBase, msgs, nonTraite) {
     const catBadge = getCategorieBadgeHTML(last.categorie);
     let headerClass = last.traite === 'NON' ? 'non-traite' : (last.traite === 'OUI' ? 'traite' : 'cloture');
     let statusText = last.traite === 'NON' ? '🔴 Non traité' : (last.traite === 'OUI' ? '✅ Traité' : '🔒 Clôturé');
-    let html = '<div class="conv-card" style="border-left:4px solid ' + (last.traite === 'NON' ? '#dc3545' : (last.traite === 'OUI' ? '#28a745' : '#6b7280')) + ';">';
+    let borderColor = last.traite === 'NON' ? '#ff007f' : (last.traite === 'OUI' ? '#10b981' : '#6b7280');
+    let html = '<div class="conv-card glass-panel" style="border-left:4px solid ' + borderColor + ';">';
     html += '<div class="conv-header ' + headerClass + '">';
     html += '<div><strong>👤 ' + formatNomComplet(pm) + '</strong>' + catBadge;
-    html += '<span style="font-size:11px;color:' + (last.traite === 'NON' ? '#dc3545' : (last.traite === 'OUI' ? '#28a745' : '#6b7280')) + ';margin-left:8px;">' + statusText + '</span>';
+    html += '<span style="font-size:11px;color:' + borderColor + ';margin-left:8px;font-weight:600;">' + statusText + '</span>';
     html += '<span class="conv-id">' + convBase + '</span></div></div>';
     sorted.forEach(m => {
-        html += '<div class="conv-msg" style="background:' + (m.userId===adherent.id?'rgba(26,58,107,0.08)':'var(--card-bg)') + ';">';
-        html += '<div class="msg-meta">' + (m.userId===adherent.id?'🏢 Vous':'👤 '+formatNomComplet(m)) + ' — ' + m.dateHeure + '</div>';
+        const isMine = m.userId === adherent.id;
+        html += '<div class="conv-msg" style="background:' + (isMine ? 'rgba(0,242,254,0.08)' : 'rgba(13,22,41,0.4)') + ';">';
+        html += '<div class="msg-meta">' + (isMine ? '🏢 Vous' : '👤 ' + formatNomComplet(m)) + ' — ' + m.dateHeure + '</div>';
         html += '<div class="msg-text">' + m.message + '</div></div>';
     });
     html += '<div class="conv-actions">';
     if (last.traite === 'CLOS') {
-        html += '<div style="padding:6px 10px;background:rgba(107,114,128,0.1);border-radius:8px;font-size:11px;color:#4b5563;font-weight:600;">🔒 Sujet clôturé</div>';
+        html += '<div style="padding:8px 12px;background:rgba(107,114,128,0.15);border-radius:8px;font-size:11px;color:#9ca3af;font-weight:700;border:1px solid rgba(107,114,128,0.3);">🔒 Sujet clôturé</div>';
         html += `<button class="btn-declore" onclick="reouvrirSujet('${convBase}')">🔓 Rouvrir</button>`;
     } else {
-        html += `<button class="btn-repondre" onclick="afficherReponseOrga('${convBase}')">📤 Répondre</button>`;
+        html += `<button class="btn-repondre" onclick="afficherReponseOrga('${convBase}')"><i class="fa-solid fa-paper-plane"></i> Répondre</button>`;
         html += `<button class="btn-clore" onclick="cloturerSujet('${convBase}')">🔒 Clôturer</button>`;
     }
     html += '</div></div>';
@@ -607,10 +1001,10 @@ function renderConvCardOrga(convBase, msgs, nonTraite) {
 function afficherReponseOrga(convBase) {
     messagerieFormulaireOuvert = true;
     const content = document.getElementById('messagerieContent');
-    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>';
-    html += '<div class="send-section"><h3>📤 Répondre — ' + convBase + '</h3>';
+    let html = '<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#00f2fe;font-size:16px;cursor:pointer;"><i class="fa-solid fa-arrow-left"></i> Retour</button></div>';
+    html += '<div class="send-section glass-panel"><h3><i class="fa-solid fa-reply"></i> Répondre — ' + convBase + '</h3>';
     html += '<textarea id="msgTexte" class="msg-textarea" placeholder="Votre réponse..."></textarea>';
-    html += '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" class="send-btn">📤 Envoyer</button></div>';
+    html += '<button onclick="envoyerReponseOrga(\'' + convBase + '\')" class="send-btn"><i class="fa-solid fa-paper-plane"></i> Envoyer</button></div>';
     content.innerHTML = html;
 }
 
@@ -618,7 +1012,7 @@ async function envoyerReponseOrga(convBase) {
     const texte = document.getElementById('msgTexte').value.trim();
     if (!texte) { alert('Veuillez écrire une réponse'); return; }
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Envoi en cours...</p>';
+    content.innerHTML = '<div class="glass-panel" style="padding:40px;text-align:center;border-radius:12px;"><div style="font-size:48px;margin-bottom:10px;">⏳</div><div style="color:#94a3b8;font-size:14px;">Envoi en cours...</div></div>';
     try {
         const params = new URLSearchParams({ action:'sendMessage', userId:adherent.id, nom:adherent.nom, prenom:adherent.prenom, message:texte, convId:convBase, isOrganisateur:'true' });
         const resp = await fetch(SCRIPT_URL + '?' + params);
@@ -626,8 +1020,8 @@ async function envoyerReponseOrga(convBase) {
         if (data.success) {
             messagerieFormulaireOuvert = false;
             await avecTimeout(synchroniserSilencieuse(), 20000);
-        } else { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
-    } catch(e) { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p>'; }
+        } else { content.innerHTML = '<p style="color:#ff8ec7;text-align:center;padding:20px;">Erreur d\'envoi.</p>'; }
+    } catch(e) { content.innerHTML = '<p style="color:#ff8ec7;text-align:center;padding:20px;">Erreur de connexion</p>'; }
 }
 
 function afficherSectionEnvoi() {
@@ -635,10 +1029,10 @@ function afficherSectionEnvoi() {
     selectedDestinataires.clear();
     const content = document.getElementById('messagerieContent');
     if (allAdherents.length === 0) {
-        content.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-sub);">⏳ Chargement de la liste...</p>';
+        content.innerHTML = '<div class="glass-panel" style="padding:40px;text-align:center;border-radius:12px;"><div style="font-size:48px;margin-bottom:10px;">⏳</div><div style="color:#94a3b8;font-size:14px;">Chargement de la liste...</div></div>';
         avecTimeout(chargerListeAdherents(), 15000)
             .then(() => { content.innerHTML = renderFormulaireEnvoiHTML(); attacherEventsEnvoi(); })
-            .catch(() => { content.innerHTML = '<p style="color:red;text-align:center;padding:20px;">Impossible de charger la liste des participants</p><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>'; });
+            .catch(() => { content.innerHTML = '<p style="color:#ff8ec7;text-align:center;padding:20px;">Impossible de charger la liste des participants</p><button onclick="init()" class="send-btn" style="margin-top:15px;"><i class="fa-solid fa-arrow-left"></i> Retour</button>'; });
     } else {
         content.innerHTML = renderFormulaireEnvoiHTML();
         attacherEventsEnvoi();
@@ -652,31 +1046,31 @@ function renderFormulaireEnvoiHTML() {
     const optionsHTML = sortedAdherents.map(a => `<option value="${a.id}">${formatNomComplet(a)}</option>`).join('');
     const preselButtonsHTML = statutsDisponibles.map(s => `<button class="statut-presel-btn" onclick="preselectionnerStatut('${s}')">${s} <span class="count">${countsByStatut[s]||0}</span></button>`).join('');
     const totalSansOrga = allAdherents.filter(a => a.statut !== 'Organisateur').length;
-    const tousSansOrgaBtn = `<button class="statut-presel-btn" onclick="preselectionnerTousSaufOrga()" style="border-color:var(--primary);font-weight:700;">📢 TOUS (sauf orga) <span class="count">${totalSansOrga}</span></button>`;
-    const destListHTML = sortedAdherents.filter(a => selectedDestinataires.has(a.id)).map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${formatNomComplet(a)}</label>`).join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
-    return `<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour aux messages</button></div>
-    <div class="send-section">
-        <h3>✉️ Nouveau message</h3>
-        <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;font-weight:600;">🏷️ Pré-sélectionner par statut :</div>
+    const tousSansOrgaBtn = `<button class="statut-presel-btn" onclick="preselectionnerTousSaufOrga()" style="border-color:#00f2fe;font-weight:700;">📢 TOUS (sauf orga) <span class="count">${totalSansOrga}</span></button>`;
+    const destListHTML = sortedAdherents.filter(a => selectedDestinataires.has(a.id)).map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${formatNomComplet(a)}</label>`).join('') || '<div style="color:#64748b;font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
+    return `<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#00f2fe;font-size:16px;cursor:pointer;"><i class="fa-solid fa-arrow-left"></i> Retour aux messages</button></div>
+    <div class="send-section glass-panel">
+        <h3><i class="fa-solid fa-bullhorn"></i> Nouveau message groupé</h3>
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">🏷️ Pré-sélectionner par statut :</div>
         <div class="statut-presel-bar">${tousSansOrgaBtn}${preselButtonsHTML}</div>
         <div class="dest-selector">
-            <div class="dest-panel"><h4>📋 Liste des participants</h4><select id="listeParticipants" class="dest-list" multiple size="16">${optionsHTML}</select></div>
-            <div class="dest-panel"><h4>✅ Destinataires (${selectedDestinataires.size})</h4><div id="destinatairesList" class="dest-list">${destListHTML}</div></div>
+            <div class="dest-panel"><h4><i class="fa-solid fa-list"></i> Liste des participants</h4><select id="listeParticipants" class="dest-list" multiple size="16">${optionsHTML}</select></div>
+            <div class="dest-panel"><h4><i class="fa-solid fa-check"></i> Destinataires (${selectedDestinataires.size})</h4><div id="destinatairesList" class="dest-list">${destListHTML}</div></div>
         </div>
         <div class="dest-actions">
-            <button class="btn-add" onclick="ajouterSelectionnes()">➕ Ajouter à la liste</button>
-            <button class="btn-remove" onclick="retirerSelectionnes()">➖ Retirer de la liste</button>
+            <button class="btn-add" onclick="ajouterSelectionnes()"><i class="fa-solid fa-plus"></i> Ajouter</button>
+            <button class="btn-remove" onclick="retirerSelectionnes()"><i class="fa-solid fa-minus"></i> Retirer</button>
         </div>
         <div class="dest-count">📨 <strong>${selectedDestinataires.size}</strong> destinataire(s) dans la liste de diffusion</div>
-        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;border:2px solid #ddd;">
-            <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:var(--primary);">
-            <label for="reponseAutorisee" style="font-size:14px;color:var(--text);cursor:pointer;flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(5,8,17,0.5);border-radius:10px;margin-bottom:12px;border:1px solid rgba(56,189,248,0.2);">
+            <input type="checkbox" id="reponseAutorisee" checked style="width:20px;height:20px;accent-color:#00f2fe;">
+            <label for="reponseAutorisee" style="font-size:14px;color:#e2e8f0;cursor:pointer;flex:1;">
                 <strong>✉️ Autoriser les réponses</strong>
-                <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">Si décoché, le message sera marqué comme "informatif" et les destinataires ne pourront pas y répondre.</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">Si décoché, le message sera marqué comme "informatif" et les destinataires ne pourront pas y répondre.</div>
             </label>
         </div>
         <textarea id="msgTexte" class="msg-textarea" placeholder="Votre message..."></textarea>
-        <button class="send-btn" id="btnSend" onclick="envoyerMessageGroupe()">📤 Envoyer à ${selectedDestinataires.size} personne(s)</button>
+        <button class="send-btn" id="btnSend" onclick="envoyerMessageGroupe()"><i class="fa-solid fa-paper-plane"></i> Envoyer à ${selectedDestinataires.size} personne(s)</button>
     </div>`;
 }
 
@@ -710,9 +1104,9 @@ function ajouterSelectionnes() {
     refreshDestinatairesList();
     if (ajoutes > 0) {
         const btn = document.querySelector('.btn-add');
-        const originalText = btn.textContent;
-        btn.textContent = `✅ ${ajoutes} ajouté(s)`;
-        setTimeout(() => { btn.textContent = originalText; }, 1000);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `✅ ${ajoutes} ajouté(s)`;
+        setTimeout(() => { btn.innerHTML = originalText; }, 1000);
     }
 }
 function retirerSelectionnes() {
@@ -722,15 +1116,15 @@ function retirerSelectionnes() {
     checkboxes.forEach(cb => { selectedDestinataires.delete(cb.value); retires++; });
     refreshDestinatairesList();
     const btn = document.querySelector('.btn-remove');
-    const originalText = btn.textContent;
-    btn.textContent = `✅ ${retires} retiré(s)`;
-    setTimeout(() => { btn.textContent = originalText; }, 1000);
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `✅ ${retires} retiré(s)`;
+    setTimeout(() => { btn.innerHTML = originalText; }, 1000);
 }
 function refreshDestinatairesList() {
     const destList = document.getElementById('destinatairesList');
     if (!destList) return;
     const sortedAdherents = trierAdherentsParStatutPuisNom(allAdherents);
-    const destListHTML = sortedAdherents.filter(a => selectedDestinataires.has(a.id)).map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${formatNomComplet(a)}</label>`).join('') || '<div style="color:var(--text-sub);font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
+    const destListHTML = sortedAdherents.filter(a => selectedDestinataires.has(a.id)).map(a => `<label class="dest-item"><input type="checkbox" value="${a.id}" class="dest-checkbox" checked>${formatNomComplet(a)}</label>`).join('') || '<div style="color:#64748b;font-size:12px;text-align:center;padding:20px;">Aucun destinataire sélectionné</div>';
     destList.innerHTML = destListHTML;
     updateDestCount();
 }
@@ -739,9 +1133,9 @@ function updateDestCount() {
     const btnSend = document.getElementById('btnSend');
     const nb = selectedDestinataires.size;
     if (countEl) countEl.innerHTML = `📨 <strong>${nb}</strong> destinataire(s) dans la liste de diffusion`;
-    if (btnSend) btnSend.textContent = `📤 Envoyer à ${nb} personne(s)`;
+    if (btnSend) btnSend.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Envoyer à ${nb} personne(s)`;
     const destPanelTitle = document.querySelector('#destinatairesList')?.previousElementSibling;
-    if (destPanelTitle) destPanelTitle.innerHTML = `✅ Destinataires (${nb})`;
+    if (destPanelTitle) destPanelTitle.innerHTML = `<i class="fa-solid fa-check"></i> Destinataires (${nb})`;
 }
 
 async function envoyerMessageGroupe() {
@@ -751,16 +1145,16 @@ async function envoyerMessageGroupe() {
     const reponseAutoriseeCheckbox = document.getElementById('reponseAutorisee');
     const reponseAutorisee = reponseAutoriseeCheckbox ? reponseAutoriseeCheckbox.checked : true;
     const btn = document.getElementById('btnSend');
-    btn.disabled = true; btn.textContent = '⏳ Envoi en cours...';
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Envoi en cours...';
     const destinataires = allAdherents.filter(a => selectedDestinataires.has(a.id));
     const destIds = destinataires.map(d => d.id).join(',');
     const content = document.getElementById('messagerieContent');
-    content.innerHTML = `<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#1a3a6b;font-size:16px;cursor:pointer;">← Retour</button></div>
-        <div class="send-section"><h3>📤 Envoi groupé en cours...</h3>
+    content.innerHTML = `<div style="margin-bottom:15px;"><button onclick="init()" style="background:none;border:none;color:#00f2fe;font-size:16px;cursor:pointer;"><i class="fa-solid fa-arrow-left"></i> Retour</button></div>
+        <div class="send-section glass-panel"><h3><i class="fa-solid fa-bullhorn"></i> Envoi groupé en cours...</h3>
         <div style="text-align:center;padding:20px;">
             <div style="font-size:48px;margin-bottom:10px;">⏳</div>
-            <div style="font-size:16px;color:var(--text);">Envoi à <strong>${destinataires.length}</strong> destinataire(s)...</div>
-            <div style="font-size:13px;color:var(--text-sub);margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
+            <div style="font-size:16px;color:#e2e8f0;">Envoi à <strong style="color:#00f2fe;">${destinataires.length}</strong> destinataire(s)...</div>
+            <div style="font-size:13px;color:#94a3b8;margin-top:8px;">${reponseAutorisee ? '✉️ Réponses autorisées' : '📢 Message informatif (sans réponse)'}</div>
         </div></div>`;
     try {
         const params = new URLSearchParams({ action: 'sendBulkMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, categorie: 'organisation', destIds: destIds, reponseAutorisee: reponseAutorisee ? 'true' : 'false', isOrganisateur: 'true' });
@@ -769,13 +1163,13 @@ async function envoyerMessageGroupe() {
         if (data.success) {
             messagerieFormulaireOuvert = false;
             selectedDestinataires.clear();
-            content.innerHTML = `<div class="confirm-box">✅ Envoi groupé terminé !<br><strong>${data.nbMessages}</strong> message(s) envoyé(s) en une seule opération<br>${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : '📢 Message informatif - réponses désactivées'}</div>
-                <button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour aux messages</button>`;
+            content.innerHTML = `<div class="confirm-box glass-panel">✅ Envoi groupé terminé !<br><strong>${data.nbMessages}</strong> message(s) envoyé(s) en une seule opération<br>${reponseAutorisee ? '✉️ Les destinataires peuvent répondre' : '📢 Message informatif - réponses désactivées'}</div>
+                <button onclick="init()" class="send-btn" style="margin-top:15px;"><i class="fa-solid fa-arrow-left"></i> Retour aux messages</button>`;
         } else {
-            content.innerHTML = `<p style="color:red;text-align:center;padding:20px;">Erreur : ${data.message || 'inconnue'}</p><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>`;
+            content.innerHTML = `<p style="color:#ff8ec7;text-align:center;padding:20px;">Erreur : ${data.message || 'inconnue'}</p><button onclick="init()" class="send-btn" style="margin-top:15px;"><i class="fa-solid fa-arrow-left"></i> Retour</button>`;
         }
     } catch(e) {
-        content.innerHTML = `<p style="color:red;text-align:center;padding:20px;">Erreur de connexion</p><button onclick="init()" class="send-btn" style="margin-top:15px;">← Retour</button>`;
+        content.innerHTML = `<p style="color:#ff8ec7;text-align:center;padding:20px;">Erreur de connexion</p><button onclick="init()" class="send-btn" style="margin-top:15px;"><i class="fa-solid fa-arrow-left"></i> Retour</button>`;
     }
 }
 
