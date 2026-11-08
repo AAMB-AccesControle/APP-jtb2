@@ -3,100 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Conférences/AG v0.07</title>
+    <title>Chat Conférences / AG — AAMB JTB 2026</title>
     <link rel="manifest" href="../manifest.json">
-    <script>
-    if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
-            --page-header-bg: #1a3a6b; --primary: #1a3a6b; --success: #10b981;
-            --conf-bg: #ffcdd5; --conf-border: #c0002a;
-            --ag-bg: #fff9c4; --ag-border: #b8860b;
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #050811;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+            background-attachment: fixed;
+            color: #e2e8f0;
         }
-        body.dark {
-            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
-            --page-header-bg: #0f1f3d; --primary: #2a5f9f;
-            --conf-bg: #3d1525; --conf-border: #c0002a;
-            --ag-bg: #3d3410; --ag-border: #fbbf24;
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 0;
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-        
-        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-        .page-header h2 { font-size: 18px; flex: 1; }
-        .page-content { padding: 16px; max-width: 800px; margin: 0 auto; }
-        
-        .conference-selector { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .conference-selector h3 { font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
-        .conference-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
-        .conference-item { padding: 10px; border-radius: 8px; background: var(--bg); cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-        .conference-item:hover { background: rgba(26,58,107,0.1); }
-        .conference-item.active { border-color: var(--primary); background: rgba(26,58,107,0.15); }
-        .conference-item .conf-name { font-weight: 600; color: var(--text); font-size: 13px; margin-bottom: 3px; }
-        .conference-item .conf-time { font-size: 11px; color: var(--text-sub); }
-        .conference-item .conf-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 6px; }
-        .badge-conf { background: var(--conf-bg); color: var(--conf-border); }
-        .badge-ag { background: var(--ag-bg); color: var(--ag-border); }
-        .conf-en-cours { background: rgba(45,125,50,0.15) !important; border-color: #2e7d32 !important; }
-        .conf-en-cours .conf-name::before { content: '🔴 '; }
-        
-        .current-conference-badge { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #2e7d32; display: flex; align-items: center; gap: 12px; }
-        .current-conference-badge .conf-icon { font-size: 24px; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070b14; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+        .glass-panel {
+            background: rgba(13, 22, 41, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+        }
+
+        /* ==== HEADER ==== */
+        .page-header {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(13, 22, 41, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+            color: white;
+            padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .back-btn {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: #00f2fe;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+        .page-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            flex: 1;
+        }
+        .page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+        .live-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 10px #00f2fe;
+            animation: pingDot 1.8s infinite;
+        }
+        @keyframes pingDot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
+
+        .page-content { position: relative; z-index: 1; padding: 16px; max-width: 800px; margin: 0 auto; }
+
+        /* ==== SÉLECTEUR ORGANISATEUR ==== */
+        .conference-selector {
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        }
+        .conference-selector h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #00f2fe;
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .conference-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+        .conference-item {
+            padding: 11px 12px;
+            border-radius: 10px;
+            background: rgba(5, 8, 17, 0.5);
+            cursor: pointer;
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            transition: all 0.2s;
+        }
+        .conference-item:hover { border-color: rgba(0, 242, 254, 0.5); background: rgba(0, 242, 254, 0.06); }
+        .conference-item.active {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.12);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+        }
+        .conference-item .conf-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: #f1f5f9;
+            font-size: 14px;
+            margin-bottom: 3px;
+            letter-spacing: 0.3px;
+        }
+        .conference-item .conf-time { font-size: 11px; color: #64748b; font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px; }
+        .conf-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-left: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+        .badge-conf { background: rgba(255, 77, 166, 0.18); color: #ff99c8; border-color: rgba(255, 77, 166, 0.5); }
+        .badge-ag   { background: rgba(168, 85, 247, 0.18); color: #c084fc; border-color: rgba(168, 85, 247, 0.5); }
+
+        /* Conférence en cours : glow rose + point pulsant */
+        .conf-en-cours {
+            border-color: rgba(255, 20, 147, 0.6) !important;
+            background: rgba(255, 20, 147, 0.08) !important;
+            box-shadow: 0 0 18px rgba(255, 20, 147, 0.25);
+        }
+        .conf-en-cours .conf-name::before {
+            content: '';
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #ff1493;
+            box-shadow: 0 0 8px #ff1493;
+            margin-right: 7px;
+            animation: pingDot 1.2s infinite;
+        }
+
+        /* ==== BADGE PARTICIPANT ==== */
+        .current-conference-badge {
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #00f2fe;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .current-conference-badge .conf-icon { font-size: 22px; color: #00f2fe; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6)); }
         .current-conference-badge .conf-info { flex: 1; }
-        .current-conference-badge .conf-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
-        .current-conference-badge .conf-time { font-size: 11px; color: var(--text-sub); }
-        .current-conference-badge .conf-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 6px; }
-        
-        .chat-container { background: var(--card-bg); border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-height: 400px; display: flex; flex-direction: column; }
-        .chat-messages { flex: 1; overflow-y: auto; max-height: 500px; margin-bottom: 15px; padding-right: 5px; }
-        .chat-message { margin-bottom: 12px; padding: 10px; border-radius: 10px; background: var(--bg); }
-        .chat-message.mine { background: rgba(26,58,107,0.1); border-left: 3px solid var(--primary); }
-        .chat-message .msg-author { font-size: 11px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
-        .chat-message .msg-time { font-size: 10px; color: var(--text-sub); float: right; }
-        .chat-message .msg-text { font-size: 13px; color: var(--text); line-height: 1.4; word-wrap: break-word; }
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-sub); }
-        .empty-state .icon { font-size: 40px; margin-bottom: 10px; }
-        
-        .chat-form { border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px; }
-        .chat-form textarea { width: 100%; height: 80px; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; resize: vertical; outline: none; background: var(--bg); color: var(--text); font-family: inherit; margin-bottom: 10px; }
-        .chat-form textarea:focus { border-color: var(--primary); }
-        .chat-form button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .current-conference-badge .conf-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: #f1f5f9;
+            margin-bottom: 2px;
+        }
+        .current-conference-badge .conf-time { font-size: 11px; color: #64748b; font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px; }
+
+        /* ==== CHAT ==== */
+        .chat-container {
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages { flex: 1; overflow-y: auto; max-height: 500px; margin-bottom: 15px; padding-right: 6px; }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(5, 8, 17, 0.5);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+        }
+        .chat-message.mine {
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            border-left: 3px solid #00f2fe;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.12);
+        }
+        .chat-message .msg-author {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        .chat-message.mine .msg-author { color: #00f2fe; }
+        .chat-message .msg-time { font-size: 10px; color: #475569; float: right; font-family: monospace; }
+        .chat-message .msg-text { font-size: 13px; color: #e2e8f0; line-height: 1.5; word-wrap: break-word; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #64748b; }
+        .empty-state .icon { font-size: 38px; margin-bottom: 10px; color: rgba(0, 242, 254, 0.35); }
+        .empty-state div:last-child { font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-size: 12px; }
+
+        .chat-form { border-top: 1px solid rgba(56, 189, 248, 0.15); padding-top: 15px; }
+        .chat-form textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 2px solid rgba(0, 242, 254, 0.25);
+            border-radius: 10px;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+            background: rgba(5, 8, 17, 0.6);
+            color: #e2e8f0;
+            font-family: inherit;
+            margin-bottom: 10px;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .chat-form textarea:focus { border-color: #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.25); }
+        .chat-form textarea::placeholder { color: #475569; }
+        .chat-form button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: #0a0f1f;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            transition: all 0.25s;
+        }
+        .chat-form button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 22px rgba(0, 242, 254, 0.5); }
         .chat-form button:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .loading { text-align: center; padding: 40px; color: var(--text-sub); }
-        
-        @media (max-width: 480px) { .page-header { top: 90px; } }
+
+        .loading { text-align: center; padding: 40px; color: #64748b; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
     </style>
 </head>
 <body>
     <div class="page-header">
-        <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>Chat Conférences/AG</h2>
+        <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h2>Chat <span class="cyan">Conférences / AG</span></h2>
+        <span class="live-dot"></span>
     </div>
     <div class="page-content">
-        <div id="organisateurSelector" class="conference-selector" style="display:none;">
-            <h3>📅 Sélectionner une conférence/AG :</h3>
+        <div id="organisateurSelector" class="conference-selector glass-panel" style="display:none;">
+            <h3><i class="fa-regular fa-calendar-days"></i> Sélectionner une conférence / AG :</h3>
             <div id="conferenceList" class="conference-list"><div class="loading">Chargement...</div></div>
         </div>
         
-        <div id="participantBadge" class="current-conference-badge" style="display:none;">
-            <div class="conf-icon">📍</div>
+        <div id="participantBadge" class="current-conference-badge glass-panel" style="display:none;">
+            <div class="conf-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
             <div class="conf-info">
                 <div class="conf-name" id="participantConfName">Chargement...</div>
                 <div class="conf-time" id="participantConfTime">--</div>
             </div>
         </div>
 
-        <div id="chatContainer" class="chat-container" style="display:none;">
+        <div id="chatContainer" class="chat-container glass-panel" style="display:none;">
             <div id="chatMessages" class="chat-messages">
-                <div class="empty-state"><div class="icon">💬</div><div>Aucun message pour le moment</div></div>
+                <div class="empty-state"><div class="icon"><i class="fa-regular fa-comments"></i></div><div>Aucun message pour le moment</div></div>
             </div>
             <div class="chat-form">
                 <textarea id="msgTexte" placeholder="Votre message..."></textarea>
-                <button id="btnSend" onclick="envoyerMessage()" disabled>📤 Envoyer</button>
+                <button id="btnSend" onclick="envoyerMessage()" disabled><i class="fa-solid fa-paper-plane"></i> Envoyer</button>
             </div>
         </div>
     </div>
@@ -112,7 +300,11 @@
         const adherent = chargerAdherent();
         const isOrganisateur = adherent && adherent.statut === 'Organisateur';
 
-        // ✅ FONCTION CORRIGÉE : Affichage instantané depuis le cache, puis synchro en fond
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        // ✅ Affichage instantané depuis le cache, puis synchro en fond
         async function chargerConferences() {
             const cacheChatConf = localStorage.getItem('aamb_chatconf_cache');
             let affichageInstantane = false;
@@ -166,7 +358,7 @@
                 } catch (e) { console.error('[ChatConf] Erreur:', e); }
             }
             
-            // Lancer la synchro en arrière-plan pour garder à jour
+            // Synchro en arrière-plan
             setInterval(async () => {
                 try {
                     const resp = await fetch(SCRIPT_URL + '?action=getChatConferences');
@@ -202,7 +394,7 @@
         function afficherListeConferences() {
             const container = document.getElementById('conferenceList');
             if (conferences.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;">Aucune conférence</div>';
+                container.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px;font-family:Rajdhani,sans-serif;letter-spacing:1px;">AUCUNE CONFÉRENCE</div>';
                 return;
             }
             const maintenant = new Date();
@@ -219,8 +411,8 @@
                     if (hNow >= dh * 60 + dm && hNow < fh * 60 + fm) enCoursClass = 'conf-en-cours';
                 }
                 html += `<div class="conference-item ${isActive} ${enCoursClass}" onclick="selectionnerConference('${conf.id}')">
-                    <div class="conf-name">${conf.nom} <span class="conf-badge ${badgeClass}">${conf.type === 'AG' ? 'AG' : 'Conférence'}</span></div>
-                    <div class="conf-time">${extraireHeure(conf.heureDebut)} - ${extraireHeure(conf.heureFin)} • ${conf.jour}</div>
+                    <div class="conf-name">${escapeHtml(conf.nom)} <span class="conf-badge ${badgeClass}">${conf.type === 'AG' ? 'AG' : 'Conférence'}</span></div>
+                    <div class="conf-time">${extraireHeure(conf.heureDebut)} - ${extraireHeure(conf.heureFin)} • ${escapeHtml(conf.jour)}</div>
                 </div>`;
             });
             container.innerHTML = html;
@@ -231,7 +423,7 @@
             const conf = conferences.find(c => c.id === conferenceId);
             if (conf) {
                 if (!isOrganisateur) {
-                    document.getElementById('participantConfName').innerHTML = conf.nom + ' <span class="conf-badge ' + (conf.type === 'AG' ? 'badge-ag' : 'badge-conf') + '">' + (conf.type === 'AG' ? 'AG' : 'Conférence') + '</span>';
+                    document.getElementById('participantConfName').innerHTML = escapeHtml(conf.nom) + ' <span class="conf-badge ' + (conf.type === 'AG' ? 'badge-ag' : 'badge-conf') + '">' + (conf.type === 'AG' ? 'AG' : 'Conférence') + '</span>';
                     document.getElementById('participantConfTime').textContent = extraireHeure(conf.heureDebut) + ' - ' + extraireHeure(conf.heureFin) + ' • ' + conf.jour;
                 }
                 document.getElementById('chatContainer').style.display = 'flex';
@@ -258,15 +450,15 @@
         function afficherMessages() {
             const container = document.getElementById('chatMessages');
             if (messages.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="icon">💬</div><div>Aucun message pour le moment</div></div>';
+                container.innerHTML = '<div class="empty-state"><div class="icon"><i class="fa-regular fa-comments"></i></div><div>Aucun message pour le moment</div></div>';
                 return;
             }
             let html = '';
             messages.forEach(msg => {
                 const isMine = String(msg.userId) === String(adherent.id);
                 html += `<div class="chat-message ${isMine ? 'mine' : ''}">
-                    <div class="msg-author">${isMine ? '👤 Vous' : ' ' + msg.prenom + ' ' + msg.nom}<span class="msg-time">${msg.dateHeure}</span></div>
-                    <div class="msg-text">${msg.message}</div></div>`;
+                    <div class="msg-author">${isMine ? '<i class="fa-solid fa-user"></i> Vous' : '<i class="fa-regular fa-user"></i> ' + escapeHtml(msg.prenom) + ' ' + escapeHtml(msg.nom)}<span class="msg-time">${escapeHtml(msg.dateHeure)}</span></div>
+                    <div class="msg-text">${escapeHtml(msg.message)}</div></div>`;
             });
             container.innerHTML = html;
             container.scrollTop = container.scrollHeight;
@@ -276,7 +468,7 @@
             const texte = document.getElementById('msgTexte').value.trim();
             if (!texte || !conferenceActuelle) return;
             const btn = document.getElementById('btnSend');
-            btn.disabled = true; btn.textContent = '⏳ Envoi...';
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Envoi...';
             try {
                 const params = new URLSearchParams({ action: 'sendChatMessage', userId: adherent.id, nom: adherent.nom, prenom: adherent.prenom, message: texte, conferenceId: conferenceActuelle });
                 const resp = await fetch(SCRIPT_URL + '?' + params);
@@ -286,7 +478,7 @@
                     await chargerMessages();
                 } else { alert('Erreur: ' + data.message); }
             } catch (e) { alert('Erreur de connexion'); }
-            finally { btn.disabled = false; btn.textContent = '📤 Envoyer'; }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Envoyer'; }
         }
 
         function extraireHeure(str) {
