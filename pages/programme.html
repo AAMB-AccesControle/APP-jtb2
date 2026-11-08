@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Programme JTB 2026 v0.58</title>
+<title>Programme JTB 2026 v0.59</title>
 <link rel="manifest" href="../manifest.json">
 <script>
 if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
@@ -127,7 +127,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <h2>Programme JTB 2026</h2>
 </div>
 <div class="page-content">
-<p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">43èmes JTB 2026 — Besançon</p>
+<p style="text-align:center;color:var(--text-sub);font-size:13px;margin-bottom:10px;">44èmes JTB 2026 — Besançon</p>
 
 <div id="loading" class="loading">
     <div class="spinner"></div>
@@ -161,6 +161,30 @@ const jours = ['mardi', 'mercredi', 'jeudi', 'vendredi'];
 let isAnimating = false;
 let jourActif = null;
 
+// ====================================================================
+// ✅ CATÉGORISATION PAR LE CODE DE LA LIGNE (colonne A), insensible
+//    à la casse et aux renommages de la colonne Type.
+//    ATEL-…  -> atelier (lettre finale A/B = colonne 1/2)
+//    CONF-…  -> bande principale (conférence)
+//    Tout le reste (PAUSE-, VISITE-, ACC-, AG-, OUVERTURE, CLOTURE,
+//    SOIREE-…) -> bande principale également.
+//    Repli par Type (anciennes valeurs) si l'ID ne parle pas.
+// ====================================================================
+function categoriserItem(item) {
+    const idUp = String(item.id || '').trim().toUpperCase();
+    const typeUp = String(item.type || '').trim().toUpperCase();
+    const lettreFin = (idUp.match(/([A-Z])$/) || [, ''])[1];
+
+    // Ateliers : préfixe ATEL- ou anciens Types Atelier1/Atelier2
+    if (idUp.indexOf('ATEL') === 0) return { cat: 'atelier', letter: lettreFin || 'A' };
+    if (typeUp === 'ATELIER1') return { cat: 'atelier', letter: 'A' };
+    if (typeUp === 'ATELIER2') return { cat: 'atelier', letter: 'B' };
+    if (typeUp === 'ATELIER') return { cat: 'atelier', letter: lettreFin || 'A' };
+
+    // Tout le reste va dans la bande principale (conf, pauses, visites…)
+    return { cat: 'conf' };
+}
+
 async function chargerProgramme() {
     try {
         const cache = getProgrammeFromCache();
@@ -180,7 +204,7 @@ async function chargerProgramme() {
             datesParJour = {};
             
             data.programme.forEach(item => {
-                const jour = item.jour.toLowerCase();
+                const jour = String(item.jour || '').toLowerCase();
                 if (!programmeData[jour]) programmeData[jour] = [];
                 programmeData[jour].push(item);
                 
@@ -190,7 +214,7 @@ async function chargerProgramme() {
             });
             
             for (const jour in programmeData) {
-                programmeData[jour].sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
+                programmeData[jour].sort((a, b) => String(a.heureDebut).localeCompare(String(b.heureDebut)));
             }
             
             console.log('[Programme] Dates par jour:', datesParJour);
@@ -217,7 +241,6 @@ async function chargerProgramme() {
 function determinerJourAOuvrir() {
     const aujourdHui = new Date();
     
-    // ✅ Utiliser la date locale (pas UTC)
     const annee = aujourdHui.getFullYear();
     const mois = String(aujourdHui.getMonth() + 1).padStart(2, '0');
     const jourNum = String(aujourdHui.getDate()).padStart(2, '0');
@@ -226,7 +249,6 @@ function determinerJourAOuvrir() {
     console.log('[Programme] Date du jour (locale):', dateAujStr);
     console.log('[Programme] Dates disponibles:', datesParJour);
     
-    // Chercher une correspondance exacte
     for (const [jour, date] of Object.entries(datesParJour)) {
         if (date === dateAujStr) {
             console.log('[Programme] ✅ Jour correspondant trouvé:', jour);
@@ -234,7 +256,6 @@ function determinerJourAOuvrir() {
         }
     }
     
-    // ✅ Fallback : chercher par nom de jour
     const nomsJours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
     const nomJourAuj = nomsJours[aujourdHui.getDay()];
     console.log('[Programme] Nom du jour aujourd\'hui:', nomJourAuj);
@@ -246,7 +267,6 @@ function determinerJourAOuvrir() {
         }
     }
     
-    // Dernier fallback : premier jour avec des données
     for (const jour of jours) {
         if (programmeData[jour] && programmeData[jour].length > 0) {
             console.log('[Programme] ⚠️ Fallback, ouverture du premier jour:', jour);
@@ -286,6 +306,9 @@ function genererAffichage() {
         const container = document.getElementById('jour-' + jour);
         const items = programmeData[jour] || [];
         
+        // Catégorie calculée une fois par item (par code colonne A)
+        items.forEach(it => { it._cat = categoriserItem(it); });
+        
         const groupes = {};
         items.forEach(item => {
             const key = item.heureDebut + '-' + item.heureFin;
@@ -299,11 +322,15 @@ function genererAffichage() {
             const [debut, fin] = groupe.horaire.split('-');
             const heureFormatted = extraireHeure(debut) + ' - ' + extraireHeure(fin);
             
-            const conference = groupe.items.find(i => i.type === 'Conference' || i.type === 'Accueil' || i.type === 'Pause' || i.type === 'Visite' || i.type === 'AG' || i.type === 'Ouverture' || i.type === 'Cloture' || i.type === 'Soiree');
-            const atelier1 = groupe.items.find(i => i.type === 'Atelier1');
-            const atelier2 = groupe.items.find(i => i.type === 'Atelier2');
+            // Bande principale : conférence / pause / visite / AG / ouverture / soirée…
+            const conference = groupe.items.find(i => i._cat.cat === 'conf');
+            // Ateliers parallèles : lettre finale de l'ID (A = gauche, B = droite)
+            const atelier1 = groupe.items.find(i => i._cat.cat === 'atelier' && i._cat.letter !== 'B');
+            const atelier2 = groupe.items.find(i => i._cat.cat === 'atelier' && i._cat.letter === 'B');
             
-            html += '<div class="prog-slot" data-id="' + (conference ? conference.id : '') + '" data-debut="' + debut + '" data-fin="' + fin + '">';
+            const slotId = conference ? conference.id : (atelier1 ? atelier1.id : (atelier2 ? atelier2.id : ''));
+            
+            html += '<div class="prog-slot" data-id="' + slotId + '" data-debut="' + debut + '" data-fin="' + fin + '">';
             html += '<div class="prog-heure"><span>' + heureFormatted + '</span><span class="badge-en-cours">🔴 EN COURS</span></div>';
             
             if (conference) {
