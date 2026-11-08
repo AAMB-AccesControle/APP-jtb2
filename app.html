@@ -5,120 +5,405 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v42.0</title>
+    <title>AAMB v0.60</title>
     <link rel="manifest" href="manifest.json">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --bg: #eef2f8;
-            --header-bg: #1a3a6b;
-            --header-text: white;
-            --header-sub: #c5d0e8;
-            --card-bg: white;
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --text: #222;
-            --text-sub: #666;
-            --page-bg: #f5f7fa;
-            --group-bg: white;
-            --group-title-color: #1a3a6b;
-            --btn-bg: #2d6abf;
-            --btn-bg2: #3a7fd4;
-        }
-        body.dark {
-            --bg: #181c2a;
-            --header-bg: #0f1f3d;
-            --header-text: white;
-            --header-sub: #7a90bb;
-            --card-bg: #242840;
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
-            --text: #eee;
-            --text-sub: #999;
-            --page-bg: #181c2a;
-            --group-bg: #242840;
-            --group-title-color: #7aaaf0;
-            --btn-bg: #1a4a8a;
-            --btn-bg2: #2a5fa0;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background-color: #050811;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.10) 0%, transparent 40%),
+                radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.07) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+            background-attachment: fixed;
+            color: #e2e8f0;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 0;
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
         }
 
+        /* ==== HEADER ==== */
         header {
-            background: var(--header-bg);
-            padding: 12px 20px;
+            position: relative; z-index: 10;
+            background: rgba(13, 22, 41, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+            padding: 14px 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
-        .logo { width: 55px; height: 55px; margin: 0 auto 6px; border-radius: 12px; overflow: hidden; }
+        .logo {
+            width: 60px; height: 60px; margin: 0 auto 6px;
+            border-radius: 14px; overflow: hidden;
+            background: white; padding: 5px;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+        }
         .logo img { width: 100%; height: 100%; object-fit: contain; }
-        header h1 { color: var(--header-text); font-size: 20px; margin-bottom: 2px; }
-        header .version { color: var(--header-sub); font-size: 10px; }
-        header .user { color: var(--header-sub); font-size: 12px; margin-top: 2px; }
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: white;
+            font-size: 22px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        header h1 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+        header .version {
+            font-family: 'Rajdhani', sans-serif;
+            color: #64748b;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        header .user {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 4px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.5px;
+        }
 
-        .dark-toggle { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        /* Dark toggle (ici = thème "cyber" toujours sombre, mais on garde le switch) */
+        .dark-toggle {
+            position: absolute; top: 14px; right: 14px;
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer;
+        }
         .toggle-label { font-size: 14px; }
-        .toggle-switch { width: 38px; height: 20px; background: #445577; border-radius: 10px; position: relative; }
-        .toggle-switch.on { background: #4a7fcb; }
-        .toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
+        .toggle-switch {
+            width: 38px; height: 20px;
+            background: #1e293b;
+            border-radius: 10px; position: relative;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+        .toggle-switch.on { background: rgba(0, 242, 254, 0.25); border-color: #00f2fe; }
+        .toggle-knob {
+            width: 14px; height: 14px;
+            background: #00f2fe;
+            border-radius: 50%;
+            position: absolute; top: 2px; left: 2px;
+            transition: left 0.3s;
+            box-shadow: 0 0 6px #00f2fe;
+        }
         .toggle-switch.on .toggle-knob { left: 20px; }
 
-        .deconnexion { position: absolute; top: 10px; left: 12px; cursor: pointer; text-align: center; color: var(--header-sub); }
+        .deconnexion {
+            position: absolute; top: 14px; left: 14px;
+            cursor: pointer; text-align: center;
+            color: #94a3b8;
+            transition: color 0.25s;
+        }
+        .deconnexion:hover { color: #ff007f; }
         .deconnexion .icon { font-size: 18px; }
-        .deconnexion .label { font-size: 9px; margin-top: 1px; }
+        .deconnexion .label { font-size: 9px; margin-top: 1px; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; text-transform: uppercase; }
 
-        .container { flex: 1; padding: 12px; max-width: 700px; margin: 0 auto; width: 100%; }
+        /* ==== CONTAINER ==== */
+        .container {
+            position: relative; z-index: 1;
+            flex: 1;
+            padding: 14px;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
-        .btn-group { background: var(--group-bg); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
-        .btn-group-title { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--group-title-color); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--btn-bg); }
+        .btn-group {
+            background: rgba(13, 22, 41, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        }
+        .btn-group-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #00f2fe;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
         .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
         .btn-tile {
-            background: linear-gradient(145deg, var(--btn-bg2), var(--btn-bg));
-            border-radius: 12px; padding: 10px 5px 8px; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2); border: none;
-            transition: transform 0.15s, opacity 0.15s; width: 100%; min-height: 70px;
-            justify-content: center; text-decoration: none;
+            background: linear-gradient(145deg, rgba(0, 242, 254, 0.08), rgba(0, 242, 254, 0.02));
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 10px;
+            padding: 12px 6px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            width: 100%;
+            min-height: 72px;
+            justify-content: center;
+            text-decoration: none;
+            font-family: inherit;
+            color: inherit;
         }
-        .btn-tile:active { transform: scale(0.93); opacity: 0.85; }
-        .btn-tile-icon { font-size: 24px; line-height: 1; }
-        .btn-tile-label { font-size: 9.5px; font-weight: 600; color: white; text-align: center; line-height: 1.25; word-break: break-word; max-width: 100%; }
+        .btn-tile:hover {
+            background: linear-gradient(145deg, rgba(0, 242, 254, 0.18), rgba(0, 242, 254, 0.05));
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+            transform: translateY(-1px);
+        }
+        .btn-tile:active { transform: scale(0.95); }
+        .btn-tile-icon { font-size: 22px; line-height: 1; color: #00f2fe; }
+        .btn-tile-label {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #e2e8f0;
+            text-align: center;
+            line-height: 1.3;
+            word-break: break-word;
+            max-width: 100%;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.3px;
+        }
 
+        /* ==== MENU DÉROULANT JTB ==== */
         .jtb-wrap { position: relative; }
-        .jtb-menu { display: none; position: absolute; bottom: calc(100% + 6px); left: 0; right: 0; background: var(--card-bg); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); z-index: 200; overflow: hidden; min-width: 160px; }
+        .jtb-menu {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 0; right: 0;
+            background: rgba(13, 22, 41, 0.95);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+            z-index: 200;
+            overflow: hidden;
+            min-width: 180px;
+        }
         .jtb-menu.open { display: block; }
-        .jtb-item { padding: 11px 14px; font-size: 13px; color: var(--text); cursor: pointer; border-bottom: 1px solid rgba(128,128,128,0.1); }
+        .jtb-item {
+            padding: 12px 14px;
+            font-size: 13px;
+            color: #e2e8f0;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(0, 242, 254, 0.1);
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
         .jtb-item:last-child { border-bottom: none; }
-        .jtb-item:hover { background: rgba(74,127,203,0.12); }
+        .jtb-item:hover {
+            background: rgba(0, 242, 254, 0.12);
+            color: #00f2fe;
+        }
+
+        /* ==== PAGE AUTH ==== */
+        #authPage {
+            position: fixed; inset: 0;
+            background-color: #050811;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(0, 242, 254, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 127, 0.08) 0%, transparent 45%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+        }
+        #authPage::before {
+            content: '';
+            position: absolute; inset: 0;
+            pointer-events: none;
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+        }
+        .auth-card {
+            position: relative; z-index: 1;
+            max-width: 420px; width: 100%; text-align: center;
+            background: rgba(13, 22, 41, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.15);
+        }
+        .auth-logo {
+            width: 100px; height: 100px;
+            margin: 0 auto 18px;
+            background: white;
+            border-radius: 18px;
+            padding: 8px;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
+        }
+        .auth-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .auth-card h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+        .auth-card h1 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+        .auth-sub {
+            font-family: 'Rajdhani', sans-serif;
+            color: #94a3b8;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+        .auth-prompt {
+            color: #cbd5e1;
+            font-size: 14px;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+        #authInput {
+            width: 100%;
+            padding: 14px;
+            font-size: 20px;
+            text-align: center;
+            border: 2px solid rgba(0, 242, 254, 0.3);
+            border-radius: 10px;
+            outline: none;
+            background: rgba(5, 8, 17, 0.6);
+            color: #00f2fe;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        #authInput:focus {
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
+        }
+        #authInput::placeholder { color: #475569; letter-spacing: 2px; font-size: 14px; font-weight: 400; }
+        #authBtn {
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: #0a0f1f;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            transition: all 0.25s;
+        }
+        #authBtn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 22px rgba(0, 242, 254, 0.5); }
+        #authBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+        #authResult { margin-top: 14px; display: none; }
+        .auth-hint {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 18px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* Boutons dans le résultat d'auth */
+        .auth-confirm-box {
+            background: rgba(13, 22, 41, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: left;
+        }
+        .auth-confirm-box.success { border-left: 4px solid #00f2fe; }
+        .auth-confirm-box.error { border-left: 4px solid #ff007f; }
+        .auth-confirm-box.warn { border-left: 4px solid #ffb703; }
+        .auth-confirm-title {
+            color: #00f2fe;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+        .auth-confirm-box.error .auth-confirm-title { color: #ff8ec7; }
+        .auth-confirm-box.warn .auth-confirm-title { color: #ffd866; }
+        .auth-info-line { margin: 5px 0; font-size: 13px; color: #cbd5e1; }
+        .auth-info-line.muted { color: #94a3b8; font-size: 12px; }
+        .auth-info-line em { color: #64748b; font-style: normal; font-size: 12px; }
+        .auth-buttons { display: flex; gap: 10px; margin-top: 12px; }
+        .auth-btn-yes, .auth-btn-no {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .auth-btn-yes {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #0a0f1f;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+        }
+        .auth-btn-yes:hover { box-shadow: 0 0 18px rgba(0, 242, 254, 0.5); }
+        .auth-btn-no {
+            background: rgba(255, 0, 127, 0.15);
+            color: #ff8ec7;
+            border: 1px solid rgba(255, 0, 127, 0.4);
+        }
+        .auth-btn-no:hover { background: rgba(255, 0, 127, 0.25); }
     </style>
 </head>
 <body>
 
     <!-- PAGE AUTHENTIFICATION -->
-    <div id="authPage" style="position:fixed;top:0;left:0;right:0;bottom:0;background:var(--page-bg);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;">
-        <div style="max-width:400px;width:100%;text-align:center;">
-            <div style="width:100px;height:100px;margin:0 auto 20px;border-radius:20px;overflow:hidden;">
-                <img src="logo-aamb.png" alt="AAMB" style="width:100%;height:100%;object-fit:contain;">
-            </div>
-            <h1 style="color:#1a3a6b;margin-bottom:8px;font-size:24px;">AAMB v42.0</h1>
-            <p style="color:var(--text-sub);margin-bottom:25px;font-size:14px;">43èmes Journées Techniques Biomédicales</p>
-            <div style="background:var(--card-bg);border-radius:15px;padding:25px;box-shadow:var(--card-shadow);">
-                <p style="color:var(--text);font-size:15px;margin-bottom:15px;font-weight:600;">🔐 Saisissez votre code d'accès</p>
-                <input id="authInput" type="text" maxlength="10" placeholder="Ex: X7K2M9PQ"
-                    style="width:100%;padding:14px;font-size:20px;text-align:center;border:2px solid #ddd;border-radius:10px;outline:none;background:var(--page-bg);color:var(--text);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;"
-                    oninput="this.value=this.value.toUpperCase();resetAuthResult();"
-                    onkeydown="if(event.key==='Enter')verifierID();">
-                <button onclick="verifierID()" id="authBtn" style="width:100%;padding:14px;font-size:16px;font-weight:bold;background:#1a3a6b;color:white;border:none;border-radius:10px;cursor:pointer;">Valider →</button>
-                <div id="authResult" style="margin-top:15px;display:none;"><div id="authResultContent"></div></div>
-            </div>
-            <p style="color:var(--text-sub);font-size:12px;margin-top:15px;">Votre code d'accès figure sur votre convocation</p>
+    <div id="authPage">
+        <div class="auth-card">
+            <div class="auth-logo"><img src="logo-aamb.png" alt="AAMB"></div>
+            <h1>AAMB <span class="cyan">v0.61</span></h1>
+            <div class="auth-sub">44èmes JTB · Besançon 2026</div>
+            <p class="auth-prompt">🔐 Saisissez votre code d'accès</p>
+            <input id="authInput" type="text" maxlength="10" placeholder="Ex : X7K2M9PQ"
+                oninput="this.value=this.value.toUpperCase();resetAuthResult();"
+                onkeydown="if(event.key==='Enter')verifierID();">
+            <button onclick="verifierID()" id="authBtn">Valider →</button>
+            <div id="authResult"><div id="authResultContent"></div></div>
+            <p class="auth-hint">Votre code figure sur votre convocation</p>
         </div>
     </div>
 
@@ -132,8 +417,8 @@
             <div class="label">Quitter</div>
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
-        <h1>AAMB</h1>
-        <div class="version">v42.0</div>
+        <h1>AAMB <span class="cyan"></span></h1>
+        <div class="version">v42.0 · 44èmes JTB</div>
         <div class="user" id="headerUser"></div>
     </header>
 
@@ -172,7 +457,7 @@
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">ℹ️ Informations Annexes JTB Besançon</div>
+            <div class="btn-group-title">ℹ️ Informations Annexes</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/transport.html">
                     <span class="btn-tile-icon">🚌</span>
@@ -198,7 +483,7 @@
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">⭐ Qualité – Questionnaire à chaud</div>
+            <div class="btn-group-title">⭐ Qualité</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/qualite.html">
                     <span class="btn-tile-icon">📊</span>
@@ -217,7 +502,7 @@
                 <div class="jtb-wrap">
                     <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
                         <span class="btn-tile-icon">🌍</span>
-                        <span class="btn-tile-label">Site Internet des JTB ▲</span>
+                        <span class="btn-tile-label">Site des JTB ▲</span>
                     </button>
                     <div class="jtb-menu" id="jtbMenu">
                         <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
@@ -260,27 +545,27 @@
                     const a = data.adherent;
                     window._adherentTemp = a;
                     resultContent.innerHTML =
-                        '<div style="background:#d4edda;border-radius:10px;padding:15px;border-left:4px solid #28a745;text-align:left;">' +
-                        '<p style="color:#28a745;font-weight:bold;margin-bottom:10px;">✅ Code reconnu !</p>' +
-                        '<p style="margin:5px 0;" id="rNom"></p>' +
-                        '<p style="margin:5px 0;color:#555;" id="rEtab"></p>' +
-                        '<p style="margin:5px 0;color:#555;" id="rEmail"></p>' +
-                        '<p style="margin:5px 0;color:#555;" id="rStatut"></p>' +
-                        '<p style="margin-top:12px;font-size:13px;color:#666;">C\'est bien vous ?</p>' +
-                        '<div style="display:flex;gap:10px;margin-top:10px;">' +
-                        '<button onclick="confirmerIdentite(window._adherentTemp)" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">✅ Oui, c\'est moi !</button>' +
-                        '<button onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();" style="flex:1;padding:12px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">❌ Non</button>' +
+                        '<div class="auth-confirm-box success">' +
+                        '<p class="auth-confirm-title">✅ Code reconnu !</p>' +
+                        '<p class="auth-info-line" id="rNom"></p>' +
+                        '<p class="auth-info-line muted" id="rEtab"></p>' +
+                        '<p class="auth-info-line muted" id="rEmail"></p>' +
+                        '<p class="auth-info-line muted" id="rStatut"></p>' +
+                        '<p class="auth-info-line" style="margin-top:12px;font-size:12px;color:#64748b;"><em>C\'est bien vous ?</em></p>' +
+                        '<div class="auth-buttons">' +
+                        '<button class="auth-btn-yes" onclick="confirmerIdentite(window._adherentTemp)">✅ Oui, c\'est moi</button>' +
+                        '<button class="auth-btn-no" onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();">❌ Non</button>' +
                         '</div></div>';
                     document.getElementById('rNom').textContent = '👤 ' + a.prenom + ' ' + a.nom;
                     document.getElementById('rEtab').textContent = '🏥 ' + a.etablissement;
                     document.getElementById('rEmail').textContent = '✉️ ' + a.email;
                     document.getElementById('rStatut').textContent = '🏷️ ' + a.statut;
                 } else {
-                    resultContent.innerHTML = '<div style="background:#f8d7da;border-radius:10px;padding:15px;border-left:4px solid #dc3545;"><p style="color:#dc3545;font-weight:bold;">❌ Code non reconnu</p></div>';
+                    resultContent.innerHTML = '<div class="auth-confirm-box error"><p class="auth-confirm-title">❌ Code non reconnu</p><p class="auth-info-line muted">Vérifiez la saisie et réessayez.</p></div>';
                 }
             } catch(e) {
                 resultDiv.style.display = 'block';
-                resultContent.innerHTML = '<div style="background:#fff3cd;border-radius:10px;padding:15px;border-left:4px solid #ffc107;"><p style="color:#856404;font-weight:bold;">⚠️ Erreur de connexion</p></div>';
+                resultContent.innerHTML = '<div class="auth-confirm-box warn"><p class="auth-confirm-title">⚠️ Erreur de connexion</p><p class="auth-info-line muted">Vérifiez votre connexion Internet.</p></div>';
             } finally {
                 btn.textContent = 'Valider →'; btn.disabled = false;
             }
