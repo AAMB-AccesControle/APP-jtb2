@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v0.60</title>
+    <title>AAMB v42.0</title>
     <link rel="manifest" href="manifest.json">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,7 +82,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Dark toggle (ici = thème "cyber" toujours sombre, mais on garde le switch) */
         .dark-toggle {
             position: absolute; top: 14px; right: 14px;
             display: flex; align-items: center; gap: 6px;
@@ -151,8 +150,8 @@
         .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
         .btn-tile {
-            background: linear-gradient(145deg, rgba(0, 242, 254, 0.08), rgba(0, 242, 254, 0.02));
-            border: 1px solid rgba(0, 242, 254, 0.25);
+            background: linear-gradient(145deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.05));
+            border: 1px solid rgba(0, 242, 254, 0.35);
             border-radius: 10px;
             padding: 12px 6px 10px;
             cursor: pointer;
@@ -167,12 +166,13 @@
             text-decoration: none;
             font-family: inherit;
             color: inherit;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
         .btn-tile:hover {
-            background: linear-gradient(145deg, rgba(0, 242, 254, 0.18), rgba(0, 242, 254, 0.05));
+            background: linear-gradient(145deg, rgba(0, 242, 254, 0.25), rgba(0, 242, 254, 0.10));
             border-color: #00f2fe;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
-            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
+            transform: translateY(-2px);
         }
         .btn-tile:active { transform: scale(0.95); }
         .btn-tile-icon { font-size: 22px; line-height: 1; color: #00f2fe; }
@@ -187,6 +187,19 @@
             font-family: 'Rajdhani', sans-serif;
             letter-spacing: 0.3px;
         }
+
+        /* Tuiles roses pour le groupe Scans & Contrôle (organisateurs) */
+        #groupAdmin .btn-tile {
+            background: linear-gradient(145deg, rgba(255, 0, 127, 0.15), rgba(255, 0, 127, 0.05));
+            border-color: rgba(255, 0, 127, 0.4);
+        }
+        #groupAdmin .btn-tile:hover {
+            background: linear-gradient(145deg, rgba(255, 0, 127, 0.28), rgba(255, 0, 127, 0.10));
+            border-color: #ff007f;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.35);
+        }
+        #groupAdmin .btn-tile-icon { color: #ff8ec7; }
+        #groupAdmin .btn-group-title { color: #ff8ec7; border-bottom-color: rgba(255, 0, 127, 0.3); }
 
         /* ==== MENU DÉROULANT JTB ==== */
         .jtb-wrap { position: relative; }
@@ -217,10 +230,7 @@
             transition: all 0.2s;
         }
         .jtb-item:last-child { border-bottom: none; }
-        .jtb-item:hover {
-            background: rgba(0, 242, 254, 0.12);
-            color: #00f2fe;
-        }
+        .jtb-item:hover { background: rgba(0, 242, 254, 0.12); color: #00f2fe; }
 
         /* ==== PAGE AUTH ==== */
         #authPage {
@@ -282,12 +292,7 @@
             text-transform: uppercase;
             margin-bottom: 22px;
         }
-        .auth-prompt {
-            color: #cbd5e1;
-            font-size: 14px;
-            margin-bottom: 14px;
-            font-weight: 600;
-        }
+        .auth-prompt { color: #cbd5e1; font-size: 14px; margin-bottom: 14px; font-weight: 600; }
         #authInput {
             width: 100%;
             padding: 14px;
@@ -305,10 +310,7 @@
             font-weight: 700;
             transition: border-color 0.25s, box-shadow 0.25s;
         }
-        #authInput:focus {
-            border-color: #00f2fe;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
-        }
+        #authInput:focus { border-color: #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.35); }
         #authInput::placeholder { color: #475569; letter-spacing: 2px; font-size: 14px; font-weight: 400; }
         #authBtn {
             width: 100%;
@@ -336,8 +338,6 @@
             font-family: 'Rajdhani', sans-serif;
             letter-spacing: 1px;
         }
-
-        /* Boutons dans le résultat d'auth */
         .auth-confirm-box {
             background: rgba(13, 22, 41, 0.9);
             border: 1px solid rgba(0, 242, 254, 0.3);
@@ -360,7 +360,6 @@
         .auth-confirm-box.warn .auth-confirm-title { color: #ffd866; }
         .auth-info-line { margin: 5px 0; font-size: 13px; color: #cbd5e1; }
         .auth-info-line.muted { color: #94a3b8; font-size: 12px; }
-        .auth-info-line em { color: #64748b; font-style: normal; font-size: 12px; }
         .auth-buttons { display: flex; gap: 10px; margin-top: 12px; }
         .auth-btn-yes, .auth-btn-no {
             flex: 1;
@@ -395,7 +394,7 @@
     <div id="authPage">
         <div class="auth-card">
             <div class="auth-logo"><img src="logo-aamb.png" alt="AAMB"></div>
-            <h1>AAMB <span class="cyan">v0.61</span></h1>
+            <h1>AAMB <span class="cyan">v42.0</span></h1>
             <div class="auth-sub">44èmes JTB · Besançon 2026</div>
             <p class="auth-prompt">🔐 Saisissez votre code d'accès</p>
             <input id="authInput" type="text" maxlength="10" placeholder="Ex : X7K2M9PQ"
@@ -417,7 +416,7 @@
             <div class="label">Quitter</div>
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
-        <h1>AAMB <span class="cyan"></span></h1>
+        <h1>AAMB</h1>
         <div class="version">v42.0 · 44èmes JTB</div>
         <div class="user" id="headerUser"></div>
     </header>
@@ -439,6 +438,20 @@
                     <span class="btn-tile-icon">📝</span>
                     <span class="btn-tile-label">QCM</span>
                 </a>
+                <a class="btn-tile" href="pages/qualite.html">
+                    <span class="btn-tile-icon">📊</span>
+                    <span class="btn-tile-label">Questionnaire à chaud</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <div class="btn-group-title">🗳️ Assemblée Générale</div>
+            <div class="btn-grid">
+                <a class="btn-tile" href="pages/vote-ag.html">
+                    <span class="btn-tile-icon">🗳️</span>
+                    <span class="btn-tile-label">Vote & Chat AG</span>
+                </a>
             </div>
         </div>
 
@@ -449,28 +462,38 @@
                     <span class="btn-tile-icon">✉️</span>
                     <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
                 </a>
-                <a class="btn-tile" href="pages/chat-ag.html">
-                    <span class="btn-tile-icon">🗣️</span>
-                    <span class="btn-tile-label">Chat pour l'AG</span>
+                <a class="btn-tile" href="pages/chat-conferences.html">
+                    <span class="btn-tile-icon">💬</span>
+                    <span class="btn-tile-label">Chat Conférences</span>
                 </a>
             </div>
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">ℹ️ Informations Annexes</div>
+            <div class="btn-group-title">🧭 Sur place</div>
             <div class="btn-grid">
+                <a class="btn-tile" href="pages/navigation.html">
+                    <span class="btn-tile-icon">🧭</span>
+                    <span class="btn-tile-label">Navigation & Stands</span>
+                </a>
                 <a class="btn-tile" href="pages/transport.html">
                     <span class="btn-tile-icon">🚌</span>
                     <span class="btn-tile-label">Transport</span>
-                </a>
-                <a class="btn-tile" href="pages/soirees.html">
-                    <span class="btn-tile-icon">🎉</span>
-                    <span class="btn-tile-label">Soirées</span>
                 </a>
                 <a class="btn-tile" href="pages/restauration.html">
                     <span class="btn-tile-icon">🍽️</span>
                     <span class="btn-tile-label">Restauration</span>
                 </a>
+                <a class="btn-tile" href="pages/soirees.html">
+                    <span class="btn-tile-icon">🎉</span>
+                    <span class="btn-tile-label">Soirées</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <div class="btn-group-title">ℹ️ Informations</div>
+            <div class="btn-grid">
                 <a class="btn-tile" href="pages/reglementation.html">
                     <span class="btn-tile-icon">📋</span>
                     <span class="btn-tile-label">Réglementation</span>
@@ -483,17 +506,7 @@
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">⭐ Qualité</div>
-            <div class="btn-grid">
-                <a class="btn-tile" href="pages/qualite.html">
-                    <span class="btn-tile-icon">📊</span>
-                    <span class="btn-tile-label">Questionnaire à chaud</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="btn-group">
-            <div class="btn-group-title">🌐 Informations Diverses</div>
+            <div class="btn-group-title">🌐 Sites Internet</div>
             <div class="btn-grid">
                 <button class="btn-tile" onclick="openWebsite('aamb')">
                     <span class="btn-tile-icon">🏠</span>
@@ -514,9 +527,18 @@
             </div>
         </div>
 
+        <!-- GROUPE ORGANISATEURS : visible uniquement si statut Organisateur -->
         <div class="btn-group" id="groupAdmin" style="display:none;">
-            <div class="btn-group-title">🔐 JTB Admin</div>
+            <div class="btn-group-title">🔐 Scans & Contrôle (Organisateurs)</div>
             <div class="btn-grid">
+                <a class="btn-tile" href="pages/scan-qr.html">
+                    <span class="btn-tile-icon">📷</span>
+                    <span class="btn-tile-label">Scan QR Présence</span>
+                </a>
+                <a class="btn-tile" href="pages/scan_ateliers.html">
+                    <span class="btn-tile-icon">🎯</span>
+                    <span class="btn-tile-label">Scan Ateliers</span>
+                </a>
                 <a class="btn-tile" href="pages/controle-acces.html">
                     <span class="btn-tile-icon">🔐</span>
                     <span class="btn-tile-label">Contrôle d'accès</span>
@@ -551,7 +573,7 @@
                         '<p class="auth-info-line muted" id="rEtab"></p>' +
                         '<p class="auth-info-line muted" id="rEmail"></p>' +
                         '<p class="auth-info-line muted" id="rStatut"></p>' +
-                        '<p class="auth-info-line" style="margin-top:12px;font-size:12px;color:#64748b;"><em>C\'est bien vous ?</em></p>' +
+                        '<p class="auth-info-line" style="margin-top:12px;font-size:12px;color:#64748b;">C\'est bien vous ?</p>' +
                         '<div class="auth-buttons">' +
                         '<button class="auth-btn-yes" onclick="confirmerIdentite(window._adherentTemp)">✅ Oui, c\'est moi</button>' +
                         '<button class="auth-btn-no" onclick="document.getElementById(\'authInput\').value=\'\';resetAuthResult();document.getElementById(\'authInput\').focus();">❌ Non</button>' +
