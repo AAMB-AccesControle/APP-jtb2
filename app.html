@@ -150,23 +150,23 @@
         .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
         .btn-tile {
-            background: linear-gradient(145deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.05));
-            border: 1px solid rgba(0, 242, 254, 0.35);
+            background: linear-gradient(145deg, rgba(0, 242, 254, 0.12), rgba(0, 242, 254, 0.03));
+            border: 1px solid rgba(0, 242, 254, 0.4);
             border-radius: 10px;
-            padding: 12px 6px 10px;
+            padding: 16px 8px 12px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
+            gap: 10px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
-            min-height: 72px;
+            min-height: 110px;
             justify-content: center;
             text-decoration: none;
             font-family: inherit;
             color: inherit;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 242, 254, 0.05);
         }
         .btn-tile:hover {
             background: linear-gradient(145deg, rgba(0, 242, 254, 0.25), rgba(0, 242, 254, 0.10));
@@ -175,7 +175,21 @@
             transform: translateY(-2px);
         }
         .btn-tile:active { transform: scale(0.95); }
-        .btn-tile-icon { font-size: 22px; line-height: 1; color: #00f2fe; }
+        
+        /* Icônes agrandies (~2.5x) avec effet néon cyberpunk */
+        .btn-tile-icon {
+            font-size: 42px;
+            line-height: 1;
+            color: #00f2fe;
+            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.8)) drop-shadow(0 0 18px rgba(0, 242, 254, 0.4));
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+
+        .btn-tile:hover .btn-tile-icon {
+            transform: scale(1.12);
+            filter: drop-shadow(0 0 12px #00f2fe) drop-shadow(0 0 25px rgba(0, 242, 254, 0.9));
+        }
+
         .btn-tile-label {
             font-size: 9.5px;
             font-weight: 600;
@@ -198,7 +212,13 @@
             border-color: #ff007f;
             box-shadow: 0 0 20px rgba(255, 0, 127, 0.35);
         }
-        #groupAdmin .btn-tile-icon { color: #ff8ec7; }
+        #groupAdmin .btn-tile-icon {
+            color: #ff007f;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 127, 0.8)) drop-shadow(0 0 18px rgba(255, 0, 127, 0.4));
+        }
+        #groupAdmin .btn-tile:hover .btn-tile-icon {
+            filter: drop-shadow(0 0 12px #ff007f) drop-shadow(0 0 25px rgba(255, 0, 127, 0.9));
+        }
         #groupAdmin .btn-group-title { color: #ff8ec7; border-bottom-color: rgba(255, 0, 127, 0.3); }
 
         /* ==== MENU DÉROULANT JTB ==== */
@@ -424,97 +444,97 @@
     <div class="container">
 
         <div class="btn-group">
-            <div class="btn-group-title">🏛️ JTB Besançon</div>
+            <div class="btn-group-title"><i class="fa-solid fa-microchip"></i> JTB Besançon</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/programme.html">
-                    <span class="btn-tile-icon">📅</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-calendar-check"></i></span>
                     <span class="btn-tile-label">Programme des Journées</span>
                 </a>
                 <a class="btn-tile" href="pages/ateliers.html">
-                    <span class="btn-tile-icon">🔬</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-atom"></i></span>
                     <span class="btn-tile-label">Ateliers</span>
                 </a>
                 <a class="btn-tile" href="pages/qcm.html">
-                    <span class="btn-tile-icon">📝</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-terminal"></i></span>
                     <span class="btn-tile-label">QCM</span>
                 </a>
                 <a class="btn-tile" href="pages/qualite.html">
-                    <span class="btn-tile-icon">📊</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-chart-network"></i></span>
                     <span class="btn-tile-label">Questionnaire à chaud</span>
                 </a>
             </div>
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">🗳️ Assemblée Générale</div>
+            <div class="btn-group-title"><i class="fa-solid fa-fingerprint"></i> Assemblée Générale</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/vote-ag.html">
-                    <span class="btn-tile-icon">🗳️</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-check-to-slot"></i></span>
                     <span class="btn-tile-label">Vote & Chat AG</span>
                 </a>
             </div>
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">💬 Communication</div>
+            <div class="btn-group-title"><i class="fa-solid fa-satellite-dish"></i> Communication</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/messagerie.html">
-                    <span class="btn-tile-icon">✉️</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-headset"></i></span>
                     <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
                 </a>
                 <a class="btn-tile" href="pages/chat-conferences.html">
-                    <span class="btn-tile-icon">💬</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-comments"></i></span>
                     <span class="btn-tile-label">Chat Conférences</span>
                 </a>
             </div>
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">🧭 Sur place</div>
+            <div class="btn-group-title"><i class="fa-solid fa-crosshairs"></i> Sur place</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/navigation.html">
-                    <span class="btn-tile-icon">🧭</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-map-location-dot"></i></span>
                     <span class="btn-tile-label">Navigation & Stands</span>
                 </a>
                 <a class="btn-tile" href="pages/transport.html">
-                    <span class="btn-tile-icon">🚌</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-shuttle-space"></i></span>
                     <span class="btn-tile-label">Transport</span>
                 </a>
                 <a class="btn-tile" href="pages/restauration.html">
-                    <span class="btn-tile-icon">🍽️</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-utensils"></i></span>
                     <span class="btn-tile-label">Restauration</span>
                 </a>
                 <a class="btn-tile" href="pages/soirees.html">
-                    <span class="btn-tile-icon">🎉</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-bolt"></i></span>
                     <span class="btn-tile-label">Soirées</span>
                 </a>
             </div>
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">ℹ️ Informations</div>
+            <div class="btn-group-title"><i class="fa-solid fa-shield-halved"></i> Informations</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/reglementation.html">
-                    <span class="btn-tile-icon">📋</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-file-contract"></i></span>
                     <span class="btn-tile-label">Réglementation</span>
                 </a>
                 <a class="btn-tile" href="pages/droit-image.html">
-                    <span class="btn-tile-icon">📸</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-camera-rotate"></i></span>
                     <span class="btn-tile-label">Droit à l'image</span>
                 </a>
             </div>
         </div>
 
         <div class="btn-group">
-            <div class="btn-group-title">🌐 Sites Internet</div>
+            <div class="btn-group-title"><i class="fa-solid fa-network-wired"></i> Sites Internet</div>
             <div class="btn-grid">
                 <button class="btn-tile" onclick="openWebsite('aamb')">
-                    <span class="btn-tile-icon">🏠</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-house-laptop"></i></span>
                     <span class="btn-tile-label">Site Internet de l'AAMB</span>
                 </button>
                 <div class="jtb-wrap">
                     <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
-                        <span class="btn-tile-icon">🌍</span>
+                        <span class="btn-tile-icon"><i class="fa-solid fa-globe"></i></span>
                         <span class="btn-tile-label">Site des JTB ▲</span>
                     </button>
                     <div class="jtb-menu" id="jtbMenu">
@@ -529,18 +549,18 @@
 
         <!-- GROUPE ORGANISATEURS : visible uniquement si statut Organisateur -->
         <div class="btn-group" id="groupAdmin" style="display:none;">
-            <div class="btn-group-title">🔐 Scans & Contrôle (Organisateurs)</div>
+            <div class="btn-group-title"><i class="fa-solid fa-user-shield"></i> Scans & Contrôle (Organisateurs)</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/scan-qr.html">
-                    <span class="btn-tile-icon">📷</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-qrcode"></i></span>
                     <span class="btn-tile-label">Scan QR Présence</span>
                 </a>
                 <a class="btn-tile" href="pages/scan_ateliers.html">
-                    <span class="btn-tile-icon">🎯</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-bullseye"></i></span>
                     <span class="btn-tile-label">Scan Ateliers</span>
                 </a>
                 <a class="btn-tile" href="pages/controle-acces.html">
-                    <span class="btn-tile-icon">🔐</span>
+                    <span class="btn-tile-icon"><i class="fa-solid fa-id-card-clip"></i></span>
                     <span class="btn-tile-label">Contrôle d'accès</span>
                 </a>
             </div>
