@@ -179,7 +179,7 @@
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
-        <h2>🚌 Informations <span class="cyan">Transport v0.1</span></h2>
+        <h2>🚌 Informations <span class="cyan">Transport v0.2</span></h2>
     </div>
     
     <div class="page-content">
@@ -192,20 +192,19 @@
             </p>
         </div>
 
-        <!-- Conteneur du PDF -->
+        <!-- Conteneur du PDF local -->
         <div class="pdf-card">
             <div class="pdf-inner">
-                <!-- Lien Google Drive converti en mode "preview" pour l'intégration iframe -->
+                <!-- Chemin relatif vers le dossier assets à la racine -->
                 <iframe 
-                    src="https://drive.google.com/file/d/1C2ODmiDVQzJOYoXt1A4XHigjtFM1ILFz/preview" 
-                    allow="autoplay"
+                    src="../assets/transport.pdf" 
                     title="Plan de Transport JTB 2026">
                 </iframe>
             </div>
         </div>
-
-        <!-- Bouton de secours (indispensable pour mobile) -->
-        <a href="https://drive.google.com/file/d/1C2ODmiDVQzJOYoXt1A4XHigjtFM1ILFz/view?usp=drive_link" target="_blank" class="btn-open-external glass-panel">
+        
+        <!-- Bouton de secours (ouvre le PDF local dans un nouvel onglet) -->
+        <a href="../assets/transport.pdf" target="_blank" class="btn-open-external glass-panel">
             <i class="fa-solid fa-external-link-alt"></i> Ouvrir le PDF en plein écran
         </a>
     </div>
