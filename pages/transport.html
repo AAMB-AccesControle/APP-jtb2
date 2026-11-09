@@ -7,7 +7,7 @@
     <link rel="manifest" href="../manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -88,12 +88,12 @@
             max-width: 900px; 
             margin: 0 auto; 
             width: 100%;
-            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
+        /* ==== INFO CARD ==== */
         .info-card {
             border-radius: 12px;
             padding: 16px;
@@ -117,19 +117,124 @@
         }
         .info-card strong { color: #fbbf24; }
 
+        /* ==== TRAM SECTION ==== */
+        .tram-section {
+            border-radius: 14px;
+            padding: 18px;
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            background: rgba(13, 22, 41, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        }
+        .tram-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: #00f2fe;
+            margin-bottom: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tram-section h3 i { color: #00f2fe; }
+
+        .tram-info {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            background: rgba(5, 8, 17, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid #00f2fe;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .tram-info strong { color: #00f2fe; }
+
+        .tram-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media (max-width: 768px) {
+            .tram-grid { grid-template-columns: 1fr; }
+        }
+
+        .tram-direction {
+            background: rgba(5, 8, 17, 0.6);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        .tram-direction h4 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            color: #fbbf24;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            padding-bottom: 6px;
+        }
+        .tram-direction .direction-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.3px;
+        }
+        .tram-direction .direction-label strong { color: #94a3b8; }
+
+        .frequency-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(0, 242, 254, 0.15);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 12px;
+            font-size: 11px;
+            color: #00f2fe;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .schedule-table {
+            width: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+        .schedule-table tr {
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+        }
+        .schedule-table tr:last-child {
+            border-bottom: none;
+        }
+        .schedule-table td {
+            padding: 4px 6px;
+            color: #e2e8f0;
+        }
+        .schedule-table td:first-child {
+            color: #00f2fe;
+            font-weight: 600;
+            width: 40px;
+        }
+        .schedule-table .highlight {
+            background: rgba(0, 242, 254, 0.08);
+        }
+
         /* ==== PDF CONTAINER ==== */
         .pdf-card {
             border-radius: 14px;
-            padding: 4px; /* Pour la bordure néon */
+            padding: 4px;
             background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(255, 0, 127, 0.3));
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 60vh;
         }
         .pdf-inner {
-            flex: 1;
             background: #0a0f1f;
             border-radius: 10px;
             overflow: hidden;
@@ -137,8 +242,8 @@
         }
         .pdf-inner iframe {
             width: 100%;
-            height: 100%;
-            min-height: 60vh;
+            height: 70vh;
+            min-height: 500px;
             border: none;
             display: block;
         }
@@ -171,39 +276,98 @@
 
         @media (max-width: 768px) {
             .page-header h2 { font-size: 14px; }
-            .pdf-inner iframe { min-height: 70vh; }
+            .pdf-inner iframe { min-height: 60vh; }
         }
-    each
     </style>
 </head>
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
-        <h2>🚌 Informations <span class="cyan">Transport v0.2</span></h2>
+        <h2>🚌 Informations <span class="cyan">Transport</span></h2>
     </div>
     
     <div class="page-content">
-        <!-- Carte d'info -->
+        <!-- Carte d'info générale -->
         <div class="info-card glass-panel">
             <i class="fa-solid fa-circle-info"></i>
             <p>
-                Retrouvez ci-dessous le <strong>plan de transport et les navettes</a></strong> pour vous rendre sur le lieu des 44èmes JTB. 
-                <br><em>(Utilisez le bouton ci-dessous si le document ne s'affiche pas correctement sur votre mobile).</em>
+                Retrouvez ci-dessous les <strong>horaires du tramway</strong> et le <strong>plan de transport complet</strong> pour vous rendre sur le lieu des 44èmes JTB à Micropolis.
             </p>
         </div>
 
-        <!-- Conteneur du PDF local -->
+        <!-- Section Tramway -->
+        <div class="tram-section">
+            <h3><i class="fa-solid fa-train-tram"></i> Tramway T1 & T2 — Jour bleu (semaine)</h3>
+            
+            <div class="tram-info">
+                <strong>Fréquence :</strong> Un tram toutes les <strong>8 min</strong> (5h-6h et 19h-20h) · Un tram toutes les <strong>6 min</strong> (6h-19h)
+            </div>
+
+            <div class="tram-grid">
+                <!-- Direction 1 : Micropolis → Gare Viotte -->
+                <div class="tram-direction">
+                    <h4><i class="fa-solid fa-arrow-right"></i> Micropolis → Gare Viotte</h4>
+                    <div class="direction-label">
+                        <strong>Arrêt :</strong> Micropolis<br>
+                        <strong>Direction :</strong> Centre-ville / Gare Viotte
+                    </div>
+                    <div class="frequency-badge">Toutes les 6-8 min</div>
+                    
+                    <table class="schedule-table">
+                        <tr class="highlight"><td>5h</td><td>52 · 59</td></tr>
+                        <tr><td>6h</td><td>Toutes les 8 min</td></tr>
+                        <tr><td>7h-18h</td><td>Toutes les 6 min</td></tr>
+                        <tr><td>19h</td><td>Toutes les 8 min</td></tr>
+                        <tr class="highlight"><td>20h</td><td>—</td></tr>
+                        <tr><td>21h</td><td>04 · 12 · 18 · 28 · 43 · 49 · 59</td></tr>
+                        <tr><td>22h</td><td>11 · 19 · 34 · 43</td></tr>
+                        <tr class="highlight"><td>23h</td><td>03 · 15 · 37 · 45</td></tr>
+                        <tr><td>00h</td><td>04 · 17 · 34a · 47</td></tr>
+                        <tr><td>01h</td><td>04a · 18a · 35a · 46a</td></tr>
+                    </table>
+                </div>
+
+                <!-- Direction 2 : Gare Viotte → Micropolis -->
+                <div class="tram-direction">
+                    <h4><i class="fa-solid fa-arrow-left"></i> Gare Viotte → Micropolis</h4>
+                    <div class="direction-label">
+                        <strong>Arrêt :</strong> Gare Viotte<br>
+                        <strong>Direction :</strong> Micropolis
+                    </div>
+                    <div class="frequency-badge">Toutes les 6-8 min</div>
+                    
+                    <table class="schedule-table">
+                        <tr class="highlight"><td>5h</td><td>30</td></tr>
+                        <tr><td>6h</td><td>08 · 27 · 46</td></tr>
+                        <tr><td>7h</td><td>02 · 12 · 17 · 27 · 39 · 51</td></tr>
+                        <tr class="highlight"><td>8h</td><td>03 · 15 · 27 · 31 · 39 · 51</td></tr>
+                        <tr><td>9h-12h</td><td>03 · 15 · 27 · 39 · 51</td></tr>
+                        <tr><td>13h-15h</td><td>03 · 15 · 27 · 39 · 51</td></tr>
+                        <tr class="highlight"><td>16h</td><td>03 · 12 · 15 · 18 · 27 · 39 · 51</td></tr>
+                        <tr><td>17h</td><td>03 · 15 · 27 · 30 · 39 · 51</td></tr>
+                        <tr><td>18h</td><td>04 · 15 · 27 · 39 · 52</td></tr>
+                        <tr class="highlight"><td>19h</td><td>07 · 22 · 31 · 36 · 52</td></tr>
+                        <tr><td>20h</td><td>07 · 23 · 38 · 53</td></tr>
+                        <tr><td>21h</td><td>09 · 24 · 40 · 59</td></tr>
+                        <tr class="highlight"><td>22h</td><td>15 · 44</td></tr>
+                        <tr><td>23h</td><td>17 · 45</td></tr>
+                        <tr><td>00h</td><td>14a · 45a</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteneur du PDF -->
         <div class="pdf-card">
             <div class="pdf-inner">
-                <!-- Chemin relatif vers le dossier assets à la racine -->
                 <iframe 
                     src="../assets/transport.pdf" 
                     title="Plan de Transport JTB 2026">
                 </iframe>
             </div>
         </div>
-        
-        <!-- Bouton de secours (ouvre le PDF local dans un nouvel onglet) -->
+
+        <!-- Bouton de secours -->
         <a href="../assets/transport.pdf" target="_blank" class="btn-open-external glass-panel">
             <i class="fa-solid fa-external-link-alt"></i> Ouvrir le PDF en plein écran
         </a>
@@ -211,8 +375,6 @@
 
     <script src="../js/commun.js"></script>
     <script>
-        // La fonction retourAccueil() est fournie par commun.js
-        // Si elle n'est pas définie, on met un fallback
         if (typeof retourAccueil !== 'function') {
             window.retourAccueil = function() {
                 window.location.href = '../app.html';
