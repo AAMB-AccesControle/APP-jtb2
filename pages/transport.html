@@ -117,6 +117,47 @@
         }
         .info-card strong { color: #fbbf24; }
 
+        /* ==== LIEU CARD (nouvelle) ==== */
+        .lieu-card {
+            border-radius: 14px;
+            padding: 4px;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(16, 185, 129, 0.3));
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);
+            overflow: hidden;
+        }
+        .lieu-inner {
+            background: rgba(13, 22, 41, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .lieu-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #00f2fe;
+            margin-bottom: 12px;
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .lieu-image {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .lieu-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
         /* ==== TRAM SECTION ==== */
         .tram-section {
             border-radius: 14px;
@@ -291,8 +332,20 @@
         <div class="info-card glass-panel">
             <i class="fa-solid fa-circle-info"></i>
             <p>
-                Retrouvez ci-dessous les <strong>horaires du tramway</strong> et le <strong>plan de transport complet</strong> pour vous rendre sur le lieu des 44èmes JTB à Micropolis.
+                Retrouvez ci-dessous le <strong>lieu de l'événement</strong>, les <strong>horaires du tramway</strong> et le <strong>plan de transport complet</strong> pour vous rendre sur le lieu des 44èmes JTB à Micropolis.
             </p>
+        </div>
+
+        <!-- NOUVEAU : Carte du lieu (Micropolis) -->
+        <div class="lieu-card">
+            <div class="lieu-inner">
+                <div class="lieu-title">
+                    <i class="fa-solid fa-location-dot"></i> Lieu de l'événement — Micropolis
+                </div>
+                <div class="lieu-image">
+                    <img src="../assets/Micropolis.png" alt="Plan du parc des expositions Micropolis Besançon">
+                </div>
+            </div>
         </div>
 
         <!-- Section Tramway -->
