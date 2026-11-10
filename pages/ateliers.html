@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ateliers — AAMB JTB 2026 v0.01</title>
+<title>Ateliers — AAMB JTB 2026 v0.02</title>
 <link rel="manifest" href="../manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -629,7 +629,7 @@
         };
 
         async function fetchAteliersState() {
-            const response = await fetch(SCRIPT_URL + '?action=getAteliersState&token=' + encodeURIComponent(currentToken));
+            const response = await fetch(ATELIERS_SCRIPT_URL + '?action=getAteliersState&token=' + encodeURIComponent(currentToken));
             if (!response.ok) throw new Error("Erreur réseau");
             const data = await response.json();
             if (data.error) throw new Error(data.error);
@@ -652,7 +652,7 @@
             if (refreshEnCours || !ateliersState) return;
             refreshEnCours = true;
             try {
-                const response = await fetch(SCRIPT_URL + '?action=getAteliersState&token=' + encodeURIComponent(currentToken));
+                const response = await fetch(ATELIERS_SCRIPT_URL + '?action=getAteliersState&token=' + encodeURIComponent(currentToken));
                 const data = await response.json();
                 if (data.success) {
                     ateliersState = data;
@@ -976,7 +976,7 @@
             btn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Envoi en cours...';
             
             try {
-                const response = await fetch(SCRIPT_URL, {
+                const response = await fetch(ATELIERS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify(payload)
