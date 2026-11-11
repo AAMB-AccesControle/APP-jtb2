@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QCM des stands — AAMB JTB 2026 v0.03</title>
+<title>QCM des stands — AAMB JTB 2026 v0.04</title>
 <link rel="manifest" href="../manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -745,16 +745,26 @@ async function ouvrirQuestionnaire(pauseNum) {
 function renderQuiz() {
     document.getElementById('listView').style.display = 'none';
     document.getElementById('quizView').style.display = 'block';
+    // Infos de la pause (sans le barème)
     document.getElementById('quizMeta').innerHTML =
-        'Pause ' + quiz.pause + ' • Stands <strong>' + quiz.couleur + '</strong> • ' + quiz.questions.length + ' questions • Plusieurs réponses possibles par question' +
-        '<div class="scoring-legend">' +
-            '<div class="legend-title"><i class="fa-solid fa-scale-balanced"></i> Barème de notation</div>' +
-            '<div class="scoring-rule rule-3pts"><span class="pts">+3 pts</span><span class="desc">Toutes les bonnes réponses, aucune mauvaise</span></div>' +
-            '<div class="scoring-rule rule-1pt"><span class="pts">+1 pt</span><span class="desc">Que des bonnes réponses, mais il en manque</span></div>' +
-            '<div class="scoring-rule rule-0pt"><span class="pts">0 pt</span><span class="desc">Aucune réponse cochée</span></div>' +
-            '<div class="scoring-rule rule-minus2"><span class="pts">−2 pts</span><span class="desc">Au moins 1 mauvaise réponse cochée</span></div>' +
-            '<div class="scoring-rule rule-penalty"><span class="pts">−0,25 pt</span><span class="desc">Par tranche de 10 s de retard</span></div>' +
-        '</div>';
+        'Pause ' + quiz.pause + ' • Stands <strong>' + quiz.couleur + '</strong> • ' + quiz.questions.length + ' questions • Plusieurs réponses possibles par question';
+
+    // Barème de notation (élément séparé et sticky)
+    let scoringHTML = document.getElementById('scoringLegend');
+    if (!scoringHTML) {
+        scoringHTML = document.createElement('div');
+        scoringHTML.id = 'scoringLegend';
+        scoringHTML.className = 'scoring-legend';
+        // Insérer juste après quizMeta
+        document.getElementById('quizMeta').parentNode.insertBefore(scoringHTML, document.getElementById('quizMeta').nextSibling);
+    }
+    scoringHTML.innerHTML =
+        '<div class="legend-title"><i class="fa-solid fa-scale-balanced"></i> Barème de notation</div>' +
+        '<div class="scoring-rule rule-3pts"><span class="pts">+3 pts</span><span class="desc">Toutes les bonnes réponses, aucune mauvaise</span></div>' +
+        '<div class="scoring-rule rule-1pt"><span class="pts">+1 pt</span><span class="desc">Que des bonnes réponses, mais il en manque</span></div>' +
+        '<div class="scoring-rule rule-0pt"><span class="pts">0 pt</span><span class="desc">Aucune réponse cochée</span></div>' +
+        '<div class="scoring-rule rule-minus2"><span class="pts">−2 pts</span><span class="desc">Au moins 1 mauvaise réponse cochée</span></div>' +
+        '<div class="scoring-rule rule-penalty"><span class="pts">−0,25 pt</span><span class="desc">Par tranche de 10 s de retard</span></div>';
 
     let html = '';
     quiz.questions.forEach((q, i) => {
