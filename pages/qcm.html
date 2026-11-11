@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QCM des stands — AAMB JTB 2026</title>
+<title>QCM des stands — AAMB JTB 2026 v0.01</title>
 <link rel="manifest" href="../manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -722,14 +722,18 @@ async function envoyerQuestionnaire() {
         const resp = await fetch(SCRIPT_URL + '?' + params);
         const data = await resp.json();
         if (data.success) {
+            // On efface le brouillon local
             localStorage.removeItem(draftKey(quiz.token));
-            const retardTxt = data.retardSec > 0 ? 'Retard enregistré : ' + data.retardSec + ' s (pénalité -' + penalitePoints(data.retardSec).toFixed(2) + ' pts)' : 'Envoyé à l\'heure, aucune pénalité.';
+            
+            // On affiche un message de succès simple, SANS montrer le score
             document.getElementById('quizView').innerHTML =
                 '<div class="success-card"><div class="big">✅</div><h3>Questionnaire envoyé !</h3>' +
-                '<p style="margin:12px 0;font-size:13px;">Horodatage serveur : <strong>' + escapeHtml(data.horodatage) + '</strong><br>' + retardTxt + '</p>' +
+                '<p style="margin:12px 0;font-size:14px;">Merci pour votre participation. Vos réponses ont été enregistrées avec succès.</p>' +
                 '<button class="btn-open" onclick="window.location.reload()" style="margin-top:15px;"><i class="fa-solid fa-arrow-rotate-left"></i> Retour à mes pauses</button></div>';
             quiz = null;
+            
         } else {
+            // Ce bloc doit absolument rester pour gérer les erreurs
             alert('Erreur : ' + data.message);
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Envoyer mes réponses';
