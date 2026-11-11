@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v42.0</title>
+    <title>AAMB v0.10</title>
     <link rel="manifest" href="manifest.json">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,39 +82,39 @@
             letter-spacing: 0.5px;
         }
 
-        .dark-toggle {
-            position: absolute; top: 14px; right: 14px;
-            display: flex; align-items: center; gap: 6px;
-            cursor: pointer;
-        }
-        .toggle-label { font-size: 14px; }
-        .toggle-switch {
-            width: 38px; height: 20px;
-            background: #1e293b;
-            border-radius: 10px; position: relative;
-            border: 1px solid rgba(0, 242, 254, 0.3);
-        }
-        .toggle-switch.on { background: rgba(0, 242, 254, 0.25); border-color: #00f2fe; }
-        .toggle-knob {
-            width: 14px; height: 14px;
-            background: #00f2fe;
-            border-radius: 50%;
-            position: absolute; top: 2px; left: 2px;
-            transition: left 0.3s;
-            box-shadow: 0 0 6px #00f2fe;
-        }
-        .toggle-switch.on .toggle-knob { left: 20px; }
-
         .deconnexion {
-            position: absolute; top: 14px; left: 14px;
-            cursor: pointer; text-align: center;
-            color: #94a3b8;
-            transition: color 0.25s;
+            position: absolute; top: 12px; left: 14px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 9px 14px;
+            background: rgba(255, 0, 127, 0.08);
+            border: 1px solid rgba(255, 0, 127, 0.35);
+            border-radius: 9px;
+            color: #ff8ec7;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s;
+            box-shadow: 0 0 8px rgba(255, 0, 127, 0.12), inset 0 0 8px rgba(255, 0, 127, 0.05);
         }
-        .deconnexion:hover { color: #ff007f; }
-        .deconnexion .icon { font-size: 18px; }
-        .deconnexion .label { font-size: 9px; margin-top: 1px; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+        .deconnexion i {
+            font-size: 13px;
+            color: #ff007f;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 127, 0.8));
+            transition: transform 0.3s;
+        }
+        .deconnexion:hover {
+            background: rgba(255, 0, 127, 0.2);
+            border-color: #ff007f;
+            color: #ffffff;
+            box-shadow: 0 0 18px rgba(255, 0, 127, 0.45);
+        }
+        .deconnexion:hover i { transform: rotate(90deg) scale(1.15); color: #ff8ec7; }
+        .deconnexion:active { transform: scale(0.95); }
 
+ 
         /* ==== CONTAINER ==== */
         .container {
             position: relative; z-index: 1;
@@ -427,13 +427,9 @@
     </div>
 
     <header>
-        <div class="dark-toggle" onclick="toggleDark()">
-            <span class="toggle-label" id="toggleLabel">☀️</span>
-            <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
-        </div>
         <div class="deconnexion" onclick="deconnecter()">
-            <div class="icon">🚪</div>
-            <div class="label">Quitter</div>
+            <i class="fa-solid fa-power-off"></i>
+            <span>Quitter</span>
         </div>
         <div class="logo"><img src="logo-aamb.png" alt="AAMB"></div>
         <h1>AAMB</h1>
