@@ -303,6 +303,63 @@ body::before {
     border: 1px solid rgba(0, 242, 254, 0.2);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
+
+/* ==== BARRE DE NOTATION ==== */
+.scoring-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    background: rgba(5, 8, 17, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+}
+.scoring-legend .legend-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    color: #00f2fe;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+.scoring-rule {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(13, 22, 41, 0.5);
+}
+.scoring-rule .pts {
+    min-width: 55px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.scoring-rule .desc {
+    color: #cbd5e1;
+    font-size: 11px;
+    font-family: 'Rajdhani', sans-serif;
+}
+.rule-3pts { border-left: 3px solid #10b981; }
+.rule-3pts .pts { color: #6ee7b7; text-shadow: 0 0 8px rgba(16, 185, 129, 0.8); font-size: 14px; }
+
+.rule-1pt { border-left: 3px solid #34d399; }
+.rule-1pt .pts { color: #a7f3d0; }
+
+.rule-0pt { border-left: 3px solid #fbbf24; }
+.rule-0pt .pts { color: #fde68a; }
+
+.rule-minus2 { border-left: 3px solid #ff007f; }
+.rule-minus2 .pts { color: #ff8ec7; text-shadow: 0 0 6px rgba(255, 0, 127, 0.6); }
+
+.rule-penalty { border-left: 3px solid #ef4444; }
+.rule-penalty .pts { color: #fca5a5; }
+    
 .btn-back {
     padding: 9px 14px;
     border: 1px solid rgba(0, 242, 254, 0.3);
@@ -640,7 +697,15 @@ function renderQuiz() {
     document.getElementById('listView').style.display = 'none';
     document.getElementById('quizView').style.display = 'block';
     document.getElementById('quizMeta').innerHTML =
-        'Pause ' + quiz.pause + ' • Stands <strong>' + quiz.couleur + '</strong> • ' + quiz.questions.length + ' questions • Plusieurs réponses possibles par question';
+        'Pause ' + quiz.pause + ' • Stands <strong>' + quiz.couleur + '</strong> • ' + quiz.questions.length + ' questions • Plusieurs réponses possibles par question' +
+        '<div class="scoring-legend">' +
+            '<div class="legend-title"><i class="fa-solid fa-scale-balanced"></i> Barème de notation</div>' +
+            '<div class="scoring-rule rule-3pts"><span class="pts">+3 pts</span><span class="desc">Toutes les bonnes réponses, aucune mauvaise</span></div>' +
+            '<div class="scoring-rule rule-1pt"><span class="pts">+1 pt</span><span class="desc">Que des bonnes réponses, mais il en manque</span></div>' +
+            '<div class="scoring-rule rule-0pt"><span class="pts">0 pt</span><span class="desc">Aucune réponse cochée</span></div>' +
+            '<div class="scoring-rule rule-minus2"><span class="pts">−2 pts</span><span class="desc">Au moins 1 mauvaise réponse cochée</span></div>' +
+            '<div class="scoring-rule rule-penalty"><span class="pts">−0,25 pt</span><span class="desc">Par tranche de 10 s de retard</span></div>' +
+        '</div>';
 
     let html = '';
     quiz.questions.forEach((q, i) => {
