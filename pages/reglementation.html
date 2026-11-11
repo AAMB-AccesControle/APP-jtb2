@@ -1,38 +1,672 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Réglementation v0.055</title>
-<link rel="manifest" href="../manifest.json">
-<script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-</script>
-<style>
-/* ===== STYLES SPÉCIFIQUES À CETTE PAGE UNIQUEMENT ===== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
-body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Règlement de Formation — AAMB JTB 2026</title>
+    <link rel="manifest" href="../manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Header de page (titre + bouton retour) - styles de base */
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 20px; }
-</style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #050811;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+            background-attachment: fixed;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 0;
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070b14; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+        /* ==== HEADER ==== */
+        .page-header {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(13, 22, 41, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+            color: white;
+            padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .back-btn {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: #00f2fe;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+        }
+        .back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+        .page-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            flex: 1;
+        }
+        .page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+
+        /* ==== CONTENU ==== */
+        .page-content { 
+            position: relative; z-index: 1; 
+            padding: 16px; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* ==== HERO CARD ==== */
+        .hero-card {
+            border-radius: 14px;
+            padding: 4px;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.4), rgba(255, 0, 127, 0.4));
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+        }
+        .hero-inner {
+            background: rgba(13, 22, 41, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 10px;
+            padding: 28px 24px;
+            text-align: center;
+        }
+        .hero-icon {
+            font-size: 44px;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #00f2fe 0%, #ff007f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.4));
+        }
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+        .hero-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+        .hero-ref {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ==== INTRO CARD ==== */
+        .intro-card {
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.08);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .intro-card i {
+            color: #fbbf24;
+            font-size: 20px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .intro-card p {
+            font-size: 13px;
+            color: #fde68a;
+            line-height: 1.6;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.3px;
+        }
+        .intro-card strong { color: #fbbf24; }
+
+        /* ==== SECTION TITLE ==== */
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f1f5f9;
+            margin: 8px 0 4px 0;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.02));
+            border-left: 4px solid #00f2fe;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.15);
+        }
+        .section-title i { color: #00f2fe; margin-right: 10px; }
+
+        .section-title.discipline {
+            background: linear-gradient(90deg, rgba(255, 0, 127, 0.15), rgba(255, 0, 127, 0.02));
+            border-left-color: #ff007f;
+            box-shadow: 0 0 12px rgba(255, 0, 127, 0.15);
+        }
+        .section-title.discipline i { color: #ff007f; }
+
+        .section-title.evaluation {
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.02));
+            border-left-color: #a855f7;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.15);
+        }
+        .section-title.evaluation i { color: #c084fc; }
+
+        /* ==== ARTICLE CARDS ==== */
+        .article-card {
+            border-radius: 14px;
+            padding: 20px;
+            background: rgba(13, 22, 41, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #00f2fe, rgba(0, 242, 254, 0.1));
+            border-radius: 4px 0 0 4px;
+        }
+        .article-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+        }
+        .article-icon {
+            width: 42px; height: 42px;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #00f2fe;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+        .article-title-block { flex: 1; }
+        .article-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #00f2fe;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .article-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .article-content {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #cbd5e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .article-content strong { color: #00f2fe; font-weight: 600; }
+        .article-content p { margin-bottom: 12px; }
+        .article-content p:last-child { margin-bottom: 0; }
+
+        /* ==== LISTS ==== */
+        .article-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0;
+        }
+        .article-list li {
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: rgba(5, 8, 17, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid #00f2fe;
+            font-size: 13px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.5;
+        }
+        .article-list li i {
+            color: #00f2fe;
+            margin-top: 3px;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .article-list li strong { color: #6ee7b7; }
+
+        .article-list.warning li {
+            border-left-color: #fbbf24;
+        }
+        .article-list.warning li i { color: #fbbf24; }
+
+        .article-list.danger li {
+            border-left-color: #ff007f;
+        }
+        .article-list.danger li i { color: #ff8ec7; }
+
+        /* ==== HIGHLIGHT BOXES ==== */
+        .highlight-box {
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 13px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            line-height: 1.5;
+        }
+        .highlight-box i { margin-top: 2px; flex-shrink: 0; }
+
+        .highlight-box.info {
+            background: rgba(0, 242, 254, 0.08);
+            border-left: 3px solid #00f2fe;
+            color: #67e8f9;
+        }
+        .highlight-box.info i { color: #00f2fe; }
+
+        .highlight-box.warning {
+            background: rgba(251, 191, 36, 0.08);
+            border-left: 3px solid #fbbf24;
+            color: #fde68a;
+        }
+        .highlight-box.warning i { color: #fbbf24; }
+
+        .highlight-box.danger {
+            background: rgba(255, 0, 127, 0.08);
+            border-left: 3px solid #ff007f;
+            color: #ff8ec7;
+        }
+        .highlight-box.danger i { color: #ff007f; }
+
+        .highlight-box.success {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 3px solid #10b981;
+            color: #6ee7b7;
+        }
+        .highlight-box.success i { color: #10b981; }
+
+        /* ==== FOOTER NOTE ==== */
+        .footer-note {
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .footer-note i {
+            color: #6ee7b7;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+        .footer-note p {
+            font-size: 12px;
+            color: #a7f3d0;
+            line-height: 1.5;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-qualiopi {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #6ee7b7;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h2 { font-size: 14px; }
+            .hero-inner { padding: 22px 16px; }
+            .hero-title { font-size: 17px; }
+            .article-card { padding: 16px; }
+            .article-title { font-size: 13px; }
+        }
+    </style>
 </head>
 <body>
-<div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2>Réglementation</h2>
-</div>
-<div class="page-content">
-<p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
-</div>
-<script src="../js/commun.js"></script>
-<script>
-verifierConnexionOuRediriger();
-</script>
+    <div class="page-header">
+        <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h2>📋 Règlement <span class="cyan">de formation</span></h2>
+    </div>
+    
+    <div class="page-content">
+        <!-- Hero Card -->
+        <div class="hero-card">
+            <div class="hero-inner">
+                <div class="hero-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <div class="hero-title">Règlement de Formation</div>
+                <div class="hero-subtitle">44èmes Journées Techniques Biomédicales</div>
+                <div class="hero-ref">P01 FT 02 — Version du 28/01/2025</div>
+            </div>
+        </div>
+
+        <!-- Intro -->
+        <div class="intro-card">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>
+                Chaque stagiaire est tenu de lire le règlement de formation applicable aux Journées Techniques Biomédicales. 
+                <br><strong>Le fait de viser la feuille d'enregistrement lors de la phase d'accueil vaut acceptation du règlement.</strong>
+                <br>Ce règlement vient en complément de celui existant dans la structure d'accueil (ERP).
+            </p>
+        </div>
+
+        <!-- SECTION I : Principales mesures -->
+        <div class="section-title">
+            <i class="fa-solid fa-book-open"></i> I — Rappel des principales mesures
+        </div>
+
+        <!-- Article 1 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-smoking-ban"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 1</div>
+                    <div class="article-title">Mesure d'hygiène</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p><strong>Tabac :</strong> Il est interdit de fumer dans les lieux publics, que ce soit dans les salles de restauration ou dans les salles de formation, conformément au décret 92-478 du 29/05/1992 relatif à l'interdiction de fumer ou vapoter dans les lieux publics.</p>
+            </div>
+        </div>
+
+        <!-- Article 2 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 2</div>
+                    <div class="article-title">Sécurité</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <div class="highlight-box warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>L'AAMB ne sera pas tenue responsable en cas de <strong>dégradation, perte, vol d'affaires ou de documents</strong> laissés sans surveillance par les stagiaires.</span>
+                </div>
+                <p>La circulation dans les stands partenaires en dehors des périodes de pause ainsi que l'accès au site de formation en dehors des horaires d'ouverture est <strong>strictement interdite</strong>.</p>
+            </div>
+        </div>
+
+        <!-- Article 3 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 3</div>
+                    <div class="article-title">Accueil — Horaires de formation</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>L'enregistrement des stagiaires et la remise des documents de formation se déroulent le <strong>mardi</strong> aux horaires indiqués dans le formulaire d'inscription P01 FE07. Lors de cet enregistrement sont remis :</p>
+                
+                <ul class="article-list">
+                    <li><i class="fa-solid fa-id-card"></i> <span>Le <strong>badge nominatif</strong></span></li>
+                    <li><i class="fa-solid fa-bag-shopping"></i> <span>La sacoche contenant divers documents, blocs-notes, stylos…</span></li>
+                    <li><i class="fa-solid fa-list-check"></i> <span>La liste des Stagiaires P01 FT03 et la liste des Partenaires P01 FT04</span></li>
+                </ul>
+
+                <div class="highlight-box info">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Le programme des conférences et ateliers est disponible sur le site dédié aux journées. Le respect du programme et des intervenants impose à chacun d'être en salle de conférence <strong>au plus tard aux horaires annoncés</strong>.</span>
+                </div>
+
+                <div class="highlight-box success">
+                    <i class="fa-solid fa-wheelchair"></i>
+                    <span><strong>Handicap</strong> — En cas de besoin spécifique, un référent « Handicap » est présent sur site pour mettre en œuvre une solution adaptée.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 4 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-user-check"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 4</div>
+                    <div class="article-title">Contrôle de la présence — Évaluation</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>Afin de satisfaire aux impératifs de sécurité et dans le cadre de notre certification 
+                    <span class="badge-qualiopi"><i class="fa-solid fa-certificate"></i> QUALIOPI</span>, 
+                    chaque stagiaire doit obligatoirement :
+                </p>
+                
+                <ul class="article-list">
+                    <li><i class="fa-solid fa-id-badge"></i> <span><strong>Porter son badge</strong> dans l'enceinte des locaux où se déroulent les JTB — le port d'un badge appartenant à un autre stagiaire est <strong>interdit</strong></span></li>
+                    <li><i class="fa-solid fa-qrcode"></i> <span><strong>Faire valider sa présence</strong> par lecture de son badge aux conférences et ateliers auxquels il participe</span></li>
+                    <li><i class="fa-solid fa-star"></i> <span><strong>Évaluer chaque intervention</strong> à l'aide des QR codes affichés</span></li>
+                    <li><i class="fa-solid fa-clipboard-question"></i> <span><strong>Compléter le QCM d'évaluation</strong> relatif à l'évaluation des connaissances acquises lors des conférences, ateliers et salon des exposants</span></li>
+                </ul>
+
+                <div class="highlight-box success">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Les <strong>meilleures réponses au QCM</strong> feront l'objet d'une remise de prix lors de la <strong>soirée de gala</strong>.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 5 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-camera"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 5</div>
+                    <div class="article-title">Droit à l'image</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>L'<strong>acceptation du badge</strong> vaut acceptation implicite de l'utilisation d'images ou de vidéos effectuées durant les Journées Techniques Biomédicales.</p>
+                <p>Durant les jours de formation, des photographies et des vidéos sont susceptibles d'être effectuées et pourront servir à illustrer en accès libre :</p>
+                <ul class="article-list">
+                    <li><i class="fa-solid fa-globe"></i> <span>Le site internet de l'association : <strong>www.aamb.asso.fr</strong></span></li>
+                    <li><i class="fa-solid fa-newspaper"></i> <span>Des médias internet</span></li>
+                    <li><i class="fa-solid fa-book-open-reader"></i> <span>Des journaux professionnels</span></li>
+                </ul>
+                <div class="highlight-box danger">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>L'AAMB ne pourra être tenue pour responsable des diffusions en dehors de celles énoncées ci-avant, ni des clichés à caractère privé effectués par des personnes autres que celles autorisées par l'AAMB.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 6 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-utensils"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 6</div>
+                    <div class="article-title">Repas</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>Les repas intégrés dans le coût de la formation seront pris dans les salles prévues à cet effet. Le <strong>contrôle des repas se fera par l'intermédiaire du badge</strong>.</p>
+                <div class="highlight-box warning">
+                    <i class="fa-solid fa-ban"></i>
+                    <span>Toute prise de repas en dehors des lieux prévus à cet effet ne saurait engager la responsabilité des organisateurs de l'AAMB.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article 7 -->
+        <div class="article-card">
+            <div class="article-header">
+                <div class="article-icon"><i class="fa-solid fa-award"></i></div>
+                <div class="article-title-block">
+                    <div class="article-number">Article 7</div>
+                    <div class="article-title">Clôture — Certificat de Réalisation</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>À la clôture des Journées Techniques sont remis aux stagiaires les <strong>Certificats de Réalisation P01 FT 06</strong>.</p>
+                <div class="highlight-box danger">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Si la présence n'est pas suffisamment assidue, le Certificat de Réalisation ne pourra pas être remis. Le Président de l'association en informera par écrit le service de formation dont dépend le stagiaire.</span>
+                </div>
+                <div class="highlight-box info">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <span>Les supports de cours sous format électronique sont disponibles par la suite sur le site de l'AAMB.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION II : Discipline -->
+        <div class="section-title discipline">
+            <i class="fa-solid fa-gavel"></i> II — Règles applicables en matière de discipline
+        </div>
+
+        <div class="article-card" style="border-left: 4px solid #ff007f;">
+            <div class="article-header" style="border-bottom-color: rgba(255, 0, 127, 0.15);">
+                <div class="article-icon" style="background: rgba(255, 0, 127, 0.1); border-color: rgba(255, 0, 127, 0.3); color: #ff007f; box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);">
+                    <i class="fa-solid fa-gavel"></i>
+                </div>
+                <div class="article-title-block">
+                    <div class="article-number" style="color: #ff007f;">Discipline</div>
+                    <div class="article-title">Manquements et sanctions</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>À compter de l'enregistrement et jusqu'à son départ, le stagiaire doit suivre scrupuleusement les recommandations et obligations contenues dans les <strong>articles 1 à 6</strong> du présent règlement.</p>
+                <div class="highlight-box danger">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>En cas de <strong>manquement avéré</strong> à une de ces recommandations ou obligations, le stagiaire sera averti et un <strong>courrier explicite sera envoyé à l'employeur</strong> dont il dépend.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION III : Évaluations -->
+        <div class="section-title evaluation">
+            <i class="fa-solid fa-chart-line"></i> III — Évaluations à chaud et à froid
+        </div>
+
+        <!-- Évaluation à chaud -->
+        <div class="article-card" style="border-left: 4px solid #a855f7;">
+            <div class="article-header" style="border-bottom-color: rgba(168, 85, 247, 0.15);">
+                <div class="article-icon" style="background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); color: #c084fc; box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+                <div class="article-title-block">
+                    <div class="article-number" style="color: #c084fc;">À chaud (P01 FE 01)</div>
+                    <div class="article-title">Évaluation en fin de journée</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>Un panel de stagiaires remplira une évaluation à chaud à la fin des journées, qui permet d'évaluer :</p>
+                <ul class="article-list" style="--accent: #c084fc;">
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>Les <strong>conditions d'accueil et de restauration</strong></span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>Les <strong>conditions de formation</strong> : le lieu, la durée, les assises…</span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>Les <strong>modalités pédagogiques</strong> : qualité du système de vidéo projection, sonorisation (conférence plénière et ateliers techniques)</span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>Les <strong>points forts et faibles</strong> et les améliorations à proposer</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Évaluation à froid -->
+        <div class="article-card" style="border-left: 4px solid #a855f7;">
+            <div class="article-header" style="border-bottom-color: rgba(168, 85, 247, 0.15);">
+                <div class="article-icon" style="background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); color: #c084fc; box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);">
+                    <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <div class="article-title-block">
+                    <div class="article-number" style="color: #c084fc;">À froid (P01 FE 02)</div>
+                    <div class="article-title">Évaluation post-formation</div>
+                </div>
+            </div>
+            <div class="article-content">
+                <p>Une évaluation à froid sera proposée suite aux journées, permettant d'évaluer :</p>
+                <ul class="article-list">
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>L'<strong>intérêt de la formation</strong> ou des ateliers en rapport avec les attentes du stagiaire</span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>La <strong>capacité du formateur</strong> à intéresser les stagiaires, la qualité des présentations</span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>Le <strong>temps dévolu</strong> à la formation ou à l'atelier</span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>La <strong>possibilité de manipuler</strong> les DM ou ECME ou autre lors des ateliers et en nombre suffisant</span></li>
+                    <li style="border-left-color: #a855f7;"><i class="fa-solid fa-circle-check" style="color: #c084fc;"></i> <span>Les <strong>points forts et faibles</strong> de l'organisation</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="footer-note">
+            <i class="fa-solid fa-handshake"></i>
+            <p>
+                En participant aux 44èmes Journées Techniques Biomédicales et en acceptant votre badge, 
+                vous vous engagez à respecter l'ensemble des dispositions du présent règlement.
+                <br><br>
+                <strong style="color:#6ee7b7;">Merci pour votre contribution au bon déroulement de cette formation.</strong>
+            </p>
+        </div>
+    </div>
+
+    <script src="../js/commun.js"></script>
+    <script>
+        verifierConnexionOuRediriger();
+        
+        if (typeof retourAccueil !== 'function') {
+            window.retourAccueil = function() {
+                window.location.href = '../app.html';
+            };
+        }
+    </script>
 </body>
 </html>
