@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QCM des stands — AAMB JTB 2026 v0.01</title>
+<title>QCM des stands — AAMB JTB 2026 v0.02</title>
 <link rel="manifest" href="../manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -304,20 +304,69 @@ body::before {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* ==== BARRE DE NOTATION ==== */
+/* ==== BARRE DE NOTATION (STICKY) ==== */
 .scoring-legend {
+    position: sticky;
+    top: 65px; /* Juste en dessous du timer */
+    z-index: 25;
     display: flex;
     flex-direction: column;
     gap: 4px;
     padding: 10px 12px;
     margin-bottom: 12px;
     border-radius: 10px;
-    background: rgba(5, 8, 17, 0.7);
+    background: rgba(5, 8, 17, 0.95); /* Plus opaque pour lisibilité */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     font-weight: 600;
 }
+.scoring-legend .legend-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    color: #00f2fe;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+.scoring-rule {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(13, 22, 41, 0.5);
+}
+.scoring-rule .pts {
+    min-width: 55px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.scoring-rule .desc {
+    color: #cbd5e1;
+    font-size: 11px;
+    font-family: 'Rajdhani', sans-serif;
+}
+.rule-3pts { border-left: 3px solid #10b981; }
+.rule-3pts .pts { color: #6ee7b7; text-shadow: 0 0 8px rgba(16, 185, 129, 0.8); font-size: 14px; }
+
+.rule-1pt { border-left: 3px solid #34d399; }
+.rule-1pt .pts { color: #a7f3d0; }
+
+.rule-0pt { border-left: 3px solid #fbbf24; }
+.rule-0pt .pts { color: #fde68a; }
+
+.rule-minus2 { border-left: 3px solid #ff007f; }
+.rule-minus2 .pts { color: #ff8ec7; text-shadow: 0 0 6px rgba(255, 0, 127, 0.6); }
+
+.rule-penalty { border-left: 3px solid #ef4444; }
+.rule-penalty .pts { color: #fca5a5; }
+
+    
 .scoring-legend .legend-title {
     font-family: 'Rajdhani', sans-serif;
     font-size: 11px;
