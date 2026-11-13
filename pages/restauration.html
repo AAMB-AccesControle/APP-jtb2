@@ -3,36 +3,577 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Restauration v0.055</title>
+<title>Restauration — AAMB JTB 2026</title>
 <link rel="manifest" href="../manifest.json">
-<script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ===== STYLES SPÉCIFIQUES À CETTE PAGE UNIQUEMENT ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
-body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
 
-/* Header de page (titre + bouton retour) - styles de base */
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 20px; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    background-color: #050811;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+        linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+    background-attachment: fixed;
+    color: #e2e8f0;
+}
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #070b14; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+/* ==== HEADER ==== */
+.page-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13, 22, 41, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+    color: white;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.back-btn {
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: #00f2fe;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center;
+}
+.back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+.page-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 1;
+}
+.page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+
+.page-content {
+    position: relative; z-index: 1;
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex; flex-direction: column; gap: 16px;
+}
+
+/* ==== HERO ==== */
+.hero-card {
+    border-radius: 14px;
+    padding: 4px;
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.4), rgba(255, 0, 127, 0.4));
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);
+}
+.hero-inner {
+    background: rgba(13, 22, 41, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 10px;
+    padding: 28px 24px;
+    text-align: center;
+}
+.hero-icon {
+    font-size: 44px;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #00f2fe 0%, #ff007f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.4));
+}
+.hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #f1f5f9; margin-bottom: 6px;
+}
+.hero-subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; color: #94a3b8; letter-spacing: 0.5px;
+}
+
+/* ==== INFO BADGE ==== */
+.info-card {
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    display: flex; gap: 12px; align-items: flex-start;
+}
+.info-card i { color: #fbbf24; font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+.info-card p {
+    font-size: 13px; color: #fde68a; line-height: 1.5;
+    font-family: 'Rajdhani', sans-serif; letter-spacing: 0.3px;
+}
+.info-card strong { color: #fbbf24; }
+
+/* ==== TITRE DE JOUR ==== */
+.day-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #f1f5f9;
+    margin: 10px 0 2px 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.02));
+    border-left: 4px solid #00f2fe;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.15);
+    display: flex; align-items: center; gap: 10px;
+}
+.day-title i { color: #00f2fe; }
+.day-title .day-date {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: #64748b; letter-spacing: 1px;
+}
+
+/* ==== MEAL CARDS ==== */
+.meal-card {
+    border-radius: 14px;
+    padding: 18px;
+    background: rgba(13, 22, 41, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+.meal-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--accent, #00f2fe);
+    box-shadow: 0 0 12px var(--accent, #00f2fe);
+}
+.meal-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+    flex-wrap: wrap;
+}
+.meal-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    color: var(--accent, #00f2fe);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--accent, #00f2fe);
+    box-shadow: 0 0 10px var(--accent-glow, rgba(0, 242, 254, 0.2));
+    flex-shrink: 0;
+}
+.meal-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: #f1f5f9; flex: 1;
+}
+.meal-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    color: var(--accent, #00f2fe);
+    background: rgba(5, 8, 17, 0.6);
+    padding: 4px 10px; border-radius: 12px;
+    border: 1px solid var(--accent, #00f2fe);
+    letter-spacing: 0.5px;
+}
+.meal-place {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; color: #94a3b8;
+    letter-spacing: 0.5px;
+    margin: -6px 0 12px 52px;
+}
+.meal-place i { margin-right: 5px; color: #64748b; }
+
+/* ==== MENU ROWS ==== */
+.menu-row {
+    display: flex; gap: 12px;
+    padding: 9px 12px;
+    margin-bottom: 6px;
+    background: rgba(5, 8, 17, 0.5);
+    border-radius: 8px;
+    align-items: flex-start;
+}
+.menu-label {
+    min-width: 74px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--accent, #00f2fe);
+    padding-top: 2px;
+    flex-shrink: 0;
+}
+.menu-value {
+    font-size: 13.5px; line-height: 1.55;
+    color: #e2e8f0; flex: 1;
+}
+.menu-value strong { color: #ffffff; font-weight: 600; }
+
+/* ==== BOISSONS / NOTE ==== */
+.drink-note {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 12px; padding: 11px 13px;
+    background: rgba(0, 242, 254, 0.06);
+    border: 1px solid rgba(0, 242, 254, 0.15);
+    border-radius: 8px;
+    font-size: 12.5px; color: #a5c8d8; line-height: 1.5;
+}
+.drink-note i { color: #00f2fe; margin-top: 2px; flex-shrink: 0; }
+.drink-note strong { color: #67e8f9; }
+
+/* ==== COULEURS PAR TYPE ==== */
+.meal-cafe   { --accent: #fbbf24; --accent-glow: rgba(251, 191, 36, 0.25); }
+.meal-dej    { --accent: #00f2fe; --accent-glow: rgba(0, 242, 254, 0.2); }
+.meal-apero  { --accent: #a855f7; --accent-glow: rgba(168, 85, 247, 0.25); }
+.meal-gala   { --accent: #ff007f; --accent-glow: rgba(255, 0, 127, 0.25); }
+.meal-biere  { --accent: #fb923c; --accent-glow: rgba(251, 146, 60, 0.25); }
+.meal-plateau{ --accent: #94a3b8; --accent-glow: rgba(148, 163, 184, 0.2); }
+
+/* ==== SECTION COMPLÉMENT ==== */
+.extra-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #94a3b8;
+    margin: 14px 0 4px 0;
+    display: flex; align-items: center; gap: 10px;
+}
+.extra-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(148, 163, 184, 0.3), transparent);
+}
+
+/* ==== FOOTER ==== */
+.footer-note {
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex; gap: 12px; align-items: flex-start;
+}
+.footer-note i { color: #6ee7b7; font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+.footer-note p {
+    font-size: 12px; color: #a7f3d0; line-height: 1.5;
+    font-family: 'Rajdhani', sans-serif; letter-spacing: 0.3px;
+}
+.footer-note strong { color: #6ee7b7; }
+
+@media (max-width: 600px) {
+    .page-header h2 { font-size: 13px; }
+    .meal-header { gap: 8px; }
+    .meal-name { font-size: 13px; }
+    .meal-place { margin-left: 0; }
+    .menu-row { flex-direction: column; gap: 3px; }
+    .menu-label { min-width: 0; }
+    .day-title { font-size: 12px; }
+    .day-title .day-date { display: none; }
+}
 </style>
 </head>
 <body>
+
 <div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2>Restauration</h2>
+    <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2>🍽️ <span class="cyan">Restauration</span></h2>
 </div>
+
 <div class="page-content">
-<p style="text-align:center;color:var(--text-sub);padding:40px;">À compléter ultérieurement</p>
+
+    <!-- HERO -->
+    <div class="hero-card">
+        <div class="hero-inner">
+            <div class="hero-icon"><i class="fa-solid fa-utensils"></i></div>
+            <div class="hero-title">Restauration</div>
+            <div class="hero-subtitle">44èmes Journées Techniques Biomédicales · Besançon</div>
+        </div>
+    </div>
+
+    <!-- INFO BADGE -->
+    <div class="info-card">
+        <i class="fa-solid fa-id-card"></i>
+        <p>Les pauses et repas sont <strong>inclus dans votre inscription</strong> et servis au <strong>Hall E – Plateau Supérieur</strong> de Micropolis. Le contrôle se fait <strong>par lecture de votre badge</strong>.</p>
+    </div>
+
+    <!-- ============ MARDI 17 ============ -->
+    <div class="day-title"><i class="fa-solid fa-calendar-day"></i> Mardi 17 novembre <span class="day-date">J1</span></div>
+
+    <div class="meal-card meal-cafe">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-mug-hot"></i></div>
+            <div class="meal-name">Pause d'accueil</div>
+            <div class="meal-time">15h45 – 16h15</div>
+        </div>
+        <div class="meal-place"><i class="fa-solid fa-location-dot"></i> Hall E – Plateau Supérieur</div>
+        <div class="menu-row">
+            <div class="menu-label">Boissons</div>
+            <div class="menu-value">Café, thé, jus d'orange, jus de pomme, eau plate</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Douceurs</div>
+            <div class="menu-value"><strong>2 mini douceurs assorties</strong> par personne</div>
+        </div>
+    </div>
+
+    <!-- ============ MERCREDI 18 ============ -->
+    <div class="day-title"><i class="fa-solid fa-calendar-day"></i> Mercredi 18 novembre <span class="day-date">J2</span></div>
+
+    <div class="meal-card meal-cafe">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-mug-hot"></i></div>
+            <div class="meal-name">Pause du matin</div>
+            <div class="meal-time">10h05 – 11h00</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Boissons</div>
+            <div class="menu-value">Café, thé, jus d'orange, eau plate</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Viennoiseries</div>
+            <div class="menu-value"><strong>2 mini viennoiseries assorties</strong> par personne (pain aux raisins, croissant au beurre, pain au chocolat)</div>
+        </div>
+    </div>
+
+    <div class="meal-card meal-dej">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-bowl-food"></i></div>
+            <div class="meal-name">Déjeuner</div>
+            <div class="meal-time">12h00 – 13h45</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Apéritif</div>
+            <div class="menu-value"><strong>Flûte de Crémant Brut du Jura</strong> à l'arrivée sur l'espace restauration</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Entrée</div>
+            <div class="menu-value">Mousse de brochet aux jeunes pousses d'épinards, <strong>sauce aux herbes</strong></div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Plat</div>
+            <div class="menu-value"><strong>Filet mignon</strong>, jus réduit au thym frais · fricassée de légumes de saison · gâteau de pomme de terre</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Dessert</div>
+            <div class="menu-value">Verrine <strong>tiramisu</strong></div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Café</div>
+            <div class="menu-value">Inclus, servi en buffet</div>
+        </div>
+        <div class="drink-note">
+            <i class="fa-solid fa-wine-glass"></i>
+            <div><strong>Vins :</strong> un verre de blanc Chardonnay et un verre de rouge Pinot Noir (Bouchard Aîné & Fils). <strong>Eau :</strong> plate et pétillante à table.</div>
+        </div>
+    </div>
+
+    <div class="meal-card meal-cafe">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-mug-hot"></i></div>
+            <div class="meal-name">Pause d'après-midi</div>
+            <div class="meal-time">15h20 – 16h20</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Boissons</div>
+            <div class="menu-value">Café, thé, jus d'orange, jus de pomme, eau plate</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Douceurs</div>
+            <div class="menu-value"><strong>2 mini douceurs assorties</strong> par personne</div>
+        </div>
+    </div>
+
+    <!-- ============ JEUDI 19 ============ -->
+    <div class="day-title"><i class="fa-solid fa-calendar-day"></i> Jeudi 19 novembre <span class="day-date">J3</span></div>
+
+    <div class="meal-card meal-cafe">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-mug-hot"></i></div>
+            <div class="meal-name">Pause du matin</div>
+            <div class="meal-time">10h05 – 11h00</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Boissons</div>
+            <div class="menu-value">Café, thé, jus d'orange, eau plate</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Viennoiseries</div>
+            <div class="menu-value"><strong>2 mini viennoiseries assorties</strong> par personne (pain aux raisins, croissant au beurre, pain au chocolat)</div>
+        </div>
+    </div>
+
+    <div class="meal-card meal-dej">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-bowl-food"></i></div>
+            <div class="meal-name">Déjeuner assis</div>
+            <div class="meal-time">11h45 – 13h45</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Entrée</div>
+            <div class="menu-value"><strong>Salade gourmande</strong>, tuile au Comté (jambon cru, œuf poché, tomates, râpé de chou rouge, noix)</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Plat</div>
+            <div class="menu-value"><strong>Cabillaud à l'aïoli provençal</strong>, légumes de saison</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Dessert</div>
+            <div class="menu-value">Fleur de <strong>tarte au citron meringuée</strong></div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Café</div>
+            <div class="menu-value">Inclus, servi en buffet</div>
+        </div>
+        <div class="drink-note">
+            <i class="fa-solid fa-wine-glass"></i>
+            <div><strong>Vins :</strong> un verre de blanc Chardonnay et un verre de rouge Pinot Noir (Bouchard Aîné & Fils). <strong>Eau :</strong> plate et pétillante à table.</div>
+        </div>
+    </div>
+
+    <div class="meal-card meal-apero">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
+            <div class="meal-name">Apéritif</div>
+            <div class="meal-time">19h00 – 20h00</div>
+        </div>
+        <div class="meal-place"><i class="fa-solid fa-location-dot"></i> Hall E – Plateau Supérieur, en buffet</div>
+        <div class="menu-row">
+            <div class="menu-label">Pièces</div>
+            <div class="menu-value"><strong>4 pièces froides & chaudes</strong> par personne : navette fraîcheur, navette rosette, brochette de jambon cuit caramélisé du Haut-Doubs, mini quiche au Comté, gougères bourguignonnes</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Boissons</div>
+            <div class="menu-value">Un verre de <strong>punch maison</strong> · eau plate et gazeuse, jus d'orange et pomme, Coca-Cola</div>
+        </div>
+    </div>
+
+    <div class="meal-card meal-gala">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-star"></i></div>
+            <div class="meal-name">Dîner de Gala</div>
+            <div class="meal-time">20h00 – 24h00</div>
+        </div>
+        <div class="meal-place"><i class="fa-solid fa-location-dot"></i> Hall E – Plateau Supérieur</div>
+        <div class="menu-row">
+            <div class="menu-label">Entrée</div>
+            <div class="menu-value"><strong>Croûte forestière</strong>, pain de campagne aux céréales</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Plat</div>
+            <div class="menu-value"><strong>Poulet au vin jaune et champignons</strong> · gâteau de pomme de terre · légumes de saison</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Fromage</div>
+            <div class="menu-value"><strong>Mont d'Or</strong> à partager</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Dessert</div>
+            <div class="menu-value"><strong>Assiette mixte</strong> : entremets 3 chocolats sur croustillant praliné · moelleux aux noix, crème à la vanille · verrine vanille baba & fruits exotiques</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Café</div>
+            <div class="menu-value">Inclus, servi en buffet en libre-service</div>
+        </div>
+        <div class="drink-note">
+            <i class="fa-solid fa-wine-bottle"></i>
+            <div><strong>Vins :</strong> Arbois blanc Chardonnay et Arbois rouge Pinot Noir, en accord avec chaque plat (une bouteille pour 6 convives). <strong>Eau :</strong> plate et gazeuse (une bouteille pour 6 convives).</div>
+        </div>
+    </div>
+
+    <!-- ============ VENDREDI 20 ============ -->
+    <div class="day-title"><i class="fa-solid fa-calendar-day"></i> Vendredi 20 novembre <span class="day-date">J4</span></div>
+
+    <div class="meal-card meal-cafe">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-mug-hot"></i></div>
+            <div class="meal-name">Pause du matin</div>
+            <div class="meal-time">10h05 – 11h00</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Boissons</div>
+            <div class="menu-value">Café, thé, jus d'orange, eau plate</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Viennoiseries</div>
+            <div class="menu-value"><strong>2 mini viennoiseries assorties</strong> par personne (pain aux raisins, croissant au beurre, pain au chocolat)</div>
+        </div>
+    </div>
+
+    <!-- ============ EN COMPLÉMENT ============ -->
+    <div class="extra-title"><i class="fa-solid fa-plus"></i> En complément</div>
+
+    <div class="meal-card meal-biere">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-beer-mug-empty"></i></div>
+            <div class="meal-name">Bar à Bière</div>
+            <div class="meal-time">Sur les créneaux annoncés</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Au fût</div>
+            <div class="menu-value"><strong>Bière blonde Tigre Bock</strong>, servie dans des verres écocup réutilisables</div>
+        </div>
+        <div class="drink-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>Les jours et horaires d'ouverture du bar sont communiqués <strong>sur place</strong> pendant les journées.</div>
+        </div>
+    </div>
+
+    <div class="meal-card meal-plateau">
+        <div class="meal-header">
+            <div class="meal-icon"><i class="fa-solid fa-box-open"></i></div>
+            <div class="meal-name">Plateaux Repas</div>
+            <div class="meal-time">À la demande</div>
+        </div>
+        <div class="menu-row">
+            <div class="menu-label">Composition</div>
+            <div class="menu-value">3 crudités · 2 poissons · 3 charcuteries · 2 viandes · 2 fromages · 1 dessert · pain · eau de source (50 cl)</div>
+        </div>
+        <div class="drink-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>Destinés notamment aux <strong>arrivées tardives</strong> ou aux personnes ne pouvant se rendre au déjeuner. Merci de vous rapprocher de l'accueil.</div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-note">
+        <i class="fa-solid fa-heart"></i>
+        <p>
+            Les menus sont élaborés par la restauration de <strong>Micropolis</strong> avec des produits de saison et des spécialités franc-comtoises.<br>
+            En cas d'<strong>intolérance ou régime particulier</strong>, signalez-le à l'accueil dès votre enregistrement — un référent vous accompagnera.
+        </p>
+    </div>
+
 </div>
+
 <script src="../js/commun.js"></script>
 <script>
-verifierConnexionOuRediriger();
+    verifierConnexionOuRediriger();
+    if (typeof retourAccueil !== 'function') {
+        window.retourAccueil = function() { window.location.href = '../app.html'; };
+    }
 </script>
 </body>
 </html>
