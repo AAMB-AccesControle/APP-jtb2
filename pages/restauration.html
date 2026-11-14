@@ -148,9 +148,13 @@ body::before {
     overflow: hidden;
     animation: titlePulse 2s ease-in-out infinite;
 }
-@keyframes titlePulse {
+/*@keyframes titlePulse {
     0%, 100% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.2), inset 0 0 20px rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.3); }
     50% { box-shadow: 0 0 25px rgba(0, 242, 254, 0.4), inset 0 0 30px rgba(0, 242, 254, 0.1); border-color: rgba(0, 242, 254, 0.6); }
+}*/
+    @keyframes titlePulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.03);border-color: rgba(0, 242, 254, 0.2); }
+    50% { box-shadow: 0 0 45px rgba(0, 242, 254, 0.7), inset 0 0 50px rgba(0, 242, 254, 0.2); border-color: rgba(0, 242, 254, 0.9);  }
 }
 .day-title i { color: #00f2fe; filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.8)); }
 .day-title .day-date {
