@@ -5,259 +5,642 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Contrôle d'accès v0.055</title>
+<meta name="theme-color" content="#050811">
+<title>Contrôle d'accès — AAMB JTB 2026</title>
 
 <link rel="manifest" href="../manifest.json">
-<script>
-if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-</script>
-<style>
-/* ===== STYLES SPÉCIFIQUES À CETTE PAGE UNIQUEMENT ===== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white; --page-header-bg: #1a3a6b; }
-body.dark { --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840; --page-header-bg: #0f1f3d; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }    
-    
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: var(--bg); min-height: 100vh; }
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 4px 8px; }
-.page-header h2 { font-size: 18px; flex: 1; }
-.page-header .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-.page-header .status-dot.online { background: #4ade80; }
-.page-header .status-dot.offline { background: #f87171; }
-.page-content { padding: 12px; max-width: 700px; margin: 0 auto; }
-.config-panel { background: var(--card-bg); border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
-.config-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.config-header h3 { color: var(--text); font-size: 15px; display: flex; align-items: center; gap: 8px; }
-.config-header .toggle-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-sub); padding: 4px 8px; }
-.config-panel .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
-.config-panel input[type="text"] { flex: 1; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); transition: border-color 0.3s; }
-.config-panel input[type="text"]:focus { outline: none; border-color: var(--primary); }
-.config-panel .btn-sm { padding: 10px 16px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.btn-primary-sm { background: var(--primary); color: white; }
-.btn-primary-sm:hover { background: var(--primary-dark); }
-.btn-secondary-sm { background: #6b7280; color: white; }
-.btn-secondary-sm:hover { background: #4b5563; }
-.alert-box { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; border-left: 4px solid var(--warning); background: rgba(245, 158, 11, 0.1); color: var(--text); transition: all 0.3s; }
-.alert-box.success { border-color: var(--success); background: rgba(16, 185, 129, 0.1); color: #065f46; }
-.alert-box.error { border-color: var(--error); background: rgba(239, 68, 68, 0.1); color: #991b1b; }
-.alert-box.info { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); color: #1e40af; }
-body.dark .alert-box.success { color: #6ee7b7; }
-body.dark .alert-box.error { color: #fca5a5; }
-body.dark .alert-box.info { color: #93c5fd; }
-.scanner-panel { background: var(--card-bg); border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
-.scanner-panel h3 { color: var(--text); font-size: 15px; text-align: center; margin-bottom: 12px; }
-.scanner-panel p { color: var(--text-sub); font-size: 13px; text-align: center; margin-bottom: 12px; }
-#reader { border: 3px solid var(--primary); border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 12px; min-height: 250px; }
-#reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
-.manual-section { border-top: 1px solid rgba(128,128,128,0.15); padding-top: 14px; margin-top: 4px; }
-.manual-section h4 { color: var(--text-sub); font-size: 13px; margin-bottom: 8px; }
-.manual-section .input-group { display: flex; gap: 8px; }
-.manual-section input { flex: 1; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); text-transform: uppercase; letter-spacing: 1px; }
-.manual-section input:focus { outline: none; border-color: var(--primary); }
-.btn-verify { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.btn-verify:hover { background: var(--primary-dark); }
-.btn-verify:active { transform: scale(0.95); }
-.result-card { margin-top: 12px; padding: 24px; border-radius: 14px; text-align: center; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--card-shadow); }
-@keyframes zoomIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-.result-card.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-.result-card.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
-.result-card .icon { font-size: 48px; margin-bottom: 10px; }
-.result-card .name { font-size: 24px; font-weight: bold; margin-bottom: 6px; }
-.result-card .message { font-size: 16px; opacity: 0.9; margin-bottom: 10px; }
-.result-card .atelier { font-size: 20px; font-weight: bold; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 10px; display: inline-block; }
-.result-card .time { font-size: 13px; opacity: 0.8; margin-top: 10px; }
-.loading { text-align: center; padding: 30px; color: var(--text); }
-.spinner { border: 4px solid rgba(128,128,128,0.2); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.stats-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
-.stat-item { background: var(--card-bg); padding: 14px; border-radius: 12px; text-align: center; box-shadow: var(--card-shadow); }
-.stat-item .value { font-size: 24px; font-weight: bold; color: var(--text); }
-.stat-item .label { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-.stat-item .value.success { color: var(--success); }
-.stat-item .value.error { color: var(--error); }
-@media (max-width: 480px) {
-.page-content { padding: 8px; }
-.config-panel, .scanner-panel { padding: 12px; }
-.result-card { padding: 18px; }
-.result-card .name { font-size: 20px; }
-.result-card .atelier { font-size: 17px; padding: 8px 16px; }
-#reader { min-height: 200px; }
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    background-color: #050811;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+        linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+    background-attachment: fixed;
+    color: #e2e8f0;
+}
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
 }
 
-/* Header de page (titre + bouton retour) - styles de base */
-.page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
-.back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.page-header h2 { font-size: 18px; }
-.page-content { padding: 20px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #070b14; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
+/* ==== HEADER ==== */
+.page-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13, 22, 41, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+    color: white;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.back-btn {
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: #00f2fe;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center;
+}
+.back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+.page-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 1;
+}
+.page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+
+.sync-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #64748b;
+    background: rgba(5, 8, 17, 0.6);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    display: flex; align-items: center; gap: 6px;
+}
+.sync-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+.sync-badge .dot.syncing { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: pulse 1s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ==== CONTENU ==== */
+.page-content {
+    position: relative; z-index: 1;
+    padding: 16px;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ==== PANNEAUX ==== */
+.panel {
+    background: rgba(13, 22, 41, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+.panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+}
+.panel-header h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: #f1f5f9;
+    display: flex; align-items: center; gap: 8px;
+}
+.panel-header h3 i { color: #00f2fe; }
+
+.toggle-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.toggle-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+
+/* ==== INPUTS & BOUTONS ==== */
+.input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+input[type="text"] {
+    flex: 1; padding: 10px 14px;
+    background: rgba(5, 8, 17, 0.6);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 8px;
+    color: #00f2fe;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.25s;
+}
+input[type="text"]:focus {
+    outline: none;
+    border-color: #00f2fe;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+}
+input[type="text"]::placeholder { color: #475569; text-transform: none; letter-spacing: 0; }
+
+.btn-sm {
+    padding: 10px 16px; border: none; border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #0a0f1f;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+}
+.btn-primary:hover { box-shadow: 0 0 18px rgba(0, 242, 254, 0.5); transform: translateY(-1px); }
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
+}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ==== ALERTES ==== */
+.alert-box {
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; margin-bottom: 12px;
+    border-left: 3px solid #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+    color: #fde68a;
+}
+.alert-box.success { border-color: #10b981; background: rgba(16, 185, 129, 0.08); color: #6ee7b7; }
+.alert-box.error { border-color: #ff007f; background: rgba(255, 0, 127, 0.08); color: #ff8ec7; }
+
+/* ==== SCANNER ==== */
+#reader {
+    border: 2px solid rgba(0, 242, 254, 0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 14px;
+    min-height: 250px;
+    box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.1);
+}
+#reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
+
+.manual-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 14px; margin-top: 4px;
+}
+.manual-section h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; color: #94a3b8;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* ==== RÉSULTAT ==== */
+.result-card {
+    margin-top: 14px; padding: 24px;
+    border-radius: 14px; text-align: center;
+    animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+.result-card.success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+}
+.result-card.success .icon { color: #10b981; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)); }
+.result-card.success .name { color: #6ee7b7; }
+
+.result-card.error {
+    background: linear-gradient(135deg, rgba(255, 0, 127, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border-color: rgba(255, 0, 127, 0.4);
+    box-shadow: 0 0 25px rgba(255, 0, 127, 0.2);
+}
+.result-card.error .icon { color: #ff007f; filter: drop-shadow(0 0 8px rgba(255, 0, 127, 0.6)); }
+.result-card.error .name { color: #ff8ec7; }
+
+.result-card .icon { font-size: 48px; margin-bottom: 10px; }
+.result-card .name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: 1px; margin-bottom: 6px;
+}
+.result-card .message { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4; }
+.result-card .atelier {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    padding: 8px 16px;
+    background: rgba(5, 8, 17, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    display: inline-block;
+    color: #e2e8f0;
+}
+.result-card .time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: #64748b;
+    margin-top: 12px; letter-spacing: 0.5px;
+}
+
+/* ==== STATS ==== */
+.stats-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 4px; }
+.stat-item {
+    background: rgba(13, 22, 41, 0.75);
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    padding: 16px; border-radius: 12px;
+    text-align: center;
+}
+.stat-item .value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px; font-weight: 700;
+}
+.stat-item .value.success { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.stat-item .value.error { color: #ff007f; text-shadow: 0 0 10px rgba(255, 0, 127, 0.4); }
+.stat-item .label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; color: #94a3b8;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* ==== LOADING ==== */
+.loading { text-align: center; padding: 30px; color: #94a3b8; }
+.spinner {
+    border: 3px solid rgba(0, 242, 254, 0.1);
+    border-top: 3px solid #00f2fe;
+    border-radius: 50%; width: 36px; height: 36px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+    .page-content { padding: 12px; }
+    .panel { padding: 14px; }
+    .result-card { padding: 18px; }
+    .result-card .name { font-size: 18px; }
+    #reader { min-height: 200px; }
+}
 </style>
+<!-- Html5Qrcode Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
+
 <div class="page-header">
-<button class="back-btn" onclick="retourAccueil()">←</button>
-<h2>🔐 Contrôle d'accès</h2>
-<span id="headerStatus"><span class="status-dot" id="statusDot"></span></span>
+    <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2>🔐 Contrôle <span class="cyan">d'accès</span></h2>
+    <div class="sync-badge" id="syncBadge">
+        <span class="dot" id="syncDot"></span>
+        <span id="syncText">Synchro...</span>
+    </div>
 </div>
+
 <div class="page-content">
-<div class="config-panel" id="configPanel">
-<div class="config-header">
-<h3>⚙️ Configuration API</h3>
-<button class="toggle-btn" onclick="toggleConfig()" id="toggleConfigBtn">✖</button>
+    
+    <!-- CONFIG PANEL -->
+    <div class="panel" id="configPanel" style="display:none;">
+        <div class="panel-header">
+            <h3><i class="fa-solid fa-gear"></i> Configuration API</h3>
+            <button class="toggle-btn" onclick="toggleConfig()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="alert-box" id="alertBox">📋 Collez l'URL de votre Google Apps Script</div>
+        <div class="input-group">
+            <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-sm btn-primary" onclick="saveConfig()" style="flex:1;">💾 Enregistrer</button>
+            <button class="btn-sm btn-secondary" onclick="testAPI()">🧪 Tester</button>
+        </div>
+    </div>
+
+    <!-- SCANNER PANEL -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3><i class="fa-solid fa-qrcode"></i> Scanner QR</h3>
+            <button class="toggle-btn" onclick="toggleConfig()" title="Afficher config"><i class="fa-solid fa-gear"></i></button>
+        </div>
+        <p style="text-align:center; color:#94a3b8; font-size:13px; margin-bottom:12px;">Placez le QR code du participant dans le cadre</p>
+        <div id="reader"></div>
+        
+        <div class="manual-section">
+            <h4>✍️ Saisie manuelle du code</h4>
+            <div class="input-group">
+                <input type="text" id="manualCode" placeholder="Ex: X7K2M9PQ" maxlength="20">
+                <button class="btn-sm btn-primary" onclick="checkManualCode()">Vérifier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result"></div>
+
+    <!-- STATS -->
+    <div class="stats-panel">
+        <div class="stat-item">
+            <div class="value success" id="statScans">0</div>
+            <div class="label">✅ Accès autorisés</div>
+        </div>
+        <div class="stat-item">
+            <div class="value error" id="statRefus">0</div>
+            <div class="label">❌ Accès refusés</div>
+        </div>
+    </div>
+
 </div>
-<div class="alert-box" id="alertBox">📋 Collez l'URL de votre Google Apps Script</div>
-<div class="input-group">
-<input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
-</div>
-<div style="display:flex;gap:8px;">
-<button class="btn-sm btn-primary-sm" onclick="saveConfig()" style="flex:1;">💾 Enregistrer</button>
-<button class="btn-sm btn-secondary-sm" onclick="testAPI()">🧪 Tester</button>
-</div>
-</div>
-<div class="scanner-panel">
-<h3>📷 Scannez le QR code</h3>
-<p>Placez le QR code du participant dans le cadre</p>
-<div id="reader"></div>
-<div class="manual-section">
-<h4>✍️ Saisie manuelle</h4>
-<div class="input-group">
-<input type="text" id="manualCode" placeholder="Code (ex: JD001)" maxlength="20">
-<button class="btn-verify" onclick="checkManualCode()">Vérifier</button>
-</div>
-</div>
-</div>
-<div id="result"></div>
-<div class="stats-panel">
-<div class="stat-item"><div class="value success" id="statScans">0</div><div class="label">✅ Accès autorisés</div></div>
-<div class="stat-item"><div class="value error" id="statRefus">0</div><div class="label">❌ Accès refusés</div></div>
-</div>
-</div>
+
 <script src="../js/commun.js"></script>
 <script>
+// --- VARIABLES GLOBALES ---
 let html5QrCode = null;
 let API_URL = localStorage.getItem('aamb_apiUrl') || '';
 let stats = JSON.parse(localStorage.getItem('aamb_stats') || '{"scans":0,"refus":0}');
 let isProcessing = false;
-const adherent = verifierConnexionOuRediriger();
+let localDataCache = []; 
+let lastKnownUpdate = localStorage.getItem('aamb_lastUpdate') || '0';
+
+// --- VÉRIFICATION ORGANISATEUR ---
+const adherent = typeof chargerAdherent === 'function' ? chargerAdherent() : null;
 if (adherent && adherent.statut !== 'Organisateur') {
-document.getElementById('result').innerHTML = '<div class="result-card error"><div class="icon">⛔</div><div class="name">Accès refusé</div><div class="message">Cette page est réservée aux organisateurs.</div></div>';
-document.getElementById('reader').style.display = 'none';
-document.querySelector('.manual-section').style.display = 'none';
+    document.getElementById('result').innerHTML = '<div class="result-card error"><div class="icon">⛔</div><div class="name">Accès refusé</div><div class="message">Cette page est réservée aux organisateurs.</div></div>';
+    document.getElementById('reader').style.display = 'none';
+    document.querySelector('.manual-section').style.display = 'none';
 }
+
+// --- INITIALISATION ---
 window.onload = function() {
-updateStatus();
-updateStats();
-if (API_URL) { document.getElementById('apiUrl').value = API_URL; startScanner(); }
-else { document.getElementById('alertBox').textContent = '⚠️ Configurez l\'URL de l\'API pour commencer'; document.getElementById('alertBox').className = 'alert-box error'; }
+    updateStats();
+    if (API_URL) { 
+        document.getElementById('apiUrl').value = API_URL; 
+        document.getElementById('configPanel').style.display = 'none';
+        syncLocalData(); // 1. Précharger les données
+        startScanner();  // 2. Démarrer la caméra
+        setInterval(syncLocalData, 120000); // 3. Vérif légère toutes les 2 min
+    } else { 
+        document.getElementById('configPanel').style.display = 'block';
+        showAlert('⚠️ Configurez l\'URL de l\'API pour commencer', 'error'); 
+    }
 };
-let configVisible = true;
+
+// --- GESTION CONFIG ---
 function toggleConfig() {
-const panel = document.getElementById('configPanel');
-const btn = document.getElementById('toggleConfigBtn');
-configVisible = !configVisible;
-panel.style.display = configVisible ? 'block' : 'none';
-btn.textContent = configVisible ? '' : '⚙️';
+    const panel = document.getElementById('configPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
+
 function saveConfig() {
-const url = document.getElementById('apiUrl').value.trim();
-if (!url) { showAlert('❌ Veuillez entrer une URL', 'error'); return; }
-if (!url.includes('script.google.com')) { showAlert('⚠️ L\'URL ne semble pas valide', 'error'); return; }
-API_URL = url;
-localStorage.setItem('aamb_apiUrl', url);
-updateStatus();
-showAlert('✅ Configuration enregistrée avec succès !', 'success');
-if (!html5QrCode) startScanner();
+    const url = document.getElementById('apiUrl').value.trim();
+    if (!url || !url.includes('script.google.com')) { 
+        showAlert('⚠️ L\'URL ne semble pas valide', 'error'); return; 
+    }
+    API_URL = url;
+    localStorage.setItem('aamb_apiUrl', url);
+    showAlert('✅ Configuration enregistrée !', 'success');
+    syncLocalData();
+    if (!html5QrCode) startScanner();
 }
-function updateStatus() {
-const dot = document.getElementById('statusDot');
-dot.className = 'status-dot ' + (API_URL ? 'online' : 'offline');
-}
+
 async function testAPI() {
-if (!API_URL) { showAlert('❌ Configurez d\'abord l\'URL de l\'API', 'error'); return; }
-showAlert(' Test de connexion en cours...', 'info');
-try {
-const response = await fetch(`${API_URL}?code=TEST123&t=${Date.now()}`, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-if (response.ok) showAlert('✅ API accessible !', 'success');
-else showAlert('⚠️ L\'API répond mais avec une erreur (HTTP ' + response.status + ')', 'error');
-} catch (error) { showAlert('⚠️ Impossible de contacter l\'API.', 'error'); }
+    if (!API_URL) return;
+    showAlert('🔄 Test de connexion...', 'info');
+    try {
+        const response = await fetch(`${API_URL}?action=getLastUpdate&t=${Date.now()}`);
+        if (response.ok) showAlert('✅ API accessible et prête !', 'success');
+        else showAlert('⚠️ Erreur HTTP ' + response.status, 'error');
+    } catch (error) { showAlert('⚠️ Impossible de contacter l\'API.', 'error'); }
 }
+
 function showAlert(message, type) {
-const alertBox = document.getElementById('alertBox');
-alertBox.textContent = message;
-alertBox.className = 'alert-box ' + (type || '');
+    const alertBox = document.getElementById('alertBox');
+    alertBox.textContent = message;
+    alertBox.className = 'alert-box ' + (type || '');
 }
+
+// --- SYNCHRONISATION INTELLIGENTE ---
+async function syncLocalData() {
+    if (!API_URL) return;
+    try {
+        const response = await fetch(`${API_URL}?action=getLastUpdate&t=${Date.now()}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const serverUpdate = String(data.lastUpdate);
+            if (serverUpdate !== lastKnownUpdate && serverUpdate !== '0') {
+                console.log('🔄 Nouvelle version détectée. Téléchargement...');
+                await downloadFullData();
+                lastKnownUpdate = serverUpdate;
+                localStorage.setItem('aamb_lastUpdate', serverUpdate);
+                
+                const mins = Math.floor((Date.now() - parseInt(serverUpdate)) / 60000);
+                document.getElementById('syncText').textContent = 'À jour (' + mins + 'min)';
+                document.getElementById('syncDot').classList.remove('syncing');
+                document.getElementById('syncDot').style.background = '#4ade80';
+            } else {
+                console.log('✅ Données déjà à jour.');
+            }
+        }
+    } catch (error) {
+        console.error("Erreur vérification:", error);
+        document.getElementById('syncText').textContent = 'Hors ligne';
+        document.getElementById('syncDot').style.background = '#f87171';
+    }
+}
+
+async function downloadFullData() {
+    const dot = document.getElementById('syncDot');
+    const text = document.getElementById('syncText');
+    dot.classList.add('syncing');
+    text.textContent = 'Téléchargement...';
+
+    try {
+        const response = await fetch(`${API_URL}?action=getAccessData&t=${Date.now()}`);
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.participants)) {
+            localDataCache = data.participants;
+            window.accessIndex = new Map();
+            localDataCache.forEach(p => {
+                window.accessIndex.set(`${p.Token}_${p.SessionID}`, p);
+            });
+            console.log(`✅ ${localDataCache.length} entrées chargées.`);
+        }
+    } catch (error) {
+        console.error("Erreur téléchargement:", error);
+        showAlert('⚠️ Échec du téléchargement. Utilisation du cache.', 'error');
+    } finally {
+        dot.classList.remove('syncing');
+    }
+}
+
+// --- SCANNER ---
 function startScanner() {
-if (html5QrCode) { html5QrCode.clear(); html5QrCode = null; }
-try {
-html5QrCode = new Html5Qrcode("reader");
-html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 240, height: 240 } }, onScanSuccess, onScanError)
-.then(() => console.log('✅ Scanner démarré'))
-.catch(err => showAlert('⚠️ Impossible d\'accéder à la caméra.', 'error'));
-} catch (e) { showAlert('⚠️ Erreur d\'initialisation du scanner', 'error'); }
+    if (html5QrCode) { html5QrCode.clear(); html5QrCode = null; }
+    try {
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            { fps: 10, qrbox: { width: 250, height: 250 } }, 
+            onScanSuccess, 
+            () => {}
+        ).catch(err => showAlert('⚠️ Caméra inaccessible.', 'error'));
+    } catch (e) { showAlert('⚠️ Erreur d\'initialisation du scanner', 'error'); }
 }
+
 function onScanSuccess(decodedText) {
-if (isProcessing) return;
-if (html5QrCode) html5QrCode.pause(true);
-verifyCode(decodedText);
+    if (isProcessing) return;
+    isProcessing = true;
+    if (html5QrCode) html5QrCode.pause(true);
+    verifyCode(decodedText.trim().toUpperCase());
 }
-function onScanError(error) {}
+
 function checkManualCode() {
-if (isProcessing) return;
-const code = document.getElementById('manualCode').value.trim().toUpperCase();
-if (!code) { showAlert('❌ Veuillez entrer un code', 'error'); return; }
-if (html5QrCode) html5QrCode.pause(true);
-verifyCode(code);
-document.getElementById('manualCode').value = '';
+    if (isProcessing) return;
+    const code = document.getElementById('manualCode').value.trim().toUpperCase();
+    if (!code) { showAlert('❌ Veuillez entrer un code', 'error'); return; }
+    isProcessing = true;
+    if (html5QrCode) html5QrCode.pause(true);
+    verifyCode(code);
+    document.getElementById('manualCode').value = '';
 }
-async function verifyCode(code) {
-if (isProcessing) return;
-if (!API_URL) { showResult(false, "Configuration manquante", "Configurez l'URL de l'API", ""); resumeScanning(); return; }
-isProcessing = true;
-showLoading();
-try {
-const url = `${API_URL}?code=${encodeURIComponent(code)}&t=${Date.now()}`;
-const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-if (!response.ok) throw new Error(`HTTP ${response.status}`);
-const data = await response.json();
-if (data.success) {
-if (data.autorise) stats.scans++; else stats.refus++;
-localStorage.setItem('aamb_stats', JSON.stringify(stats));
-updateStats();
-showResult(data.autorise, data.nom || 'Participant', data.message || (data.autorise ? '✅ Accès autorisé' : '❌ Accès refusé'), data.atelier || '');
-playSound(data.autorise);
-} else { showResult(false, "Erreur", data.error || "Erreur inconnue", ""); }
-} catch (error) { showResult(false, "Erreur de connexion", "Vérifiez votre connexion internet et l'URL de l'API", ""); }
-setTimeout(resumeScanning, 3500);
+
+// --- VÉRIFICATION LOCALE ULTRA-RAPIDE ---
+async function verifyCode(token) {
+    showLoading();
+    await new Promise(r => setTimeout(r, 300)); // Petit délai UX
+
+    let found = false;
+    let participant = null;
+    
+    // Recherche dans l'index (instantané)
+    for (let [key, value] of window.accessIndex.entries()) {
+        if (key.startsWith(token + '_')) {
+            found = true;
+            participant = value;
+            break; 
+        }
+    }
+
+    if (found && participant) {
+        if (participant.TimestampScan) {
+            showResult(false, participant.Nom + ' ' + participant.Prenom, '⚠️ Déjà scanné pour cette session', participant.SessionLibelle);
+            stats.refus++;
+        } else {
+            showResult(true, participant.Nom + ' ' + participant.Prenom, '✅ Accès autorisé', participant.SessionLibelle);
+            stats.scans++;
+            sendScanToServer(token, participant.SessionID); // Envoi silencieux
+        }
+    } else {
+        showResult(false, "Code inconnu", "Ce participant n'est pas inscrit ou le code est invalide.", "");
+        stats.refus++;
+    }
+
+    localStorage.setItem('aamb_stats', JSON.stringify(stats));
+    updateStats();
+    playSound(found && !participant.TimestampScan);
+    setTimeout(resumeScanning, 3000);
 }
+
+async function sendScanToServer(token, sessionId) {
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'markScanned', token: token, sessionId: sessionId, time: new Date().toISOString() })
+        });
+    } catch(e) {
+        console.log("Scan enregistré en local, synchro serveur plus tard.");
+    }
+}
+
 function resumeScanning() {
-isProcessing = false;
-if (html5QrCode && html5QrCode.getState) { try { html5QrCode.resume(); } catch(e) {} }
+    isProcessing = false;
+    document.getElementById('result').innerHTML = '';
+    if (html5QrCode && html5QrCode.getState) { 
+        try { html5QrCode.resume(); } catch(e) {} 
+    }
 }
-function showLoading() { document.getElementById('result').innerHTML = '<div class="loading"><div class="spinner"></div><div>⏳ Vérification en cours...</div></div>'; }
+
+// --- AFFICHAGE ---
+function showLoading() { 
+    document.getElementById('result').innerHTML = '<div class="loading"><div class="spinner"></div><div>Vérification en cours...</div></div>'; 
+}
+
 function showResult(autorise, nom, message, atelier) {
-const cssClass = autorise ? 'success' : 'error';
-const icon = autorise ? '✅' : '❌';
-const now = new Date();
-const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-const dateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-document.getElementById('result').innerHTML = `<div class="result-card ${cssClass}"><div class="icon">${icon}</div><div class="name">${escapeHtml(nom)}</div><div class="message">${escapeHtml(message)}</div>${atelier ? `<div class="atelier">${escapeHtml(atelier)}</div>` : ''}<div class="time">${dateStr} à ${timeStr}</div></div>`;
+    const cssClass = autorise ? 'success' : 'error';
+    const icon = autorise ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-xmark"></i>';
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    
+    document.getElementById('result').innerHTML = `
+        <div class="result-card ${cssClass}">
+            <div class="icon">${icon}</div>
+            <div class="name">${escapeHtml(nom)}</div>
+            <div class="message">${escapeHtml(message)}</div>
+            ${atelier ? `<div class="atelier"><i class="fa-solid fa-tag" style="margin-right:6px;opacity:0.7;"></i>${escapeHtml(atelier)}</div>` : ''}
+            <div class="time">${dateStr} à ${timeStr}</div>
+        </div>`;
 }
-function updateStats() { document.getElementById('statScans').textContent = stats.scans; document.getElementById('statRefus').textContent = stats.refus; }
-function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+function updateStats() { 
+    document.getElementById('statScans').textContent = stats.scans; 
+    document.getElementById('statRefus').textContent = stats.refus; 
+}
+
+function escapeHtml(text) { 
+    if (!text) return ''; 
+    const div = document.createElement('div'); 
+    div.textContent = text; 
+    return div.innerHTML; 
+}
+
+// --- SON ---
 function playSound(success) {
-try {
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const oscillator = audioContext.createOscillator();
-const gainNode = audioContext.createGain();
-oscillator.connect(gainNode); gainNode.connect(audioContext.destination);
-if (success) {
-oscillator.frequency.value = 880; gainNode.gain.setValueAtTime(0.3, audioContext.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.15);
-setTimeout(() => { const osc2 = audioContext.createOscillator(); const gain2 = audioContext.createGain(); osc2.connect(gain2); gain2.connect(audioContext.destination); osc2.frequency.value = 1100; gain2.gain.setValueAtTime(0.3, audioContext.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1); osc2.start(audioContext.currentTime); osc2.stop(audioContext.currentTime + 0.1); }, 150);
-} else { oscillator.frequency.value = 200; gainNode.gain.setValueAtTime(0.3, audioContext.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4); oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.4); }
-} catch (e) {}
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode); gainNode.connect(audioContext.destination);
+        
+        if (success) {
+            oscillator.frequency.value = 880; 
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime); 
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.15);
+            
+            setTimeout(() => { 
+                const osc2 = audioContext.createOscillator(); const gain2 = audioContext.createGain(); 
+                osc2.connect(gain2); gain2.connect(audioContext.destination); 
+                osc2.frequency.value = 1100; gain2.gain.setValueAtTime(0.3, audioContext.currentTime); 
+                gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1); 
+                osc2.start(audioContext.currentTime); osc2.stop(audioContext.currentTime + 0.1); 
+            }, 150);
+        } else {
+            oscillator.frequency.value = 200; 
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime); 
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4); 
+            oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.4); 
+        }
+    } catch (e) {}
 }
-document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
+
+function retourAccueil() { window.location.href = '../app.html'; }
 </script>
 </body>
 </html>
