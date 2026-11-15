@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AAMB v0.10</title>
+    <title>AAMB</title>
     <link rel="manifest" href="manifest.json">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -265,6 +265,7 @@
             justify-content: center;
             align-items: center;
             padding: 25px;
+            overflow-y: auto;
         }
         #authPage::before {
             content: '';
@@ -406,6 +407,82 @@
             border: 1px solid rgba(255, 0, 127, 0.4);
         }
         .auth-btn-no:hover { background: rgba(255, 0, 127, 0.25); }
+
+        /* ==== SCAN QR DU BADGE (AUTH) ==== */
+        .auth-sep {
+            display: flex; align-items: center; gap: 12px;
+            margin: 14px 0;
+            color: #475569;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px; font-weight: 700; letter-spacing: 3px;
+        }
+        .auth-sep::before, .auth-sep::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.35), transparent);
+        }
+        #scanBadgeBtn {
+            width: 100%;
+            padding: 13px;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.45);
+            border-radius: 10px;
+            color: #00f2fe;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.25s;
+            box-shadow: inset 0 0 12px rgba(0, 242, 254, 0.06);
+        }
+        #scanBadgeBtn:hover {
+            background: rgba(0, 242, 254, 0.18);
+            box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
+            color: #ffffff;
+        }
+        #scanBadgeBtn i { font-size: 17px; filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.8)); }
+
+        #authScanZone { display: none; }
+        .scan-frame {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 242, 254, 0.5);
+            background: #000;
+            min-height: 240px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2), inset 0 0 24px rgba(0, 242, 254, 0.08);
+        }
+        #badgeReader { width: 100%; }
+        #badgeReader video { width: 100% !important; height: auto !important; border-radius: 10px; }
+        .scanline {
+            position: absolute; left: 6%; right: 6%; height: 2px; top: 12%;
+            pointer-events: none; z-index: 5;
+            background: linear-gradient(90deg, transparent, #00f2fe, transparent);
+            box-shadow: 0 0 12px #00f2fe;
+            opacity: 0.75;
+            animation: badgeScanMove 2.4s ease-in-out infinite;
+        }
+        @keyframes badgeScanMove { 0%, 100% { top: 12%; } 50% { top: 86%; } }
+        .scan-hint {
+            margin: 10px 0 12px;
+            color: #94a3b8; font-size: 12px;
+            font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px;
+        }
+        .scan-cancel {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 0, 127, 0.12);
+            border: 1px solid rgba(255, 0, 127, 0.4);
+            border-radius: 10px;
+            color: #ff8ec7;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s;
+        }
+        .scan-cancel:hover { background: rgba(255, 0, 127, 0.25); color: #ffffff; }
     </style>
 </head>
 <body>
@@ -414,13 +491,34 @@
     <div id="authPage">
         <div class="auth-card">
             <div class="auth-logo"><img src="logo-aamb.png" alt="AAMB"></div>
-            <h1>AAMB <span class="cyan">v42.0</span></h1>
+            <h1>AAMB <span class="cyan"></span></h1>
             <div class="auth-sub">44èmes JTB · Besançon 2026</div>
-            <p class="auth-prompt">🔐 Saisissez votre code d'accès</p>
-            <input id="authInput" type="text" maxlength="10" placeholder="Ex : X7K2M9PQ"
-                oninput="this.value=this.value.toUpperCase();resetAuthResult();"
-                onkeydown="if(event.key==='Enter')verifierID();">
-            <button onclick="verifierID()" id="authBtn">Valider →</button>
+            <p class="auth-prompt" id="authPrompt">🔐 Saisissez votre code d'accès</p>
+
+            <!-- ZONE SAISIE MANUELLE -->
+            <div id="authManualZone">
+                <input id="authInput" type="text" maxlength="10" placeholder="Ex : X7K2M9PQ"
+                    oninput="this.value=this.value.toUpperCase();resetAuthResult();"
+                    onkeydown="if(event.key==='Enter')verifierID();">
+                <button onclick="verifierID()" id="authBtn">Valider →</button>
+                <div class="auth-sep">OU</div>
+                <button id="scanBadgeBtn" onclick="ouvrirScannerBadge()">
+                    <i class="fa-solid fa-qrcode"></i> Scanner mon badge
+                </button>
+            </div>
+
+            <!-- ZONE SCAN CAMÉRA -->
+            <div id="authScanZone">
+                <div class="scan-frame">
+                    <div id="badgeReader"></div>
+                    <div class="scanline"></div>
+                </div>
+                <p class="scan-hint">📷 Placez le QR code de votre badge dans le cadre</p>
+                <button class="scan-cancel" onclick="fermerScannerBadge()">
+                    <i class="fa-solid fa-xmark"></i> Annuler — saisie manuelle
+                </button>
+            </div>
+
             <div id="authResult"><div id="authResultContent"></div></div>
             <p class="auth-hint">Votre code figure sur votre convocation</p>
         </div>
@@ -560,9 +658,78 @@
 
     </div>
 
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="js/commun.js"></script>
     <script>
         function resetAuthResult() { document.getElementById('authResult').style.display = 'none'; }
+
+        // ============================================
+        // === SCAN QR DU BADGE (authentification) ===
+        // ============================================
+        let badgeScanner = null;
+        let badgeScanLock = false;
+
+        // Extrait le code depuis le QR : accepte un code brut (X7K2M9PQ)
+        // ou une URL contenant ?token=... / ?id=...
+        function extractBadgeToken(text) {
+            const t = String(text || '').trim();
+            const m = t.match(/[?&](?:token|id)=([^&#]+)/i);
+            return (m ? decodeURIComponent(m[1]) : t).trim().toUpperCase();
+        }
+
+        async function ouvrirScannerBadge() {
+            if (typeof Html5Qrcode === 'undefined') {
+                alert('Le module de scan n\'est pas chargé. Vérifiez votre connexion puis rechargez la page.');
+                return;
+            }
+            resetAuthResult();
+            document.getElementById('authPrompt').textContent = '📷 Scannez votre badge';
+            document.getElementById('authManualZone').style.display = 'none';
+            document.getElementById('authScanZone').style.display = 'block';
+            try {
+                badgeScanner = new Html5Qrcode('badgeReader');
+                await badgeScanner.start(
+                    { facingMode: 'environment' },
+                    {
+                        fps: 10,
+                        qrbox: function (w, h) {
+                            const s = Math.floor(Math.min(w, h) * 0.8);
+                            return { width: s, height: s };
+                        }
+                    },
+                    function (decodedText) {
+                        if (badgeScanLock) return;
+                        badgeScanLock = true;
+                        const code = extractBadgeToken(decodedText);
+                        try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) {}
+                        fermerScannerBadge().then(function () {
+                            document.getElementById('authInput').value = code;
+                            verifierID();
+                        });
+                    },
+                    function () {} // erreurs de lecture continues : ignorées
+                );
+            } catch (err) {
+                await fermerScannerBadge();
+                const resultDiv = document.getElementById('authResult');
+                resultDiv.style.display = 'block';
+                document.getElementById('authResultContent').innerHTML =
+                    '<div class="auth-confirm-box warn"><p class="auth-confirm-title">⚠️ Caméra inaccessible</p>' +
+                    '<p class="auth-info-line muted">Autorisez l\'accès à la caméra dans votre navigateur, ou saisissez votre code manuellement.</p></div>';
+            }
+        }
+
+        async function fermerScannerBadge() {
+            badgeScanLock = false;
+            if (badgeScanner) {
+                try { await badgeScanner.stop(); } catch (e) {}
+                try { badgeScanner.clear(); } catch (e) {}
+                badgeScanner = null;
+            }
+            document.getElementById('authScanZone').style.display = 'none';
+            document.getElementById('authManualZone').style.display = 'block';
+            document.getElementById('authPrompt').textContent = '🔐 Saisissez votre code d\'accès';
+        }
 
         async function verifierID() {
             const id = document.getElementById('authInput').value.trim().toUpperCase();
