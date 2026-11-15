@@ -138,7 +138,7 @@
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3), 0 0 14px rgba(var(--acc-rgb), 0.07);
         }
         #groupJTB      { --acc: #facc15; --acc-rgb: 250, 204, 21; }  /* Jaune */
-        #groupAG       { --acc: #34d399; --acc-rgb: 52, 211, 153; }  /* Vert */
+        #groupAG       { --acc: #34d399; --acc-rgb: 52, 211, 153; }  /*  */
         #groupCom      { --acc: #4facfe; --acc-rgb: 79, 172, 254; }  /* Bleu */
         #groupSurPlace { --acc: #a855f7; --acc-rgb: 168, 85, 247; }  /* Violet */
         #groupInfos    { --acc: #fb923c; --acc-rgb: 251, 146, 60; }  /* Orange */
@@ -546,21 +546,14 @@
             </div>
         </div>
 
-        <!-- ===== VERT : ASSEMBLÉE GÉNÉRALE ===== -->
+        <!-- ===== VERT : CHAT, MESSAGERIE, AG ET CONFÉRENCES ===== -->
         <div class="btn-group" id="groupAG">
-            <div class="btn-group-title"><i class="fa-solid fa-fingerprint"></i> Assemblée Générale</div>
+            <div class="btn-group-title"><i class="fa-solid fa-comments"></i> Chat, Messagerie, AG et Conférences</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/vote-ag.html">
                     <span class="btn-tile-icon"><i class="fa-solid fa-check-to-slot"></i></span>
                     <span class="btn-tile-label">Vote & Chat AG</span>
                 </a>
-            </div>
-        </div>
-
-        <!-- ===== BLEU : COMMUNICATION ===== -->
-        <div class="btn-group" id="groupCom">
-            <div class="btn-group-title"><i class="fa-solid fa-satellite-dish"></i> Communication</div>
-            <div class="btn-grid">
                 <a class="btn-tile" href="pages/messagerie.html">
                     <span class="btn-tile-icon"><i class="fa-solid fa-headset"></i></span>
                     <span class="btn-tile-label" id="btnMessagerieLabel">Contacter l'AAMB</span>
@@ -569,6 +562,13 @@
                     <span class="btn-tile-icon"><i class="fa-solid fa-comments"></i></span>
                     <span class="btn-tile-label">Chat Conférences</span>
                 </a>
+            </div>
+        </div>
+
+        <!-- ===== BLEU : COMMUNICATION ===== -->
+        <div class="btn-group" id="groupCom">
+            <div class="btn-group-title"><i class="fa-solid fa-satellite-dish"></i> Communication</div>
+            <div class="btn-grid">
                 <button class="btn-tile" onclick="openWebsite('aamb')">
                     <span class="btn-tile-icon"><i class="fa-solid fa-house-laptop"></i></span>
                     <span class="btn-tile-label">Site Internet de l'AAMB</span>
@@ -591,6 +591,7 @@
                 </a>
             </div>
         </div>
+        
 
         <!-- ===== VIOLET : SUR PLACE ===== -->
         <div class="btn-group" id="groupSurPlace">
