@@ -125,33 +125,42 @@
             width: 100%;
         }
 
+        /* ==== CADRES : 1 COULEUR PAR GROUPE ==== */
         .btn-group {
+            --acc: #00f2fe; --acc-rgb: 0, 242, 254; /* valeur par défaut */
             background: rgba(13, 22, 41, 0.65);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 242, 254, 0.18);
+            border: 1px solid rgba(var(--acc-rgb), 0.22);
             border-radius: 14px;
             padding: 14px;
             margin-bottom: 14px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3), 0 0 14px rgba(var(--acc-rgb), 0.07);
         }
+        #groupJTB      { --acc: #facc15; --acc-rgb: 250, 204, 21; }  /* Jaune */
+        #groupAG       { --acc: #34d399; --acc-rgb: 52, 211, 153; }  /* Vert */
+        #groupCom      { --acc: #4facfe; --acc-rgb: 79, 172, 254; }  /* Bleu */
+        #groupSurPlace { --acc: #a855f7; --acc-rgb: 168, 85, 247; }  /* Violet */
+        #groupInfos    { --acc: #fb923c; --acc-rgb: 251, 146, 60; }  /* Orange */
+        #groupAdmin    { --acc: #ff007f; --acc-rgb: 255, 0, 127; }   /* Rose/rouge (inchangé) */
+
         .btn-group-title {
             font-family: 'Rajdhani', sans-serif;
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: #00f2fe;
+            color: var(--acc);
             margin-bottom: 12px;
             padding-bottom: 8px;
-            border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+            border-bottom: 1px solid rgba(var(--acc-rgb), 0.25);
             display: flex; align-items: center; gap: 8px;
         }
         .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
         .btn-tile {
-            background: linear-gradient(145deg, rgba(0, 242, 254, 0.12), rgba(0, 242, 254, 0.03));
-            border: 1px solid rgba(0, 242, 254, 0.4);
+            background: linear-gradient(145deg, rgba(var(--acc-rgb), 0.12), rgba(var(--acc-rgb), 0.03));
+            border: 1px solid rgba(var(--acc-rgb), 0.4);
             border-radius: 10px;
             padding: 16px 8px 12px;
             cursor: pointer;
@@ -166,28 +175,28 @@
             text-decoration: none;
             font-family: inherit;
             color: inherit;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 242, 254, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(var(--acc-rgb), 0.05);
         }
         .btn-tile:hover {
-            background: linear-gradient(145deg, rgba(0, 242, 254, 0.25), rgba(0, 242, 254, 0.10));
-            border-color: #00f2fe;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
+            background: linear-gradient(145deg, rgba(var(--acc-rgb), 0.25), rgba(var(--acc-rgb), 0.10));
+            border-color: var(--acc);
+            box-shadow: 0 0 20px rgba(var(--acc-rgb), 0.35);
             transform: translateY(-2px);
         }
         .btn-tile:active { transform: scale(0.95); }
         
-        /* Icônes agrandies avec effet néon cyberpunk */
+        /* Icônes néon : couleur héritée du cadre */
         .btn-tile-icon {
             font-size: 42px;
             line-height: 1;
-            color: #00f2fe;
-            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.8)) drop-shadow(0 0 18px rgba(0, 242, 254, 0.4));
+            color: var(--acc);
+            filter: drop-shadow(0 0 8px rgba(var(--acc-rgb), 0.8)) drop-shadow(0 0 18px rgba(var(--acc-rgb), 0.4));
             transition: transform 0.25s ease, filter 0.25s ease;
         }
 
         .btn-tile:hover .btn-tile-icon {
             transform: scale(1.12);
-            filter: drop-shadow(0 0 12px #00f2fe) drop-shadow(0 0 25px rgba(0, 242, 254, 0.9));
+            filter: drop-shadow(0 0 12px var(--acc)) drop-shadow(0 0 25px rgba(var(--acc-rgb), 0.9));
         }
 
         .btn-tile-label {
@@ -202,26 +211,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* Tuiles roses pour le groupe Scans & Contrôle (organisateurs) */
-        #groupAdmin .btn-tile {
-            background: linear-gradient(145deg, rgba(255, 0, 127, 0.15), rgba(255, 0, 127, 0.05));
-            border-color: rgba(255, 0, 127, 0.4);
-        }
-        #groupAdmin .btn-tile:hover {
-            background: linear-gradient(145deg, rgba(255, 0, 127, 0.28), rgba(255, 0, 127, 0.10));
-            border-color: #ff007f;
-            box-shadow: 0 0 20px rgba(255, 0, 127, 0.35);
-        }
-        #groupAdmin .btn-tile-icon {
-            color: #ff007f;
-            filter: drop-shadow(0 0 8px rgba(255, 0, 127, 0.8)) drop-shadow(0 0 18px rgba(255, 0, 127, 0.4));
-        }
-        #groupAdmin .btn-tile:hover .btn-tile-icon {
-            filter: drop-shadow(0 0 12px #ff007f) drop-shadow(0 0 25px rgba(255, 0, 127, 0.9));
-        }
-        #groupAdmin .btn-group-title { color: #ff8ec7; border-bottom-color: rgba(255, 0, 127, 0.3); }
-
-        /* ==== MENU DÉROULANT JTB ==== */
+        /* ==== MENU DÉROULANT JTB (hérite du bleu de Communication) ==== */
         .jtb-wrap { position: relative; }
         .jtb-menu {
             display: none;
@@ -231,9 +221,9 @@
             background: rgba(13, 22, 41, 0.95);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(0, 242, 254, 0.4);
+            border: 1px solid rgba(var(--acc-rgb), 0.4);
             border-radius: 10px;
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+            box-shadow: 0 0 25px rgba(var(--acc-rgb), 0.2);
             z-index: 200;
             overflow: hidden;
             min-width: 180px;
@@ -244,13 +234,13 @@
             font-size: 13px;
             color: #e2e8f0;
             cursor: pointer;
-            border-bottom: 1px solid rgba(0, 242, 254, 0.1);
+            border-bottom: 1px solid rgba(var(--acc-rgb), 0.1);
             font-family: 'Rajdhani', sans-serif;
             letter-spacing: 0.5px;
             transition: all 0.2s;
         }
         .jtb-item:last-child { border-bottom: none; }
-        .jtb-item:hover { background: rgba(0, 242, 254, 0.12); color: #00f2fe; }
+        .jtb-item:hover { background: rgba(var(--acc-rgb), 0.12); color: var(--acc); }
 
         /* ==== PAGE AUTH ==== */
         #authPage {
@@ -537,7 +527,8 @@
 
     <div class="container">
 
-        <div class="btn-group">
+        <!-- ===== JAUNE : JTB BESANÇON ===== -->
+        <div class="btn-group" id="groupJTB">
             <div class="btn-group-title"><i class="fa-solid fa-microchip"></i> JTB Besançon</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/programme.html">
@@ -555,7 +546,8 @@
             </div>
         </div>
 
-        <div class="btn-group">
+        <!-- ===== VERT : ASSEMBLÉE GÉNÉRALE ===== -->
+        <div class="btn-group" id="groupAG">
             <div class="btn-group-title"><i class="fa-solid fa-fingerprint"></i> Assemblée Générale</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/vote-ag.html">
@@ -565,7 +557,8 @@
             </div>
         </div>
 
-        <div class="btn-group">
+        <!-- ===== BLEU : COMMUNICATION ===== -->
+        <div class="btn-group" id="groupCom">
             <div class="btn-group-title"><i class="fa-solid fa-satellite-dish"></i> Communication</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/messagerie.html">
@@ -576,10 +569,31 @@
                     <span class="btn-tile-icon"><i class="fa-solid fa-comments"></i></span>
                     <span class="btn-tile-label">Chat Conférences</span>
                 </a>
+                <button class="btn-tile" onclick="openWebsite('aamb')">
+                    <span class="btn-tile-icon"><i class="fa-solid fa-house-laptop"></i></span>
+                    <span class="btn-tile-label">Site Internet de l'AAMB</span>
+                </button>
+                <div class="jtb-wrap">
+                    <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
+                        <span class="btn-tile-icon"><i class="fa-solid fa-globe"></i></span>
+                        <span class="btn-tile-label">Site des JTB ▲</span>
+                    </button>
+                    <div class="jtb-menu" id="jtbMenu">
+                        <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
+                        <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025 – Metz</div>
+                        <div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024</div>
+                        <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023</div>
+                    </div>
+                </div>
+                <a class="btn-tile" href="pages/scan-qr.html" id="tileScanPresence">
+                    <span class="btn-tile-icon"><i class="fa-solid fa-qrcode"></i></span>
+                    <span class="btn-tile-label">Scan QR Présence</span>
+                </a>
             </div>
         </div>
 
-        <div class="btn-group">
+        <!-- ===== VIOLET : SUR PLACE ===== -->
+        <div class="btn-group" id="groupSurPlace">
             <div class="btn-group-title"><i class="fa-solid fa-crosshairs"></i> Sur place</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/navigation.html">
@@ -601,7 +615,8 @@
             </div>
         </div>
 
-        <div class="btn-group">
+        <!-- ===== ORANGE : INFORMATIONS ===== -->
+        <div class="btn-group" id="groupInfos">
             <div class="btn-group-title"><i class="fa-solid fa-shield-halved"></i> Informations</div>
             <div class="btn-grid">
                 <a class="btn-tile" href="pages/reglementation.html">
@@ -615,40 +630,10 @@
             </div>
         </div>
 
-        <div class="btn-group">
-            <div class="btn-group-title"><i class="fa-solid fa-network-wired"></i> Sites Internet</div>
-            <div class="btn-grid">
-                <button class="btn-tile" onclick="openWebsite('aamb')">
-                    <span class="btn-tile-icon"><i class="fa-solid fa-house-laptop"></i></span>
-                    <span class="btn-tile-label">Site Internet de l'AAMB</span>
-                </button>
-                <div class="jtb-wrap">
-                    <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
-                        <span class="btn-tile-icon"><i class="fa-solid fa-globe"></i></span>
-                        <span class="btn-tile-label">Site des JTB ▲</span>
-                    </button>
-                    <div class="jtb-menu" id="jtbMenu">
-                        <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
-                        <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025 – Metz</div>
-                        <div class="jtb-item" onclick="openJTB('https://jtb2024.aamb.asso.fr')">JTB 2024</div>
-                        <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- GROUPE ORGANISATEURS : visible uniquement si statut Organisateur -->
+        <!-- ===== ROSE/ROUGE : ORGANISATEUR (visible uniquement si statut Organisateur) ===== -->
         <div class="btn-group" id="groupAdmin" style="display:none;">
-            <div class="btn-group-title"><i class="fa-solid fa-user-shield"></i> Scans & Contrôle (Organisateurs)</div>
+            <div class="btn-group-title"><i class="fa-solid fa-user-shield"></i> Organisateur</div>
             <div class="btn-grid">
-                <a class="btn-tile" href="pages/scan-qr.html">
-                    <span class="btn-tile-icon"><i class="fa-solid fa-qrcode"></i></span>
-                    <span class="btn-tile-label">Scan QR Présence</span>
-                </a>
-                <a class="btn-tile" href="pages/scan_ateliers.html">
-                    <span class="btn-tile-icon"><i class="fa-solid fa-bullseye"></i></span>
-                    <span class="btn-tile-label">Scan Ateliers</span>
-                </a>
                 <a class="btn-tile" href="pages/controle-acces.html">
                     <span class="btn-tile-icon"><i class="fa-solid fa-id-card-clip"></i></span>
                     <span class="btn-tile-label">Contrôle d'accès</span>
@@ -784,6 +769,8 @@
             const isOrga = adherent.statut === 'Organisateur';
             document.getElementById('btnMessagerieLabel').textContent = isOrga ? 'Messages des participants' : 'Contacter l\'AAMB';
             document.getElementById('groupAdmin').style.display = isOrga ? 'block' : 'none';
+            // OPTION : réserver "Scan QR Présence" aux organisateurs (décommenter la ligne ci-dessous)
+            // document.getElementById('tileScanPresence').style.display = isOrga ? 'flex' : 'none';
         }
 
         const adherentSauvegarde = chargerAdherent();
