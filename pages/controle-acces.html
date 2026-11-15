@@ -13,421 +13,816 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #050811; --surface: rgba(13,22,41,.78); --line: rgba(56,189,248,.18);
+  --cyan: #00f2fe; --blue: #4facfe; --magenta: #ff007f; --red: #ff2d55;
+  --green: #10b981; --amber: #fbbf24; --text: #e2e8f0; --muted: #94a3b8;
+}
+html { scrollbar-width: thin; scrollbar-color: #1e293b #070b14; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #070b14; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
 body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    min-height: 100vh;
-    background-color: #050811;
-    background-image:
-        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
-        linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
-    background-attachment: fixed;
-    color: #e2e8f0;
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh; color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(0,242,254,.09) 0%, transparent 42%),
+    radial-gradient(circle at 85% 65%, rgba(255,0,127,.07) 0%, transparent 42%),
+    linear-gradient(to bottom, rgba(5,8,17,.95), rgba(5,8,17,.98));
+  background-attachment: fixed;
 }
 body::before {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-size: 40px 40px;
-    background-image:
-        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(56,189,248,.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56,189,248,.04) 1px, transparent 1px);
 }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+button { font-family: inherit; touch-action: manipulation; }
 
+/* ===== HEADER ===== */
 .page-header {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(13, 22, 41, 0.9);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
-    padding: 12px 16px;
-    display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 60;
+  background: rgba(13,22,41,.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0,242,254,.25);
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.45);
 }
-.back-btn {
-    background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3);
-    color: #00f2fe; width: 36px; height: 36px; border-radius: 8px;
-    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+.back-btn, .icon-btn {
+  background: rgba(0,242,254,.1); border: 1px solid rgba(0,242,254,.3);
+  color: var(--cyan); width: 36px; height: 36px; border-radius: 8px;
+  font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .2s; flex-shrink: 0;
 }
-.back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; }
-.page-header h2 { font-family: 'Orbitron', sans-serif; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; flex: 1; }
-.page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+.back-btn:hover, .icon-btn:hover { background: rgba(0,242,254,.25); color: #fff; box-shadow: 0 0 12px rgba(0,242,254,.4); }
+.icon-btn.off { color: var(--muted); border-color: rgba(148,163,184,.3); background: rgba(148,163,184,.08); }
+.page-header h2 { font-family: 'Orbitron', sans-serif; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.page-header h2 .cyan { color: var(--cyan); text-shadow: 0 0 10px rgba(0,242,254,.6); }
 .sync-badge {
-    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b;
-    background: rgba(5, 8, 17, 0.6); padding: 4px 8px; border-radius: 6px;
-    border: 1px solid rgba(100, 116, 139, 0.3); display: flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted);
+  background: rgba(5,8,17,.6); padding: 5px 8px; border-radius: 6px;
+  border: 1px solid rgba(100,116,139,.3); display: flex; align-items: center; gap: 6px; flex-shrink: 0;
 }
-.sync-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; }
-.sync-badge .dot.syncing { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: pulse 1s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.sync-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+.sync-badge .dot.syncing { background: var(--amber); box-shadow: 0 0 6px var(--amber); animation: pulse 1s infinite; }
+.sync-badge .dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 
-.page-content { position: relative; z-index: 1; padding: 14px; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.page-content { position: relative; z-index: 1; padding: 14px; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 
-/* ==== BANDEAU SESSION ACTIVE ==== */
-.slot-banner {
-    border-radius: 14px; padding: 3px;
-    background: linear-gradient(135deg, rgba(0, 242, 254, 0.5), rgba(255, 0, 127, 0.4));
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+/* ===== SÉLECTEUR DE SESSION ===== */
+.session-bar {
+  display: grid; grid-template-columns: 46px 1fr 46px; gap: 8px; align-items: stretch;
+  border-radius: 14px; padding: 3px;
+  background: linear-gradient(135deg, rgba(0,242,254,.5), rgba(79,172,254,.35));
+  box-shadow: 0 0 22px rgba(0,242,254,.14);
+  transition: background .3s;
 }
-.slot-inner {
-    background: rgba(13, 22, 41, 0.9); border-radius: 11px; padding: 14px 16px;
+.session-bar.off-live {
+  background: linear-gradient(135deg, rgba(255,45,85,.75), rgba(255,0,127,.5));
+  animation: alertGlow .9s ease-in-out infinite;
 }
-.slot-time {
-    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00f2fe;
-    letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+@keyframes alertGlow {
+  0%,100% { box-shadow: 0 0 14px rgba(255,45,85,.35); }
+  50% { box-shadow: 0 0 34px rgba(255,45,85,.8); }
 }
-.slot-time .clock { font-size: 18px; font-weight: 700; color: #fff; }
-.slot-sessions { display: flex; flex-wrap: wrap; gap: 6px; }
-.slot-tag {
-    font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700;
-    letter-spacing: 1px; text-transform: uppercase;
-    padding: 5px 10px; border-radius: 6px;
+.session-inner {
+  background: rgba(9,15,30,.94); border-radius: 11px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
 }
-.slot-tag.conf { background: rgba(0, 242, 254, 0.12); border: 1px solid rgba(0, 242, 254, 0.4); color: #67e8f9; }
-.slot-tag.atel { background: rgba(255, 0, 127, 0.12); border: 1px solid rgba(255, 0, 127, 0.4); color: #ff8ec7; }
-.slot-empty { font-size: 13px; color: #94a3b8; }
-.slot-next { font-size: 12px; color: #64748b; margin-top: 8px; font-style: italic; }
+.session-top { display: flex; align-items: center; gap: 10px; }
+.session-id { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #fff; text-shadow: 0 0 14px rgba(0,242,254,.5); }
+.session-bar.off-live .session-id { color: #ffd7de; text-shadow: 0 0 14px rgba(255,45,85,.8); }
+.session-chip {
+  font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 4px 9px; border-radius: 20px; cursor: pointer; border: 1px solid; text-transform: uppercase;
+  background: transparent; transition: all .2s;
+}
+.session-chip.live { color: #6ee7b7; border-color: rgba(16,185,129,.55); background: rgba(16,185,129,.12); animation: pulse 2s infinite; }
+.session-chip.next { color: #fde68a; border-color: rgba(251,191,36,.55); background: rgba(251,191,36,.1); }
+.session-chip.off { color: #ffb3c1; border-color: var(--red); background: rgba(255,45,85,.18); animation: pulse .8s infinite; }
+.session-time { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--cyan); letter-spacing: .5px; }
+.session-bar.off-live .session-time { color: #ff8fa3; }
+.session-libelle { font-size: 12px; color: var(--muted); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.nav-arrow {
+  border: none; border-radius: 11px; cursor: pointer;
+  background: rgba(9,15,30,.94); color: var(--cyan); font-size: 18px;
+  display: flex; align-items: center; justify-content: center; transition: all .2s;
+}
+.nav-arrow:hover:not(:disabled) { background: rgba(0,242,254,.18); color: #fff; }
+.nav-arrow:disabled { color: #334155; cursor: not-allowed; }
+.session-bar.off-live .nav-arrow { color: #ff8fa3; }
 
-/* ==== PANNEAUX ==== */
-.panel {
-    background: rgba(13, 22, 41, 0.75); backdrop-filter: blur(10px);
-    border: 1px solid rgba(56, 189, 248, 0.18); border-radius: 14px; padding: 16px;
+.off-live-banner {
+  display: none; align-items: center; gap: 10px;
+  padding: 11px 14px; border-radius: 10px;
+  border: 1px solid var(--red); color: #ffd7de;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+  background: repeating-linear-gradient(45deg, rgba(255,45,85,.22) 0 12px, rgba(255,45,85,.06) 12px 24px);
+  animation: bannerBlink 1s steps(2) infinite;
 }
-.panel-header h3 {
-    font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
-    letter-spacing: 1.5px; text-transform: uppercase; color: #f1f5f9;
-    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+.off-live-banner.show { display: flex; }
+.off-live-banner i { font-size: 18px; color: var(--red); }
+@keyframes bannerBlink { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ===== STATISTIQUES ===== */
+.stats-panel {
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1.15fr; gap: 8px;
 }
-.panel-header h3 i { color: #00f2fe; }
-#reader {
-    border: 2px solid rgba(0, 242, 254, 0.4); border-radius: 12px; overflow: hidden;
-    background: #000; margin-bottom: 12px; min-height: 250px;
-    box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.1);
+.stat {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 6px 9px; text-align: center; backdrop-filter: blur(8px);
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
 }
+.stat .label { font-family: 'Rajdhani', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.stat .value { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.1; }
+.stat.expected .value { color: var(--cyan); text-shadow: 0 0 10px rgba(0,242,254,.4); }
+.stat.scanned .value { color: var(--green); text-shadow: 0 0 10px rgba(16,185,129,.4); }
+.stat.remaining .value { color: var(--amber); text-shadow: 0 0 10px rgba(251,191,36,.4); }
+.stat.mine { border-color: rgba(255,0,127,.4); background: linear-gradient(160deg, rgba(255,0,127,.1), rgba(13,22,41,.8)); }
+.stat.mine .value { color: #ff8ec7; text-shadow: 0 0 10px rgba(255,0,127,.5); }
+.stat.mine .sub { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #b06a8c; letter-spacing: .5px; }
+.progress-wrap { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: rgba(30,41,59,.8); overflow: hidden; border: 1px solid rgba(56,189,248,.12); }
+.progress-fill { height: 100%; width: 0%; border-radius: 3px; background: linear-gradient(90deg, var(--cyan), var(--green)); box-shadow: 0 0 10px rgba(16,185,129,.5); transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+/* ===== PANNEAUX ===== */
+.panel { background: var(--surface); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.3); }
+.panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.panel-header h3 { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
+.panel-header h3 i { color: var(--cyan); }
+
+/* Flash */
+.torch-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 13px; border-radius: 9px; cursor: pointer;
+  background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.35);
+  color: #fde68a; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+  transition: all .2s;
+}
+.torch-btn.on { background: rgba(251,191,36,.28); border-color: var(--amber); color: #fff; box-shadow: 0 0 16px rgba(251,191,36,.55); }
+.torch-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* Scanner */
+.reader-wrap { position: relative; }
+#reader { border: 2px solid rgba(0,242,254,.4); border-radius: 12px; overflow: hidden; background: #000; min-height: 240px; box-shadow: inset 0 0 24px rgba(0,242,254,.1); }
 #reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
-.manual-section { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 14px; }
-.manual-section h4 { font-family: 'Rajdhani', sans-serif; font-size: 12px; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.scanline { position: absolute; left: 6%; right: 6%; height: 2px; top: 10%; pointer-events: none; z-index: 5;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  box-shadow: 0 0 12px var(--cyan); opacity: .7; animation: scanMove 2.6s ease-in-out infinite; }
+@keyframes scanMove { 0%,100% { top: 12%; } 50% { top: 86%; } }
+.manual-section { border-top: 1px solid rgba(255,255,255,.1); padding-top: 12px; margin-top: 12px; }
+.manual-section h4 { font-family: 'Rajdhani', sans-serif; font-size: 11px; color: var(--muted); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 8px; }
 .input-group { display: flex; gap: 8px; }
 input[type="text"] {
-    flex: 1; padding: 10px 14px; background: rgba(5, 8, 17, 0.6);
-    border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 8px; color: #00f2fe;
-    font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+  flex: 1; min-width: 0; padding: 11px 14px; background: rgba(5,8,17,.6);
+  border: 1px solid rgba(0,242,254,.3); border-radius: 8px; color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 1.5px; text-transform: uppercase;
 }
-input[type="text"]:focus { outline: none; border-color: #00f2fe; box-shadow: 0 0 12px rgba(0, 242, 254, 0.2); }
-.btn-sm {
-    padding: 10px 16px; border: none; border-radius: 8px;
-    font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
-    letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+input[type="text"]:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,242,254,.25); }
+input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-transform: none; }
+.btn-primary {
+  padding: 11px 18px; border: none; border-radius: 8px; cursor: pointer;
+  background: linear-gradient(135deg, var(--cyan), var(--blue)); color: #0a0f1f;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(0,242,254,.25); transition: all .2s; white-space: nowrap;
 }
-.btn-primary { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #0a0f1f; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
-.btn-primary:hover { box-shadow: 0 0 18px rgba(0, 242, 254, 0.5); transform: translateY(-1px); }
+.btn-primary:hover { box-shadow: 0 0 18px rgba(0,242,254,.5); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
-/* ==== RÉSULTAT ==== */
-.result-card {
-    padding: 24px; border-radius: 14px; text-align: center;
-    animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-.result-card.success {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.05));
-    border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
-}
-.result-card.success .icon { color: #10b981; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)); }
+/* ===== RÉSULTAT ===== */
+.result-card { padding: 20px 18px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,.1); animation: zoomIn .35s cubic-bezier(.175,.885,.32,1.275); position: relative; overflow: hidden; }
+@keyframes zoomIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+.result-card.success { background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(5,150,105,.05)); border-color: rgba(16,185,129,.45); box-shadow: 0 0 26px rgba(16,185,129,.22); }
+.result-card.error { background: linear-gradient(135deg, rgba(255,0,127,.16), rgba(220,38,38,.05)); border-color: rgba(255,0,127,.45); box-shadow: 0 0 26px rgba(255,0,127,.22); }
+.result-card .icon { font-size: 42px; margin-bottom: 8px; }
+.result-card.success .icon { color: var(--green); filter: drop-shadow(0 0 8px rgba(16,185,129,.6)); }
+.result-card.error .icon { color: var(--magenta); filter: drop-shadow(0 0 8px rgba(255,0,127,.6)); }
+.result-card .name { font-family: 'Orbitron', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
 .result-card.success .name { color: #6ee7b7; }
-.result-card.error {
-    background: linear-gradient(135deg, rgba(255, 0, 127, 0.15), rgba(220, 38, 38, 0.05));
-    border-color: rgba(255, 0, 127, 0.4); box-shadow: 0 0 25px rgba(255, 0, 127, 0.2);
-}
-.result-card.error .icon { color: #ff007f; filter: drop-shadow(0 0 8px rgba(255, 0, 127, 0.6)); }
 .result-card.error .name { color: #ff8ec7; }
-.result-card .icon { font-size: 48px; margin-bottom: 10px; }
-.result-card .name { font-family: 'Orbitron', sans-serif; font-size: 21px; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
-.result-card .message { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4; }
-.result-card .atelier {
-    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
-    padding: 8px 14px; background: rgba(5, 8, 17, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; display: inline-block; color: #e2e8f0;
+.result-card .message { font-size: 14px; color: #cbd5e1; margin-bottom: 10px; line-height: 1.4; }
+.result-card .session-tag { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 600; padding: 7px 12px; background: rgba(5,8,17,.6); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; display: inline-block; color: var(--text); max-width: 100%; }
+.result-card .time { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #64748b; margin-top: 10px; }
+.ribbon-off { display: none; margin: -20px -18px 14px; padding: 7px 10px; background: repeating-linear-gradient(45deg, rgba(255,45,85,.85) 0 10px, rgba(180,20,50,.85) 10px 20px); color: #fff; font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; animation: bannerBlink 1s steps(2) infinite; }
+.result-card.off-live .ribbon-off { display: block; }
+.pending-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #fde68a; background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.35); padding: 4px 9px; border-radius: 12px; }
+
+/* ===== SYNC ===== */
+.sync-panel { display: flex; flex-direction: column; gap: 10px; }
+.sync-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sync-info { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.outbox-chip { display: none; align-items: center; gap: 6px; font-size: 10px; color: #fde68a; background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.35); padding: 3px 9px; border-radius: 12px; }
+.outbox-chip.show { display: inline-flex; }
+.btn-refresh {
+  width: 100%; padding: 12px; border-radius: 9px; cursor: pointer;
+  background: rgba(0,242,254,.08); border: 1px solid rgba(0,242,254,.35); color: var(--cyan);
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 9px; transition: all .2s;
 }
-.result-card .time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748b; margin-top: 12px; }
-
-.stats-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.stat-item { background: rgba(13, 22, 41, 0.75); border: 1px solid rgba(56, 189, 248, 0.15); padding: 14px; border-radius: 12px; text-align: center; }
-.stat-item .value { font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 700; }
-.stat-item .value.success { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-.stat-item .value.error { color: #ff007f; text-shadow: 0 0 10px rgba(255, 0, 127, 0.4); }
-.stat-item .label { font-family: 'Rajdhani', sans-serif; font-size: 11px; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
-
-.alert-box { padding: 10px 14px; border-radius: 8px; font-size: 13px; border-left: 3px solid #ff007f; background: rgba(255, 0, 127, 0.08); color: #ff8ec7; }
-.loading { text-align: center; padding: 24px; color: #94a3b8; }
-.spinner { border: 3px solid rgba(0, 242, 254, 0.1); border-top: 3px solid #00f2fe; border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
+.btn-refresh:hover:not(:disabled) { background: rgba(0,242,254,.2); box-shadow: 0 0 14px rgba(0,242,254,.3); }
+.btn-refresh:disabled { opacity: .6; cursor: wait; }
+.btn-refresh .fa-spin { animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
-@media (max-width: 480px) { .page-content { padding: 10px; } #reader { min-height: 200px; } .result-card .name { font-size: 17px; } }
+
+.loading { text-align: center; padding: 22px; color: var(--muted); font-size: 13px; }
+.spinner { border: 3px solid rgba(0,242,254,.12); border-top: 3px solid var(--cyan); border-radius: 50%; width: 34px; height: 34px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+
+/* ===== TOASTS ===== */
+#toasts { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; width: min(92vw, 420px); pointer-events: none; }
+.toast { padding: 11px 15px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .5px; backdrop-filter: blur(12px); border: 1px solid; animation: toastIn .3s ease; display: flex; gap: 9px; align-items: center; }
+.toast.ok { background: rgba(16,185,129,.16); border-color: rgba(16,185,129,.5); color: #a7f3d0; }
+.toast.err { background: rgba(255,45,85,.16); border-color: rgba(255,45,85,.5); color: #ffd7de; }
+.toast.info { background: rgba(0,242,254,.12); border-color: rgba(0,242,254,.4); color: #a5f3fc; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 480px) {
+  .page-content { padding: 10px; gap: 10px; }
+  .session-id { font-size: 20px; }
+  .stat .value { font-size: 18px; }
+  .stat .label { font-size: 8.5px; letter-spacing: .8px; }
+  #reader { min-height: 210px; }
+  .result-card .name { font-size: 16px; }
+  .page-header h2 { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .session-bar.off-live, .off-live-banner, .session-chip, .scanline, .ribbon-off { animation: none !important; }
+}
 </style>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 
 <div class="page-header">
-    <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
-    <h2>🔐 Contrôle <span class="cyan">d'accès</span></h2>
-    <div class="sync-badge"><span class="dot" id="syncDot"></span><span id="syncText">Chargement...</span></div>
+  <button class="back-btn" onclick="retourAccueil()" aria-label="Retour"><i class="fa-solid fa-arrow-left"></i></button>
+  <h2>🔐 Contrôle <span class="cyan">d'accès</span></h2>
+  <button class="icon-btn" id="soundBtn" onclick="toggleSound()" aria-label="Son"><i class="fa-solid fa-volume-high"></i></button>
+  <div class="sync-badge"><span class="dot" id="syncDot"></span><span id="syncText">Init…</span></div>
 </div>
 
 <div class="page-content">
 
-    <!-- BANDEAU SESSION ACTIVE -->
-    <div class="slot-banner">
-        <div class="slot-inner">
-            <div class="slot-time"><span class="clock" id="liveClock">--:--</span> <span id="slotLabel">Initialisation...</span></div>
-            <div class="slot-sessions" id="slotSessions"></div>
-            <div class="slot-next" id="slotNext"></div>
-        </div>
+  <!-- SÉLECTEUR DE SESSION -->
+  <div class="session-bar" id="sessionBar">
+    <button class="nav-arrow" id="prevBtn" onclick="navSession(-1)" aria-label="Session précédente"><i class="fa-solid fa-chevron-left"></i></button>
+    <div class="session-inner">
+      <div class="session-top">
+        <span class="session-id" id="sessionId">CONF —</span>
+        <button class="session-chip next" id="sessionChip" onclick="resetToLive()">…</button>
+      </div>
+      <div class="session-time" id="sessionTime">--h-- – --h--</div>
+      <div class="session-libelle" id="sessionLibelle">Chargement des sessions…</div>
     </div>
+    <button class="nav-arrow" id="nextBtn" onclick="navSession(1)" aria-label="Session suivante"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
 
-    <!-- SCANNER -->
-    <div class="panel">
-        <div class="panel-header"><h3><i class="fa-solid fa-qrcode"></i> Scanner le badge</h3></div>
-        <div id="reader"></div>
-        <div class="manual-section">
-            <h4>✍️ Saisie manuelle (si QR illisible)</h4>
-            <div class="input-group">
-                <input type="text" id="manualCode" placeholder="Ex: X7K2M9PQ" maxlength="20" onkeydown="if(event.key==='Enter')checkManualCode()">
-                <button class="btn-sm btn-primary" onclick="checkManualCode()">Vérifier</button>
-            </div>
-        </div>
+  <div class="off-live-banner" id="offLiveBanner">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span id="offLiveText">Hors session en cours</span>
+  </div>
+
+  <!-- STATISTIQUES -->
+  <div class="stats-panel">
+    <div class="stat expected"><span class="label">À scanner</span><span class="value" id="statExpected">0</span></div>
+    <div class="stat scanned"><span class="label">Scannés</span><span class="value" id="statScanned">0</span></div>
+    <div class="stat remaining"><span class="label">Restants</span><span class="value" id="statRemaining">0</span></div>
+    <div class="stat mine"><span class="label">Mes scans</span><span class="value" id="statMine">0</span><span class="sub">toutes sessions</span></div>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- SCANNER -->
+  <div class="panel">
+    <div class="panel-header">
+      <h3><i class="fa-solid fa-qrcode"></i> Scanner le badge</h3>
+      <button class="torch-btn" id="torchBtn" onclick="toggleTorch()" disabled><i class="fa-solid fa-bolt"></i> <span id="torchLabel">Flash</span></button>
     </div>
-
-    <div id="alert"></div>
-    <div id="result"></div>
-
-    <div class="stats-panel">
-        <div class="stat-item"><div class="value success" id="statScans">0</div><div class="label">✅ Autorisés</div></div>
-        <div class="stat-item"><div class="value error" id="statRefus">0</div><div class="label">❌ Refusés</div></div>
+    <div class="reader-wrap">
+      <div id="reader"></div>
+      <div class="scanline" id="scanline"></div>
     </div>
+    <div class="manual-section">
+      <h4>✍️ Saisie manuelle (si QR illisible)</h4>
+      <div class="input-group">
+        <input type="text" id="manualCode" placeholder="Ex : X7K2M9PQ" maxlength="20" onkeydown="if(event.key==='Enter')checkManualCode()">
+        <button class="btn-primary" onclick="checkManualCode()">Vérifier</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result"></div>
+
+  <!-- SYNCHRONISATION -->
+  <div class="panel sync-panel">
+    <div class="sync-row">
+      <div class="sync-info">
+        <span><i class="fa-solid fa-database" style="color:var(--cyan);margin-right:5px;"></i><span id="cacheInfo">0 entrées</span></span>
+        <span class="outbox-chip" id="outboxChip"><i class="fa-solid fa-cloud-arrow-up"></i> <span id="outboxCount">0</span> en attente</span>
+      </div>
+      <div class="sync-info"><span id="lastSyncText">—</span></div>
+    </div>
+    <button class="btn-refresh" id="refreshBtn" onclick="manualRefresh()">
+      <i class="fa-solid fa-rotate" id="refreshIcon"></i> <span id="refreshLabel">Actualiser la liste (participants + inscriptions)</span>
+    </button>
+  </div>
+
 </div>
+
+<div id="toasts"></div>
 
 <script src="../js/commun.js"></script>
 <script>
-// ================= CONFIGURATION =================
-const FENETRE_ACCUEIL_MS = 15 * 60000;   // on peut scanner 15 min avant le début
-const TOLERANCE_FIN_MS   = 30 * 60000;   // on peut encore scanner 30 min après la fin (retards)
+// ===================== CONFIG =====================
+const CACHE_KEY = 'aamb_ac_cache_v3';
+const SESS_KEY = 'aamb_ac_sessions_v3';
+const OUTBOX_KEY = 'aamb_ac_outbox_v3';
+const SOUND_KEY = 'aamb_ac_sound';
+const STATUTS_COMPTE = ['STAGIAIRE', 'INVITE', 'ETUDIANT', 'ENSEIGNANT', 'VISITEUR'];
+const SYNC_INTERVAL = 60000;
+const FLUSH_INTERVAL = 15000;
 
-// ================= ÉTAT =================
-let html5QrCode = null;
-let isProcessing = false;
-let sessions = [];            // [{id, libelle, date, deb, fin, startMs, endMs}]
-let accessIndex = new Map();  // "TOKEN_SESSIONID" -> ligne
-let lastKnownUpdate = localStorage.getItem('aamb_lastUpdate') || '0';
-let stats = JSON.parse(localStorage.getItem('aamb_stats') || '{"scans":0,"refus":0}');
+// ===================== ÉTAT =====================
+let myId = '', myName = '';
+let sessions = [], confSessions = [], liveIdx = 0, selIdx = 0;
+let accessIndex = new Map(), byToken = new Map();
+let outbox = [], knownUpdate = '0';
+let scanner = null, processing = false, syncing = false, flushing = false, refreshing = false;
+let torchOn = false, torchSupported = false, soundOn = true;
+let cacheDirty = false, lastSyncAt = 0;
 
-// Vérification organisateur
-const adherent = typeof chargerAdherent === 'function' ? chargerAdherent() : null;
-if (adherent && adherent.statut !== 'Organisateur') {
-    document.getElementById('result').innerHTML = '<div class="result-card error"><div class="icon">⛔</div><div class="name">Accès refusé</div><div class="message">Réservé aux organisateurs.</div></div>';
-    document.getElementById('reader').style.display = 'none';
-    document.querySelector('.manual-section').style.display = 'none';
+const $ = id => document.getElementById(id);
+const up = s => String(s || '').trim().toUpperCase();
+const normStatut = s => up(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const keyOf = (t, s) => up(t) + '|' + up(s);
+const esc = t => { const d = document.createElement('div'); d.textContent = String(t || ''); return d.innerHTML; };
+
+function formatTS(d) {
+  const p = n => String(n).padStart(2, '0');
+  return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+}
+function parseFR(dateStr, hm) {
+  const m = String(dateStr || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  const t = String(hm || '').match(/(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return new Date(+m[1], +m[2] - 1, +m[3], t ? +t[1] : 0, t ? +t[2] : 0).getTime();
 }
 
-// ================= INITIALISATION =================
-window.onload = async function () {
-    updateStats();
-    startClock();
-    await loadSessions();
-    await syncLocalData();
-    startScanner();
-    // Vérification légère toutes les 2 min (télécharge seulement si nouvelle version serveur)
-    setInterval(syncLocalData, 120000);
-    // Rafraîchit le bandeau session toutes les 30 s
-    setInterval(updateSlotBanner, 30000);
-};
+// ===================== INIT =====================
+window.addEventListener('load', init);
+window.addEventListener('beforeunload', persistCacheNow);
+window.addEventListener('online', () => { flushOutbox(); syncTick(); });
 
-function startClock() {
-    const tick = () => {
-        document.getElementById('liveClock').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    };
-    tick(); setInterval(tick, 1000);
+async function init() {
+  const ad = typeof chargerAdherent === 'function' ? chargerAdherent() : null;
+  if (!ad) { window.location.href = '../app.html' + window.location.search; return; }
+  if (up(ad.statut) !== 'ORGANISATEUR') {
+    document.querySelector('.page-content').innerHTML =
+      '<div class="result-card error"><div class="icon"><i class="fa-solid fa-ban"></i></div><div class="name">Accès refusé</div><div class="message">Cette page est réservée aux organisateurs.</div></div>';
+    return;
+  }
+  myId = up(ad.id); myName = (ad.prenom || '') + ' ' + (ad.nom || '');
+  soundOn = localStorage.getItem(SOUND_KEY) !== '0'; renderSound();
+  loadOutbox(); loadCache(); loadSessionsCache();
+  computeLive(); selIdx = liveIdx;
+  renderSession(); renderStats(); updateSyncUI();
+  startScanner();
+  syncTick();
+  setInterval(syncTick, SYNC_INTERVAL);
+  setInterval(flushOutbox, FLUSH_INTERVAL);
+  setInterval(() => { computeLive(); renderSession(); }, 30000);
 }
 
-// ================= CHARGEMENT SESSIONS =================
+// ===================== CACHE LOCAL =====================
+function loadCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (c && Array.isArray(c.rows)) { knownUpdate = String(c.lastUpdate || '0'); buildIndex(c.rows); }
+  } catch (e) {}
+}
+function buildIndex(rows) {
+  const ni = new Map(), nt = new Map();
+  rows.forEach(r => {
+    r.Token = up(r.Token); r.SessionID = up(r.SessionID);
+    const k = keyOf(r.Token, r.SessionID);
+    ni.set(k, r);
+    if (!nt.has(r.Token)) nt.set(r.Token, []);
+    nt.get(r.Token).push(r);
+  });
+  accessIndex = ni; byToken = nt;
+}
+function schedulePersist() {
+  if (cacheDirty) return;
+  cacheDirty = true;
+  setTimeout(persistCacheNow, 2500);
+}
+function persistCacheNow() {
+  cacheDirty = false;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ lastUpdate: knownUpdate, savedAt: Date.now(), rows: Array.from(accessIndex.values()) }));
+  } catch (e) {}
+}
+function loadOutbox() { try { outbox = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]'); } catch (e) { outbox = []; } }
+function persistOutbox() { try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(outbox)); } catch (e) {} }
+function removeOutbox(k) {
+  const before = outbox.length;
+  outbox = outbox.filter(o => keyOf(o.token, o.sessionId) !== k);
+  if (outbox.length !== before) persistOutbox();
+}
+
+// ===================== SESSIONS =====================
+function loadSessionsCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(SESS_KEY) || 'null');
+    if (c && Array.isArray(c.sessions)) applySessions(c.sessions);
+  } catch (e) {}
+}
+function applySessions(list) {
+  sessions = list.map(s => ({ ...s, startMs: parseFR(s.date, s.deb), endMs: parseFR(s.date, s.fin) }))
+                 .filter(s => s.startMs && s.endMs);
+  confSessions = sessions.filter(s => up(s.id).indexOf('CONF') === 0).sort((a, b) => a.startMs - b.startMs);
+}
 async function loadSessions() {
+  const r = await fetch(SCRIPT_URL + '?action=getSessions&t=' + Date.now());
+  const d = await r.json();
+  if (d.success && Array.isArray(d.sessions)) {
+    applySessions(d.sessions);
+    try { localStorage.setItem(SESS_KEY, JSON.stringify({ sessions: d.sessions })); } catch (e) {}
+  }
+}
+function computeLive() {
+  if (!confSessions.length) { liveIdx = 0; selIdx = 0; return; }
+  const now = Date.now();
+  liveIdx = confSessions.findIndex(s => s.endMs >= now);
+  if (liveIdx < 0) liveIdx = confSessions.length - 1;
+  const min = Math.max(0, liveIdx - 1), max = Math.min(confSessions.length - 1, liveIdx + 1);
+  if (selIdx < min || selIdx > max) selIdx = liveIdx;
+}
+function navBounds() {
+  return [Math.max(0, liveIdx - 1), Math.min(confSessions.length - 1, liveIdx + 1)];
+}
+function navSession(d) {
+  const [min, max] = navBounds();
+  const n = selIdx + d;
+  if (n < min || n > max) return;
+  selIdx = n;
+  renderSession(); renderStats();
+  if (selIdx !== liveIdx) warnBeep();
+}
+function resetToLive() {
+  if (selIdx !== liveIdx) { selIdx = liveIdx; renderSession(); renderStats(); }
+}
+function renderSession() {
+  const bar = $('sessionBar'), banner = $('offLiveBanner');
+  const conf = confSessions[selIdx];
+  const [min, max] = navBounds();
+  $('prevBtn').disabled = !conf || selIdx <= min;
+  $('nextBtn').disabled = !conf || selIdx >= max;
+  if (!conf) {
+    $('sessionId').textContent = 'CONF —';
+    $('sessionTime').textContent = 'Aucune session chargée';
+    $('sessionLibelle').textContent = 'Vérifiez la connexion ou actualisez la liste.';
+    $('sessionChip').textContent = '—'; $('sessionChip').className = 'session-chip next';
+    bar.classList.remove('off-live'); banner.classList.remove('show');
+    return;
+  }
+  const off = selIdx !== liveIdx;
+  const inProgress = Date.now() >= conf.startMs && Date.now() <= conf.endMs;
+  $('sessionId').textContent = conf.id.replace('CONF', 'CONF ');
+  const dateTxt = new Date(conf.startMs).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+  $('sessionTime').textContent = dateTxt + ' · ' + conf.deb + ' – ' + conf.fin;
+  $('sessionLibelle').textContent = conf.libelle || '';
+  const chip = $('sessionChip');
+  if (off) { chip.textContent = '⚠ Hors session'; chip.className = 'session-chip off'; chip.title = 'Revenir à la session en cours'; }
+  else if (inProgress) { chip.textContent = '● En cours'; chip.className = 'session-chip live'; chip.title = ''; }
+  else { chip.textContent = 'À venir'; chip.className = 'session-chip next'; chip.title = ''; }
+  bar.classList.toggle('off-live', off);
+  banner.classList.toggle('show', off);
+  if (off) {
+    const live = confSessions[liveIdx];
+    $('offLiveText').textContent = 'Vous scannez sur ' + conf.id + ' — session en cours : ' + (live ? live.id : 'aucune');
+  }
+}
+
+// ===================== STATISTIQUES =====================
+function tween(el, to) {
+  const from = parseInt(el.textContent, 10) || 0;
+  if (from === to) { el.textContent = to; return; }
+  const t0 = performance.now(), dur = 400;
+  function step(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function renderStats() {
+  const conf = confSessions[selIdx];
+  let expected = 0, scanned = 0, mine = 0;
+  const confirmed = new Set();
+  for (const r of accessIndex.values()) {
+    if (up(r.ScannePar) === myId && String(r.TimestampScan || '').trim()) { mine++; confirmed.add(keyOf(r.Token, r.SessionID)); }
+    if (conf && r.SessionID === conf.id && STATUTS_COMPTE.indexOf(normStatut(r.Statut)) !== -1) {
+      expected++;
+      if (String(r.TimestampScan || '').trim()) scanned++;
+    }
+  }
+  outbox.forEach(o => { if (!confirmed.has(keyOf(o.token, o.sessionId))) mine++; });
+  tween($('statExpected'), expected);
+  tween($('statScanned'), scanned);
+  tween($('statRemaining'), Math.max(0, expected - scanned));
+  tween($('statMine'), mine);
+  $('progressFill').style.width = expected ? Math.min(100, (scanned / expected) * 100) + '%' : '0%';
+  $('cacheInfo').textContent = accessIndex.size + ' entrées';
+}
+function updateSyncUI() {
+  $('outboxChip').classList.toggle('show', outbox.length > 0);
+  $('outboxCount').textContent = outbox.length;
+  $('lastSyncText').textContent = lastSyncAt ? 'Sync ' + new Date(lastSyncAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '—';
+}
+
+// ===================== SYNCHRONISATION =====================
+async function syncTick() {
+  if (syncing) return;
+  syncing = true;
+  $('syncDot').className = 'dot syncing'; $('syncText').textContent = 'Sync…';
+  try {
+    await loadSessions();
+    const r = await fetch(SCRIPT_URL + '?action=getSyncState&t=' + Date.now());
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'sync');
+    mergeScans(d.scans || []);
+    const lu = String(d.lastUpdate);
+    if (lu !== knownUpdate && lu !== '0') await downloadFull(lu);
+    knownUpdate = lu;
+    lastSyncAt = Date.now();
+    $('syncDot').className = 'dot'; $('syncText').textContent = 'À jour';
+    computeLive(); renderSession();
+  } catch (e) {
+    $('syncDot').className = 'dot offline'; $('syncText').textContent = 'Hors ligne';
+  }
+  syncing = false;
+  renderStats(); updateSyncUI(); schedulePersist();
+}
+function mergeScans(scans) {
+  scans.forEach(s => {
+    const k = keyOf(s.Token, s.SessionID);
+    const row = accessIndex.get(k);
+    if (!row) return;
+    if (String(s.TimestampScan || '').trim()) {
+      row.TimestampScan = s.TimestampScan;
+      row.ScannePar = up(s.ScannePar);
+      row._pending = false;
+      removeOutbox(k);
+    }
+  });
+}
+async function downloadFull(lu) {
+  const r = await fetch(SCRIPT_URL + '?action=getAccessData&t=' + Date.now());
+  const d = await r.json();
+  if (!d.success || !Array.isArray(d.participants)) throw new Error('download');
+  const old = accessIndex;
+  const ni = new Map(), nt = new Map();
+  d.participants.forEach(row => {
+    row.Token = up(row.Token); row.SessionID = up(row.SessionID);
+    const k = keyOf(row.Token, row.SessionID);
+    const loc = old.get(k);
+    if (loc && String(loc.TimestampScan || '').trim() && !String(row.TimestampScan || '').trim()) {
+      row.TimestampScan = loc.TimestampScan; row.ScannePar = loc.ScannePar || myId; row._pending = true;
+      if (!outbox.some(o => keyOf(o.token, o.sessionId) === k)) {
+        outbox.push({ token: row.Token, sessionId: row.SessionID, time: new Date().toISOString() });
+      }
+    } else if (String(row.TimestampScan || '').trim()) {
+      removeOutbox(k);
+    }
+    ni.set(k, row);
+    if (!nt.has(row.Token)) nt.set(row.Token, []);
+    nt.get(row.Token).push(row);
+  });
+  accessIndex = ni; byToken = nt; knownUpdate = lu;
+  persistOutbox(); schedulePersist();
+}
+async function manualRefresh() {
+  if (refreshing) return;
+  refreshing = true;
+  const btn = $('refreshBtn');
+  btn.disabled = true;
+  $('refreshIcon').className = 'fa-solid fa-rotate fa-spin';
+  $('refreshLabel').textContent = 'Actualisation en cours… (scans toujours actifs)';
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=refreshAccessData&t=' + Date.now());
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'refresh');
+    await downloadFull(String(d.lastUpdate));
+    lastSyncAt = Date.now();
+    computeLive(); renderSession(); renderStats(); updateSyncUI();
+    toast('Liste actualisée : ' + d.rows + ' lignes, ' + d.preserved + ' scans conservés.', 'ok');
+  } catch (e) {
+    toast('Échec de l\'actualisation — réessayez.', 'err');
+  }
+  refreshing = false;
+  btn.disabled = false;
+  $('refreshIcon').className = 'fa-solid fa-rotate';
+  $('refreshLabel').textContent = 'Actualiser la liste (participants + inscriptions)';
+}
+
+// ===================== ENVOI DES SCANS (outbox) =====================
+async function flushOutbox() {
+  if (flushing || !outbox.length) return;
+  flushing = true;
+  const batch = outbox.slice();
+  for (const o of batch) {
     try {
-        const resp = await fetch(`${SCRIPT_URL}?action=getSessions&t=${Date.now()}`);
-        const data = await resp.json();
-        if (data.success && Array.isArray(data.sessions)) {
-            sessions = data.sessions.map(s => ({
-                ...s,
-                startMs: new Date(s.date + 'T' + s.deb + ':00').getTime(),
-                endMs:   new Date(s.date + 'T' + s.fin + ':00').getTime()
-            }));
-            console.log('✅ ' + sessions.length + ' sessions chargées');
-        }
-    } catch (e) { console.error('Erreur sessions:', e); }
+      const r = await fetch(SCRIPT_URL, {
+        method: 'POST', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'markScanned', token: o.token, sessionId: o.sessionId, time: o.time, scanner: myId })
+      });
+      const d = await r.json();
+      const k = keyOf(o.token, o.sessionId);
+      if (d.success) {
+        removeOutbox(k);
+        const row = accessIndex.get(k);
+        if (row) { row.TimestampScan = d.timestamp || row.TimestampScan; row.ScannePar = myId; row._pending = false; }
+      } else if (/Déjà scanné/i.test(d.error || '')) {
+        removeOutbox(k);
+        const row = accessIndex.get(k);
+        if (row && d.timestamp) { row.TimestampScan = d.timestamp; row._pending = false; }
+      } else if (/introuvable/i.test(d.error || '')) {
+        removeOutbox(k);
+      }
+    } catch (e) { break; }
+  }
+  persistOutbox(); updateSyncUI(); renderStats(); schedulePersist();
+  flushing = false;
 }
 
-// ================= SYNCHRO LISTE PARTICIPANTS =================
-async function syncLocalData() {
-    const dot = document.getElementById('syncDot');
-    const text = document.getElementById('syncText');
-    try {
-        const resp = await fetch(`${SCRIPT_URL}?action=getLastUpdate&t=${Date.now()}`);
-        const data = await resp.json();
-        if (!data.success) return;
-        const serverUpdate = String(data.lastUpdate);
-        if (serverUpdate !== lastKnownUpdate && serverUpdate !== '0') {
-            dot.classList.add('syncing'); text.textContent = 'MAJ...';
-            await downloadFullData();
-            lastKnownUpdate = serverUpdate;
-            localStorage.setItem('aamb_lastUpdate', serverUpdate);
-        }
-        dot.classList.remove('syncing');
-        dot.style.background = '#4ade80';
-        text.textContent = accessIndex.size ? accessIndex.size + ' entrées' : 'Vide';
-    } catch (e) {
-        dot.style.background = '#f87171';
-        text.textContent = 'Cache';
-    }
-    updateSlotBanner();
-}
-
-async function downloadFullData() {
-    const resp = await fetch(`${SCRIPT_URL}?action=getAccessData&t=${Date.now()}`);
-    const data = await resp.json();
-    if (data.success && Array.isArray(data.participants)) {
-        accessIndex = new Map();
-        data.participants.forEach(p => accessIndex.set(`${p.Token}_${p.SessionID}`, p));
-        console.log('✅ ' + data.participants.length + ' entrées indexées');
-    }
-}
-
-// ================= SESSIONS ACTIVES =================
-function getActiveSessions() {
-    const now = Date.now();
-    return sessions.filter(s => now >= s.startMs - FENETRE_ACCUEIL_MS && now <= s.endMs + TOLERANCE_FIN_MS);
-}
-
-function updateSlotBanner() {
-    const actives = getActiveSessions();
-    const box = document.getElementById('slotSessions');
-    const label = document.getElementById('slotLabel');
-    const next = document.getElementById('slotNext');
-
-    if (actives.length === 0) {
-        label.textContent = 'Aucun créneau en cours';
-        box.innerHTML = '<span class="slot-empty">En attente de la prochaine session...</span>';
-        const now = Date.now();
-        const prochaine = sessions.filter(s => s.startMs > now).sort((a, b) => a.startMs - b.startMs)[0];
-        next.textContent = prochaine ? 'Prochaine : ' + prochaine.deb + ' — ' + prochaine.libelle : '';
-        return;
-    }
-    label.textContent = 'Créneau en cours — scan actif';
-    next.textContent = '';
-    box.innerHTML = actives.map(s =>
-        '<span class="slot-tag ' + (s.id.indexOf('ATEL') === 0 ? 'atel' : 'conf') + '">' + s.id + ' · ' + s.deb + '-' + s.fin + '</span>'
-    ).join('');
-}
-
-// ================= SCANNER =================
+// ===================== SCANNER =====================
 function startScanner() {
-    try {
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            {
-                fps: 10,
-                // Zone de scan dynamique : 85% de la plus petite dimension du cadre vidéo
-                qrbox: function (viewfinderWidth, viewfinderHeight) {
-                    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                    const size = Math.floor(minEdge * 0.85);
-                    return { width: size, height: size };
-                }
-            },
-            t => { if (!isProcessing) { isProcessing = true; html5QrCode.pause(true); verifyCode(t.trim().toUpperCase()); } },
-            () => {}
-        ).catch(() => showAlert('⚠️ Caméra inaccessible — utilisez la saisie manuelle.'));
-    } catch (e) { showAlert('⚠️ Erreur scanner.'); }
+  try {
+    scanner = new Html5Qrcode('reader');
+    scanner.start(
+      { facingMode: 'environment' },
+      {
+        fps: 10,
+        qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * 0.85); return { width: s, height: s }; },
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+      },
+      text => {
+        if (processing) return;
+        processing = true;
+        try { scanner.pause(true); } catch (e) {}
+        $('scanline').style.display = 'none';
+        verifyCode(extractToken(text));
+      },
+      () => {}
+    ).then(() => {
+      try { torchSupported = !!(scanner.getRunningTrackCapabilities() || {}).torch; } catch (e) { torchSupported = false; }
+      renderTorch();
+    }).catch(() => {
+      toast('Caméra inaccessible — utilisez la saisie manuelle.', 'err');
+      $('scanline').style.display = 'none';
+    });
+  } catch (e) { toast('Erreur d\'initialisation du scanner.', 'err'); }
 }
-
+function extractToken(text) {
+  const t = String(text || '').trim();
+  const m = t.match(/[?&]token=([^&]+)/i);
+  return up(m ? decodeURIComponent(m[1]) : t);
+}
 function checkManualCode() {
-    if (isProcessing) return;
-    const code = document.getElementById('manualCode').value.trim().toUpperCase();
-    if (!code) return;
-    isProcessing = true;
-    verifyCode(code);
-    document.getElementById('manualCode').value = '';
+  if (processing) return;
+  const code = up($('manualCode').value);
+  if (!code) return;
+  processing = true;
+  try { if (scanner) scanner.pause(true); } catch (e) {}
+  $('scanline').style.display = 'none';
+  $('manualCode').value = '';
+  verifyCode(code);
+}
+function finishScan() {
+  processing = false;
+  $('result').innerHTML = '';
+  $('scanline').style.display = '';
+  try { if (scanner) scanner.resume(); } catch (e) {}
 }
 
-// ================= VÉRIFICATION (instantanée, 100% locale) =================
-async function verifyCode(token) {
-    const actives = getActiveSessions();
-    const idsActifs = new Set(actives.map(s => s.id));
-
-    // On cherche le participant dans les sessions actives
-    let match = null;
-    for (const [key, ligne] of accessIndex.entries()) {
-        if (!key.startsWith(token + '_')) continue;
-        if (idsActifs.has(ligne.SessionID)) { match = ligne; break; }
-    }
-
-    if (match) {
-        if (String(match.TimestampScan || '').trim()) {
-            showResult(false, match.Nom + ' ' + match.Prenom, '⚠️ Déjà scanné à ' + match.TimestampScan, match.SessionLibelle);
-            stats.refus++; playSound(false);
-        } else {
-            showResult(true, match.Nom + ' ' + match.Prenom, '✅ Accès autorisé', match.SessionLibelle);
-            stats.scans++; playSound(true);
-            // Horodatage local immédiat (évite le double-scan) + envoi serveur silencieux
-            match.TimestampScan = new Date().toLocaleString('fr-FR');
-            fetch(SCRIPT_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'markScanned', token: token, sessionId: match.SessionID, time: new Date().toISOString() })
-            }).catch(() => {});
-        }
+// ===================== VÉRIFICATION (100% locale) =====================
+function atelierConfId(atelId) {
+  const s = sessions.find(x => x.id === atelId);
+  return s && s.confId ? up(s.confId) : '';
+}
+function verifyCode(token) {
+  const conf = confSessions[selIdx];
+  const off = selIdx !== liveIdx;
+  if (!conf) { showResult(false, token, 'Aucune session sélectionnée.', null, off, false); setTimeout(finishScan, 3000); return; }
+  const row = accessIndex.get(keyOf(token, conf.id));
+  if (row) {
+    const nom = (row.Prenom || '') + ' ' + (row.Nom || '');
+    if (String(row.TimestampScan || '').trim()) {
+      const par = up(row.ScannePar) === myId ? 'vous' : (row.ScannePar || 'autre organisateur');
+      showResult(false, nom.trim() || token, 'Déjà scanné · ' + row.TimestampScan + ' · par ' + par, conf, off, false);
+      beep(false); vibrate([70, 40, 70]);
     } else {
-        const inscritAutre = [...accessIndex.keys()].some(k => k.startsWith(token + '_'));
-        const msg = inscritAutre ? "Inscrit, mais pas à une session en cours" : "Code inconnu ou statut exclu";
-        showResult(false, token, '❌ ' + msg, '');
-        stats.refus++; playSound(false);
+      const now = new Date();
+      row.TimestampScan = formatTS(now); row.ScannePar = myId; row._pending = true;
+      outbox.push({ token: token, sessionId: conf.id, time: now.toISOString() });
+      persistOutbox(); schedulePersist(); renderStats(); updateSyncUI();
+      showResult(true, nom.trim() || token, 'Accès autorisé', conf, off, true);
+      beep(true); vibrate(60);
+      flushOutbox();
     }
-
-    localStorage.setItem('aamb_stats', JSON.stringify(stats));
-    updateStats();
-    setTimeout(() => {
-        isProcessing = false;
-        document.getElementById('result').innerHTML = '';
-        if (html5QrCode) { try { html5QrCode.resume(); } catch (e) {} }
-    }, 3000);
+  } else {
+    const rows = byToken.get(token) || [];
+    let hint = 'Code inconnu ou statut non autorisé.';
+    if (rows.length) {
+      const atel = rows.find(r => r.SessionID.indexOf('ATEL') === 0 && atelierConfId(r.SessionID) === conf.id);
+      hint = atel ? 'Attendu en atelier sur ce créneau → ' + atel.SessionID : 'Participant connu, mais non attendu sur ' + conf.id + '.';
+    }
+    showResult(false, token, hint, conf, off, false);
+    beep(false); vibrate([70, 40, 70]);
+  }
+  setTimeout(finishScan, 3000);
+}
+function showResult(ok, nom, message, conf, off, pending) {
+  const now = new Date();
+  $('result').innerHTML =
+    '<div class="result-card ' + (ok ? 'success' : 'error') + (off ? ' off-live' : '') + '">' +
+    '<div class="ribbon-off">⚠ Enregistré hors session en cours</div>' +
+    '<div class="icon"><i class="fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-xmark') + '"></i></div>' +
+    '<div class="name">' + esc(nom) + '</div>' +
+    '<div class="message">' + esc(message) + '</div>' +
+    (conf ? '<div class="session-tag"><i class="fa-solid fa-tag" style="margin-right:6px;opacity:.7;"></i>' + esc(conf.id + ' · ' + conf.deb + '–' + conf.fin) + '</div>' : '') +
+    (pending ? '<div><span class="pending-chip"><i class="fa-solid fa-cloud-arrow-up"></i> Envoi en arrière-plan</span></div>' : '') +
+    '<div class="time">' + now.toLocaleDateString('fr-FR') + ' · ' + now.toLocaleTimeString('fr-FR') + '</div></div>';
 }
 
-// ================= AFFICHAGE =================
-function showResult(autorise, nom, message, atelier) {
-    const now = new Date();
-    document.getElementById('result').innerHTML =
-        '<div class="result-card ' + (autorise ? 'success' : 'error') + '">' +
-        '<div class="icon">' + (autorise ? '✅' : '❌') + '</div>' +
-        '<div class="name">' + esc(nom) + '</div>' +
-        '<div class="message">' + esc(message) + '</div>' +
-        (atelier ? '<div class="atelier">📍 ' + esc(atelier) + '</div>' : '') +
-        '<div class="time">' + now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '</div></div>';
+// ===================== FLASH =====================
+async function toggleTorch() {
+  if (!torchSupported || !scanner) return;
+  try {
+    torchOn = !torchOn;
+    await scanner.applyVideoConstraints({ advanced: [{ torch: torchOn }] });
+  } catch (e) { torchOn = false; toast('Flash indisponible sur cet appareil.', 'err'); }
+  renderTorch();
 }
-function showAlert(m) { document.getElementById('alert').innerHTML = '<div class="alert-box">' + m + '</div>'; }
-function updateStats() { document.getElementById('statScans').textContent = stats.scans; document.getElementById('statRefus').textContent = stats.refus; }
-function esc(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+function renderTorch() {
+  const b = $('torchBtn');
+  b.disabled = !torchSupported;
+  b.classList.toggle('on', torchOn);
+  $('torchLabel').textContent = torchOn ? 'Flash ON' : 'Flash';
+  b.title = torchSupported ? 'Allumer / éteindre le flash' : 'Flash non supporté par cet appareil';
+}
 
-function playSound(success) {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        if (success) {
-            o.frequency.value = 880; g.gain.setValueAtTime(0.3, ctx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-            o.start(); o.stop(ctx.currentTime + 0.15);
-            setTimeout(() => { const o2 = ctx.createOscillator(), g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1100; g2.gain.setValueAtTime(0.3, ctx.currentTime); g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1); o2.start(); o2.stop(ctx.currentTime + 0.1); }, 150);
-        } else {
-            o.frequency.value = 200; g.gain.setValueAtTime(0.3, ctx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-            o.start(); o.stop(ctx.currentTime + 0.4);
-        }
-    } catch (e) {}
+// ===================== SON / VIBRATION / TOASTS =====================
+function toggleSound() {
+  soundOn = !soundOn;
+  localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0');
+  renderSound();
+  if (soundOn) beep(true);
+}
+function renderSound() {
+  const b = $('soundBtn');
+  b.classList.toggle('off', !soundOn);
+  b.innerHTML = '<i class="fa-solid ' + (soundOn ? 'fa-volume-high' : 'fa-volume-xmark') + '"></i>';
+  b.title = soundOn ? 'Couper le son' : 'Réactiver le son';
+}
+function vibrate(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+function beep(ok) {
+  if (!soundOn) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (ok) {
+      o.frequency.value = 880; g.gain.setValueAtTime(.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .15);
+      o.start(); o.stop(ctx.currentTime + .15);
+      setTimeout(() => { const o2 = ctx.createOscillator(), g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1175; g2.gain.setValueAtTime(.3, ctx.currentTime); g2.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .12); o2.start(); o2.stop(ctx.currentTime + .12); }, 150);
+    } else {
+      o.frequency.value = 196; g.gain.setValueAtTime(.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .4);
+      o.start(); o.stop(ctx.currentTime + .4);
+    }
+  } catch (e) {}
+}
+function warnBeep() {
+  if (!soundOn) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 180].forEach(d => setTimeout(() => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'square'; o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 330; g.gain.setValueAtTime(.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .12);
+      o.start(); o.stop(ctx.currentTime + .12);
+    }, d));
+  } catch (e) {}
+}
+function toast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  t.innerHTML = '<i class="fa-solid ' + (type === 'ok' ? 'fa-circle-check' : type === 'err' ? 'fa-triangle-exclamation' : 'fa-circle-info') + '"></i>' + esc(msg);
+  $('toasts').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .4s'; setTimeout(() => t.remove(), 400); }, 3500);
 }
 function retourAccueil() { window.location.href = '../app.html'; }
 </script>
