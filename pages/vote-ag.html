@@ -126,6 +126,9 @@
         }
 
         /* ==== PRÉSENCE ==== */
+        /* ==== TEMPORAIRE 2026 : grille présence en 1 colonne (vote à distance en sommeil) ====
+           L'an prochain : supprimer cette règle lors de la réactivation du bloc distance. */
+        .presence-grid.single { grid-template-columns: 1fr; }
         .presence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .presence-col { display: flex; flex-direction: column; gap: 8px; }
 
@@ -777,7 +780,11 @@
                     <h3><i class="fa-solid fa-clipboard-check"></i> Validation de présence</h3>
                     <div id="userInfo"></div>
                     
-                    <div class="presence-grid">
+
+                    <!-- ==== PRÉSENCE 2026 : PHYSIQUE UNIQUEMENT ====
+                         Le bloc "À distance" et les compteurs globaux sont commentés
+                         ci-dessous : les décommenter l'an prochain. -->
+                    <div class="presence-grid single">
                         <div class="presence-col">
                             <button id="btnPhysique" class="presence-btn physique" onclick="enregistrerPresence('Physique')">
                                 <i class="fa-solid fa-building"></i> Présent physiquement
@@ -788,6 +795,8 @@
                                 <div class="stat-box"><div class="number" id="countPhysique">0</div><div class="label">Total</div></div>
                             </div>
                         </div>
+
+                        <!-- ==== BLOC À DISTANCE (EN SOMMEIL POUR 2026 — décommenter en 2027) ====
                         <div class="presence-col">
                             <button id="btnDistance" class="presence-btn distance" onclick="enregistrerPresence('Distance')">
                                 <i class="fa-solid fa-laptop"></i> À distance
@@ -798,8 +807,10 @@
                                 <div class="stat-box"><div class="number" id="countDistance">0</div><div class="label">Total</div></div>
                             </div>
                         </div>
+                        ==== FIN BLOC À DISTANCE ==== -->
                     </div>
-                    
+
+                    <!-- ==== COMPTEURS GLOBAUX (EN SOMMEIL POUR 2026 — décommenter en 2027) ====
                     <div class="presence-grid">
                         <div class="presence-col">
                             <div class="stats-compact total">
@@ -816,7 +827,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    ==== FIN COMPTEURS GLOBAUX ==== -->
+                    
                 
                 <div id="adminSection" class="card" style="display:none;">
                     <h3><i class="fa-solid fa-plus-circle"></i> Créer un thème de vote</h3>
@@ -930,20 +942,27 @@
             }
         }
         
+        // Helper null-safe : certains compteurs sont commentés dans le HTML pour 2026.
+        // L'an prochain, rien à changer ici : setText réaffichera tout automatiquement.
+        function setText(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+
         function afficherDonneesVote(data) {
             const p = data.presence;
-            document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
-            document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
-            document.getElementById('countPhysique').textContent = p.physique || 0;
-            document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
-            document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
-            document.getElementById('countDistance').textContent = p.distance || 0;
-            document.getElementById('countTotalAdh').textContent = p.adherent || 0;
-            document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
-            document.getElementById('countTotal').textContent = p.total || 0;
-            document.getElementById('countPhysiqueTotal').textContent = p.physique || 0;
-            document.getElementById('countDistanceTotal').textContent = p.distance || 0;
-            document.getElementById('countTotalGeneral').textContent = (p.physique || 0) + (p.distance || 0);
+            setText('countPhysiqueAdh', p.physiqueAdherent || 0);
+            setText('countPhysiqueNonAdh', p.physiqueNonAdherent || 0);
+            setText('countPhysique', p.physique || 0);
+            setText('countDistanceAdh', p.distanceAdherent || 0);
+            setText('countDistanceNonAdh', p.distanceNonAdherent || 0);
+            setText('countDistance', p.distance || 0);
+            setText('countTotalAdh', p.adherent || 0);
+            setText('countTotalNonAdh', p.nonAdherent || 0);
+            setText('countTotal', p.total || 0);
+            setText('countPhysiqueTotal', p.physique || 0);
+            setText('countDistanceTotal', p.distance || 0);
+            setText('countTotalGeneral', (p.physique || 0) + (p.distance || 0));
             afficherThemes(data.themes);
         }
         
@@ -1024,20 +1043,18 @@
                 if (data.success) {
                     const p = data.presence;
                     
-                    document.getElementById('countPhysiqueAdh').textContent = p.physiqueAdherent || 0;
-                    document.getElementById('countPhysiqueNonAdh').textContent = p.physiqueNonAdherent || 0;
-                    document.getElementById('countPhysique').textContent = p.physique || 0;
-                    
-                    document.getElementById('countDistanceAdh').textContent = p.distanceAdherent || 0;
-                    document.getElementById('countDistanceNonAdh').textContent = p.distanceNonAdherent || 0;
-                    document.getElementById('countDistance').textContent = p.distance || 0;
-                    
-                    document.getElementById('countTotalAdh').textContent = p.adherent || 0;
-                    document.getElementById('countTotalNonAdh').textContent = p.nonAdherent || 0;
-                    document.getElementById('countTotal').textContent = p.total || 0;
-                    document.getElementById('countPhysiqueTotal').textContent = p.physique || 0;
-                    document.getElementById('countDistanceTotal').textContent = p.distance || 0;
-                    document.getElementById('countTotalGeneral').textContent = (p.physique || 0) + (p.distance || 0);
+                    setText('countPhysiqueAdh', p.physiqueAdherent || 0);
+                    setText('countPhysiqueNonAdh', p.physiqueNonAdherent || 0);
+                    setText('countPhysique', p.physique || 0);
+                    setText('countDistanceAdh', p.distanceAdherent || 0);
+                    setText('countDistanceNonAdh', p.distanceNonAdherent || 0);
+                    setText('countDistance', p.distance || 0);
+                    setText('countTotalAdh', p.adherent || 0);
+                    setText('countTotalNonAdh', p.nonAdherent || 0);
+                    setText('countTotal', p.total || 0);
+                    setText('countPhysiqueTotal', p.physique || 0);
+                    setText('countDistanceTotal', p.distance || 0);
+                    setText('countTotalGeneral', (p.physique || 0) + (p.distance || 0));
                     
                     data.themes.forEach(theme => {
                         if (localVotes[theme.themeId]) {
@@ -1196,29 +1213,35 @@
             lastActionTime = Date.now();
             const userId = userData.id;
             const btnPhysique = document.getElementById('btnPhysique');
-            const btnDistance = document.getElementById('btnDistance');
-            
+            const btnDistance = document.getElementById('btnDistance'); // = null en 2026 (bloc commenté)
+
             btnPhysique.disabled = true;
-            btnDistance.disabled = true;
+            if (btnDistance) btnDistance.disabled = true;
             btnPhysique.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Enregistrement...';
-            btnDistance.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Enregistrement...';
-            
+            if (btnDistance) btnDistance.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Enregistrement...';
+
             try {
                 const resp = await fetch(SCRIPT_URL + '?action=enregistrerPresenceAG&userId=' + encodeURIComponent(userId) + '&mode=' + encodeURIComponent(mode));
                 const data = await resp.json();
-                
+
                 if (data.success) {
                     modeParticipation = mode;
                     if (mode === 'Physique') {
                         btnPhysique.classList.add('active');
-                        btnDistance.classList.remove('active');
+                        if (btnDistance) btnDistance.classList.remove('active');
                         btnPhysique.innerHTML = '<i class="fa-solid fa-check"></i> Présent physiquement';
-                        btnDistance.innerHTML = '<i class="fa-solid fa-laptop"></i> À distance';
-                        btnDistance.disabled = false;
+                        if (btnDistance) {
+                            btnDistance.innerHTML = '<i class="fa-solid fa-laptop"></i> À distance';
+                            btnDistance.disabled = false;
+                        }
                     } else {
-                        btnDistance.classList.add('active');
+                        // Branche "Distance" : inaccessible en 2026 (bouton commenté), prête pour 2027
+                        if (btnDistance) {
+                            btnDistance.classList.add('active');
+                            btnDistance.innerHTML = '<i class="fa-solid fa-check"></i> Participant à distance';
+                            btnDistance.disabled = false;
+                        }
                         btnPhysique.classList.remove('active');
-                        btnDistance.innerHTML = '<i class="fa-solid fa-check"></i> Participant à distance';
                         btnPhysique.innerHTML = '<i class="fa-solid fa-building"></i> Présent physiquement';
                         btnPhysique.disabled = false;
                     }
@@ -1226,16 +1249,16 @@
                 } else {
                     alert('❌ ' + data.message);
                     btnPhysique.disabled = false;
-                    btnDistance.disabled = false;
+                    if (btnDistance) btnDistance.disabled = false;
                     btnPhysique.innerHTML = '<i class="fa-solid fa-building"></i> Présent physiquement';
-                    btnDistance.innerHTML = '<i class="fa-solid fa-laptop"></i> À distance';
+                    if (btnDistance) btnDistance.innerHTML = '<i class="fa-solid fa-laptop"></i> À distance';
                 }
             } catch (e) {
                 alert('Erreur de connexion: ' + e.message);
                 btnPhysique.disabled = false;
-                btnDistance.disabled = false;
+                if (btnDistance) btnDistance.disabled = false;
                 btnPhysique.innerHTML = '<i class="fa-solid fa-building"></i> Présent physiquement';
-                btnDistance.innerHTML = '<i class="fa-solid fa-laptop"></i> À distance';
+                if (btnDistance) btnDistance.innerHTML = '<i class="fa-solid fa-laptop"></i> À distance';
             }
         }
         
