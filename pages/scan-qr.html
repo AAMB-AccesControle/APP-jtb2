@@ -1,531 +1,620 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code</title>
-    <link rel="manifest" href="../manifest.json">
-    <script>
-    if (localStorage.getItem('darkMode') === '1') { document.documentElement.classList.add('dark'); }
-    </script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #f5f7fa; --text: #222; --text-sub: #666; --card-bg: white;
-            --page-header-bg: #1a3a6b; --primary: #1a3a6b; --success: #10b981;
-            --danger: #dc3545;
-        }
-        body.dark {
-            --bg: #181c2a; --text: #eee; --text-sub: #999; --card-bg: #242840;
-            --page-header-bg: #0f1f3d; --primary: #2a5f9f;
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); min-height: 100vh; }
-        
-        .page-header { background: var(--page-header-bg); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-        .page-header h2 { font-size: 18px; flex: 1; }
-        .page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
-        
-        .scan-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .scan-section h3 {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        #reader {
-            width: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #000;
-        }
-        .scan-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .scan-controls button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-start { background: var(--success); color: white; }
-        .btn-stop { background: var(--danger); color: white; }
-        
-        .participant-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-left: 4px solid var(--success);
-            display: none;
-        }
-        .participant-card.visible { display: block; }
-        .participant-card h3 {
-            font-size: 16px;
-            color: var(--text);
-            margin-bottom: 10px;
-        }
-        .participant-info {
-            display: grid;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .info-row {
-            display: flex;
-            font-size: 13px;
-        }
-        .info-label {
-            font-weight: 600;
-            color: var(--text-sub);
-            min-width: 100px;
-        }
-        .info-value {
-            color: var(--text);
-            flex: 1;
-        }
-        .comment-section {
-            border-top: 1px solid rgba(128,128,128,0.2);
-            padding-top: 12px;
-        }
-        .comment-section label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-sub);
-            display: block;
-            margin-bottom: 6px;
-        }
-        .comment-section textarea {
-            width: 100%;
-            height: 70px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 13px;
-            resize: vertical;
-            outline: none;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-        }
-        .comment-section textarea:focus { border-color: var(--primary); }
-        .save-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .scans-list {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .scans-list h3 {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-bottom: 10px;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .scan-count {
-            background: var(--primary);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-        }
-        .scan-item {
-            padding: 8px;
-            border-radius: 6px;
-            background: var(--bg);
-            margin-bottom: 6px;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .scan-item .scan-name { font-weight: 600; color: var(--text); }
-        .scan-item .scan-time { color: var(--text-sub); font-size: 10px; }
-        
-        .email-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .email-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .status-msg {
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-top: 10px;
-            display: none;
-        }
-        .status-msg.success { background: #d4edda; color: #155724; display: block; }
-        .status-msg.error { background: #f8d7da; color: #721c24; display: block; }
-        
-        @media (max-width: 480px) {
-            .page-header { top: 90px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#050811">
+<title>Scan QR Présence — AAMB JTB 2026</title>
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg: #050811;
+    --surface: rgba(13, 22, 41, 0.75);
+    --line: rgba(56, 189, 248, 0.18);
+    --cyan: #00f2fe; --blue: #4facfe;
+    --magenta: #ff007f;
+    --green: #10b981;
+    --amber: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --text-sub: #94a3b8; /* conservé pour compatibilité */
+}
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    background-color: var(--bg);
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, rgba(255, 0, 127, 0.06) 0%, transparent 40%),
+        linear-gradient(to bottom, rgba(5, 8, 17, 0.95), rgba(5, 8, 17, 0.98));
+    background-attachment: fixed;
+    color: var(--text);
+}
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #070b14; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ==== HEADER ==== */
+.page-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13, 22, 41, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+    color: white;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.back-btn {
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: var(--cyan);
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center;
+}
+.back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+.page-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 1;
+}
+.page-header h2 .cyan { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
+
+.page-content {
+    position: relative; z-index: 1;
+    padding: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ==== PANNEAUX ==== */
+.panel {
+    background: var(--surface);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+.panel-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: #f1f5f9;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+}
+.panel-title i { color: var(--cyan); filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.6)); }
+.panel-title .scan-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--cyan);
+    background: rgba(0, 242, 254, 0.12);
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    padding: 3px 10px; border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+}
+
+/* ==== SCANNER ==== */
+.reader-wrap { position: relative; }
+#reader {
+    border: 2px solid rgba(0, 242, 254, 0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    min-height: 240px;
+    box-shadow: inset 0 0 24px rgba(0, 242, 254, 0.1);
+}
+#reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
+.scanline {
+    display: none;
+    position: absolute; left: 6%; right: 6%; height: 2px; top: 12%;
+    pointer-events: none; z-index: 5;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    box-shadow: 0 0 12px var(--cyan);
+    opacity: 0.75;
+    animation: scanMove 2.6s ease-in-out infinite;
+}
+.reader-wrap.scanning .scanline { display: block; }
+@keyframes scanMove { 0%, 100% { top: 12%; } 50% { top: 86%; } }
+
+.scan-controls { display: flex; gap: 10px; margin-top: 12px; }
+.btn-neon {
+    flex: 1;
+    padding: 12px;
+    border: none; border-radius: 9px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-start {
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 100%);
+    color: #0a0f1f;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+}
+.btn-start:hover { box-shadow: 0 0 20px rgba(0, 242, 254, 0.55); transform: translateY(-1px); }
+.btn-stop {
+    background: linear-gradient(135deg, var(--magenta) 0%, #ff4da6 100%);
+    color: white;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.3);
+}
+.btn-stop:hover { box-shadow: 0 0 20px rgba(255, 0, 127, 0.55); transform: translateY(-1px); }
+
+.status-msg {
+    display: none;
+    margin-top: 10px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.4px;
+    border-left: 3px solid;
+}
+.status-msg.success {
+    display: block;
+    background: rgba(16, 185, 129, 0.12);
+    border-color: var(--green);
+    color: #6ee7b7;
+}
+.status-msg.error {
+    display: block;
+    background: rgba(255, 0, 127, 0.12);
+    border-color: var(--magenta);
+    color: #ff8ec7;
+}
+
+/* ==== CARTE PARTICIPANT ==== */
+.participant-card {
+    display: none;
+    border-left: 4px solid var(--green);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3), 0 0 20px rgba(16, 185, 129, 0.12);
+}
+.participant-card.visible { display: block; }
+.participant-card .panel-title i { color: var(--green); filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6)); }
+.participant-info { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.info-row { display: flex; gap: 10px; font-size: 13.5px; align-items: baseline; }
+.info-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--cyan);
+    min-width: 105px; flex-shrink: 0;
+}
+.info-value { color: var(--text); flex: 1; word-break: break-word; }
+
+.comment-section { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px; }
+.comment-section label {
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+}
+.comment-section textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 11px 13px;
+    background: rgba(5, 8, 17, 0.6);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.comment-section textarea:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0, 242, 254, 0.25); }
+.comment-section textarea::placeholder { color: #475569; }
+.save-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none; border-radius: 9px;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 100%);
+    color: #0a0f1f;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+}
+.save-btn:hover:not(:disabled) { box-shadow: 0 0 20px rgba(0, 242, 254, 0.55); transform: translateY(-1px); }
+.save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ==== LISTE DES SCANS ==== */
+.scan-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    margin-bottom: 6px;
+    background: rgba(5, 8, 17, 0.5);
+    border: 1px solid rgba(56, 189, 248, 0.1);
+    border-radius: 8px;
+}
+.scan-item .scan-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--text);
+}
+.scan-item .scan-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.scan-item .scan-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--cyan); flex-shrink: 0;
+}
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(5, 8, 17, 0.4);
+    border: 1px dashed rgba(56, 189, 248, 0.2);
+    border-radius: 9px;
+}
+.email-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none; border-radius: 9px;
+    background: linear-gradient(135deg, var(--green) 0%, #34d399 100%);
+    color: #06281c;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.email-btn:hover:not(:disabled) { box-shadow: 0 0 20px rgba(16, 185, 129, 0.55); transform: translateY(-1px); }
+.email-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+@media (max-width: 480px) {
+    .page-content { padding: 10px; gap: 10px; }
+    .panel { padding: 13px; }
+    #reader { min-height: 210px; }
+    .info-row { flex-direction: column; gap: 2px; }
+    .info-label { min-width: 0; }
+    .page-header h2 { font-size: 13px; }
+}
+</style>
 </head>
 <body>
-    <div class="page-header">
-        <button class="back-btn" onclick="retourAccueil()">←</button>
-        <h2>Scan QR Code</h2>
-    </div>
-    <div class="page-content">
-        <div class="scan-section">
-            <h3>📷 Scanner le QR code d'un participant</h3>
+
+<div class="page-header">
+    <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
+    <h2>📷 Scan QR <span class="cyan">Présence</span></h2>
+</div>
+
+<div class="page-content">
+
+    <!-- SCANNER -->
+    <div class="panel scan-section">
+        <div class="panel-title"><i class="fa-solid fa-qrcode"></i> Scanner le QR code d'un participant</div>
+        <div class="reader-wrap" id="readerWrap">
             <div id="reader"></div>
-            <div class="scan-controls">
-                <button class="btn-start" id="btnStart" onclick="demarrerScan()">▶️ Démarrer le scan</button>
-                <button class="btn-stop" id="btnStop" onclick="arreterScan()" style="display:none;">⏹️ Arrêter</button>
-            </div>
-            <div id="scanStatus" class="status-msg"></div>
+            <div class="scanline"></div>
         </div>
-        
-        <div id="participantCard" class="participant-card">
-            <h3> Participant détecté</h3>
-            <div class="participant-info">
-                <div class="info-row"><span class="info-label">Nom :</span><span class="info-value" id="pNom">-</span></div>
-                <div class="info-row"><span class="info-label">Prénom :</span><span class="info-value" id="pPrenom">-</span></div>
-                <div class="info-row"><span class="info-label">Statut :</span><span class="info-value" id="pStatut">-</span></div>
-                <div class="info-row"><span class="info-label">Établissement :</span><span class="info-value" id="pEtab">-</span></div>
-                <div class="info-row"><span class="info-label">Email :</span><span class="info-value" id="pEmail">-</span></div>
-                <div class="info-row"><span class="info-label">Téléphone :</span><span class="info-value" id="pTel">-</span></div>
-            </div>
-            <div class="comment-section">
-                <label for="commentaire">💬 Commentaire (optionnel) :</label>
-                <textarea id="commentaire" placeholder="Ajoutez un commentaire..."></textarea>
-                <button class="save-btn" id="btnSave" onclick="enregistrerScan()">💾 Enregistrer le scan</button>
-            </div>
+        <div class="scan-controls">
+            <button class="btn-neon btn-start" id="btnStart" onclick="demarrerScan()"><i class="fa-solid fa-play"></i> Démarrer le scan</button>
+            <button class="btn-neon btn-stop" id="btnStop" onclick="arreterScan()" style="display:none;"><i class="fa-solid fa-stop"></i> Arrêter</button>
         </div>
-        
-        <div class="scans-list">
-            <h3>📋 Scans non envoyés <span class="scan-count" id="scanCount">0</span></h3>
-            <div id="scansListContainer">
-                <div style="text-align:center;color:var(--text-sub);padding:20px;font-size:12px;">Aucun scan en attente d'envoi</div>
-            </div>
-            <button class="email-btn" id="btnEmail" onclick="envoyerParMail()" disabled>📧 Envoyer la liste par email</button>
+        <div id="scanStatus" class="status-msg"></div>
+    </div>
+
+    <!-- PARTICIPANT DÉTECTÉ -->
+    <div id="participantCard" class="panel participant-card">
+        <div class="panel-title"><i class="fa-solid fa-user-check"></i> Participant détecté</div>
+        <div class="participant-info">
+            <div class="info-row"><span class="info-label">Nom</span><span class="info-value" id="pNom">-</span></div>
+            <div class="info-row"><span class="info-label">Prénom</span><span class="info-value" id="pPrenom">-</span></div>
+            <div class="info-row"><span class="info-label">Statut</span><span class="info-value" id="pStatut">-</span></div>
+            <div class="info-row"><span class="info-label">Établissement</span><span class="info-value" id="pEtab">-</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span class="info-value" id="pEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Téléphone</span><span class="info-value" id="pTel">-</span></div>
+        </div>
+        <div class="comment-section">
+            <label for="commentaire">💬 Commentaire (optionnel)</label>
+            <textarea id="commentaire" placeholder="Ajoutez un commentaire..."></textarea>
+            <button class="save-btn" id="btnSave" onclick="enregistrerScan()">💾 Enregistrer le scan</button>
         </div>
     </div>
 
-    <script src="../js/commun.js"></script>
-    <script>
-        verifierConnexionOuRediriger();
-        
-        const adherent = chargerAdherent();
-        let participants = [];
-        let html5QrCode = null;
-        let scanEnCours = false;
-        let participantScanne = null;
-        let scansNonEnvoyes = [];
-        
-        console.log('[ScanQR] Initialisation - Utilisateur:', adherent ? adherent.nom : 'NON CONNECTÉ');
-        
-        async function chargerParticipants() {
-            try {
-                console.log('[ScanQR] Chargement des participants...');
-                const resp = await fetch(SCRIPT_URL + '?action=getParticipants');
-                const data = await resp.json();
-                
-                if (data.success) {
-                    participants = data.participants;
-                    console.log('[ScanQR] ✅ ' + participants.length + ' participants chargés');
-                    console.log('[ScanQR] Exemple:', participants[0]);
-                } else {
-                    console.error('[ScanQR]  Erreur chargement:', data.message);
-                }
-            } catch (e) {
-                console.error('[ScanQR] ❌ Erreur chargement participants:', e);
-            }
-        }
-        
-        async function chargerScansNonEnvoyes() {
-            try {
-                const resp = await fetch(SCRIPT_URL + '?action=getScansNonEnvoyes&scannerId=' + encodeURIComponent(adherent.id));
-                const data = await resp.json();
-                
-                if (data.success) {
-                    scansNonEnvoyes = data.scans;
-                    mettreAJourListeScans();
-                    console.log('[ScanQR] ' + scansNonEnvoyes.length + ' scans non envoyés chargés');
-                }
-            } catch (e) {
-                console.error('[ScanQR] Erreur chargement scans:', e);
-            }
-        }
-        
-        function demarrerScan() {
-            if (scanEnCours) return;
+    <!-- SCANS NON ENVOYÉS -->
+    <div class="panel scans-list">
+        <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Scans non envoyés <span class="scan-count" id="scanCount">0</span></div>
+        <div id="scansListContainer">
+            <div class="empty-state">Aucun scan en attente d'envoi</div>
+        </div>
+        <button class="email-btn" id="btnEmail" onclick="envoyerParMail()" disabled>📧 Envoyer la liste par email</button>
+    </div>
+
+</div>
+
+<script src="../js/commun.js"></script>
+<script>
+    verifierConnexionOuRediriger();
+    
+    const adherent = chargerAdherent();
+    let participants = [];
+    let html5QrCode = null;
+    let scanEnCours = false;
+    let participantScanne = null;
+    let scansNonEnvoyes = [];
+    
+    console.log('[ScanQR] Initialisation - Utilisateur:', adherent ? adherent.nom : 'NON CONNECTÉ');
+    
+    async function chargerParticipants() {
+        try {
+            console.log('[ScanQR] Chargement des participants...');
+            const resp = await fetch(SCRIPT_URL + '?action=getParticipants');
+            const data = await resp.json();
             
-            console.log('[ScanQR] Démarrage du scan...');
-            console.log('[ScanQR] Nombre de participants en mémoire:', participants.length);
-            
-            const reader = document.getElementById('reader');
-            html5QrCode = new Html5Qrcode("reader");
-            
-            const tailleZone = Math.min(window.innerWidth * 0.95, 400);
-            
-            const config = { 
-                fps: 10, 
-                qrbox: { width: tailleZone, height: tailleZone },
-                aspectRatio: 1.0
-            };
-            
-            html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
-                scanEnCours = true;
-                document.getElementById('btnStart').style.display = 'none';
-                document.getElementById('btnStop').style.display = 'block';
-                afficherStatus('📷 Caméra active - Pointez vers un QR code', 'success');
-                console.log('[ScanQR] ✅ Caméra démarrée');
-            }).catch(err => {
-                console.error('[ScanQR] ❌ Erreur démarrage caméra:', err);
-                afficherStatus('❌ Erreur caméra: ' + err, 'error');
-            });
-        }
-        
-        function arreterScan() {
-            if (!scanEnCours || !html5QrCode) return;
-            
-            console.log('[ScanQR] Arrêt du scan...');
-            
-            html5QrCode.stop().then(() => {
-                html5QrCode.clear();
-                scanEnCours = false;
-                document.getElementById('btnStart').style.display = 'block';
-                document.getElementById('btnStop').style.display = 'none';
-                afficherStatus('📷 Caméra arrêtée', 'success');
-                console.log('[ScanQR] ✅ Caméra arrêtée');
-            }).catch(err => {
-                console.error('[ScanQR] Erreur arrêt scan:', err);
-            });
-        }
-        
-        function onScanSuccess(decodedText, decodedResult) {
-            console.log('[ScanQR] 🎯 QR code scanné:', decodedText);
-            console.log('[ScanQR] Type:', typeof decodedText);
-            
-            // Chercher le participant dans la liste préchargée
-            const participant = participants.find(p => {
-                const match = String(p.id).toUpperCase() === String(decodedText).toUpperCase();
-                if (match) {
-                    console.log('[ScanQR] ✅ Participant trouvé:', p);
-                }
-                return match;
-            });
-            
-            if (participant) {
-                console.log('[ScanQR] Participant trouvé:', participant.nom, participant.prenom);
-                
-                // Vérifier si déjà scanné
-                const dejaScanne = scansNonEnvoyes.find(s => s.codeQR === participant.id);
-                if (dejaScanne) {
-                    console.log('[ScanQR] Déjà scanné!');
-                    afficherStatus('⚠️ ' + participant.prenom + ' ' + participant.nom + ' déjà scanné(e)', 'error');
-                } else {
-                    afficherStatus('✅ ' + participant.prenom + ' ' + participant.nom + ' détecté(e) !', 'success');
-                    afficherParticipant(participant);
-                }
+            if (data.success) {
+                participants = data.participants;
+                console.log('[ScanQR] ✅ ' + participants.length + ' participants chargés');
+                console.log('[ScanQR] Exemple:', participants[0]);
             } else {
-                console.log('[ScanQR] ❌ Participant NON TROUVÉ pour ID:', decodedText);
-                console.log('[ScanQR] Participants disponibles:', participants.map(p => p.id));
-                afficherStatus('❌ Code non reconnu: ' + decodedText, 'error');
+                console.error('[ScanQR]  Erreur chargement:', data.message);
             }
-            
-            // Arrêter le scan après détection
-            console.log('[ScanQR] Arrêt automatique du scan');
-            arreterScan();
+        } catch (e) {
+            console.error('[ScanQR] ❌ Erreur chargement participants:', e);
         }
-        
-        function onScanFailure(error) {
-            // Silencieux - scan en cours
-            // console.log('[ScanQR] Scan failure:', error);
-        }
-        
-        function afficherParticipant(p) {
-            participantScanne = p;
-            document.getElementById('pNom').textContent = p.nom;
-            document.getElementById('pPrenom').textContent = p.prenom;
-            document.getElementById('pStatut').textContent = p.statut;
-            document.getElementById('pEtab').textContent = p.etablissement;
-            document.getElementById('pEmail').textContent = p.email;
-            document.getElementById('pTel').textContent = p.telephone || 'Non renseigné';
-            document.getElementById('commentaire').value = '';
-            document.getElementById('participantCard').classList.add('visible');
-            document.getElementById('btnSave').disabled = false;
-            console.log('[ScanQR] Participant affiché dans l\'interface');
-        }
-        
-        async function enregistrerScan() {
-            if (!participantScanne) return;
+    }
+    
+    async function chargerScansNonEnvoyes() {
+        try {
+            const resp = await fetch(SCRIPT_URL + '?action=getScansNonEnvoyes&scannerId=' + encodeURIComponent(adherent.id));
+            const data = await resp.json();
             
-            const btn = document.getElementById('btnSave');
-            btn.disabled = true;
-            btn.textContent = ' Enregistrement...';
-            
-            const commentaire = document.getElementById('commentaire').value.trim();
-            
-            try {
-                console.log('[ScanQR] Enregistrement du scan:', participantScanne.id);
-                
-                const params = new URLSearchParams({
-                    action: 'saveScan',
-                    scannedId: participantScanne.id,
-                    scannerId: adherent.id,
-                    commentaire: commentaire
-                });
-                
-                const resp = await fetch(SCRIPT_URL + '?' + params);
-                const data = await resp.json();
-                
-                console.log('[ScanQR] Réponse API:', data);
-                
-                if (data.success) {
-                    afficherStatus('✅ Scan enregistré avec succès !', 'success');
-                    document.getElementById('participantCard').classList.remove('visible');
-                    participantScanne = null;
-                    
-                    // Recharger la liste des scans non envoyés
-                    await chargerScansNonEnvoyes();
-                    
-                    setTimeout(() => {
-                        if (!scanEnCours) demarrerScan();
-                    }, 2000);
-                } else {
-                    afficherStatus('❌ Erreur: ' + data.message, 'error');
-                }
-            } catch (e) {
-                afficherStatus('❌ Erreur de connexion', 'error');
-                console.error('[ScanQR] Erreur enregistrement:', e);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '💾 Enregistrer le scan';
+            if (data.success) {
+                scansNonEnvoyes = data.scans;
+                mettreAJourListeScans();
+                console.log('[ScanQR] ' + scansNonEnvoyes.length + ' scans non envoyés chargés');
             }
+        } catch (e) {
+            console.error('[ScanQR] Erreur chargement scans:', e);
+        }
+    }
+    
+    function demarrerScan() {
+        if (scanEnCours) return;
+        
+        console.log('[ScanQR] Démarrage du scan...');
+        console.log('[ScanQR] Nombre de participants en mémoire:', participants.length);
+        
+        html5QrCode = new Html5Qrcode("reader");
+        
+        const config = { 
+            fps: 10, 
+            qrbox: function (w, h) {
+                const s = Math.floor(Math.min(w, h) * 0.85);
+                return { width: s, height: s };
+            }
+        };
+        
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanFailure
+        ).then(() => {
+            scanEnCours = true;
+            document.getElementById('btnStart').style.display = 'none';
+            document.getElementById('btnStop').style.display = 'flex';
+            document.getElementById('readerWrap').classList.add('scanning');
+            afficherStatus('📷 Caméra active - Pointez vers un QR code', 'success');
+            console.log('[ScanQR] ✅ Caméra démarrée');
+        }).catch(err => {
+            console.error('[ScanQR] ❌ Erreur démarrage caméra:', err);
+            afficherStatus('❌ Erreur caméra: ' + err, 'error');
+        });
+    }
+    
+    function arreterScan() {
+        if (!scanEnCours || !html5QrCode) return;
+        
+        console.log('[ScanQR] Arrêt du scan...');
+        
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            scanEnCours = false;
+            document.getElementById('btnStart').style.display = 'flex';
+            document.getElementById('btnStop').style.display = 'none';
+            document.getElementById('readerWrap').classList.remove('scanning');
+            afficherStatus('📷 Caméra arrêtée', 'success');
+            console.log('[ScanQR] ✅ Caméra arrêtée');
+        }).catch(err => {
+            console.error('[ScanQR] Erreur arrêt scan:', err);
+        });
+    }
+    
+    function onScanSuccess(decodedText, decodedResult) {
+        console.log('[ScanQR] 🎯 QR code scanné:', decodedText);
+        
+        const participant = participants.find(p => String(p.id).toUpperCase() === String(decodedText).toUpperCase());
+        
+        if (participant) {
+            const dejaScanne = scansNonEnvoyes.find(s => s.codeQR === participant.id);
+            if (dejaScanne) {
+                afficherStatus('⚠️ ' + participant.prenom + ' ' + participant.nom + ' déjà scanné(e)', 'error');
+            } else {
+                afficherStatus('✅ ' + participant.prenom + ' ' + participant.nom + ' détecté(e) !', 'success');
+                afficherParticipant(participant);
+            }
+        } else {
+            afficherStatus('❌ Code non reconnu: ' + decodedText, 'error');
         }
         
-        function mettreAJourListeScans() {
-            const container = document.getElementById('scansListContainer');
-            document.getElementById('scanCount').textContent = scansNonEnvoyes.length;
-            document.getElementById('btnEmail').disabled = scansNonEnvoyes.length === 0;
-            
-            if (scansNonEnvoyes.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:var(--text-sub);padding:20px;font-size:12px;">Aucun scan en attente d\'envoi</div>';
-                return;
-            }
-            
-            let html = '';
-            [...scansNonEnvoyes].reverse().forEach(s => {
-                html += `<div class="scan-item">
-                    <div>
-                        <div class="scan-name">${s.prenom} ${s.nom}</div>
-                        <div style="font-size:10px;color:var(--text-sub);">${s.statut} - ${s.etablissement}</div>
-                    </div>
-                    <div class="scan-time">${s.horodatage.split(' ')[1] || ''}</div>
-                </div>`;
+        arreterScan();
+    }
+    
+    function onScanFailure(error) {
+        // Silencieux - scan en cours
+    }
+    
+    function afficherParticipant(p) {
+        participantScanne = p;
+        document.getElementById('pNom').textContent = p.nom;
+        document.getElementById('pPrenom').textContent = p.prenom;
+        document.getElementById('pStatut').textContent = p.statut;
+        document.getElementById('pEtab').textContent = p.etablissement;
+        document.getElementById('pEmail').textContent = p.email;
+        document.getElementById('pTel').textContent = p.telephone || 'Non renseigné';
+        document.getElementById('commentaire').value = '';
+        document.getElementById('participantCard').classList.add('visible');
+        document.getElementById('btnSave').disabled = false;
+    }
+    
+    async function enregistrerScan() {
+        if (!participantScanne) return;
+        
+        const btn = document.getElementById('btnSave');
+        btn.disabled = true;
+        btn.textContent = '⏳ Enregistrement...';
+        
+        const commentaire = document.getElementById('commentaire').value.trim();
+        
+        try {
+            const params = new URLSearchParams({
+                action: 'saveScan',
+                scannedId: participantScanne.id,
+                scannerId: adherent.id,
+                commentaire: commentaire
             });
             
-            container.innerHTML = html;
-        }
-        
-        async function envoyerParMail() {
-            if (scansNonEnvoyes.length === 0) return;
+            const resp = await fetch(SCRIPT_URL + '?' + params);
+            const data = await resp.json();
             
-            const emailDest = adherent.email;
-            if (!emailDest) {
-                alert(' Votre adresse email n\'est pas renseignée');
-                return;
-            }
-            
-            if (!confirm(`📧 Envoyer la liste de ${scansNonEnvoyes.length} personne(s) scannée(s) à ${emailDest} ?`)) return;
-            
-            const btn = document.getElementById('btnEmail');
-            btn.disabled = true;
-            btn.textContent = '⏳ Envoi en cours...';
-            
-            try {
-                const params = new URLSearchParams({
-                    action: 'sendScansByEmail',
-                    scannerId: adherent.id,
-                    emailDest: emailDest
-                });
+            if (data.success) {
+                afficherStatus('✅ Scan enregistré avec succès !', 'success');
+                document.getElementById('participantCard').classList.remove('visible');
+                participantScanne = null;
                 
-                const resp = await fetch(SCRIPT_URL + '?' + params);
-                const data = await resp.json();
+                await chargerScansNonEnvoyes();
                 
-                if (data.success) {
-                    alert('✅ Email envoyé avec succès !\n\n' + data.nbScans + ' scan(s) envoyé(s) à ' + emailDest);
-                    
-                    // Vider la liste locale
-                    scansNonEnvoyes = [];
-                    mettreAJourListeScans();
-                } else {
-                    alert('❌ Erreur: ' + data.message);
-                }
-            } catch (e) {
-                alert('❌ Erreur de connexion');
-                console.error(e);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '📧 Envoyer la liste par email';
+                setTimeout(() => {
+                    if (!scanEnCours) demarrerScan();
+                }, 2000);
+            } else {
+                afficherStatus('❌ Erreur: ' + data.message, 'error');
             }
+        } catch (e) {
+            afficherStatus('❌ Erreur de connexion', 'error');
+            console.error('[ScanQR] Erreur enregistrement:', e);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '💾 Enregistrer le scan';
+        }
+    }
+    
+    function mettreAJourListeScans() {
+        const container = document.getElementById('scansListContainer');
+        document.getElementById('scanCount').textContent = scansNonEnvoyes.length;
+        document.getElementById('btnEmail').disabled = scansNonEnvoyes.length === 0;
+        
+        if (scansNonEnvoyes.length === 0) {
+            container.innerHTML = '<div class="empty-state">Aucun scan en attente d\'envoi</div>';
+            return;
         }
         
-        function afficherStatus(msg, type) {
-            const el = document.getElementById('scanStatus');
-            el.textContent = msg;
-            el.className = 'status-msg ' + type;
-            setTimeout(() => { el.style.display = 'none'; }, 4000);
-        }
-        
-        window.addEventListener('beforeunload', () => {
-            if (scanEnCours && html5QrCode) {
-                html5QrCode.stop().catch(() => {});
-            }
+        let html = '';
+        [...scansNonEnvoyes].reverse().forEach(s => {
+            html += `<div class="scan-item">
+                <div>
+                    <div class="scan-name">${s.prenom} ${s.nom}</div>
+                    <div class="scan-sub">${s.statut} - ${s.etablissement}</div>
+                </div>
+                <div class="scan-time">${s.horodatage.split(' ')[1] || ''}</div>
+            </div>`;
         });
         
-        // Initialisation
-        console.log('[ScanQR] Démarrage du chargement...');
-        chargerParticipants();
-        chargerScansNonEnvoyes();
-    </script>
+        container.innerHTML = html;
+    }
+    
+    async function envoyerParMail() {
+        if (scansNonEnvoyes.length === 0) return;
+        
+        const emailDest = adherent.email;
+        if (!emailDest) {
+            alert('Votre adresse email n\'est pas renseignée');
+            return;
+        }
+        
+        if (!confirm(`📧 Envoyer la liste de ${scansNonEnvoyes.length} personne(s) scannée(s) à ${emailDest} ?`)) return;
+        
+        const btn = document.getElementById('btnEmail');
+        btn.disabled = true;
+        btn.textContent = '⏳ Envoi en cours...';
+        
+        try {
+            const params = new URLSearchParams({
+                action: 'sendScansByEmail',
+                scannerId: adherent.id,
+                emailDest: emailDest
+            });
+            
+            const resp = await fetch(SCRIPT_URL + '?' + params);
+            const data = await resp.json();
+            
+            if (data.success) {
+                alert('✅ Email envoyé avec succès !\n\n' + data.nbScans + ' scan(s) envoyé(s) à ' + emailDest);
+                scansNonEnvoyes = [];
+                mettreAJourListeScans();
+            } else {
+                alert('❌ Erreur: ' + data.message);
+            }
+        } catch (e) {
+            alert('❌ Erreur de connexion');
+            console.error(e);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📧 Envoyer la liste par email';
+        }
+    }
+    
+    function afficherStatus(msg, type) {
+        const el = document.getElementById('scanStatus');
+        el.textContent = msg;
+        el.className = 'status-msg ' + type;
+        setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+    
+    window.addEventListener('beforeunload', () => {
+        if (scanEnCours && html5QrCode) {
+            html5QrCode.stop().catch(() => {});
+        }
+    });
+    
+    chargerParticipants();
+    chargerScansNonEnvoyes();
+</script>
 </body>
 </html>
