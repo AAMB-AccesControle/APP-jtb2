@@ -682,8 +682,12 @@ function startScanner() {
       { facingMode: 'environment' },
       {
         fps: 10,
-        qrbox: (w, h) => { 
-          return { width: Math.min(w, 280), height: Math.min(h, 150) }; 
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+            // Remplit 95% de la largeur et de la hauteur du cadre actuel
+            return { 
+                width: viewfinderWidth * 0.95, 
+                height: viewfinderHeight * 0.95 
+            };
         },
         experimentalFeatures: { useBarCodeDetectorIfSupported: true }
       },
