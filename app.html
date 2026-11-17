@@ -569,19 +569,19 @@
         <div class="btn-group" id="groupCom">
             <div class="btn-group-title"><i class="fa-solid fa-satellite-dish"></i> Communication</div>
             <div class="btn-grid">
+                
+                <!-- Bouton 1 : Site AAMB -->
                 <button class="btn-tile" onclick="openWebsite('aamb')">
                     <span class="btn-tile-icon"><i class="fa-solid fa-house-laptop"></i></span>
                     <span class="btn-tile-label">Site Internet de l'AAMB</span>
                 </button>
+                
+                <!-- Bouton 2 : Site des JTB (avec son menu déroulant) -->
                 <div class="jtb-wrap">
                     <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
                         <span class="btn-tile-icon"><i class="fa-solid fa-globe"></i></span>
                         <span class="btn-tile-label">Site des JTB ▲</span>
                     </button>                
-                    <button class="btn-tile" onclick="openWebsite('tourisme')">
-                        <span class="btn-tile-icon"><i class="fa-solid fa-landmark"></i></span>
-                        <span class="btn-tile-label">Tourisme à Besançon</span>
-                    </button>
                     <div class="jtb-menu" id="jtbMenu">
                         <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
                         <div class="jtb-item" onclick="openJTB('https://jtb2025.aamb.asso.fr')">JTB 2025 – Metz</div>
@@ -589,10 +589,19 @@
                         <div class="jtb-item" onclick="openJTB('https://jtb2023.aamb.asso.fr')">JTB 2023</div>
                     </div>
                 </div>
+
+                <!-- Bouton 3 : Tourisme (maintenant indépendant dans la grille) -->
+                <button class="btn-tile" onclick="openWebsite('tourisme')">
+                    <span class="btn-tile-icon"><i class="fa-solid fa-landmark"></i></span>
+                    <span class="btn-tile-label">Tourisme à Besançon</span>
+                </button>
+
+                <!-- Bouton 4 : Scan QR -->
                 <a class="btn-tile" href="pages/scan-qr.html" id="tileScanPresence">
                     <span class="btn-tile-icon"><i class="fa-solid fa-qrcode"></i></span>
                     <span class="btn-tile-label">Scan QR Présence</span>
                 </a>
+
             </div>
         </div>
         
