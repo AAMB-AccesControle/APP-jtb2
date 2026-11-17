@@ -56,27 +56,45 @@
             padding: 12px 16px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
-        .back-btn {
+        .back-btn, .plan-btn {
             background: rgba(0, 242, 254, 0.1);
             border: 1px solid rgba(0, 242, 254, 0.3);
             color: #00f2fe;
-            width: 36px; height: 36px;
+            height: 36px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.25s;
             display: flex; align-items: center; justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
-        .back-btn:hover { background: rgba(0, 242, 254, 0.25); color: white; box-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+        .back-btn { width: 36px; padding: 0; font-size: 16px; }
+        .plan-btn { padding: 0 12px; font-size: 11px; }
+        .back-btn:hover, .plan-btn:hover {
+            background: rgba(0, 242, 254, 0.25);
+            color: white;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+        }
+        .plan-btn i { font-size: 13px; }
         .page-header h2 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             letter-spacing: 2px;
             text-transform: uppercase;
             flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .page-header h2 .cyan { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.6); }
 
@@ -234,49 +252,6 @@
             text-transform: uppercase;
         }
 
-        /* ==== DEBUG SECTION (terminal style) ==== */
-        .debug-section {
-            background: rgba(5, 8, 17, 0.95);
-            color: #00ff41;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.7;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            border: 1px solid rgba(0, 255, 65, 0.3);
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.15), inset 0 0 30px rgba(0, 255, 65, 0.05);
-        }
-        .debug-section.visible { display: block; }
-        .debug-section::before {
-            content: '> TERMINAL DEBUG';
-            display: block;
-            color: #00ff41;
-            font-weight: 700;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-            letter-spacing: 2px;
-        }
-        .debug-section .debug-title {
-            color: #fbbf24;
-            font-weight: 700;
-            font-size: 12px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
-            padding-bottom: 5px;
-            letter-spacing: 1px;
-        }
-        .debug-section .obstacle { color: #ff8ec7; text-shadow: 0 0 4px rgba(255, 0, 127, 0.4); }
-        .debug-section .chemin { color: #00f2fe; text-shadow: 0 0 4px rgba(0, 242, 254, 0.4); }
-        .debug-section .info { color: #94a3b8; }
-        .debug-section .entree { color: #c084fc; text-shadow: 0 0 4px rgba(168, 85, 247, 0.4); }
-
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -299,17 +274,23 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
-            .page-header h2 { font-size: 14px; }
+            .page-header h2 { font-size: 13px; letter-spacing: 1px; }
+            .plan-btn { font-size: 10px; padding: 0 10px; }
         }
     </style>
 </head>
 <body>
     <div class="page-header">
         <button class="back-btn" onclick="retourAccueil()"><i class="fa-solid fa-arrow-left"></i></button>
-        <h2>🗺️ Navigation <span class="cyan">entre stands</span></h2>
+        <h2>🗺️ Navigation <span class="cyan">stands</span></h2>
+        <a class="plan-btn" href="https://drive.google.com/drive/folders/17JuQDmGLNBGzVXWF2a0WWOhuIJKKyHaj" target="_blank" rel="noopener">
+            <i class="fa-solid fa-map"></i> Plan
+        </a>
     </div>
+
     <div class="page-content">
         <div id="loading" class="loading">Chargement du plan de la salle...</div>
+
         <div class="nav-section" id="navForm" style="display:none;">
             <h3><i class="fa-solid fa-location-dot"></i> Je suis au stand :</h3>
             <select id="standDepart"><option value="">-- Sélectionnez --</option></select>
@@ -319,7 +300,7 @@
                 <i class="fa-solid fa-route"></i> Calculer l'itinéraire
             </button>
         </div>
-        <div id="debugSection" class="debug-section"></div>
+
         <div id="instructions" class="instructions">
             <h3><i class="fa-solid fa-map-signs"></i> Itinéraire</h3>
             <div id="instructionsList"></div>
@@ -339,11 +320,11 @@
     <script src="../js/commun.js"></script>
     <script>
         verifierConnexionOuRediriger();
-        
+
         let stands = [];
         let grille = [];
         const PENALITE_VIRAGE = 3;
-        
+
         async function chargerDonnees() {
             try {
                 const respStands = await fetch(SCRIPT_URL + '?action=getStands');
@@ -351,22 +332,19 @@
                 if (dataStands.success) {
                     stands = dataStands.stands.sort((a, b) => a.numero - b.numero);
                     remplirSelects();
-                    console.log('[Nav] ' + stands.length + ' stands chargés');
                 }
                 const respGrille = await fetch(SCRIPT_URL + '?action=getGrilleSalle');
                 const dataGrille = await respGrille.json();
                 if (dataGrille.success) {
                     grille = dataGrille.grille;
-                    console.log('[Nav] Grille chargée: ' + grille.length + ' x ' + grille[0].length);
                 }
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('navForm').style.display = 'block';
             } catch (e) {
-                console.error('[Nav] Erreur:', e);
                 document.getElementById('loading').textContent = 'Erreur de chargement. Vérifiez votre connexion.';
             }
         }
-        
+
         function remplirSelects() {
             const selectDepart = document.getElementById('standDepart');
             const selectArrivee = document.getElementById('standArrivee');
@@ -383,7 +361,7 @@
             selectDepart.addEventListener('change', verifier);
             selectArrivee.addEventListener('change', verifier);
         }
-        
+
         function estObstacle(cellule) {
             if (!cellule) return false;
             const texte = String(cellule).trim();
@@ -393,7 +371,7 @@
             if (texte.toUpperCase() === 'AAMB') return true;
             return false;
         }
-        
+
         function trouverEntreeStandAvecDirection(numeroStand) {
             const numStr = String(numeroStand);
             const entrees = [];
@@ -417,7 +395,6 @@
                                 if (/^\d{1,2}[\s\n]+[A-Za-zÀ-ÿ]/.test(texteStand) && texteStand.startsWith(numStr)) {
                                     const directionOpposee = {'haut':'bas','bas':'haut','gauche':'droite','droite':'gauche'}[d.dir];
                                     entrees.push({x: x, y: y, directionRegard: d.dir, directionDepart: directionOpposee});
-                                    console.log('[Nav] ✅ Entrée en (' + x + ', ' + y + ') - Regard: ' + d.dir + ' - Départ: ' + directionOpposee);
                                     break;
                                 }
                             }
@@ -427,7 +404,18 @@
             }
             return entrees;
         }
-        
+
+        function trouverEntreeStand(numeroStand) {
+            const numStr = String(numeroStand);
+            const entrees = [];
+            for (let y = 0; y < grille.length; y++) {
+                for (let x = 0; x < grille[0].length; x++) {
+                    if (String(grille[y][x] || '').trim() === numStr) entrees.push({x: x, y: y});
+                }
+            }
+            return entrees;
+        }
+
         function aStar(start, end, grid, directionInitiale) {
             if (!start || !end) return null;
             const openSet = [{x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null, direction: directionInitiale, nbVirages: 0}];
@@ -445,7 +433,6 @@
                     const chemin = [];
                     let node = current;
                     while (node) { chemin.unshift({x: node.x, y: node.y}); node = node.parent; }
-                    console.log('[Nav] ✅ Chemin: ' + chemin.length + ' cellules, ' + current.nbVirages + ' virages');
                     return chemin;
                 }
                 if (closedSet.has(key)) continue;
@@ -486,43 +473,21 @@
             }
             return null;
         }
-        
+
         function calculerItineraire() {
             const numDepart = parseInt(document.getElementById('standDepart').value);
             const numArrivee = parseInt(document.getElementById('standArrivee').value);
             if (!numDepart || !numArrivee) { alert('Veuillez sélectionner les deux stands'); return; }
             if (numDepart === numArrivee) { alert('Veuillez sélectionner deux stands différents'); return; }
-            
+
             const entreesDepart = trouverEntreeStandAvecDirection(numDepart);
             const entreesArrivee = trouverEntreeStand(numArrivee);
-            
-            let debugHtml = '<div class="debug-title">🔍 RAISONNEMENT</div>';
-            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            debugHtml += '<div class="info">🚩 DÉPART : stand ' + numDepart + '</div>';
-            debugHtml += '<div class="info">🏁 ARRIVÉE : stand ' + numArrivee + '</div>';
-            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            
-            if (entreesDepart.length === 0) {
-                debugHtml += '<div class="obstacle">❌ Aucune entrée "' + numDepart + '" trouvée</div>';
-            } else {
-                debugHtml += '<div class="entree">✅ ' + entreesDepart.length + ' entrée(s) :</div>';
-                entreesDepart.forEach(e => { debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ') - Regard: ' + e.directionRegard + ' - Départ: ' + e.directionDepart + '</div>'; });
-            }
-            if (entreesArrivee.length === 0) {
-                debugHtml += '<div class="obstacle">❌ Aucune entrée "' + numArrivee + '" trouvée</div>';
-            } else {
-                debugHtml += '<div class="entree">✅ ' + entreesArrivee.length + ' entrée(s) :</div>';
-                entreesArrivee.forEach(e => { debugHtml += '<div class="entree">   → (' + e.x + ', ' + e.y + ')</div>'; });
-            }
-            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            
+
             if (entreesDepart.length === 0 || entreesArrivee.length === 0) {
-                document.getElementById('debugSection').innerHTML = debugHtml;
-                document.getElementById('debugSection').classList.add('visible');
-                alert('❌ Entrée(s) manquante(s).');
+                alert('❌ Entrée(s) manquante(s) pour l\'un des stands.');
                 return;
             }
-            
+
             let meilleurCout = Infinity, meilleurStart = null, meilleurEnd = null, meilleureDirection = null;
             for (const entreeD of entreesDepart) {
                 for (const entreeA of entreesArrivee) {
@@ -533,53 +498,33 @@
                     }
                 }
             }
-            
-            debugHtml += '<div class="chemin">📍 Départ: (' + meilleurStart.x + ', ' + meilleurStart.y + ')</div>';
-            debugHtml += '<div class="chemin">👁️ Regard: ' + meilleurStart.directionRegard + ' | Départ: ' + meilleureDirection + '</div>';
-            debugHtml += '<div class="chemin">🏁 Arrivée: (' + meilleurEnd.x + ', ' + meilleurEnd.y + ')</div>';
-            debugHtml += '<div class="info">═══════════════════════════════════════</div>';
-            
+
             const chemin = aStar(meilleurStart, meilleurEnd, grille, meilleureDirection);
-            
+
             if (chemin) {
-                debugHtml += '<div class="chemin">✅ CHEMIN: ' + chemin.length + ' cellules (' + (chemin.length * 0.5).toFixed(1) + ' m)</div>';
                 afficherInstructions(chemin, numDepart, numArrivee, meilleureDirection);
             } else {
-                debugHtml += '<div class="obstacle">❌ AUCUN CHEMIN TROUVÉ</div>';
+                alert('❌ Aucun chemin trouvé entre ces deux stands.');
             }
-            
-            document.getElementById('debugSection').innerHTML = debugHtml;
-            document.getElementById('debugSection').classList.add('visible');
         }
-        
-        function trouverEntreeStand(numeroStand) {
-            const numStr = String(numeroStand);
-            const entrees = [];
-            for (let y = 0; y < grille.length; y++) {
-                for (let x = 0; x < grille[0].length; x++) {
-                    if (String(grille[y][x] || '').trim() === numStr) entrees.push({x: x, y: y});
-                }
-            }
-            return entrees;
-        }
-        
+
         function afficherInstructions(chemin, numDepart, numArrivee, directionDepart) {
             if (!chemin || chemin.length < 2) return;
-            
+
             const instructions = [];
             const standArrivee = stands.find(s => s.numero === numArrivee);
-            
+
             let segments = [];
             let currentDir = null;
             let currentDist = 0;
-            
+
             for (let i = 1; i < chemin.length; i++) {
                 const prev = chemin[i-1];
                 const curr = chemin[i];
                 const dx = curr.x - prev.x;
                 const dy = curr.y - prev.y;
                 const dir = dx === 1 ? 'droite' : dx === -1 ? 'gauche' : dy === 1 ? 'bas' : 'haut';
-                
+
                 if (currentDir === null) {
                     currentDir = dir;
                     currentDist = 1;
@@ -594,20 +539,17 @@
             if (currentDir !== null) {
                 segments.push({direction: currentDir, distance: currentDist});
             }
-            
-            console.log('[Nav]  Segments:', segments.map(s => s.direction + ' ' + (s.distance*0.5).toFixed(1) + 'm'));
-            console.log('[Nav] 👁️ Direction de départ:', directionDepart);
-            
+
             let totalDistance = 0;
             let etape = 1;
-            
+
             if (segments.length > 0) {
                 const premierSegment = segments[0];
                 const metres = (premierSegment.distance * 0.5).toFixed(1);
                 totalDistance += premierSegment.distance;
-                
+
                 const premierVirage = calculerVirage(directionDepart, premierSegment.direction);
-                
+
                 if (premierVirage === 'tout droit') {
                     instructions.push({
                         numero: etape++,
@@ -625,39 +567,39 @@
                     });
                 }
             }
-            
+
             for (let i = 1; i < segments.length; i++) {
                 const seg = segments[i];
                 const metres = (seg.distance * 0.5).toFixed(1);
                 totalDistance += seg.distance;
-                
+
                 const virage = calculerVirage(segments[i-1].direction, seg.direction);
-                
+
                 instructions.push({
                     numero: etape++,
                     texte: '<span class="action">Tournez à ' + virage + '</span> et avancez sur ' + metres + ' m'
                 });
             }
-            
+
             instructions.push({
                 numero: etape++,
                 texte: '<span class="action">Vous êtes arrivé au stand <strong>' + numArrivee + ' - ' + standArrivee.nom + '</strong></span>'
             });
-            
+
             const distanceMetres = (totalDistance * 0.5).toFixed(1);
             const tempsSecondes = Math.round(totalDistance * 0.5 / 1.2);
-            
+
             let html = '';
             instructions.forEach(function(inst) {
                 html += '<div class="instruction-step"><span class="step-number">' + inst.numero + '.</span>' + inst.texte + '</div>';
             });
-            
+
             document.getElementById('instructionsList').innerHTML = html;
             document.getElementById('statDistance').textContent = distanceMetres;
             document.getElementById('statTime').textContent = tempsSecondes;
             document.getElementById('instructions').classList.add('visible');
         }
-        
+
         function calculerVirage(directionActuelle, nouvelleDirection) {
             const ordres = ['haut', 'droite', 'bas', 'gauche'];
             const idxActuel = ordres.indexOf(directionActuelle);
@@ -668,7 +610,7 @@
             if (diff === 2) return 'demi-tour';
             return 'tout droit';
         }
-        
+
         chargerDonnees();
     </script>
 </body>
