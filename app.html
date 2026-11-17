@@ -577,6 +577,10 @@
                     <button class="btn-tile" onclick="toggleJTBMenu(event)" style="width:100%;">
                         <span class="btn-tile-icon"><i class="fa-solid fa-globe"></i></span>
                         <span class="btn-tile-label">Site des JTB ▲</span>
+                    </button>                
+                    <button class="btn-tile" onclick="openWebsite('tourisme')">
+                        <span class="btn-tile-icon"><i class="fa-solid fa-landmark"></i></span>
+                        <span class="btn-tile-label">Tourisme à Besançon</span>
                     </button>
                     <div class="jtb-menu" id="jtbMenu">
                         <div class="jtb-item" onclick="openJTB('https://jtb2026.aamb.asso.fr')">JTB 2026 – Besançon</div>
@@ -778,7 +782,11 @@
         if (adherentSauvegarde) afficherApp(adherentSauvegarde);
 
         function openWebsite(type) {
-            if (type === 'aamb') window.open('https://www.aamb.asso.fr', '_blank');
+            const urls = {
+                aamb: 'https://www.aamb.asso.fr',
+                tourisme: 'https://www.besancon-tourisme.com/fr/visiter-besancon-les-incontournables/'
+            };
+            if (urls[type]) window.open(urls[type], '_blank');
         }
         function toggleJTBMenu(e) {
             e.stopPropagation();
