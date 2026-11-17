@@ -128,9 +128,7 @@ button { font-family: inherit; touch-action: manipulation; }
 @keyframes bannerBlink { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
 
 /* ===== STATISTIQUES ===== */
-.stats-panel {
-  display: grid; grid-template-columns: 1fr 1fr 1fr 1.15fr; gap: 8px;
-}
+.stats-panel { display: grid; grid-template-columns: 1fr 1fr 1fr 1.15fr; gap: 8px; }
 .stat {
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
   padding: 10px 6px 9px; text-align: center; backdrop-filter: blur(8px);
@@ -153,7 +151,6 @@ button { font-family: inherit; touch-action: manipulation; }
 .panel-header h3 { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
 .panel-header h3 i { color: var(--cyan); }
 
-/* Flash */
 .torch-btn {
   display: flex; align-items: center; gap: 7px;
   padding: 8px 13px; border-radius: 9px; cursor: pointer;
@@ -164,7 +161,7 @@ button { font-family: inherit; touch-action: manipulation; }
 .torch-btn.on { background: rgba(251,191,36,.28); border-color: var(--amber); color: #fff; box-shadow: 0 0 16px rgba(251,191,36,.55); }
 .torch-btn:disabled { opacity: .35; cursor: not-allowed; }
 
-/* Scanner */
+/* Scanner : cadre compact centré, vidéo à hauteur native */
 .reader-wrap { position: relative; }
 #reader {
   border: 2px solid rgba(0,242,254,.4);
@@ -175,7 +172,6 @@ button { font-family: inherit; touch-action: manipulation; }
   margin: 0 auto;
   box-shadow: inset 0 0 24px rgba(0,242,254,.1);
 }
-/* CORRECTION : Suppression du doublon et conservation de height:auto pour le centrage */
 #reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
 .scanline { position: absolute; left: 6%; right: 6%; height: 2px; top: 10%; pointer-events: none; z-index: 5;
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
@@ -213,30 +209,13 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
 .result-card.success .name { color: #6ee7b7; }
 .result-card.error .name { color: #ff8ec7; }
 .result-card .message { font-size: 14px; color: #cbd5e1; margin-bottom: 10px; line-height: 1.4; }
-
-/* Badge de type de session (Conférence / Atelier) */
 .session-type-badge {
-  display: inline-block;
-  margin: 8px 0;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: rgba(0, 242, 254, 0.15);
-  border: 1px solid rgba(0, 242, 254, 0.5);
-  color: #00f2fe;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+  display: inline-block; margin: 8px 0; padding: 6px 14px; border-radius: 20px;
+  font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  background: rgba(0,242,254,.15); border: 1px solid rgba(0,242,254,.5); color: #00f2fe;
+  box-shadow: 0 0 10px rgba(0,242,254,.2);
 }
-.result-card.error .session-type-badge {
-  background: rgba(255, 0, 127, 0.15);
-  border-color: rgba(255, 0, 127, 0.5);
-  color: #ff8ec7;
-  box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
-}
-
+.result-card.error .session-type-badge { background: rgba(255,0,127,.15); border-color: rgba(255,0,127,.5); color: #ff8ec7; box-shadow: 0 0 10px rgba(255,0,127,.2); }
 .result-card .session-tag { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 600; padding: 7px 12px; background: rgba(5,8,17,.6); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; display: inline-block; color: var(--text); max-width: 100%; }
 .result-card .time { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #64748b; margin-top: 10px; }
 .ribbon-off { display: none; margin: -20px -18px 14px; padding: 7px 10px; background: repeating-linear-gradient(45deg, rgba(255,45,85,.85) 0 10px, rgba(180,20,50,.85) 10px 20px); color: #fff; font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; animation: bannerBlink 1s steps(2) infinite; }
@@ -260,9 +239,6 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
 .btn-refresh .fa-spin { animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-.loading { text-align: center; padding: 22px; color: var(--muted); font-size: 13px; }
-.spinner { border: 3px solid rgba(0,242,254,.12); border-top: 3px solid var(--cyan); border-radius: 50%; width: 34px; height: 34px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-
 /* ===== TOASTS ===== */
 #toasts { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; width: min(92vw, 420px); pointer-events: none; }
 .toast { padding: 11px 15px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .5px; backdrop-filter: blur(12px); border: 1px solid; animation: toastIn .3s ease; display: flex; gap: 9px; align-items: center; }
@@ -276,7 +252,6 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
   .session-id { font-size: 20px; }
   .stat .value { font-size: 18px; }
   .stat .label { font-size: 8.5px; letter-spacing: .8px; }
-  #reader { min-height: 210px; }
   .result-card .name { font-size: 16px; }
   .page-header h2 { font-size: 12px; }
 }
@@ -297,7 +272,6 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
 
 <div class="page-content">
 
-  <!-- SÉLECTEUR DE SESSION -->
   <div class="session-bar" id="sessionBar">
     <button class="nav-arrow" id="prevBtn" onclick="navSession(-1)" aria-label="Session précédente"><i class="fa-solid fa-chevron-left"></i></button>
     <div class="session-inner">
@@ -316,7 +290,6 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
     <span id="offLiveText">Hors session en cours</span>
   </div>
 
-  <!-- STATISTIQUES -->
   <div class="stats-panel">
     <div class="stat expected"><span class="label">À scanner</span><span class="value" id="statExpected">0</span></div>
     <div class="stat scanned"><span class="label">Scannés</span><span class="value" id="statScanned">0</span></div>
@@ -325,7 +298,6 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
     <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- SCANNER -->
   <div class="panel">
     <div class="panel-header">
       <h3><i class="fa-solid fa-qrcode"></i> Scanner le badge</h3>
@@ -346,7 +318,6 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
 
   <div id="result"></div>
 
-  <!-- SYNCHRONISATION -->
   <div class="panel sync-panel">
     <div class="sync-row">
       <div class="sync-info">
@@ -394,42 +365,20 @@ function formatTS(d) {
   const p = n => String(n).padStart(2, '0');
   return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
 }
+
+// Lecture de date TOLÉRANTE : AAAA-MM-JJ, JJ/MM/AAAA, AAAA/MM/JJ
 function parseFR(dateStr, hm) {
   if (!dateStr) return null;
-  let dStr = String(dateStr).trim();
-  
-  // Format 1: AAAA-MM-JJ (ex: 2026-11-18)
+  const dStr = String(dateStr).trim();
   let m = dStr.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-  
-  // Format 2: JJ/MM/AAAA (ex: 18/11/2026) -> le plus courant en cas de conversion Sheets
   if (!m) {
     const m2 = dStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (m2) {
-      // On réorganise pour que la suite du code trouve [match, AAAA, MM, JJ]
-      m = [m2[0], m2[3], m2[2], m2[1]];
-    }
+    if (m2) m = [m2[0], m2[3], m2[2], m2[1]];
   }
-  
-  // Format 3: AAAA/MM/JJ (ex: 2026/11/18)
-  if (!m) {
-    m = dStr.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
-  }
-
+  if (!m) m = dStr.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
   const t = String(hm || '').match(/(\d{1,2}):(\d{2})/);
-  
-  if (!m) {
-    console.error("⚠️ Impossible de lire la date:", dateStr, "avec l'heure:", hm);
-    return null;
-  }
-  
-  // m[1] = année, m[2] = mois, m[3] = jour
-  const year = parseInt(m[1], 10);
-  const month = parseInt(m[2], 10) - 1; // Les mois commencent à 0 en JavaScript
-  const day = parseInt(m[3], 10);
-  const hour = t ? parseInt(t[1], 10) : 0;
-  const minute = t ? parseInt(t[2], 10) : 0;
-
-  return new Date(year, month, day, hour, minute).getTime();
+  if (!m) { console.error('⚠️ Date illisible:', dateStr, '| heure:', hm); return null; }
+  return new Date(+m[1], +m[2] - 1, +m[3], t ? +t[1] : 0, t ? +t[2] : 0).getTime();
 }
 
 // ===================== INIT =====================
@@ -495,4 +444,438 @@ function removeOutbox(k) {
 }
 
 // ===================== SESSIONS =====================
-function
+function loadSessionsCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(SESS_KEY) || 'null');
+    if (c && Array.isArray(c.sessions)) applySessions(c.sessions);
+  } catch (e) {}
+}
+function applySessions(list) {
+  sessions = list.map(s => ({ ...s, startMs: parseFR(s.date, s.deb), endMs: parseFR(s.date, s.fin) }))
+                 .filter(s => s.startMs && s.endMs);
+  confSessions = sessions.filter(s => up(s.id).indexOf('CONF') === 0).sort((a, b) => a.startMs - b.startMs);
+  console.log('[Sessions] valides:', sessions.length, '| CONF:', confSessions.length);
+}
+async function loadSessions() {
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=getSessions&t=' + Date.now());
+    const d = await r.json();
+    console.log('[Sessions] reçues du serveur:', (d && d.sessions) ? d.sessions.length : 0);
+    if (d.success && Array.isArray(d.sessions) && d.sessions.length) {
+      applySessions(d.sessions);
+      try { localStorage.setItem(SESS_KEY, JSON.stringify({ sessions: d.sessions })); } catch (e) {}
+    } else {
+      console.error('[Sessions] réponse invalide:', d);
+      $('sessionLibelle').textContent = '⚠ Serveur : 0 session (voir console F12)';
+    }
+  } catch (e) {
+    console.error('[Sessions] erreur réseau/JSON:', e);
+    $('sessionLibelle').textContent = '⚠ Erreur réseau : ' + e.message;
+  }
+}
+function computeLive() {
+  if (!confSessions.length) { liveIdx = 0; selIdx = 0; return; }
+  const now = Date.now();
+  liveIdx = confSessions.findIndex(s => s.endMs >= now);
+  if (liveIdx < 0) liveIdx = confSessions.length - 1;
+  const min = Math.max(0, liveIdx - 1), max = Math.min(confSessions.length - 1, liveIdx + 1);
+  if (selIdx < min || selIdx > max) selIdx = liveIdx;
+}
+function navBounds() { return [Math.max(0, liveIdx - 1), Math.min(confSessions.length - 1, liveIdx + 1)]; }
+function navSession(d) {
+  const [min, max] = navBounds();
+  const n = selIdx + d;
+  if (n < min || n > max) return;
+  selIdx = n;
+  renderSession(); renderStats();
+  if (selIdx !== liveIdx) warnBeep();
+}
+function resetToLive() {
+  if (selIdx !== liveIdx) { selIdx = liveIdx; renderSession(); renderStats(); }
+}
+function renderSession() {
+  const bar = $('sessionBar'), banner = $('offLiveBanner');
+  const conf = confSessions[selIdx];
+  const [min, max] = navBounds();
+  $('prevBtn').disabled = !conf || selIdx <= min;
+  $('nextBtn').disabled = !conf || selIdx >= max;
+  if (!conf) {
+    $('sessionId').textContent = 'CONF —';
+    $('sessionTime').textContent = '--h-- – --h--';
+    if ($('sessionLibelle').textContent === 'Chargement des sessions…') {
+      $('sessionLibelle').textContent = 'Aucune session chargée — vérifiez la console (F12).';
+    }
+    $('sessionChip').textContent = '—'; $('sessionChip').className = 'session-chip next';
+    bar.classList.remove('off-live'); banner.classList.remove('show');
+    return;
+  }
+  const off = selIdx !== liveIdx;
+  const inProgress = Date.now() >= conf.startMs && Date.now() <= conf.endMs;
+  $('sessionId').textContent = conf.id.replace('CONF', 'CONF ');
+  const dateTxt = new Date(conf.startMs).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+  $('sessionTime').textContent = dateTxt + ' · ' + conf.deb + ' – ' + conf.fin;
+  $('sessionLibelle').textContent = conf.libelle || '';
+  const chip = $('sessionChip');
+  if (off) { chip.textContent = '⚠ Hors session'; chip.className = 'session-chip off'; chip.title = 'Revenir à la session en cours'; }
+  else if (inProgress) { chip.textContent = '● En cours'; chip.className = 'session-chip live'; chip.title = ''; }
+  else { chip.textContent = 'À venir'; chip.className = 'session-chip next'; chip.title = ''; }
+  bar.classList.toggle('off-live', off);
+  banner.classList.toggle('show', off);
+  if (off) {
+    const live = confSessions[liveIdx];
+    $('offLiveText').textContent = 'Vous scannez sur ' + conf.id + ' — session en cours : ' + (live ? live.id : 'aucune');
+  }
+}
+
+// ===================== STATISTIQUES =====================
+function tween(el, to) {
+  const from = parseInt(el.textContent, 10) || 0;
+  if (from === to) { el.textContent = to; return; }
+  const t0 = performance.now(), dur = 400;
+  function step(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function renderStats() {
+  const conf = confSessions[selIdx];
+  let expected = 0, scanned = 0, mine = 0;
+  const confirmed = new Set();
+  for (const r of accessIndex.values()) {
+    if (up(r.ScannePar) === myId && String(r.TimestampScan || '').trim()) { mine++; confirmed.add(keyOf(r.Token, r.SessionID)); }
+    if (conf && r.SessionID === conf.id && STATUTS_COMPTE.indexOf(normStatut(r.Statut)) !== -1) {
+      expected++;
+      if (String(r.TimestampScan || '').trim()) scanned++;
+    }
+  }
+  outbox.forEach(o => { if (!confirmed.has(keyOf(o.token, o.sessionId))) mine++; });
+  tween($('statExpected'), expected);
+  tween($('statScanned'), scanned);
+  tween($('statRemaining'), Math.max(0, expected - scanned));
+  tween($('statMine'), mine);
+  $('progressFill').style.width = expected ? Math.min(100, (scanned / expected) * 100) + '%' : '0%';
+  $('cacheInfo').textContent = accessIndex.size + ' entrées';
+}
+function updateSyncUI() {
+  $('outboxChip').classList.toggle('show', outbox.length > 0);
+  $('outboxCount').textContent = outbox.length;
+  $('lastSyncText').textContent = lastSyncAt ? 'Sync ' + new Date(lastSyncAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '—';
+}
+
+// ===================== SYNCHRONISATION =====================
+async function syncTick() {
+  if (syncing) return;
+  syncing = true;
+  $('syncDot').className = 'dot syncing'; $('syncText').textContent = 'Sync…';
+  try {
+    await loadSessions();
+    const r = await fetch(SCRIPT_URL + '?action=getSyncState&t=' + Date.now());
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'sync');
+    mergeScans(d.scans || []);
+    const lu = String(d.lastUpdate);
+    if (lu !== knownUpdate && lu !== '0') await downloadFull(lu);
+    knownUpdate = lu;
+    lastSyncAt = Date.now();
+    $('syncDot').className = 'dot'; $('syncText').textContent = 'À jour';
+    computeLive(); renderSession(); renderStats();
+  } catch (e) {
+    $('syncDot').className = 'dot offline'; $('syncText').textContent = 'Hors ligne';
+  }
+  syncing = false;
+  renderStats(); updateSyncUI(); schedulePersist();
+}
+function mergeScans(scans) {
+  scans.forEach(s => {
+    const k = keyOf(s.Token, s.SessionID);
+    const row = accessIndex.get(k);
+    if (!row) return;
+    if (String(s.TimestampScan || '').trim()) {
+      row.TimestampScan = s.TimestampScan;
+      row.ScannePar = up(s.ScannePar);
+      row._pending = false;
+      removeOutbox(k);
+    }
+  });
+}
+async function downloadFull(lu) {
+  const r = await fetch(SCRIPT_URL + '?action=getAccessData&t=' + Date.now());
+  const d = await r.json();
+  if (!d.success || !Array.isArray(d.participants)) throw new Error('download');
+  const old = accessIndex;
+  const ni = new Map(), nt = new Map();
+  d.participants.forEach(row => {
+    row.Token = up(row.Token); row.SessionID = up(row.SessionID);
+    const k = keyOf(row.Token, row.SessionID);
+    const loc = old.get(k);
+    if (loc && String(loc.TimestampScan || '').trim() && !String(row.TimestampScan || '').trim()) {
+      row.TimestampScan = loc.TimestampScan; row.ScannePar = loc.ScannePar || myId; row._pending = true;
+      if (!outbox.some(o => keyOf(o.token, o.sessionId) === k)) {
+        outbox.push({ token: row.Token, sessionId: row.SessionID, time: new Date().toISOString() });
+      }
+    } else if (String(row.TimestampScan || '').trim()) {
+      removeOutbox(k);
+    }
+    ni.set(k, row);
+    if (!nt.has(row.Token)) nt.set(row.Token, []);
+    nt.get(row.Token).push(row);
+  });
+  accessIndex = ni; byToken = nt; knownUpdate = lu;
+  persistOutbox(); schedulePersist();
+}
+async function manualRefresh() {
+  if (refreshing) return;
+  refreshing = true;
+  const btn = $('refreshBtn');
+  btn.disabled = true;
+  $('refreshIcon').className = 'fa-solid fa-rotate fa-spin';
+  $('refreshLabel').textContent = 'Actualisation en cours… (scans toujours actifs)';
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=refreshAccessData&t=' + Date.now());
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'refresh');
+    await downloadFull(String(d.lastUpdate));
+    lastSyncAt = Date.now();
+    computeLive(); renderSession(); renderStats(); updateSyncUI();
+    toast('Liste actualisée : ' + d.rows + ' lignes, ' + d.preserved + ' scans conservés.', 'ok');
+  } catch (e) {
+    toast('Échec de l\'actualisation — réessayez.', 'err');
+  }
+  refreshing = false;
+  btn.disabled = false;
+  $('refreshIcon').className = 'fa-solid fa-rotate';
+  $('refreshLabel').textContent = 'Actualiser la liste (participants + inscriptions)';
+}
+
+// ===================== ENVOI DES SCANS (outbox) =====================
+async function flushOutbox() {
+  if (flushing || !outbox.length) return;
+  flushing = true;
+  const batch = outbox.slice();
+  for (const o of batch) {
+    try {
+      const r = await fetch(SCRIPT_URL, {
+        method: 'POST', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'markScanned', token: o.token, sessionId: o.sessionId, time: o.time, scanner: myId })
+      });
+      const d = await r.json();
+      const k = keyOf(o.token, o.sessionId);
+      if (d.success) {
+        removeOutbox(k);
+        const row = accessIndex.get(k);
+        if (row) { row.TimestampScan = d.timestamp || row.TimestampScan; row.ScannePar = myId; row._pending = false; }
+      } else if (/Déjà scanné/i.test(d.error || '')) {
+        removeOutbox(k);
+        const row = accessIndex.get(k);
+        if (row && d.timestamp) { row.TimestampScan = d.timestamp; row._pending = false; }
+      } else if (/introuvable/i.test(d.error || '')) {
+        removeOutbox(k);
+      }
+    } catch (e) { break; }
+  }
+  persistOutbox(); updateSyncUI(); renderStats(); schedulePersist();
+  flushing = false;
+}
+
+// ===================== SCANNER =====================
+function startScanner() {
+  try {
+    scanner = new Html5Qrcode('reader');
+    scanner.start(
+      { facingMode: 'environment' },
+      {
+        fps: 10,
+        qrbox: (vw, vh) => ({ width: Math.round(vw * 0.88), height: Math.round(vh * 0.82) }),
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+      },
+      text => {
+        if (processing) return;
+        processing = true;
+        try { scanner.pause(true); } catch (e) {}
+        $('scanline').style.display = 'none';
+        verifyCode(extractToken(text));
+      },
+      () => {}
+    ).then(() => {
+      try { torchSupported = !!(scanner.getRunningTrackCapabilities() || {}).torch; } catch (e) { torchSupported = false; }
+      renderTorch();
+    }).catch(() => {
+      toast('Caméra inaccessible — utilisez la saisie manuelle.', 'err');
+      $('scanline').style.display = 'none';
+    });
+  } catch (e) { toast('Erreur d\'initialisation du scanner.', 'err'); }
+}
+
+function extractToken(text) {
+  const t = String(text || '').trim();
+  const m = t.match(/[?&]token=([^&]+)/i);
+  return up(m ? decodeURIComponent(m[1]) : t);
+}
+
+function checkManualCode() {
+  if (processing) return;
+  const code = up($('manualCode').value);
+  if (!code) return;
+  processing = true;
+  try { if (scanner) scanner.pause(true); } catch (e) {}
+  $('scanline').style.display = 'none';
+  $('manualCode').value = '';
+  verifyCode(code);
+}
+
+function finishScan() {
+  processing = false;
+  $('result').innerHTML = '';
+  $('scanline').style.display = '';
+  try { if (scanner) scanner.resume(); } catch (e) {}
+}
+
+// ===================== VÉRIFICATION (100% locale) =====================
+function getSessionType(sessionId) {
+  if (!sessionId) return '';
+  const id = up(sessionId).replace(/[^A-Z0-9]/g, '');
+  if (id.indexOf('CONF') === 0) return 'Conférence';
+  if (id.indexOf('AG') === 0) return 'Assemblée Générale';
+  if (id.indexOf('ATEL') === 0) {
+    if (id.endsWith('A')) return 'Atelier 1';
+    if (id.endsWith('B')) return 'Atelier 2';
+    return 'Atelier';
+  }
+  return 'Session';
+}
+
+function atelierConfId(atelId) {
+  const s = sessions.find(x => x.id === atelId);
+  return s && s.confId ? up(s.confId) : '';
+}
+
+function verifyCode(token) {
+  const conf = confSessions[selIdx];
+  const off = selIdx !== liveIdx;
+  if (!conf) { showResult(false, token, 'Aucune session sélectionnée.', null, off, false, ''); setTimeout(finishScan, 3000); return; }
+  const row = accessIndex.get(keyOf(token, conf.id));
+  if (row) {
+    const nom = (row.Prenom || '') + ' ' + (row.Nom || '');
+    const sessionType = getSessionType(row.SessionID);
+    if (String(row.TimestampScan || '').trim()) {
+      const par = up(row.ScannePar) === myId ? 'vous' : (row.ScannePar || 'autre organisateur');
+      showResult(false, nom.trim() || token, 'Déjà scanné · ' + row.TimestampScan + ' · par ' + par, conf, off, false, sessionType);
+      beep(false); vibrate([70, 40, 70]);
+    } else {
+      const now = new Date();
+      row.TimestampScan = formatTS(now); row.ScannePar = myId; row._pending = true;
+      outbox.push({ token: token, sessionId: conf.id, time: now.toISOString() });
+      persistOutbox(); schedulePersist(); renderStats(); updateSyncUI();
+      showResult(true, nom.trim() || token, 'Accès autorisé', conf, off, true, sessionType);
+      beep(true); vibrate(60);
+      flushOutbox();
+    }
+  } else {
+    const rows = byToken.get(token) || [];
+    let hint = 'Code inconnu ou statut non autorisé.';
+    let sessionType = '';
+    if (rows.length) {
+      const atel = rows.find(r => r.SessionID.indexOf('ATEL') === 0 && atelierConfId(r.SessionID) === conf.id);
+      if (atel) {
+        hint = 'Attendu en atelier sur ce créneau → ' + atel.SessionID;
+        sessionType = getSessionType(atel.SessionID);
+      } else {
+        hint = 'Participant connu, mais non attendu sur ' + conf.id + '.';
+      }
+    }
+    showResult(false, token, hint, conf, off, false, sessionType);
+    beep(false); vibrate([70, 40, 70]);
+  }
+  setTimeout(finishScan, 3000);
+}
+
+function showResult(ok, nom, message, conf, off, pending, sessionType) {
+  const now = new Date();
+  const typeBadge = sessionType ? '<div class="session-type-badge">' + esc(sessionType) + '</div>' : '';
+  $('result').innerHTML =
+    '<div class="result-card ' + (ok ? 'success' : 'error') + (off ? ' off-live' : '') + '">' +
+    '<div class="ribbon-off">⚠ Enregistré hors session en cours</div>' +
+    '<div class="icon"><i class="fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-xmark') + '"></i></div>' +
+    '<div class="name">' + esc(nom) + '</div>' +
+    '<div class="message">' + esc(message) + '</div>' +
+    typeBadge +
+    (conf ? '<div class="session-tag"><i class="fa-solid fa-tag" style="margin-right:6px;opacity:.7;"></i>' + esc(conf.id + ' · ' + conf.deb + '–' + conf.fin) + '</div>' : '') +
+    (pending ? '<div><span class="pending-chip"><i class="fa-solid fa-cloud-arrow-up"></i> Envoi en arrière-plan</span></div>' : '') +
+    '<div class="time">' + now.toLocaleDateString('fr-FR') + ' · ' + now.toLocaleTimeString('fr-FR') + '</div></div>';
+}
+
+// ===================== FLASH =====================
+async function toggleTorch() {
+  if (!torchSupported || !scanner) return;
+  try {
+    torchOn = !torchOn;
+    await scanner.applyVideoConstraints({ advanced: [{ torch: torchOn }] });
+  } catch (e) { torchOn = false; toast('Flash indisponible sur cet appareil.', 'err'); }
+  renderTorch();
+}
+function renderTorch() {
+  const b = $('torchBtn');
+  b.disabled = !torchSupported;
+  b.classList.toggle('on', torchOn);
+  $('torchLabel').textContent = torchOn ? 'Flash ON' : 'Flash';
+  b.title = torchSupported ? 'Allumer / éteindre le flash' : 'Flash non supporté par cet appareil';
+}
+
+// ===================== SON / VIBRATION / TOASTS =====================
+function toggleSound() {
+  soundOn = !soundOn;
+  localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0');
+  renderSound();
+  if (soundOn) beep(true);
+}
+function renderSound() {
+  const b = $('soundBtn');
+  b.classList.toggle('off', !soundOn);
+  b.innerHTML = '<i class="fa-solid ' + (soundOn ? 'fa-volume-high' : 'fa-volume-xmark') + '"></i>';
+  b.title = soundOn ? 'Couper le son' : 'Réactiver le son';
+}
+function vibrate(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+function beep(ok) {
+  if (!soundOn) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    if (ok) {
+      o.frequency.value = 880; g.gain.setValueAtTime(.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .15);
+      o.start(); o.stop(ctx.currentTime + .15);
+      setTimeout(() => { const o2 = ctx.createOscillator(), g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1175; g2.gain.setValueAtTime(.3, ctx.currentTime); g2.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .12); o2.start(); o2.stop(ctx.currentTime + .12); }, 150);
+    } else {
+      o.frequency.value = 196; g.gain.setValueAtTime(.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .4);
+      o.start(); o.stop(ctx.currentTime + .4);
+    }
+  } catch (e) {}
+}
+function warnBeep() {
+  if (!soundOn) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 180].forEach(d => setTimeout(() => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'square'; o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 330; g.gain.setValueAtTime(.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .12);
+      o.start(); o.stop(ctx.currentTime + .12);
+    }, d));
+  } catch (e) {}
+}
+function toast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  t.innerHTML = '<i class="fa-solid ' + (type === 'ok' ? 'fa-circle-check' : type === 'err' ? 'fa-triangle-exclamation' : 'fa-circle-info') + '"></i>' + esc(msg);
+  $('toasts').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .4s'; setTimeout(() => t.remove(), 400); }, 3500);
+}
+function retourAccueil() { window.location.href = '../app.html'; }
+</script>
+</body>
+</html>
