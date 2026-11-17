@@ -161,18 +161,62 @@ button { font-family: inherit; touch-action: manipulation; }
 .torch-btn.on { background: rgba(251,191,36,.28); border-color: var(--amber); color: #fff; box-shadow: 0 0 16px rgba(251,191,36,.55); }
 .torch-btn:disabled { opacity: .35; cursor: not-allowed; }
 
+  
 /* Scanner : cadre compact centré, vidéo à hauteur native */
-.reader-wrap { position: relative; }
+.reader-wrap { position: relative; max-width: 320px; margin: 0 auto; }
 #reader {
   border: 2px solid rgba(0,242,254,.4);
   border-radius: 12px;
   overflow: hidden;
   background: #000;
-  max-width: 320px;
-  margin: 0 auto;
   box-shadow: inset 0 0 24px rgba(0,242,254,.1);
 }
 #reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
+
+/* ==== RÉSULTAT DU SCAN : OVERLAY SUR LA CAMÉRA ==== */
+#result {
+  position: absolute; inset: 0; z-index: 20;
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  background: rgba(5, 8, 17, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 10px 8px;
+  overflow: hidden;
+  pointer-events: none;
+}
+#result.visible { display: flex; animation: zoomIn .25s cubic-bezier(.175,.885,.32,1.275); }
+#result.success { border: 2px solid rgba(16,185,129,.65); box-shadow: inset 0 0 26px rgba(16,185,129,.25); }
+#result.error   { border: 2px solid rgba(255,0,127,.65); box-shadow: inset 0 0 26px rgba(255,0,127,.25); }
+#result .r-icon { font-size: 30px; margin-bottom: 4px; }
+#result.success .r-icon { color: var(--green); filter: drop-shadow(0 0 8px rgba(16,185,129,.7)); }
+#result.error .r-icon { color: var(--magenta); filter: drop-shadow(0 0 8px rgba(255,0,127,.7)); }
+#result .r-name { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .5px; line-height: 1.25; margin-bottom: 3px; word-break: break-word; }
+#result.success .r-name { color: #6ee7b7; }
+#result.error .r-name { color: #ff8ec7; }
+#result .r-msg { font-size: 11px; color: #cbd5e1; line-height: 1.35; margin-bottom: 6px; word-break: break-word; }
+#result .r-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 14px;
+  font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  background: rgba(0,242,254,.15); border: 1px solid rgba(0,242,254,.5); color: var(--cyan);
+  margin-bottom: 5px;
+}
+#result.error .r-badge { background: rgba(255,0,127,.15); border-color: rgba(255,0,127,.5); color: #ff8ec7; }
+#result .r-tag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted); }
+#result .r-pending { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #fde68a; margin-top: 4px; }
+#result .r-off {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 3px 6px;
+  background: repeating-linear-gradient(45deg, rgba(255,45,85,.9) 0 8px, rgba(180,20,50,.9) 8px 16px);
+  color: #fff; font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  animation: bannerBlink 1s steps(2) infinite;
+}
+
+  
 .scanline { position: absolute; left: 6%; right: 6%; height: 2px; top: 10%; pointer-events: none; z-index: 5;
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
   box-shadow: 0 0 12px var(--cyan); opacity: .7; animation: scanMove 2.6s ease-in-out infinite; }
@@ -303,10 +347,13 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
       <h3><i class="fa-solid fa-qrcode"></i> Scanner le badge</h3>
       <button class="torch-btn" id="torchBtn" onclick="toggleTorch()" disabled><i class="fa-solid fa-bolt"></i> <span id="torchLabel">Flash</span></button>
     </div>
+
     <div class="reader-wrap">
       <div id="reader"></div>
       <div class="scanline" id="scanline"></div>
+      <div id="result"></div>
     </div>
+    
     <div class="manual-section">
       <h4>✍️ Saisie manuelle (si QR illisible)</h4>
       <div class="input-group">
@@ -316,7 +363,7 @@ input[type="text"]::placeholder { color: #475569; letter-spacing: .5px; text-tra
     </div>
   </div>
 
-  <div id="result"></div>
+
 
   <div class="panel sync-panel">
     <div class="sync-row">
@@ -727,7 +774,9 @@ function checkManualCode() {
 
 function finishScan() {
   processing = false;
-  $('result').innerHTML = '';
+  const el = $('result');
+  el.classList.remove('visible', 'success', 'error');
+  el.innerHTML = '';
   $('scanline').style.display = '';
   try { if (scanner) scanner.resume(); } catch (e) {}
 }
@@ -792,18 +841,17 @@ function verifyCode(token) {
 }
 
 function showResult(ok, nom, message, conf, off, pending, sessionType) {
-  const now = new Date();
-  const typeBadge = sessionType ? '<div class="session-type-badge">' + esc(sessionType) + '</div>' : '';
-  $('result').innerHTML =
-    '<div class="result-card ' + (ok ? 'success' : 'error') + (off ? ' off-live' : '') + '">' +
-    '<div class="ribbon-off">⚠ Enregistré hors session en cours</div>' +
-    '<div class="icon"><i class="fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-xmark') + '"></i></div>' +
-    '<div class="name">' + esc(nom) + '</div>' +
-    '<div class="message">' + esc(message) + '</div>' +
-    typeBadge +
-    (conf ? '<div class="session-tag"><i class="fa-solid fa-tag" style="margin-right:6px;opacity:.7;"></i>' + esc(conf.id + ' · ' + conf.deb + '–' + conf.fin) + '</div>' : '') +
-    (pending ? '<div><span class="pending-chip"><i class="fa-solid fa-cloud-arrow-up"></i> Envoi en arrière-plan</span></div>' : '') +
-    '<div class="time">' + now.toLocaleDateString('fr-FR') + ' · ' + now.toLocaleTimeString('fr-FR') + '</div></div>';
+  const el = $('result');
+  el.className = '';
+  el.innerHTML =
+    (off ? '<div class="r-off">⚠ Hors session en cours</div>' : '') +
+    '<div class="r-icon"><i class="fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-xmark') + '"></i></div>' +
+    '<div class="r-name">' + esc(nom) + '</div>' +
+    '<div class="r-msg">' + esc(message) + '</div>' +
+    (sessionType ? '<div class="r-badge">' + esc(sessionType) + '</div>' : '') +
+    (conf ? '<div class="r-tag">' + esc(conf.id + ' · ' + conf.deb + '–' + conf.fin) + '</div>' : '') +
+    (pending ? '<div class="r-pending"><i class="fa-solid fa-cloud-arrow-up"></i> envoi en arrière-plan</div>' : '');
+  el.classList.add('visible', ok ? 'success' : 'error');
 }
 
 // ===================== FLASH =====================
