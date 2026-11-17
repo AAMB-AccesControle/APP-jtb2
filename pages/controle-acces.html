@@ -166,9 +166,16 @@ button { font-family: inherit; touch-action: manipulation; }
 
 /* Scanner */
 .reader-wrap { position: relative; }
-#reader { border: 2px solid rgba(0,242,254,.4); border-radius: 12px; overflow: hidden; background: #000; min-height: 240px; box-shadow: inset 0 0 24px rgba(0,242,254,.1); }
-#reader video { border-radius: 10px; width: 100% !important; height: auto !important; }
-.scanline { position: absolute; left: 6%; right: 6%; height: 2px; top: 10%; pointer-events: none; z-index: 5;
+#reader { 
+  border: 2px solid rgba(0,242,254,.4); 
+  border-radius: 12px; 
+  overflow: hidden; 
+  background: #000; 
+  min-height: 140px;       /* Hauteur minimale réduite */
+  max-height: 180px;       /* Force la fenêtre à ne pas dépasser cette hauteur */
+  box-shadow: inset 0 0 24px rgba(0,242,254,.1); 
+}
+#reader video { border-radius: 10px; width: 100% !important; height: 100% !important; object-fit: cover; }.scanline { position: absolute; left: 6%; right: 6%; height: 2px; top: 10%; pointer-events: none; z-index: 5;
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
   box-shadow: 0 0 12px var(--cyan); opacity: .7; animation: scanMove 2.6s ease-in-out infinite; }
 @keyframes scanMove { 0%,100% { top: 12%; } 50% { top: 86%; } }
@@ -670,14 +677,18 @@ async function flushOutbox() {
 function startScanner() {
   try {
     scanner = new Html5Qrcode('reader');
-    scanner.start(
+
+      scanner.start(
       { facingMode: 'environment' },
       {
         fps: 10,
-        qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * 0.85); return { width: s, height: s }; },
+        qrbox: (w, h) => { 
+          return { width: Math.min(w, 280), height: Math.min(h, 150) }; 
+        },
         experimentalFeatures: { useBarCodeDetectorIfSupported: true }
       },
-      text => {
+    
+    text => {
         if (processing) return;
         processing = true;
         try { scanner.pause(true); } catch (e) {}
