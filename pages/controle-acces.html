@@ -395,10 +395,41 @@ function formatTS(d) {
   return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
 }
 function parseFR(dateStr, hm) {
-  const m = String(dateStr || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!dateStr) return null;
+  let dStr = String(dateStr).trim();
+  
+  // Format 1: AAAA-MM-JJ (ex: 2026-11-18)
+  let m = dStr.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  
+  // Format 2: JJ/MM/AAAA (ex: 18/11/2026) -> le plus courant en cas de conversion Sheets
+  if (!m) {
+    const m2 = dStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m2) {
+      // On réorganise pour que la suite du code trouve [match, AAAA, MM, JJ]
+      m = [m2[0], m2[3], m2[2], m2[1]];
+    }
+  }
+  
+  // Format 3: AAAA/MM/JJ (ex: 2026/11/18)
+  if (!m) {
+    m = dStr.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+  }
+
   const t = String(hm || '').match(/(\d{1,2}):(\d{2})/);
-  if (!m) return null;
-  return new Date(+m[1], +m[2] - 1, +m[3], t ? +t[1] : 0, t ? +t[2] : 0).getTime();
+  
+  if (!m) {
+    console.error("⚠️ Impossible de lire la date:", dateStr, "avec l'heure:", hm);
+    return null;
+  }
+  
+  // m[1] = année, m[2] = mois, m[3] = jour
+  const year = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10) - 1; // Les mois commencent à 0 en JavaScript
+  const day = parseInt(m[3], 10);
+  const hour = t ? parseInt(t[1], 10) : 0;
+  const minute = t ? parseInt(t[2], 10) : 0;
+
+  return new Date(year, month, day, hour, minute).getTime();
 }
 
 // ===================== INIT =====================
