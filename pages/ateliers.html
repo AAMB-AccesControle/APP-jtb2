@@ -236,8 +236,11 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 8px;
+        max-height: 160px;
+        overflow-y: auto;
+        padding-right: 4px;
     }
-    @media (max-width: 600px) { #inscriptionsList { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { #inscriptionsList { grid-template-columns: 1fr; max-height: 180px; } }
 
     .inscription-item {
         display: flex;
@@ -259,8 +262,6 @@
     .insc-row-ok .status { color: #6ee7b7; }
     .insc-row-new { border-left: 3px solid #fbbf24; }
     .insc-row-new .status { color: #fde68a; }
-    .insc-row-lock { border-left: 3px solid #64748b; opacity: 0.8; }
-    .insc-row-lock .status { color: #94a3b8; }
 
     .btn-annuler {
         padding: 4px 10px;
@@ -276,12 +277,6 @@
         transition: all 0.2s;
     }
     .btn-annuler:hover { background: rgba(255, 0, 127, 0.35); box-shadow: 0 0 10px rgba(255, 0, 127, 0.4); }
-    .lock-tag {
-        font-size: 11px;
-        color: #94a3b8;
-        font-weight: 700;
-        font-family: 'JetBrains Mono', monospace;
-    }
 
     /* ==== ATELIERS LAYOUT ==== */
     .ateliers-layout {
@@ -532,7 +527,7 @@
         <!-- Engagement Box -->
         <div class="engagement-box glass-panel">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span><strong>Engagement :</strong> l'inscription à un atelier engage à y participer. Annulation impossible <strong>moins de 24 h avant</strong>. Inscription possible jusqu'à la dernière minute s'il reste des places.</span>
+            <span><strong>Engagement :</strong> l'inscription à un atelier engage à y participer. Inscription possible jusqu'à la dernière minute s'il reste des places.</span>
         </div>
 
         <!-- Presence Section -->
@@ -591,9 +586,7 @@
 
     <script src="../js/commun.js"></script>
     <script>
-        // URL du script de gestion des ateliers (à adapter si besoin)
         const ATELIERS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxd-OrPenxxN6qLVS3aeVukqCGlFhojVbqLzzKB8Y_9oBKOgKIcNRac53GGrN4lnO4/exec';
-        const MS_24H = 24 * 3600 * 1000;
         
         let ateliersState = null;
         let currentToken = '';
@@ -612,7 +605,6 @@
             document.getElementById('userDetails').textContent = adherent.etablissement + ' • ' + adherent.statut;
 
             try {
-                // Récupérer les présences existantes si l'utilisateur a déjà commencé
                 const resp = await fetch(SCRIPT_URL + '?token=' + encodeURIComponent(currentToken));
                 const data = await resp.json();
                 if (data.success) {
@@ -666,7 +658,7 @@
                         const s = ateliersState.sessions.find(x => x.id === id);
                         if (!s) { selectedSessions.delete(id); retires.push('(supprimé)'); return; }
                         const dejaEnregistre = ateliersState.mesInscriptions.some(m => m.id === id);
-                        if (!dejaEnregistre && (s.complet || (s.startMs && nowC >= s.startMs))) {
+                        if (!dejaEnregistre && s.complet) {
                             selectedSessions.delete(id);
                             retires.push(s.libelle);
                         }
@@ -697,7 +689,6 @@
             };
         }
 
-        // ---- Helpers dates/heures ----
         function normDate(v) {
             const s = String(v || '').trim();
             const m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
@@ -742,7 +733,6 @@
             return key ? filters[key] === true : false;
         }
 
-        // ---- Rendu principal ----
         function renderAteliers() {
             if (!ateliersState) return;
             const config = ateliersState.config || { vague: 1, ouvertes: true, capacite: 20, quota: 2, seuil: 5 };
@@ -751,7 +741,6 @@
             const mesInscriptions = Array.isArray(ateliersState.mesInscriptions) ? ateliersState.mesInscriptions : [];
             const filters = getPresenceFilters();
             const anyPresence = filters.merMatin || filters.merAprem || filters.jeuMatin || filters.jeuAprem;
-            const nowC = parisNowClient();
 
             const quotaInfo = document.getElementById('quotaInfo');
             if (config.quota === 0) {
@@ -769,7 +758,6 @@
                 return;
             }
 
-            // Inscriptions actuelles
             const inscriptionsActuelles = document.getElementById('inscriptionsActuelles');
             const inscriptionsList = document.getElementById('inscriptionsList');
             const idsSelectionnes = Array.from(selectedSessions);
@@ -787,19 +775,15 @@
                     const s = sessions.find(x => x.id === id);
                     if (!s) return '';
                     const dejaEnregistre = mesInscriptions.some(function (m) { return m.id === id; });
-                    const locked = dejaEnregistre && s.startMs && nowC >= s.startMs - MS_24H;
-                    const rowClass = locked ? 'insc-row-lock' : (dejaEnregistre ? 'insc-row-ok' : 'insc-row-new');
-                    const statut = locked ? '🔒 ENGAGÉ' : (dejaEnregistre ? '✅ ENREGISTRÉ' : '➕ À ENREGISTRER');
-                    const action = locked
-                        ? '<span class="lock-tag">J-24h</span>'
-                        : '<button class="btn-annuler" onclick="toggleSession(\'' + id + '\', true)">Annuler</button>';
+                    const rowClass = dejaEnregistre ? 'insc-row-ok' : 'insc-row-new';
+                    const statut = dejaEnregistre ? '✅ ENREGISTRÉ' : '➕ À ENREGISTRER';
+                    const action = '<button class="btn-annuler" onclick="toggleSession(\'' + id + '\', true)">Annuler</button>';
                     return '<div class="inscription-item ' + rowClass + '"><div><span class="status">' + statut + '</span><span class="libelle">' + s.libelle + '</span><small class="horaire">' + libelleCreneauFR(s) + '</small></div>' + action + '</div>';
                 }).join('');
             } else {
                 inscriptionsActuelles.style.display = 'none';
             }
 
-            // Filtrage et regroupement
             const filteredSessions = anyPresence ? sessions.filter(function (s) { return sessionMatchesPresence(s, filters); }) : sessions;
             const groupes = {};
             filteredSessions.forEach(function (s) {
@@ -821,10 +805,9 @@
                     const headerLabel = libelleDateFR(parts[0]) + ' • ' + parts[1] + '-' + normHM(premier.heureFin);
                     html += '<div class="creneau-group"><div class="creneau-header">' + headerLabel + '</div><div class="creneau-body">';
                     groupes[key].forEach(function (s) {
-                        const isStarted = !!s.startMs && nowC >= s.startMs;
                         const isSelected = selectedSessions.has(s.id);
-                        const isComplet = (s.complet || isStarted) && !isSelected;
-                        const isPresque = !s.complet && !isStarted && s.placesRestantes <= seuil;
+                        const isComplet = s.complet && !isSelected;
+                        const isPresque = !s.complet && s.placesRestantes <= seuil;
                         
                         let cardClass = 'atelier-card';
                         if (isSelected) cardClass += ' selected';
@@ -832,8 +815,7 @@
                         else if (isPresque) cardClass += ' presque-complet';
                         
                         let badgeClass, badgeText;
-                        if (isStarted) { badgeClass = 'atelier-badge complet'; badgeText = 'COMMENCÉ'; }
-                        else if (s.complet) { badgeClass = 'atelier-badge complet'; badgeText = 'COMPLET'; }
+                        if (s.complet) { badgeClass = 'atelier-badge complet'; badgeText = 'COMPLET'; }
                         else if (isPresque) { badgeClass = 'atelier-badge presque'; badgeText = s.placesRestantes + '/' + s.capacite + ' ⚠'; }
                         else { badgeClass = 'atelier-badge places'; badgeText = s.placesRestantes + '/' + s.capacite; }
                         
@@ -850,7 +832,6 @@
                 main.innerHTML = html;
             }
 
-            // Sidebar
             const sidebar = document.getElementById('sidebarList');
             if (!anyPresence) {
                 sidebar.innerHTML = '<div style="color:#64748b;font-size:12px;text-align:center;padding:20px;">Cochez vos présences pour voir les places.</div>';
@@ -862,21 +843,11 @@
             }
         }
 
-        // ---- Sélection / annulation ----
         function toggleSession(sessionId, currentlySelected) {
             const errorMsg = document.getElementById('errorMsg');
             errorMsg.style.display = 'none';
 
             if (currentlySelected) {
-                const sessions0 = ateliersState.sessions || [];
-                const s0 = sessions0.find(x => x.id === sessionId);
-                const deja0 = ateliersState.mesInscriptions.some(m => m.id === sessionId);
-                if (deja0 && s0 && s0.startMs && parisNowClient() >= s0.startMs - MS_24H) {
-                    errorMsg.textContent = '🔒 Annulation impossible : moins de 24 h avant cet atelier. L\'inscription engage à y participer.';
-                    errorMsg.style.display = 'block';
-                    renderAteliers();
-                    return;
-                }
                 selectedSessions.delete(sessionId);
                 renderAteliers();
                 return;
@@ -886,12 +857,6 @@
             const session = sessions.find(s => s.id === sessionId);
             if (!session) { renderAteliers(); return; }
 
-            if (session.startMs && parisNowClient() >= session.startMs) {
-                errorMsg.textContent = '⚠️ Inscription fermée : cet atelier a déjà commencé.';
-                errorMsg.style.display = 'block';
-                renderAteliers();
-                return;
-            }
             if (session.complet) {
                 errorMsg.textContent = '⚠️ Session complète : ' + session.libelle;
                 errorMsg.style.display = 'block';
@@ -918,13 +883,11 @@
             renderAteliers();
         }
 
-        // ---- Envoi ----
         async function submitForm() {
             if (!currentToken) { alert('⚠️ Session non identifiée.'); return; }
             await refreshStateSilently();
             
             const sessionsP = ateliersState.sessions || [];
-            const nowP = parisNowClient();
             const problemes = [];
             
             Array.from(selectedSessions).forEach(id => {
@@ -932,16 +895,6 @@
                 if (!s) return;
                 const deja = ateliersState.mesInscriptions.some(m => m.id === id);
                 if (!deja && s.complet) problemes.push('"' + s.libelle + '" : plus de place disponible');
-                if (!deja && s.startMs && nowP >= s.startMs) problemes.push('"' + s.libelle + '" : atelier déjà commencé');
-            });
-            
-            ateliersState.mesInscriptions.forEach(m => {
-                if (selectedSessions.has(m.id)) return;
-                const s = sessionsP.find(x => x.id === m.id);
-                if (s && s.startMs && nowP >= s.startMs - MS_24H) {
-                    selectedSessions.add(m.id);
-                    problemes.push('Annulation refusée (J-24h) : "' + s.libelle + '" reste inscrit');
-                }
             });
             
             if (problemes.length) {
