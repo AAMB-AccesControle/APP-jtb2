@@ -586,7 +586,8 @@
 
     <script src="../js/commun.js"></script>
     <script>
-        const ATELIERS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxd-OrPenxxN6qLVS3aeVukqCGlFhojVbqLzzKB8Y_9oBKOgKIcNRac53GGrN4lnO4/exec';
+         // On utilise SCRIPT_URL qui est déjà défini dans commun.js et pointe vers le classeur Identification
+         const ATELIERS_SCRIPT_URL = SCRIPT_URL; 
         
         let ateliersState = null;
         let currentToken = '';
@@ -907,7 +908,7 @@
 
             const adherent = chargerAdherent();
             const payload = {
-                action: 'update',
+                action: 'inscrireAtelier',
                 token: currentToken,
                 lastName: adherent.nom,
                 firstName: adherent.prenom,
