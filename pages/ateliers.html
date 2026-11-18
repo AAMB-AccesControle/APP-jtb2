@@ -653,7 +653,6 @@
                     if (data.nowMs) offsetMs = data.nowMs - Date.now();
                     
                     const retires = [];
-                    const nowC = parisNowClient();
                     Array.from(selectedSessions).forEach(function (id) {
                         const s = ateliersState.sessions.find(x => x.id === id);
                         if (!s) { selectedSessions.delete(id); retires.push('(supprimé)'); return; }
