@@ -523,12 +523,21 @@ async function loadSessions() {
 function computeLive() {
   if (!confSessions.length) { liveIdx = 0; selIdx = 0; return; }
   const now = Date.now();
-  liveIdx = confSessions.findIndex(s => s.endMs >= now);
-  if (liveIdx < 0) liveIdx = confSessions.length - 1;
-  const min = Math.max(0, liveIdx - 1), max = Math.min(confSessions.length - 1, liveIdx + 1);
-  if (selIdx < min || selIdx > max) selIdx = liveIdx;
+  // Tolérance de 15 min AVANT le début officiel : la session "live" est celle
+  // dont la fin est >= now ET dont le début est <= now + 15min
+  const EARLY_MS = 15 * 60 * 1000;
+  liveIdx = confSessions.findIndex(s => s.endMs >= now && s.startMs <= now + EARLY_MS);
+  if (liveIdx < 0) {
+    // Aucune session "en cours" → prendre la prochaine à venir
+    liveIdx = confSessions.findIndex(s => s.startMs > now);
+    if (liveIdx < 0) liveIdx = confSessions.length - 1; // toutes passées → dernière
+  }
+  // Ne pas forcer selIdx : laisser l'utilisateur où il est (navigation libre)
 }
-function navBounds() { return [Math.max(0, liveIdx - 1), Math.min(confSessions.length - 1, liveIdx + 1)]; }
+function navBounds() { 
+  // Navigation libre : de la première à la dernière conférence
+  return [0, confSessions.length - 1]; 
+}
 function navSession(d) {
   const [min, max] = navBounds();
   const n = selIdx + d;
@@ -808,17 +817,27 @@ function verifyCode(token) {
   if (row) {
     const nom = (row.Prenom || '') + ' ' + (row.Nom || '');
     const sessionType = getSessionType(row.SessionID);
+    
     if (String(row.TimestampScan || '').trim()) {
-      const par = up(row.ScannePar) === myId ? 'vous' : (row.ScannePar || 'autre organisateur');
-      showResult(false, nom.trim() || token, 'Déjà scanné · ' + row.TimestampScan + ' · par ' + par, conf, off, false, sessionType);
-      beep(false); vibrate([70, 40, 70]);
+      // DÉJÀ SCANNÉ : on affiche quand même "Accès autorisé" + infos
+      // mais on NE COMPTE PAS à nouveau (pas d'ajout à l'outbox)
+      showResult(true, nom.trim() || token, 'Accès autorisé', conf, off, false, sessionType);
+      beep(true); 
+      vibrate(60);
     } else {
+      // PREMIER SCAN : on compte ET on affiche
       const now = new Date();
-      row.TimestampScan = formatTS(now); row.ScannePar = myId; row._pending = true;
+      row.TimestampScan = formatTS(now); 
+      row.ScannePar = myId; 
+      row._pending = true;
       outbox.push({ token: token, sessionId: conf.id, time: now.toISOString() });
-      persistOutbox(); schedulePersist(); renderStats(); updateSyncUI();
+      persistOutbox(); 
+      schedulePersist(); 
+      renderStats(); 
+      updateSyncUI();
       showResult(true, nom.trim() || token, 'Accès autorisé', conf, off, true, sessionType);
-      beep(true); vibrate(60);
+      beep(true); 
+      vibrate(60);
       flushOutbox();
     }
   } else {
@@ -835,7 +854,8 @@ function verifyCode(token) {
       }
     }
     showResult(false, token, hint, conf, off, false, sessionType);
-    beep(false); vibrate([70, 40, 70]);
+    beep(false); 
+    vibrate([70, 40, 70]);
   }
   setTimeout(finishScan, 3000);
 }
