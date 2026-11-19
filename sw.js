@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aamb-v3';
+const CACHE_NAME = 'aamb-v4';
 const STATIC_ASSETS = [
     './', './app.html', './index.html', './manifest.json',
     './js/commun.js', './logo-aamb.png', './icon-192.png', './icon-512.png'
